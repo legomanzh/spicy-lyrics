@@ -1,0 +1,14 @@
+[
+	{
+		"name": "Spicy Lyrics",
+		"description": "Better lyrics for Spotify",
+		"preview": "./previews/extension.gif",
+		"main": "./builds/spicy-lyrics.mjs",
+		"readme": "README.md",
+		"branch": "main",
+		"authors": [
+			{ "name": "Spikerko", "url": "https://github.com/SpikeNew7774" }
+		],
+		"tags": ["lyrics", "spicy-lyrics", "word-to-word-lyrics"]
+	}
+]
