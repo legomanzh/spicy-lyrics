@@ -7,7 +7,6 @@ import { setSettingsMenu } from "./functions/settings";
 import DisplayLyricsPage, { DestroyLyricsPage } from "./components/PageView";
 import { Icons } from "./components/Icons";
 import ApplyDynamicBackground from "./components/dynamicBackground";
-import { Maid } from "@spikerko/web-modules/Maid";
 // Currently Unused: import hasLyrics from "./functions/hasLyrics";
 
 async function main() {
@@ -203,7 +202,6 @@ async function main() {
     })
   }
 
-  // You can also register the button to the player later.
   button.register();
 
   button.tippy.setContent("Spicy Lyrics");
@@ -220,7 +218,17 @@ async function main() {
 
 }
 
-const ImporterMaid = new Maid();
+/* 
+
+// Add this into the code after build.
+
+let ImporterMaid;
+
+// ... code ...
+
+ImporterMaid = new Maid(); // Do this when you find atleast one maid in the compiled code after it.
+
+// ... code ...
 
 export const UpdateNotice = {
 	Type: "Notification",
@@ -228,6 +236,12 @@ export const UpdateNotice = {
 }
 
 export { ImporterMaid }
+
+And then Minimize it.
+
+(Reccomened: https://codebeautify.org/minify-js)
+
+*/
 
 
 export default main;

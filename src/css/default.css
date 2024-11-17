@@ -337,6 +337,7 @@
 
 #LyricsPageContainer .lyricsParent .lyrics .line.musical-line.Active {
   transform: scale(1);
+  font-size: 0px !important;
 }
 
 #LyricsPageContainer .lyricsParent .lyrics .line:has(.bg-word) {
@@ -345,6 +346,7 @@
 
 #LyricsPageContainer .lyricsParent .lyrics .line.musical-line .dotGroup {
   transform: scale(0);
+  font-size: 0px !important;
 }
 
 #LyricsPageContainer .lyricsParent .lyrics .line.musical-line.Active .dotGroup {
@@ -360,20 +362,20 @@
   border-radius: 50%;
   transition: all ease-in 0.3s;
   transform: scale(1);
+  font-size: 70px !important;
   animation: none;
   opacity: 1;
 }
 
 #LyricsPageContainer .lyricsParent .lyrics .line.musical-line.Active .dotGroup .dot.Active {
- /*  font-size: 70.4px !important;
-  bottom: 0.13em; */
+  font-size: 70.4px !important;
   transform: scale(1.2) translateY(-0.13em);
   animation: musicalElemAnim ease-in-out 8s infinite;
   opacity: 1;
 }
 
 #LyricsPageContainer .lyricsParent .lyrics .line.musical-line .dotGroup .dot {
-  font-size: 70px !important;
+  font-size: 0px !important;
   transform: scale(0);
   opacity: 0;
 }
@@ -428,10 +430,8 @@
   margin-right: 14cqw;
 }
 
-#LyricsPageContainer .lyricsParent .lyrics .line.musical-line.NotSung,
-#LyricsPageContainer .lyricsParent .lyrics .line.musical-line.Sung {
-  font-size: 70px !important;
-  transform: scale(0);
+#LyricsPageContainer .lyricsParent .lyrics .line.musical-line {
+  font-size: 0px !important;
   transition: all 0.25s ease-in-out;
   animation: none;
 }
