@@ -2,7 +2,7 @@
 	{
 		"name": "Spicy Lyrics",
 		"description": "Better lyrics for Spotify",
-		"preview": "./previews/extension.gif",
+		"preview": "./previews/preview.gif",
 		"main": "./builds/spicy-lyrics.mjs",
 		"readme": "README.md",
 		"branch": "main",
