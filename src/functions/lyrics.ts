@@ -3,6 +3,7 @@ import ScrollToPlugin from 'gsap/ScrollToPlugin';
 import storage from './storage';
 import { Interval } from '@spikerko/web-modules/Scheduler';
 import { Maid } from '@spikerko/web-modules/Maid';
+import { IntervalManager } from './IntervalManager';
 
 gsap.registerPlugin(ScrollToPlugin); 
 
@@ -40,6 +41,16 @@ export function checkLowQStatus() {
 
 export function syllableLyrics(data) {
   if (!document.querySelector("#LyricsPageContainer .lyricsParent .lyrics")) return
+
+  removeAllStyles(document.querySelector("#LyricsPageContainer .lyricsParent .lyrics"))
+
+  if (data.classes) {
+    document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").className = data.classes;
+  }
+
+  if (data.styles) {
+    applyStyles(document.querySelector("#LyricsPageContainer .lyricsParent .lyrics"), data.styles);
+  }
 /*   const topSpace = document.createElement("div")
   topSpace.classList.add("topSpace")
   document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(topSpace) */
@@ -383,7 +394,17 @@ export function syllableLyrics(data) {
   
   export function lineLyrics(data) {
     if (!document.querySelector("#LyricsPageContainer .lyricsParent .lyrics")) return
-    
+
+    removeAllStyles(document.querySelector("#LyricsPageContainer .lyricsParent .lyrics"))
+
+    if (data.classes) {
+      document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").className = data.classes;
+    }
+
+    if (data.styles) {
+      applyStyles(document.querySelector("#LyricsPageContainer .lyricsParent .lyrics"), data.styles);
+    }
+
 /*     const topSpace = document.createElement("div")
     topSpace.classList.add("topSpace")
     document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(topSpace) */
@@ -615,18 +636,47 @@ export function syllableLyrics(data) {
   scrollToActiveLine(true);
   }
 
+function applyStyles(element, styles) {
+    if (element) {
+        Object.entries(styles).forEach(([key, value]) => {
+            element.style[key] = value;
+        });
+    } else {
+        console.warn("Element not found");
+    }
+}
+
+function removeAllStyles(element) {
+    if (element) {
+        element.style = null
+    } else {
+        console.warn("Element not found");
+    }
+}
+
+
   export function staticLyrics(data) {
     if (!document.querySelector("#LyricsPageContainer .lyricsParent .lyrics")) return
     if (document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").classList.contains("offline")) {
       document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").classList.remove("offline");
     }
+
+    if (data.offline) {
+      document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").classList.add("offline");
+    }
+
+    removeAllStyles(document.querySelector("#LyricsPageContainer .lyricsParent .lyrics"))
+
+    if (data.classes) {
+      document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").className = data.classes;
+    }
+
+    if (data.styles) {
+      applyStyles(document.querySelector("#LyricsPageContainer .lyricsParent .lyrics"), data.styles);
+    }
     
     data.Lines.forEach((line, index, arr) => {
       const lineElem = document.createElement("div")
-
-      if (data.offline) {
-        document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").classList.add("offline");
-      }
       
       if (line.Text.includes("[DEF=font_size:small]")) {
         lineElem.style.fontSize = "35px"
@@ -1220,23 +1270,17 @@ export function stopLyricsInInt() {
   cancelAnimationFrame(animFrameId);
 }
 
-let RestartAnimationFrameMaid = null;
 
-export function RefreshAnimationFrameInterval() {
-  RestartAnimationFrameMaid = new Maid()
-
-  const RestartInterval = Interval(15, () => {
-    if (storage.get("intRunning") === "true") {
-      stopLyricsInInt();
-      runLiiInt();
-      console.log("Restarted Lyrics Animation Frame")
-    }
-  })
-
-  RestartAnimationFrameMaid.Give(RestartInterval)
-
-  return {
-    Interval: RestartInterval,
-    Maid: RestartAnimationFrameMaid
+const RefreshAnimationFrameInterval = new IntervalManager(5, () => {
+  if (storage.get("intRunning") === "true") {
+    stopLyricsInInt();
+    runLiiInt();
+    console.log("Restarted Lyrics Animation Frame")
   }
+});
+
+const AnimationFrameInterval = {
+  Refresher: RefreshAnimationFrameInterval,
 }
+
+export { AnimationFrameInterval }
