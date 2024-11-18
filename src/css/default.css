@@ -235,12 +235,13 @@
   --StrongTextGlowDef: rgba(255,255,255,0.68) 0px 0px 16.4px;
   --StrongerTextGlowDef: rgba(255,255,255,0.74) 0px 0px 16px;
   --IdleLyricsOpacity: 0.65;
+  --DefaultLyricsSize: clamp(1.85rem,calc(1cqw* 7), 3.5rem);
 
   overflow-x: hidden;
   overflow-y: auto;
   height: 100cqh;
   width: 98%;
-  font-size: 55px !important;
+  font-size: var(--DefaultLyricsSize) !important;
   transition: all 240ms ease-in-out;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
@@ -382,7 +383,7 @@
 
 
 #LyricsPageContainer .lyricsParent .lyrics .line .letterGroup:has(.word.Active) .word.Active {
-  transform: scale(1.04) translateY(-0.078em) !important;
+  transform: scale(1.04) translateY(-0.09em) !important;
   text-shadow: var(--StrongerTextGlowDef) !important;
 }
 
@@ -432,7 +433,7 @@
 }
 
 #LyricsPageContainer .lyricsParent .lyrics .line .bg-word {
-  font-size: 37px !important;
+  font-size: calc(var(--DefaultLyricsSize)*0.75) !important;
   font-family: "LyricsRegular";
 }
 
