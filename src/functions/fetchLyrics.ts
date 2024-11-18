@@ -28,6 +28,8 @@ export default async function fetchLyrics(uri: string) {
         document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").innerHTML = "";
     }
 
+    // I'm not sure if this will entirely work, because in my country the Spotify DJ isn't available. So if anybody finds out that this doesn't work, please let me know.
+    if (Spicetify.Player.data.item.type === "DJ") return DJMessage(); 
 
     const trackId = uri.split(":")[2];
     
@@ -234,6 +236,12 @@ function noLyricsMessage() {
         alternative_api: false,
         offline: false,
         id: Spicetify.Player.data.item.uri.split(":")[2],
+        styles: {
+            display: "flex",
+            "align-items": "center",
+            "justify-content": "center",
+            "flex-direction": "column"
+        },
         Lines: [
             {
                 Text: "No Lyrics Found"
@@ -269,6 +277,45 @@ function urOfflineMessage() {
             },
             {
                 Text: "[DEF=font_size:small]This extension works only if you're online."
+            }
+        ]
+    };
+    
+
+    storage.set("currentlyFetching", "false");
+
+    if (document.querySelector("#LyricsPageContainer .lyricsParent .loaderContainer")) {
+        document.querySelector("#LyricsPageContainer .lyricsParent .loaderContainer").classList.remove("active");
+    }
+
+    if (document.querySelector("#LyricsPageContainer .lyricsParent .lyrics")) {
+        document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").innerHTML = "";
+    }
+
+    stopLyricsInInt();
+
+    return Message;
+}
+
+function DJMessage() {
+    const Message = {
+        Type: "Static",
+        alternative_api: false,
+        styles: {
+            display: "flex",
+            "align-items": "center",
+            "justify-content": "center",
+            "flex-direction": "column"
+        },
+        Lines: [
+            {
+                Text: "DJ Mode is On"
+            },
+            {
+                Text: ""
+            },
+            {
+                Text: "[DEF=font_size:small]If you want to load lyrics, please select a Song."
             }
         ]
     };

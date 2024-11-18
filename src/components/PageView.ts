@@ -1,8 +1,8 @@
 import fetchLyrics from "../functions/fetchLyrics";
 import "../css/default.css";
 import storage from "../functions/storage";
-import "../css/loader1.css"
-import { syllableLyrics, lineLyrics, staticLyrics, runLiiInt, checkLowQStatus, stopLyricsInInt, RefreshAnimationFrameInterval } from "../functions/lyrics";
+import "../css/loader2.css"
+import { syllableLyrics, lineLyrics, staticLyrics, runLiiInt, checkLowQStatus, stopLyricsInInt, AnimationFrameInterval } from "../functions/lyrics";
 import ApplyDynamicBackground from "./dynamicBackground";
 /* function firstFetched() {
     return storage.get("")
@@ -22,7 +22,7 @@ export default function DisplayLyricsPage() {
     elem.innerHTML = `
         <div class="lyricsParent">
             <div class="loaderContainer">
-                <div id="Loader1"></div>
+                <div id="ArcadeLoader"></div>
             </div>
             <h3 class="informationBox"></h3><br />
             <div class="lyrics"></div>
@@ -53,7 +53,10 @@ export default function DisplayLyricsPage() {
             storage.set("lastFetchedUri", currentUri);
         });
     }
-    RefreshAnimationFrameInterval();
+    console.log(AnimationFrameInterval.Refresher.Running)
+    AnimationFrameInterval.Refresher.Running ?
+        AnimationFrameInterval.Refresher.Restart() :
+        AnimationFrameInterval.Refresher.Start();
         /* 
 
         const firstFetched = storage.get("fetchedFirst");
@@ -249,5 +252,6 @@ export function DestroyLyricsPage() {
     if (!PageRoot.querySelector("#LyricsPageContainer")) return
     PageRoot.querySelector("#LyricsPageContainer")?.remove();
     stopLyricsInInt();
-    RefreshAnimationFrameInterval().Maid.Destroy();
+    AnimationFrameInterval.Refresher.Stop();
+    console.log(AnimationFrameInterval.Refresher.Running)
 }
