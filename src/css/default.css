@@ -316,6 +316,10 @@
   display: inline-block;
 }
 
+#LyricsPageContainer .lyricsParent .lyrics .line.OppositeAligned {
+  text-align: end;
+}
+
 /* #LyricsPageContainer .lyricsParent .lyrics .line {
   --blur-px: 0px;
 } */
