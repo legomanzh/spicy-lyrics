@@ -53,7 +53,6 @@ export default function DisplayLyricsPage() {
             storage.set("lastFetchedUri", currentUri);
         });
     }
-    console.log(AnimationFrameInterval.Refresher.Running)
     AnimationFrameInterval.Refresher.Running ?
         AnimationFrameInterval.Refresher.Restart() :
         AnimationFrameInterval.Refresher.Start();
@@ -253,5 +252,4 @@ export function DestroyLyricsPage() {
     PageRoot.querySelector("#LyricsPageContainer")?.remove();
     stopLyricsInInt();
     AnimationFrameInterval.Refresher.Stop();
-    console.log(AnimationFrameInterval.Refresher.Running)
 }

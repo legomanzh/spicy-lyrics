@@ -1275,7 +1275,6 @@ const RefreshAnimationFrameInterval = new IntervalManager(5, () => {
   if (storage.get("intRunning") === "true") {
     stopLyricsInInt();
     runLiiInt();
-    console.log("Restarted Lyrics Animation Frame")
   }
 });
 
