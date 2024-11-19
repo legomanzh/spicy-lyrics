@@ -1,7 +1,6 @@
 import gsap from 'gsap';
 import ScrollToPlugin from 'gsap/ScrollToPlugin';
 import storage from './storage';
-import { Interval } from '@spikerko/web-modules/Scheduler';
 import { Maid } from '@spikerko/web-modules/Maid';
 import { IntervalManager } from './IntervalManager';
 
@@ -148,12 +147,12 @@ export function syllableLyrics(data) {
         let word = document.createElement("span")
         //word.textContent = lead.Text
         const totalDuration = convertTime(lead.EndTime) - convertTime(lead.StartTime);
-        if (totalDuration >= 1050) {
+        if (totalDuration >= 1200) {
           word = document.createElement("div")
           const letters = lead.Text.split(""); // Split word into individual letters
-          const letterDuration = (totalDuration - 10) / letters.length; // Duration per letter
+          const letterDuration = (totalDuration - 70) / letters.length; // Duration per letter
           
-          letters.forEach((letter, index) => {
+          letters.forEach((letter, index, lA) => {
             const letterElem = document.createElement("span");
             letterElem.textContent = letter;
             letterElem.classList.add("word");
@@ -165,14 +164,17 @@ export function syllableLyrics(data) {
             letterElem.setAttribute("start", letterStartTime);
             letterElem.setAttribute("end", letterEndTime);
             letterElem.setAttribute("total", letterDuration);
-            
+
+            index !== lA.length - 1 ? letterElem.classList.add("PartOfWord") : null
+
             word.appendChild(letterElem);
           });
-          word.classList.add("letterGroup")
-          lineElem.appendChild(word);
-          if (!lead.IsPartOfWord) {
-            lineElem.append(" ")
+          word.classList.add("letterGroup");
+          if (lead.IsPartOfWord) {
+            word.classList.add("PartOfWord");
           }
+          lineElem.appendChild(word);
+          
         } else {
           word.textContent = lead.Text;
   
@@ -191,12 +193,12 @@ export function syllableLyrics(data) {
           
     
           word.classList.add("word");
+
+          if (lead.IsPartOfWord) {
+            word.classList.add("PartOfWord");
+          }
   
           lineElem.appendChild(word);
-  
-          if (!lead.IsPartOfWord) {
-            lineElem.append(" ")
-          }
         }
   
        
@@ -245,10 +247,11 @@ export function syllableLyrics(data) {
             bwE.style.setProperty("--gradient-alpha-end", "0.4")
             bwE.style.setProperty("--gradient-degrees", "90deg") */
            // bwE.style.opacity = globalOpacityLyr
-            lineE.appendChild(bwE)
-            if (!bw.IsPartOfWord) {
-              lineE.append(" ")
+
+            if (bw.IsPartOfWord) {
+              bwE.classList.add("PartOfWord");
             }
+            lineE.appendChild(bwE)
           })
         })
       }
@@ -708,7 +711,13 @@ function startLyricsInInt(position) {
           } else if (edtrackpos <= line.getAttribute("end") || arr[index + 1].getAttribute("start") <= edtrackpos) {
             line.classList.remove('lnc')
           } */
-          if (line.getAttribute("start") <= edtrackpos && edtrackpos <= line.getAttribute("end")) {
+
+          const lineTimes = {
+            start: line.getAttribute("start"),
+            end: line.getAttribute("end"),
+            total: line.getAttribute("total")
+          }
+          if (lineTimes.start <= edtrackpos && edtrackpos <= lineTimes.end) {
             //line.style.opacity = "1"
             //line.style.color = "#FFFFFF"
             //line.style.filter = "blur(0px)"
@@ -735,7 +744,14 @@ function startLyricsInInt(position) {
             if (line.classList.contains("Sung")) line.classList.remove("Sung");
             if (line.classList.contains("NotSung")) line.classList.remove("NotSung")
             line.querySelectorAll(".word").forEach((word, index, arr) => {
-              if (word.getAttribute("start") <= edtrackpos && edtrackpos <= word.getAttribute("end")) {
+
+              const wordTimes = {
+                start: word.getAttribute("start"),
+                end: word.getAttribute("end"),
+                total: word.getAttribute("total")
+              }
+
+              if (wordTimes.start <= edtrackpos && edtrackpos <= wordTimes.end) {
                 //word.style.opacity = "1"
                 //word.style.color = "#FFFFFF"
                 //word.style.filter = "blur(0px)"
@@ -787,8 +803,8 @@ function startLyricsInInt(position) {
                 if (lowQModeEnabled) {
                   word.style.setProperty("--gradient-position", `100%`)
                 } else {
-                  const totalDuration = word.getAttribute("total");
-                  const elapsedDuration = edtrackpos - word.getAttribute("start");
+                  const totalDuration = wordTimes.total;
+                  const elapsedDuration = edtrackpos - wordTimes.start;
                   const percentage = (elapsedDuration / totalDuration) * 100;
 
                   word.style.setProperty("--gradient-position", `${percentage}%`)
@@ -802,7 +818,7 @@ function startLyricsInInt(position) {
                 if (!word.classList.contains("Active")) word.classList.add("Active");
                 if (word.classList.contains("Sung")) word.classList.remove("Sung");
                 if (word.classList.contains("NotSung")) word.classList.remove("NotSung")
-              } else if (word.getAttribute("start") >= edtrackpos) {
+              } else if (wordTimes.start >= edtrackpos) {
                 // este bude
                 //if (!word.classList.contains("crepl") && !word.classList.contains("close-to-class")) {
                   //word.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 100%)"
@@ -818,7 +834,7 @@ function startLyricsInInt(position) {
                   if (!word.classList.contains("NotSung")) word.classList.add("NotSung");
                   if (word.classList.contains("Sung")) word.classList.remove("Sung");
                 //}
-              } else if (edtrackpos >= word.getAttribute("end")) {
+              } else if (edtrackpos >= wordTimes.start) {
                 //uz bolo
                 //if (!word.classList.contains("crepl")) {
                   //word.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 100%)"
@@ -852,7 +868,7 @@ function startLyricsInInt(position) {
                 }
               } */
             })
-          } else if (line.getAttribute("start") >= edtrackpos) {
+          } else if (lineTimes.start >= edtrackpos) {
             //este bude
             //if (!line.classList.contains("crepl")) {
               //line.style.opacity = globalOpacityLyr
@@ -879,7 +895,7 @@ function startLyricsInInt(position) {
                 if (!word.classList.contains("NotSung")) word.classList.add("NotSung")
               //}
             })
-          } else if (edtrackpos >= line.getAttribute("end")) {
+          } else if (edtrackpos >= lineTimes.end) {
             // us bolo
 
            // if (!line.classList.contains("crepl")) {
@@ -927,7 +943,14 @@ function startLyricsInInt(position) {
         } else if (edtrackpos <= line.getAttribute("end") || arr[index + 1].getAttribute("start") <= edtrackpos) {
           line.classList.remove('lnc')
         } */
-        if (line.getAttribute("start") <= edtrackpos && edtrackpos <= line.getAttribute("end")) {
+
+          const lineTimes = {
+            start: line.getAttribute("start"),
+            end: line.getAttribute("end"),
+            total: line.getAttribute("total")
+          }
+
+        if (lineTimes.start <= edtrackpos && edtrackpos <= lineTimes.end) {
          // line.style.opacity = "1"
           //line.style.color = "#FFFFFF"
           //line.style.filter = "blur(0px)"
@@ -994,7 +1017,7 @@ function startLyricsInInt(position) {
           if (!line.classList.contains("Active")) line.classList.add("Active");
           if (line.classList.contains("Sung")) line.classList.remove("Sung");
           if (line.classList.contains("NotSung")) line.classList.remove("NotSung")
-        } else if (line.getAttribute("start") >= edtrackpos) {
+        } else if (lineTimes.start >= edtrackpos) {
           //este bude
         //  if (!line.classList.contains("crepl")) {
             //line.style.opacity = globalOpacityLyr
@@ -1007,7 +1030,7 @@ function startLyricsInInt(position) {
             if (line.classList.contains("Sung")) line.classList.remove("Sung");
             if (!line.classList.contains("NotSung")) line.classList.add("NotSung")
          // }
-        } else if (edtrackpos >= line.getAttribute("end")) {
+        } else if (edtrackpos >= lineTimes.end) {
           //us bolo
           //if (!line.classList.contains("crepl")) {
            // line.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.4) 100%)"
@@ -1213,6 +1236,7 @@ const RefreshAnimationFrameInterval = new IntervalManager(5, () => {
 
 
 let LinesEvListenerMaid;
+let LinesEvListenerExists;
 
 function LinesEvListener(e) {
   if (e.target.classList.contains("line")) {
@@ -1229,6 +1253,10 @@ function LinesEvListener(e) {
 }
 
 export function addLinesEvListener() {
+
+  if (LinesEvListenerExists) return
+  LinesEvListenerExists = true;
+
   LinesEvListenerMaid = new Maid();
 
   const el = document.querySelector<HTMLElement>("#LyricsPageContainer .lyricsParent .lyrics");
@@ -1238,6 +1266,9 @@ export function addLinesEvListener() {
 }
 
 export function removeLinesEvListener() {
+  if (!LinesEvListenerExists) return
+  LinesEvListenerExists = false;
+
   const el = document.querySelector<HTMLElement>("#LyricsPageContainer .lyricsParent .lyrics");
   if (!el) return
   el.removeEventListener("click", LinesEvListener)
