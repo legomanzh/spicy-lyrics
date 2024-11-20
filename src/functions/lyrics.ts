@@ -3,6 +3,7 @@ import ScrollToPlugin from 'gsap/ScrollToPlugin';
 import storage from './storage';
 import { Maid } from '@spikerko/web-modules/Maid';
 import { IntervalManager } from './IntervalManager';
+import Logger from './Logger';
 
 gsap.registerPlugin(ScrollToPlugin); 
 
@@ -56,8 +57,43 @@ export function checkLowQStatus() {
   }
 }
 
+let LyricsObject = {
+  Types: {
+    Syllable: {
+      Lines: []
+    },
+    Line: {
+      Lines: []
+    },
+    Static: {}
+  }
+}
+
+let CurrentLineLyricsObject = LyricsObject.Types.Syllable.Lines.length - 1;
+
+function SetWordArrayInAllLines() {
+  LyricsObject.Types.Syllable.Lines.forEach((_, i) => {
+    LyricsObject.Types.Syllable.Lines[i].Syllables = {};
+    LyricsObject.Types.Syllable.Lines[i].Syllables.Lead = [];
+  })
+}
+
+function SetWordArrayInCurentLine() {
+  CurrentLineLyricsObject = LyricsObject.Types.Syllable.Lines.length - 1;
+
+  LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables = {};
+  LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead = [];
+}
+
+function ClearLyricsContentArrays() {
+  LyricsObject.Types.Syllable.Lines = []
+  LyricsObject.Types.Line.Lines = []
+  LyricsObject.Types.Static = {}
+}
+
 export function syllableLyrics(data) {
   if (!document.querySelector("#LyricsPageContainer .lyricsParent .lyrics")) return
+  ClearLyricsContentArrays();
 
   removeAllStyles(document.querySelector("#LyricsPageContainer .lyricsParent .lyrics"))
 
@@ -76,9 +112,18 @@ export function syllableLyrics(data) {
     const musicalLine = document.createElement("div")
     musicalLine.classList.add("line")
     musicalLine.classList.add("musical-line")
-    musicalLine.setAttribute("start", "0")
+    /* musicalLine.setAttribute("start", "0")
     musicalLine.setAttribute("end", convertTime(data.StartTime))
-    musicalLine.setAttribute("total", convertTime(data.StartTime))
+    musicalLine.setAttribute("total", convertTime(data.StartTime)) */
+    LyricsObject.Types.Syllable.Lines.push({
+      HTMLElement: musicalLine,
+      StartTime: 0,
+      EndTime: convertTime(data.StartTime),
+      TotalTime: convertTime(data.StartTime)
+    })
+
+    SetWordArrayInCurentLine();
+
     if (data.Content[0].OppositeAligned) {
       musicalLine.classList.add("OppositeAligned")
     }
@@ -96,23 +141,42 @@ export function syllableLyrics(data) {
     musicalDots1.classList.add("word");
     musicalDots1.classList.add("dot");
     musicalDots1.textContent = "•";
-    musicalDots1.setAttribute("start", 0);
+    /* musicalDots1.setAttribute("start", 0);
     musicalDots1.setAttribute("end", dotTime);
-    musicalDots1.setAttribute("total", dotTime);
+    musicalDots1.setAttribute("total", dotTime); */
+    LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
+      HTMLElement: musicalDots1,
+      StartTime: 0,
+      EndTime: dotTime,
+      TotalTime: dotTime
+    })
 
     musicalDots2.classList.add("word");
     musicalDots2.classList.add("dot");
     musicalDots2.textContent = "•";
-    musicalDots2.setAttribute("start", dotTime);
+    /* musicalDots2.setAttribute("start", dotTime);
     musicalDots2.setAttribute("end", dotTime * 2);
-    musicalDots2.setAttribute("total", dotTime);
+    musicalDots2.setAttribute("total", dotTime); */
+    LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
+      HTMLElement: musicalDots2,
+      StartTime: dotTime,
+      EndTime: dotTime * 2,
+      TotalTime: dotTime
+    })
 
     musicalDots3.classList.add("word");
     musicalDots3.classList.add("dot");
     musicalDots3.textContent = "•";
-    musicalDots3.setAttribute("start", dotTime * 2);
+    /* musicalDots3.setAttribute("start", dotTime * 2);
     musicalDots3.setAttribute("end", convertTime(data.StartTime) - 400);
-    musicalDots3.setAttribute("total", dotTime);
+    musicalDots3.setAttribute("total", dotTime); */
+
+    LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
+      HTMLElement: musicalDots3,
+      StartTime: dotTime * 2,
+      EndTime: convertTime(data.StartTime) - 400,
+      TotalTime: dotTime
+    })
 
     dotGroup.appendChild(musicalDots1);
     dotGroup.appendChild(musicalDots2);
@@ -125,9 +189,18 @@ export function syllableLyrics(data) {
       const lineElem = document.createElement("div")
       lineElem.classList.add("line")
       //const lastWordEndTime = line.Lead.Syllables[line.Lead.Syllables.length - 1].EndTime;
-      lineElem.setAttribute("start", convertTime(line.Lead.StartTime))
+      /* lineElem.setAttribute("start", convertTime(line.Lead.StartTime))
       lineElem.setAttribute("end", convertTime(line.Lead.EndTime))
-      lineElem.setAttribute("total", convertTime(line.Lead.EndTime) - convertTime(line.Lead.StartTime))
+      lineElem.setAttribute("total", convertTime(line.Lead.EndTime) - convertTime(line.Lead.StartTime)) */
+
+      LyricsObject.Types.Syllable.Lines.push({
+        HTMLElement: lineElem,
+        StartTime: convertTime(line.Lead.StartTime),
+        EndTime: convertTime(line.Lead.EndTime),
+        TotalTime: convertTime(line.Lead.EndTime) - convertTime(line.Lead.StartTime)
+      });
+
+      SetWordArrayInCurentLine();
   
       //
       //lineElem.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.4) 100%)"
@@ -161,11 +234,14 @@ export function syllableLyrics(data) {
   
       
   
-      line.Lead.Syllables.forEach(lead => {
+      line.Lead.Syllables.forEach((lead, iL, aL) => {
         let word = document.createElement("span")
         //word.textContent = lead.Text
         const totalDuration = convertTime(lead.EndTime) - convertTime(lead.StartTime);
-        if (totalDuration >= 1620 && lead.Text.split("").length < 12) {
+
+        const IfLetterCapable = lead.Text.split("").length <= 5 && totalDuration >= 950 ? true : totalDuration >= 1620 && lead.Text.split("").length < 12
+
+        if (IfLetterCapable) {
           word = document.createElement("div")
           const letters = lead.Text.split(""); // Split word into individual letters
           const letterDuration = (totalDuration - 70) / letters.length; // Duration per letter
@@ -179,26 +255,37 @@ export function syllableLyrics(data) {
             const letterStartTime = convertTime(lead.StartTime) + index * letterDuration;
             const letterEndTime = letterStartTime + letterDuration;
   
-            letterElem.setAttribute("start", letterStartTime);
+            /* letterElem.setAttribute("start", letterStartTime);
             letterElem.setAttribute("end", letterEndTime);
-            letterElem.setAttribute("total", letterDuration);
+            letterElem.setAttribute("total", letterDuration); */
 
-            index !== lA.length - 1 ? letterElem.classList.add("PartOfWord") : null
+            index === lA.length - 1 ? lead.IsPartOfWord ? letterElem.classList.add("PartOfWord") : null : letterElem.classList.add("PartOfWord"); 
 
             word.appendChild(letterElem);
+
+            LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
+              HTMLElement: letterElem,
+              StartTime: letterStartTime,
+              EndTime: letterEndTime,
+              TotalTime: totalDuration
+            })
           });
           word.classList.add("letterGroup");
           if (lead.IsPartOfWord) {
             word.classList.add("PartOfWord");
           }
+
           lineElem.appendChild(word);
           
         } else {
           word.textContent = lead.Text;
   
-          word.setAttribute("start", convertTime(lead.StartTime))
+          /* word.setAttribute("start", convertTime(lead.StartTime))
           word.setAttribute("end", convertTime(lead.EndTime))
-          word.setAttribute("total", totalDuration)
+          word.setAttribute("total", totalDuration) */
+
+          
+
           //word.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.4) 100%)"
          /*  word.style.setProperty("--gradient-position", "100%")
           word.style.setProperty("--gradient-alpha", "0.4")
@@ -217,6 +304,13 @@ export function syllableLyrics(data) {
           }
   
           lineElem.appendChild(word);
+
+          LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
+            HTMLElement: word,
+            StartTime: convertTime(lead.StartTime),
+            EndTime: convertTime(lead.EndTime),
+            TotalTime: totalDuration
+          })
         }
   
        
@@ -238,9 +332,16 @@ export function syllableLyrics(data) {
         line.Background.forEach((bg) => {
           const lineE = document.createElement("div");
           lineE.classList.add("line")
-          lineE.setAttribute("start", convertTime(bg.StartTime))
+          /* lineE.setAttribute("start", convertTime(bg.StartTime))
           lineE.setAttribute("end", convertTime(bg.EndTime))
-          lineE.setAttribute("total", convertTime(bg.EndTime) - convertTime(bg.StartTime))
+          lineE.setAttribute("total", convertTime(bg.EndTime) - convertTime(bg.StartTime)) */
+          LyricsObject.Types.Syllable.Lines.push({
+            HTMLElement: lineE,
+            StartTime: convertTime(bg.StartTime),
+            EndTime: convertTime(bg.EndTime),
+            TotalTime: convertTime(bg.EndTime) - convertTime(bg.StartTime)
+          })
+          SetWordArrayInCurentLine();
           //lineE.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 100%)"
           /* lineE.style.setProperty("--gradient-position", "100%")
           lineE.style.setProperty("--gradient-alpha", "0.4")
@@ -254,9 +355,17 @@ export function syllableLyrics(data) {
           bg.Syllables.forEach(bw => {
             const bwE = document.createElement("span")
             bwE.textContent = bw.Text
-            bwE.setAttribute("start", convertTime(bw.StartTime))
+            /* bwE.setAttribute("start", convertTime(bw.StartTime))
             bwE.setAttribute("end", convertTime(bw.EndTime))
-            bwE.setAttribute("total", convertTime(bw.EndTime) - convertTime(bw.StartTime))
+            bwE.setAttribute("total", convertTime(bw.EndTime) - convertTime(bw.StartTime)) */
+
+            LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
+              HTMLElement: bwE,
+              StartTime: convertTime(bw.StartTime),
+              EndTime: convertTime(bw.EndTime),
+              TotalTime: convertTime(bw.EndTime) - convertTime(bw.StartTime)
+            })
+
             bwE.classList.add("bg-word")
             bwE.classList.add("word")
             //bwE.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 100%)"
@@ -284,9 +393,19 @@ export function syllableLyrics(data) {
           musicalLine.style.setProperty("--gradient-alpha-end", "0.4")
           musicalLine.style.setProperty("--gradient-degrees", "90deg") */
           //musicalLine.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.4) 100%)"
-          musicalLine.setAttribute("start", convertTime(line.Lead.EndTime))
+          /* musicalLine.setAttribute("start", convertTime(line.Lead.EndTime))
           musicalLine.setAttribute("end", convertTime(arr[index + 1].Lead.StartTime))
-          musicalLine.setAttribute("total", convertTime(arr[index + 1].Lead.StartTime) - convertTime(line.Lead.EndTime))
+          musicalLine.setAttribute("total", convertTime(arr[index + 1].Lead.StartTime) - convertTime(line.Lead.EndTime)) */
+
+          LyricsObject.Types.Syllable.Lines.push({
+            HTMLElement: musicalLine,
+            StartTime: convertTime(line.Lead.EndTime),
+            EndTime: convertTime(arr[index + 1].Lead.StartTime),
+            TotalTime: convertTime(arr[index + 1].Lead.StartTime) - convertTime(line.Lead.EndTime)
+          })
+
+          SetWordArrayInCurentLine();
+
           if (line.OppositeAligned) {
             musicalLine.classList.add("OppositeAligned")
           }
@@ -304,23 +423,44 @@ export function syllableLyrics(data) {
           musicalDots1.classList.add("word");
           musicalDots1.classList.add("dot");
           musicalDots1.textContent = "•";
-          musicalDots1.setAttribute("start", convertTime(line.Lead.EndTime));
+          /* musicalDots1.setAttribute("start", convertTime(line.Lead.EndTime));
           musicalDots1.setAttribute("end", convertTime(line.Lead.EndTime) + dotTime);
-          musicalDots1.setAttribute("total", dotTime);
+          musicalDots1.setAttribute("total", dotTime); */
+
+          LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
+            HTMLElement: musicalDots1,
+            StartTime: convertTime(line.Lead.EndTime),
+            EndTime: convertTime(line.Lead.EndTime) + dotTime,
+            TotalTime: dotTime
+          })
       
           musicalDots2.classList.add("word");
           musicalDots2.classList.add("dot");
           musicalDots2.textContent = "•";
-          musicalDots2.setAttribute("start", convertTime(line.Lead.EndTime) + dotTime);
+          /* musicalDots2.setAttribute("start", convertTime(line.Lead.EndTime) + dotTime);
           musicalDots2.setAttribute("end", convertTime(line.Lead.EndTime) + (dotTime * 2));
-          musicalDots2.setAttribute("total", dotTime);
+          musicalDots2.setAttribute("total", dotTime); */
+
+          LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
+            HTMLElement: musicalDots2,
+            StartTime: convertTime(line.Lead.EndTime) + dotTime,
+            EndTime: convertTime(line.Lead.EndTime) + (dotTime * 2),
+            TotalTime: dotTime
+          })
       
           musicalDots3.classList.add("word");
           musicalDots3.classList.add("dot");
           musicalDots3.textContent = "•";
-          musicalDots3.setAttribute("start", convertTime(line.Lead.EndTime) + (dotTime * 2));
+          /* musicalDots3.setAttribute("start", convertTime(line.Lead.EndTime) + (dotTime * 2));
           musicalDots3.setAttribute("end", convertTime(arr[index + 1].Lead.StartTime) - 400);
-          musicalDots3.setAttribute("total", dotTime);
+          musicalDots3.setAttribute("total", dotTime); */
+
+          LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
+            HTMLElement: musicalDots3,
+            StartTime: convertTime(line.Lead.EndTime) + (dotTime * 2),
+            EndTime: convertTime(arr[index + 1].Lead.StartTime) - 400,
+            TotalTime: dotTime
+          })
       
           dotGroup.appendChild(musicalDots1);
           dotGroup.appendChild(musicalDots2);
@@ -360,10 +500,13 @@ export function syllableLyrics(data) {
 
   //}) 
       scrollToActiveLine(true);
+      console.log(LyricsObject)
   }
   
   export function lineLyrics(data) {
     if (!document.querySelector("#LyricsPageContainer .lyricsParent .lyrics")) return
+
+    ClearLyricsContentArrays();
 
     removeAllStyles(document.querySelector("#LyricsPageContainer .lyricsParent .lyrics"))
 
@@ -383,9 +526,18 @@ export function syllableLyrics(data) {
         const musicalLine = document.createElement("div")
         musicalLine.classList.add("line")
         musicalLine.classList.add("musical-line")
-        musicalLine.setAttribute("start", "0")
+        /* musicalLine.setAttribute("start", "0")
         musicalLine.setAttribute("end", convertTime(data.StartTime))
-        musicalLine.setAttribute("total", convertTime(data.StartTime))
+        musicalLine.setAttribute("total", convertTime(data.StartTime)) */
+
+        LyricsObject.Types.Line.Lines.push({
+          HTMLElement: musicalLine,
+          StartTime: 0,
+          EndTime: convertTime(data.StartTime),
+          TotalTime: convertTime(data.StartTime)
+        })
+    
+
         if (data.Content[0].OppositeAligned) {
           musicalLine.classList.add("OppositeAligned")
         }
@@ -403,23 +555,23 @@ export function syllableLyrics(data) {
         musicalDots1.classList.add("word");
         musicalDots1.classList.add("dot");
         musicalDots1.textContent = "•";
-        musicalDots1.setAttribute("start", 0);
+        /* musicalDots1.setAttribute("start", 0);
         musicalDots1.setAttribute("end", dotTime);
-        musicalDots1.setAttribute("total", dotTime);
+        musicalDots1.setAttribute("total", dotTime); */
 
         musicalDots2.classList.add("word");
         musicalDots2.classList.add("dot");
         musicalDots2.textContent = "•";
-        musicalDots2.setAttribute("start", dotTime);
+        /* musicalDots2.setAttribute("start", dotTime);
         musicalDots2.setAttribute("end", dotTime * 2);
-        musicalDots2.setAttribute("total", dotTime);
+        musicalDots2.setAttribute("total", dotTime); */
 
         musicalDots3.classList.add("word");
         musicalDots3.classList.add("dot");
         musicalDots3.textContent = "•";
-        musicalDots3.setAttribute("start", dotTime * 2);
+        /* musicalDots3.setAttribute("start", dotTime * 2);
         musicalDots3.setAttribute("end", convertTime(data.StartTime) - 400);
-        musicalDots3.setAttribute("total", dotTime);
+        musicalDots3.setAttribute("total", dotTime); */
     
         dotGroup.appendChild(musicalDots1);
         dotGroup.appendChild(musicalDots2);
@@ -428,6 +580,8 @@ export function syllableLyrics(data) {
         musicalLine.appendChild(dotGroup);
         document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(musicalLine)
       }
+
+
     data.Content.forEach((line, index, arr) => {
       const lineElem = document.createElement("div")
       lineElem.textContent = line.Text
@@ -438,9 +592,18 @@ export function syllableLyrics(data) {
           lineElem.style.setProperty("--gradient-alpha-end", "0.4")
           lineElem.style.setProperty("--gradient-degrees", "90deg") */
       //lineElem.style.opacity = globalOpacityLyr
-      lineElem.setAttribute("start", convertTime(line.StartTime))
+      /* lineElem.setAttribute("start", convertTime(line.StartTime))
       lineElem.setAttribute("end", convertTime(line.EndTime))
-      lineElem.setAttribute("total", convertTime(line.EndTime) - convertTime(line.StartTime))
+      lineElem.setAttribute("total", convertTime(line.EndTime) - convertTime(line.StartTime)) */
+
+      LyricsObject.Types.Line.Lines.push({
+        HTMLElement: lineElem,
+        StartTime: convertTime(line.StartTime),
+        EndTime: convertTime(line.EndTime),
+        TotalTime: convertTime(line.EndTime) - convertTime(line.StartTime)
+      })
+  
+
       if (line.OppositeAligned) {
         lineElem.classList.add("OppositeAligned")
       }
@@ -483,9 +646,17 @@ export function syllableLyrics(data) {
             //lineE.style.fontSize = "20px"
             lineE.classList.add("bg-line")
             lineE.classList.add("line")
-            lineE.setAttribute("start", convertTime(bg.StartTime))
+            /* lineE.setAttribute("start", convertTime(bg.StartTime))
             lineE.setAttribute("end", convertTime(bg.EndTime))
-            lineE.setAttribute("total", convertTime(bg.EndTime) - convertTime(bg.StartTime))
+            lineE.setAttribute("total", convertTime(bg.EndTime) - convertTime(bg.StartTime)) */
+
+            LyricsObject.Types.Line.Lines.push({
+              HTMLElement: lineE,
+              StartTime: convertTime(bg.StartTime),
+              EndTime: convertTime(bg.EndTime),
+              TotalTime: convertTime(bg.EndTime) - convertTime(bg.StartTime)
+            })
+
             document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(lineE)
             /* bg.Syllables.forEach(bw => {
               const bwE = document.createElement("span")
@@ -512,9 +683,17 @@ export function syllableLyrics(data) {
             musicalLine.style.setProperty("--gradient-alpha-end", "0.4")
             musicalLine.style.setProperty("--gradient-degrees", "90deg") */
             //musicalLine.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.4) 100%)"
-            musicalLine.setAttribute("start", convertTime(line.Lead.EndTime))
+            /* musicalLine.setAttribute("start", convertTime(line.Lead.EndTime))
             musicalLine.setAttribute("end", convertTime(arr[index + 1].Lead.StartTime))
-            musicalLine.setAttribute("total", convertTime(arr[index + 1].Lead.StartTime) - convertTime(line.Lead.EndTime))
+            musicalLine.setAttribute("total", convertTime(arr[index + 1].Lead.StartTime) - convertTime(line.Lead.EndTime)) */
+
+            LyricsObject.Types.Line.Lines.push({
+              HTMLElement: lineElem,
+              StartTime: convertTime(line.Lead.EndTime),
+              EndTime: convertTime(arr[index + 1].Lead.StartTime),
+              TotalTime: convertTime(arr[index + 1].Lead.StartTime) - convertTime(line.Lead.EndTime)
+            })
+
             if (line.OppositeAligned) {
               musicalLine.classList.add("OppositeAligned")
             }
@@ -532,23 +711,23 @@ export function syllableLyrics(data) {
             musicalDots1.classList.add("word");
             musicalDots1.classList.add("dot");
             musicalDots1.textContent = "•";
-            musicalDots1.setAttribute("start", convertTime(line.Lead.EndTime));
+            /* musicalDots1.setAttribute("start", convertTime(line.Lead.EndTime));
             musicalDots1.setAttribute("end", convertTime(line.Lead.EndTime) + dotTime);
-            musicalDots1.setAttribute("total", dotTime);
+            musicalDots1.setAttribute("total", dotTime); */
         
             musicalDots2.classList.add("word");
             musicalDots2.classList.add("dot");
             musicalDots2.textContent = "•";
-            musicalDots2.setAttribute("start", convertTime(line.Lead.EndTime) + dotTime);
+            /* musicalDots2.setAttribute("start", convertTime(line.Lead.EndTime) + dotTime);
             musicalDots2.setAttribute("end", convertTime(line.Lead.EndTime) + (dotTime * 2));
-            musicalDots2.setAttribute("total", dotTime);
+            musicalDots2.setAttribute("total", dotTime); */
         
             musicalDots3.classList.add("word");
             musicalDots3.classList.add("dot");
             musicalDots3.textContent = "•";
-            musicalDots3.setAttribute("start", convertTime(line.Lead.EndTime) + (dotTime * 2));
+            /* musicalDots3.setAttribute("start", convertTime(line.Lead.EndTime) + (dotTime * 2));
             musicalDots3.setAttribute("end", convertTime(arr[index + 1].Lead.StartTime) - 400);
-            musicalDots3.setAttribute("total", dotTime);
+            musicalDots3.setAttribute("total", dotTime); */
         
             dotGroup.appendChild(musicalDots1);
             dotGroup.appendChild(musicalDots2);
@@ -615,6 +794,8 @@ function removeAllStyles(element) {
       document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").classList.remove("offline");
     }
 
+    ClearLyricsContentArrays();
+
     if (data.offline) {
       document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").classList.add("offline");
     }
@@ -643,6 +824,10 @@ function removeAllStyles(element) {
       lineElem.classList.add("static")
       //lineElem.setAttribute("start", convertTime(line.StartTime))
       //lineElem.setAttribute("end", convertTime(line.EndTime))
+
+      LyricsObject.Types.Static.Lines.push({
+        HTMLElement: lineElem,
+      })
       
       /* if (index === 0) {
         const topSpace = document.createElement("div")
@@ -718,7 +903,8 @@ function startLyricsInInt(position) {
         //if (lastEdTrackPos === edtrackpos) return
       //lastEdTrackPos = edtrackpos
       //if (document.querySelector('#LyricsPageContainer').classList.contains('active')) {
-        document.querySelectorAll("#LyricsPageContainer .lyricsParent .lyrics .line").forEach((line, index, arr) => {
+        //document.querySelectorAll("#LyricsPageContainer .lyricsParent .lyrics .line").forEach((line, index, arr) => {
+          LyricsObject.Types.Syllable.Lines.forEach((line, index, arr) => {
           /* if (edtrackpos >= line.getAttribute("end") && arr[index + 1].getAttribute("start") >= edtrackpos) {
             line.classList.add('lnc')
             line.style.color = "white"
@@ -730,11 +916,17 @@ function startLyricsInInt(position) {
             line.classList.remove('lnc')
           } */
 
-          const lineTimes = {
+          /* const lineTimes = {
             start: line.getAttribute("start"),
             end: line.getAttribute("end"),
             total: line.getAttribute("total")
-          }
+          } */
+
+            const lineTimes = {
+              start: line.StartTime,
+              end: line.EndTime,
+              total: line.EndTime - line.StartTime
+            }
           if (lineTimes.start <= edtrackpos && edtrackpos <= lineTimes.end) {
             //line.style.opacity = "1"
             //line.style.color = "#FFFFFF"
@@ -758,16 +950,22 @@ function startLyricsInInt(position) {
                   arr[i].style.setProperty("--blur-px", `${blurAmount}px`)
               } */
             
-            if (!line.classList.contains("Active")) line.classList.add("Active");
-            if (line.classList.contains("Sung")) line.classList.remove("Sung");
-            if (line.classList.contains("NotSung")) line.classList.remove("NotSung")
-            line.querySelectorAll(".word").forEach((word, index, arr) => {
+            if (!line.HTMLElement.classList.contains("Active")) line.HTMLElement.classList.add("Active");
+            if (line.HTMLElement.classList.contains("Sung")) line.HTMLElement.classList.remove("Sung");
+            if (line.HTMLElement.classList.contains("NotSung")) line.HTMLElement.classList.remove("NotSung")
+            line.Syllables.Lead.forEach((word, index, arr) => {
 
-              const wordTimes = {
+              /* const wordTimes = {
                 start: word.getAttribute("start"),
                 end: word.getAttribute("end"),
                 total: word.getAttribute("total")
-              }
+              } */
+
+                const wordTimes = {
+                  start: word.StartTime,
+                  end: word.EndTime,
+                  total: word.EndTime - word.StartTime
+                }
 
               if (wordTimes.start <= edtrackpos && edtrackpos <= wordTimes.end) {
                 //word.style.opacity = "1"
@@ -819,9 +1017,9 @@ function startLyricsInInt(position) {
                // }
 
                 if (lowQModeEnabled) {
-                  word.style.setProperty("--gradient-position", `100%`)
+                  word.HTMLElement.style.setProperty("--gradient-position", `100%`)
                 } else {
-                  const ifEmphasis = word.parentElement.classList.contains("letterGroup");
+                  const ifEmphasis = word.HTMLElement.parentElement.classList.contains("letterGroup");
 
                   const EmphasisBlur = {
                     min: lowQModeEnabled ? WordBlurs.Emphasis.LowQualityMode.min : WordBlurs.Emphasis.min,
@@ -840,19 +1038,20 @@ function startLyricsInInt(position) {
                   const elapsedDuration = edtrackpos - wordTimes.start;
                   const percentage = (elapsedDuration / totalDuration) * 100;
 
-                  word.style.setProperty("--gradient-position", `${percentage}%`);
+                  console.log(totalDuration, elapsedDuration, percentage, edtrackpos, wordTimes);
 
+                  word.HTMLElement.style.setProperty("--gradient-position", `${percentage}%`);
                   // Map percentage to the blur radius range
                   const textShadowBlurRadius = minBlur + (percentage / 100) * (maxBlur - minBlur);
                   const textShadowOpacityPercentageSetModes = lowQModeEnabled ? -30 : 45;
                   const textShadowOpacityPercentage = percentage + textShadowOpacityPercentageSetModes;
 
-                  word.style.setProperty("--text-shadow-opacity", `${textShadowOpacityPercentage}%`);
-                  word.style.setProperty("--text-shadow-blur-radius", `${textShadowBlurRadius}px`);
+                  word.HTMLElement.style.setProperty("--text-shadow-opacity", `${textShadowOpacityPercentage}%`);
+                  word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${textShadowBlurRadius}px`);
 
                   const TransitionDuration = totalDuration < 400 ? 500 : totalDuration;
                   
-                  word.style.setProperty("--TransitionDuration", `${TransitionDuration}ms`);
+                  word.HTMLElement.style.setProperty("--TransitionDuration", `${TransitionDuration}ms`);
 
                 }
                 /* word.style.setProperty("--gradient-alpha", "1")
@@ -860,9 +1059,9 @@ function startLyricsInInt(position) {
                 word.style.setProperty("--gradient-degrees", "90deg") */
                 
                 //word.style.setProperty("--lyr-gr-pos", `${percentage}%`)
-                if (!word.classList.contains("Active")) word.classList.add("Active");
-                if (word.classList.contains("Sung")) word.classList.remove("Sung");
-                if (word.classList.contains("NotSung")) word.classList.remove("NotSung")
+                if (!word.HTMLElement.classList.contains("Active")) word.HTMLElement.classList.add("Active");
+                if (word.HTMLElement.classList.contains("Sung")) word.HTMLElement.classList.remove("Sung");
+                if (word.HTMLElement.classList.contains("NotSung")) word.HTMLElement.classList.remove("NotSung")
               } else if (wordTimes.start >= edtrackpos) {
                 // este bude
                 //if (!word.classList.contains("crepl") && !word.classList.contains("close-to-class")) {
@@ -875,9 +1074,9 @@ function startLyricsInInt(position) {
                   word.style.setProperty("--gradient-alpha", "0.4")
                   word.style.setProperty("--gradient-alpha-end", "0.4")
                   word.style.setProperty("--gradient-degrees", "90deg") */
-                  if (word.classList.contains("Active")) word.classList.remove("Active");
-                  if (!word.classList.contains("NotSung")) word.classList.add("NotSung");
-                  if (word.classList.contains("Sung")) word.classList.remove("Sung");
+                  if (word.HTMLElement.classList.contains("Active")) word.HTMLElement.classList.remove("Active");
+                  if (!word.HTMLElement.classList.contains("NotSung")) word.HTMLElement.classList.add("NotSung");
+                  if (word.HTMLElement.classList.contains("Sung")) word.HTMLElement.classList.remove("Sung");
                 //}
               } else if (edtrackpos >= wordTimes.start) {
                 //uz bolo
@@ -898,9 +1097,9 @@ function startLyricsInInt(position) {
                   //word.style.opacity = "1"
                   //word.style.textShadow = textGlowDef
 
-                  if (word.classList.contains("Active")) word.classList.remove("Active");
-                  if (!word.classList.contains("Sung")) word.classList.add("Sung");
-                  if (word.classList.contains("NotSung")) word.classList.remove("NotSung");
+                  if (word.HTMLElement.classList.contains("Active")) word.HTMLElement.classList.remove("Active");
+                  if (!word.HTMLElement.classList.contains("Sung")) word.HTMLElement.classList.add("Sung");
+                  if (word.HTMLElement.classList.contains("NotSung")) word.HTMLElement.classList.remove("NotSung");
                 //}
               }
               /* if (edtrackpos >= word.getAttribute("end")) {
@@ -920,24 +1119,24 @@ function startLyricsInInt(position) {
               //line.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 100%)"
               //line.style.filter = lyricsBlur
               //line.style.textShadow = "none"
-              if (line.classList.contains("Active")) line.classList.remove("Active");
-              if (line.classList.contains("Sung")) line.classList.remove("Sung");
-              if (!line.classList.contains("NotSung")) line.classList.add("NotSung")
+              if (line.HTMLElement.classList.contains("Active")) line.HTMLElement.classList.remove("Active");
+              if (line.HTMLElement.classList.contains("Sung")) line.HTMLElement.classList.remove("Sung");
+              if (!line.HTMLElement.classList.contains("NotSung")) line.HTMLElement.classList.add("NotSung")
            // }
             /* if (line.classList.contains("musical-line")) {
               //line.style.display = "none"
               line.style.textShadow = "none"
             } */
-            line.querySelectorAll(".word").forEach(word => {
+            line.Syllables.Lead.forEach(word => {
               //if (!word.classList.contains("crepl")) {
                 //word.style.opacity = globalOpacityLyr
                 //word.style.setProperty("--gradient-position", "-20%")
                 //word.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 100%)"
                 //word.style.filter = lyricsBlur
                 //word.style.textShadow = "none"
-                if (word.classList.contains("Active")) word.classList.remove("Active");
-                if (word.classList.contains("Sung")) word.classList.remove("Sung");
-                if (!word.classList.contains("NotSung")) word.classList.add("NotSung")
+                if (word.HTMLElement.classList.contains("Active")) word.HTMLElement.classList.remove("Active");
+                if (word.HTMLElement.classList.contains("Sung")) word.HTMLElement.classList.remove("Sung");
+                if (!word.HTMLElement.classList.contains("NotSung")) word.HTMLElement.classList.add("NotSung")
               //}
             })
           } else if (edtrackpos >= lineTimes.end) {
@@ -948,15 +1147,15 @@ function startLyricsInInt(position) {
               //line.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 100%)"
               //line.style.filter = lyricsBlur
               //line.style.textShadow = "none"
-              if (line.classList.contains("Active")) line.classList.remove("Active");
-              if (!line.classList.contains("Sung")) line.classList.add("Sung");
-              if (line.classList.contains("NotSung")) line.classList.remove("NotSung");
+              if (line.HTMLElement.classList.contains("Active")) line.HTMLElement.classList.remove("Active");
+              if (!line.HTMLElement.classList.contains("Sung")) line.HTMLElement.classList.add("Sung");
+              if (line.HTMLElement.classList.contains("NotSung")) line.HTMLElement.classList.remove("NotSung");
            // }
             /* if (line.classList.contains("musical-line")) {
               //line.style.display = "block"
               line.style.textShadow = "none"
             } */
-            line.querySelectorAll(".word").forEach(word => {
+            line.Syllables.Lead.forEach(word => {
               //if (!word.classList.contains("crepl")) {
                 //word.style.opacity = globalOpacityLyr
                 //word.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 100%)"
@@ -968,9 +1167,9 @@ function startLyricsInInt(position) {
 
                 //word.style.filter = lyricsBlur
                 //word.style.textShadow = "none"
-                if (word.classList.contains("Active")) word.classList.remove("Active");
-                if (!word.classList.contains("Sung")) word.classList.add("Sung");
-                if (word.classList.contains("NotSung")) word.classList.remove("NotSung");
+                if (word.HTMLElement.classList.contains("Active")) word.HTMLElement.classList.remove("Active");
+                if (!word.HTMLElement.classList.contains("Sung")) word.HTMLElement.classList.add("Sung");
+                if (word.HTMLElement.classList.contains("NotSung")) word.HTMLElement.classList.remove("NotSung");
              // }
             })
 
@@ -1272,10 +1471,11 @@ export function stopLyricsInInt() {
 }
 
 
-const RefreshAnimationFrameInterval = new IntervalManager(2, () => {
+const RefreshAnimationFrameInterval = new IntervalManager(1.5, () => {
   if (storage.get("intRunning") === "true") {
     stopLyricsInInt();
     runLiiInt();
+    //Logger.log("RefreshAnimationFrameInterval: Refreshed Lyrics Animation Frame");
   }
 });
 
@@ -1285,12 +1485,28 @@ let LinesEvListenerExists;
 
 function LinesEvListener(e) {
   if (e.target.classList.contains("line")) {
-    const startTime = e.target.getAttribute("start");
+    let startTime;
+
+    LyricsObject.Types.Line.Lines.forEach((line) => {
+      if (line.HTMLElement === e.target) {
+        startTime = line.StartTime;
+      }
+    })
+
     if (startTime) {
       Spicetify.Player.seek(startTime);
     }
   } else if (e.target.classList.contains("word")) {
-    const startTime = e.target.parentNode.getAttribute("start") ?? e.target.parentNode.parentNode.getAttribute("start");
+    let startTime; //e.target.parentNode.getAttribute("start") ?? e.target.parentNode.parentNode.getAttribute("start");
+
+    LyricsObject.Types.Syllable.Lines.forEach((line) => {
+      line.Syllables.Lead.forEach((word) => {
+        if (word.HTMLElement === e.target) {
+          startTime = line.StartTime;
+        }
+      })
+    })
+
     if (startTime) {
       Spicetify.Player.seek(startTime);
     }

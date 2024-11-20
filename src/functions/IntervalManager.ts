@@ -1,5 +1,7 @@
 import { Maid, Giveable } from '@spikerko/web-modules/Maid';
 
+
+
 class IntervalManager implements Giveable {
   private maid: Maid;
   private intervalId: NodeJS.Timeout | null;
@@ -20,12 +22,12 @@ class IntervalManager implements Giveable {
   // Starts the interval
   public Start() {
     if (this.Destroyed) {
-      console.warn("Cannot start; IntervalManager has been destroyed.");
+      logger.warn("Cannot start; IntervalManager has been destroyed.");
       return;
     }
 
     if (this.Running) {
-      console.warn("Interval is already running.");
+      logger.warn("Interval is already running.");
       return;
     }
 
@@ -48,7 +50,7 @@ class IntervalManager implements Giveable {
   // Restarts the interval
   public Restart() {
     if (this.Destroyed) {
-      console.warn("Cannot restart; IntervalManager has been destroyed.");
+      logger.warn("Cannot restart; IntervalManager has been destroyed.");
       return;
     }
 
