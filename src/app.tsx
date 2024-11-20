@@ -126,6 +126,9 @@ async function main() {
   Spicetify.Player.addEventListener("songchange", async (event) => {
     const currentUri = event.data.item.uri;
 
+    stopLyricsInInt();
+    runLiiInt();
+
     //await checkIfLyrics(currentUri);
 
     fetchLyrics(currentUri).then(lyrics => {
