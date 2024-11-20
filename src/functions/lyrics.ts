@@ -500,7 +500,6 @@ export function syllableLyrics(data) {
 
   //}) 
       scrollToActiveLine(true);
-      console.log(LyricsObject)
   }
   
   export function lineLyrics(data) {
@@ -1038,7 +1037,6 @@ function startLyricsInInt(position) {
                   const elapsedDuration = edtrackpos - wordTimes.start;
                   const percentage = (elapsedDuration / totalDuration) * 100;
 
-                  console.log(totalDuration, elapsedDuration, percentage, edtrackpos, wordTimes);
 
                   word.HTMLElement.style.setProperty("--gradient-position", `${percentage}%`);
                   // Map percentage to the blur radius range
