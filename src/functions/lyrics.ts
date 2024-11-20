@@ -1178,7 +1178,7 @@ function startLyricsInInt(position) {
         //if (lastEdTrackPos === edtrackpos) return
     //lastEdTrackPos = edtrackpos
    // if (document.querySelector('#LyricsPageContainer').classList.contains('active')) {
-      document.querySelectorAll("#LyricsPageContainer .lyricsParent .lyrics .line").forEach((line, index, arr) => {
+      LyricsObject.Types.Line.Lines.forEach((line, index, arr) => {
 /*             if (edtrackpos >= line.getAttribute("end") && arr[index + 1].getAttribute("start") >= edtrackpos) {
           line.classList.add('lnc')
           line.style.color = "white"
@@ -1187,9 +1187,9 @@ function startLyricsInInt(position) {
         } */
 
           const lineTimes = {
-            start: line.getAttribute("start"),
-            end: line.getAttribute("end"),
-            total: line.getAttribute("total")
+            start: line.StartTime,
+            end: line.EndTime,
+            total: line.EndTime - line.StartTime
           }
 
         if (lineTimes.start <= edtrackpos && edtrackpos <= lineTimes.end) {
@@ -1256,9 +1256,9 @@ function startLyricsInInt(position) {
           line.style.setProperty("--gradient-alpha-end", "0.4") */
           //line.style.setProperty("--gradient-degrees", "180deg")
 
-          if (!line.classList.contains("Active")) line.classList.add("Active");
-          if (line.classList.contains("Sung")) line.classList.remove("Sung");
-          if (line.classList.contains("NotSung")) line.classList.remove("NotSung")
+          if (!line.HTMLElement.classList.contains("Active")) line.HTMLElement.classList.add("Active");
+          if (line.HTMLElement.classList.contains("Sung")) line.HTMLElement.classList.remove("Sung");
+          if (line.HTMLElement.classList.contains("NotSung")) line.HTMLElement.classList.remove("NotSung")
         } else if (lineTimes.start >= edtrackpos) {
           //este bude
         //  if (!line.classList.contains("crepl")) {
@@ -1268,9 +1268,9 @@ function startLyricsInInt(position) {
 
             //line.style.filter = lyricsBlur
             //line.style.textShadow = "none"
-            if (line.classList.contains("Active")) line.classList.remove("Active");
-            if (line.classList.contains("Sung")) line.classList.remove("Sung");
-            if (!line.classList.contains("NotSung")) line.classList.add("NotSung")
+            if (line.HTMLElement.classList.contains("Active")) line.HTMLElement.classList.remove("Active");
+            if (line.HTMLElement.classList.contains("Sung")) line.HTMLElement.classList.remove("Sung");
+            if (!line.HTMLElement.classList.contains("NotSung")) line.HTMLElement.classList.add("NotSung")
          // }
         } else if (edtrackpos >= lineTimes.end) {
           //us bolo
@@ -1283,9 +1283,9 @@ function startLyricsInInt(position) {
             //line.style.opacity = globalOpacityLyr
             //line.style.filter = lyricsBlur
             //line.style.textShadow = "none"
-            if (line.classList.contains("Active")) line.classList.remove("Active");
-            if (!line.classList.contains("Sung")) line.classList.add("Sung");
-            if (line.classList.contains("NotSung")) line.classList.remove("NotSung")
+            if (line.HTMLElement.classList.contains("Active")) line.HTMLElement.classList.remove("Active");
+            if (!line.HTMLElement.classList.contains("Sung")) line.HTMLElement.classList.add("Sung");
+            if (line.HTMLElement.classList.contains("NotSung")) line.HTMLElement.classList.remove("NotSung")
         //  }
         }
       })

@@ -235,7 +235,7 @@
   --StrongTextGlowDef: rgba(255,255,255,0.68) 0px 0px 16.4px;
   --StrongerTextGlowDef: rgba(255,255,255,0.74) 0px 0px 16px;
   --IdleLyricsOpacity: 0.65;
-  --DefaultLyricsSize: clamp(1.85rem,calc(1cqw* 7), 3.5rem);
+  --DefaultLyricsSize: clamp(1.85rem,calc(1cqw* 7), 3.3rem);
 
   overflow-x: hidden;
   overflow-y: auto;
