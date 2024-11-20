@@ -236,6 +236,10 @@
   --StrongerTextGlowDef: rgba(255,255,255,0.74) 0px 0px 16px;
   --IdleLyricsOpacity: 0.65;
   --DefaultLyricsSize: clamp(1.85rem,calc(1cqw* 7), 3.5rem);
+  --text-shadow-blur-radius: 4px;
+  --text-shadow-opacity: 0%;
+
+  --TextShadowDefinition: 0 0 var(--text-shadow-blur-radius) rgba(255,255,255,var(--text-shadow-opacity));
 
   overflow-x: hidden;
   overflow-y: auto;
@@ -273,6 +277,7 @@
 
 #LyricsPageContainer .lyricsParent .lyrics .line {
   display: block;
+  transition: all 0.5s cubic-bezier(0.61, 1, 0.88, 1);
 }
 
 
@@ -287,7 +292,6 @@
 /*   opacity: 0.4;
   text-shadow: none;
   filter: blur(1px); */
-  transition: all 0.5s cubic-bezier(0.61, 1, 0.88, 1);
   -webkit-text-fill-color: transparent;
   background-clip: text;
   /* transition: background-color 0.3s cubic-bezier(0.61, 1, 0.88, 1); */
@@ -314,6 +318,12 @@
 
 #LyricsPageContainer .lyricsParent .lyrics .line .word {
   display: inline-block;
+  --text-shadow-blur-radius: 4px;
+  --text-shadow-opacity: 0%;
+  --TextShadowDefinition: 0 0 var(--text-shadow-blur-radius) rgba(255,255,255,var(--text-shadow-opacity));
+  --TransitionDuration: 0.5s;
+  --TransitionDefinition: all var(--TransitionDuration) cubic-bezier(0.61, 1, 0.88, 1);
+  transition: var(--TransitionDefinition);
 }
 
 #LyricsPageContainer .lyricsParent .lyrics .line.OppositeAligned {
@@ -326,7 +336,7 @@
 
 #LyricsPageContainer .lyricsParent .lyrics .line.Sung {
   opacity: var(--IdleLyricsOpacity);
-  text-shadow: none;
+  text-shadow: var(--TextShadowDefinition);
   --gradient-position: -20% !important;
   /* filter: blur(var(--blur-px)); */
 }
@@ -335,7 +345,7 @@
 #LyricsPageContainer .lyricsParent .lyrics .line.NotSung {
   opacity: var(--IdleLyricsOpacity);
   --gradient-position: -20% !important;
-  text-shadow: none;
+  text-shadow: var(--TextShadowDefinition);
   /* filter: blur(var(--blur-px)); */
 }
 
@@ -359,29 +369,41 @@
 
 
 #LyricsPageContainer .lyricsParent .lyrics .line.Active .word.Sung {
-  text-shadow: var(--TextGlowDef);
+  --text-shadow-blur-radius: 4px !important;
+  --text-shadow-opacity: 0% !important;
+  text-shadow: var(--TextShadowDefinition);
   --gradient-position: 100% !important;
+  --TransitionDuration: 0.5s !important;
   opacity: 1;
   transform: scale(1.018) translateY(-0.05em);
 }
 
 #LyricsPageContainer .lyricsParent .lyrics .line.Active .word.NotSung {
-  text-shadow: none;
+  --text-shadow-blur-radius: 4px !important;
+  --text-shadow-opacity: 0% !important;
+  text-shadow: var(--TextShadowDefinition);
   --gradient-position: -20% !important;
+  --TransitionDuration: 0.5s !important;
   transform: scale(0.95);
 }
 
 #LyricsPageContainer .lyricsParent .lyrics .line.NotSung .word.NotSung {
-  text-shadow: none;
+  --text-shadow-blur-radius: 4px !important;
+  --text-shadow-opacity: 0% !important;
+  text-shadow: var(--TextShadowDefinition);
   --gradient-position: -20% !important;
+  --TransitionDuration: 0.5s !important;
   opacity: var(--IdleLyricsOpacity);
   transform: scale(0.95) translateY(0);
 }
 
 #LyricsPageContainer .lyricsParent .lyrics .line.Sung .word.Sung {
   --gradient-position: 100% !important;
+  --text-shadow-blur-radius: 4px !important;
+  --text-shadow-opacity: 0% !important;
+  --TransitionDuration: 0.5s !important;
   opacity: var(--IdleLyricsOpacity);
-  text-shadow: none;
+  text-shadow: var(--TextShadowDefinition);
   transform: scale(1.012) translateY(-0.02em);
 }
 
@@ -390,13 +412,14 @@
 }
 
 #LyricsPageContainer .lyricsParent .lyrics .line .letterGroup:has(.word.Active) {
-  text-shadow: var(--ActiveTextGlowDef) !important;
+  text-shadow: var(--TextShadowDefinition) !important;
+  transform: scale(1.01) translateY(-0.06em) !important;
 }
 
 
 #LyricsPageContainer .lyricsParent .lyrics .line .letterGroup:has(.word.Active) .word.Active {
-  transform: scale(1.03) translateY(-0.18em) !important;
-  text-shadow: var(--StrongerTextGlowDef) !important;
+  transform: scale(1.03) translateY(-0.14em) !important;
+  text-shadow: var(--TextShadowDefinition) !important;
 }
 
 #LyricsPageContainer .lyricsParent .lyrics .line .word-group {
@@ -404,7 +427,7 @@
 }
 
 #LyricsPageContainer .lyricsParent .lyrics .line .letterGroup:has(.word.Active) .word {
-  text-shadow: var(--StrongTextGlowDef) !important;
+  text-shadow: var(--TextShadowDefinition) !important;
   transform: scale(1.02) translateY(-0.05em) !important;
 }
 
@@ -436,7 +459,8 @@
   bottom: 0.05em; */
   transform: scale(1.02) translateY(-0.05em);
   opacity: 1;
-  text-shadow: var(--ActiveTextGlowDef);
+  /* text-shadow: var(--ActiveTextGlowDef); */
+  text-shadow: var(--TextShadowDefinition);
 }
 
 #LyricsPageContainer .lyricsParent .lyrics .line .bg-word.Active {

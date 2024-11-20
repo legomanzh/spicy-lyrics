@@ -14,6 +14,24 @@ function convertTime(time: any): any {
 
 const lyricsBetweenShow = 5;
 let timeOffset = 0;
+
+const WordBlurs = {
+  Emphasis: {
+    min: 4,
+    max: 14,
+    LowQualityMode: {
+      min: 2,
+      max: 6
+    }
+  },
+  min: 6,
+  max: 16,
+  LowQualityMode: {
+    min: 4,
+    max: 8
+  }
+}
+
 /* const musicalEmoji = "♪"
 
 const lyricsBlur = "none"
@@ -147,7 +165,7 @@ export function syllableLyrics(data) {
         let word = document.createElement("span")
         //word.textContent = lead.Text
         const totalDuration = convertTime(lead.EndTime) - convertTime(lead.StartTime);
-        if (totalDuration >= 1200) {
+        if (totalDuration >= 1620 && lead.Text.split("").length < 12) {
           word = document.createElement("div")
           const letters = lead.Text.split(""); // Split word into individual letters
           const letterDuration = (totalDuration - 70) / letters.length; // Duration per letter
@@ -803,11 +821,38 @@ function startLyricsInInt(position) {
                 if (lowQModeEnabled) {
                   word.style.setProperty("--gradient-position", `100%`)
                 } else {
+                  const ifEmphasis = word.parentElement.classList.contains("letterGroup");
+
+                  const EmphasisBlur = {
+                    min: lowQModeEnabled ? WordBlurs.Emphasis.LowQualityMode.min : WordBlurs.Emphasis.min,
+                    max: lowQModeEnabled ? WordBlurs.Emphasis.LowQualityMode.max : WordBlurs.Emphasis.max
+                  };
+
+                  const DefaultBlur = {
+                    min: lowQModeEnabled ? WordBlurs.LowQualityMode.min : WordBlurs.min,
+                    max: lowQModeEnabled ? WordBlurs.LowQualityMode.max : WordBlurs.max
+                  }
+
+                  const minBlur = ifEmphasis ? EmphasisBlur.min : EmphasisBlur.min; // Minimum blur radius in px
+                  const maxBlur = ifEmphasis ? EmphasisBlur.max : DefaultBlur.max; // Maximum blur radius in px
+
                   const totalDuration = wordTimes.total;
                   const elapsedDuration = edtrackpos - wordTimes.start;
                   const percentage = (elapsedDuration / totalDuration) * 100;
 
-                  word.style.setProperty("--gradient-position", `${percentage}%`)
+                  word.style.setProperty("--gradient-position", `${percentage}%`);
+
+                  // Map percentage to the blur radius range
+                  const textShadowBlurRadius = minBlur + (percentage / 100) * (maxBlur - minBlur);
+                  const textShadowOpacityPercentageSetModes = lowQModeEnabled ? -30 : 45;
+                  const textShadowOpacityPercentage = percentage + textShadowOpacityPercentageSetModes;
+
+                  word.style.setProperty("--text-shadow-opacity", `${textShadowOpacityPercentage}%`);
+                  word.style.setProperty("--text-shadow-blur-radius", `${textShadowBlurRadius}px`);
+
+                  const TransitionDuration = totalDuration < 400 ? 500 : totalDuration;
+                  
+                  word.style.setProperty("--TransitionDuration", `${TransitionDuration}ms`);
 
                 }
                 /* word.style.setProperty("--gradient-alpha", "1")
@@ -1129,12 +1174,12 @@ export function scrollElementIntoView(container, element) {
   const offsetTop = elementRect.top - containerRect.top + container.scrollTop;
 
   gsap.to(container, {
-    duration: 0.5, // 0.5-second scroll duration
+    duration: 0.2, // 0.2-second scroll duration
     scrollTo: {
-      y: offsetTop - container.clientHeight / 2 + element.clientHeight / 2 + 130, 
+      y: offsetTop - container.clientHeight / 2 + element.clientHeight / 2 + 90, 
       autoKill: true 
     },
-    ease: "back.out(1.4)" // Good: back.out(1.4)
+    ease: "none" // Good: back.out(1.4)
   });
 }
 
@@ -1227,7 +1272,7 @@ export function stopLyricsInInt() {
 }
 
 
-const RefreshAnimationFrameInterval = new IntervalManager(5, () => {
+const RefreshAnimationFrameInterval = new IntervalManager(2, () => {
   if (storage.get("intRunning") === "true") {
     stopLyricsInInt();
     runLiiInt();
