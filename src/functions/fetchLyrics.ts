@@ -29,7 +29,7 @@ export default async function fetchLyrics(uri: string) {
     }
 
     // I'm not sure if this will entirely work, because in my country the Spotify DJ isn't available. So if anybody finds out that this doesn't work, please let me know.
-    if (Spicetify.Player.data.item.type === "DJ") return DJMessage(); 
+    if (Spicetify.Player.data.item.type === "unknown" && Spicetify.Player.data.item.provider.startsWith("narration")) return DJMessage(); 
 
     const trackId = uri.split(":")[2];
     
