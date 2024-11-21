@@ -3,7 +3,8 @@ import ScrollToPlugin from 'gsap/ScrollToPlugin';
 import storage from './storage';
 import { Maid } from '@spikerko/web-modules/Maid';
 import { IntervalManager } from './IntervalManager';
-import Logger from './Logger';
+import Defaults from '../components/Defaults';
+import { ArabicPersianRegex } from '../components/Addons';
 
 gsap.registerPlugin(ScrollToPlugin); 
 
@@ -65,7 +66,9 @@ let LyricsObject = {
     Line: {
       Lines: []
     },
-    Static: {}
+    Static: {
+      Lines: []
+    }
   }
 }
 
@@ -239,7 +242,7 @@ export function syllableLyrics(data) {
         //word.textContent = lead.Text
         const totalDuration = convertTime(lead.EndTime) - convertTime(lead.StartTime);
 
-        const IfLetterCapable = lead.Text.split("").length <= 5 && totalDuration >= 950 ? true : totalDuration >= 1620 && lead.Text.split("").length < 12
+        const IfLetterCapable = lead.Text.split("").length <= 5 && totalDuration >= 1050 ? true : totalDuration >= 1620 && lead.Text.split("").length < 12
 
         if (IfLetterCapable) {
           word = document.createElement("div")
@@ -261,6 +264,10 @@ export function syllableLyrics(data) {
 
             index === lA.length - 1 ? lead.IsPartOfWord ? letterElem.classList.add("PartOfWord") : null : letterElem.classList.add("PartOfWord"); 
 
+            if (ArabicPersianRegex.test(lead.Text)) {
+              word.setAttribute("font", "Vazirmatn")
+            }
+
             word.appendChild(letterElem);
 
             LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
@@ -279,6 +286,10 @@ export function syllableLyrics(data) {
           
         } else {
           word.textContent = lead.Text;
+
+          if (ArabicPersianRegex.test(lead.Text)) {
+            word.setAttribute("font", "Vazirmatn")
+          }
   
           /* word.setAttribute("start", convertTime(lead.StartTime))
           word.setAttribute("end", convertTime(lead.EndTime))
@@ -355,6 +366,10 @@ export function syllableLyrics(data) {
           bg.Syllables.forEach(bw => {
             const bwE = document.createElement("span")
             bwE.textContent = bw.Text
+
+            if (ArabicPersianRegex.test(bw.Text)) {
+              bwE.setAttribute("font", "Vazirmatn")
+            }
             /* bwE.setAttribute("start", convertTime(bw.StartTime))
             bwE.setAttribute("end", convertTime(bw.EndTime))
             bwE.setAttribute("total", convertTime(bw.EndTime) - convertTime(bw.StartTime)) */
@@ -585,6 +600,11 @@ export function syllableLyrics(data) {
       const lineElem = document.createElement("div")
       lineElem.textContent = line.Text
       lineElem.classList.add("line")
+
+      if (ArabicPersianRegex.test(line.Text)) {
+        lineElem.setAttribute("font", "Vazirmatn")
+      }
+
       //lineElem.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.4) 100%)"
       /* lineElem.style.setProperty("--gradient-position", "100%")
           lineElem.style.setProperty("--gradient-alpha", "0.4")
@@ -634,42 +654,6 @@ export function syllableLyrics(data) {
           /* clearInterval(lyricsInt)
           lyricsInt = null; */
   
-        
-  
-        // Initial start of the interval
-  
-        if (line.Background) {
-          line.Background.forEach(bg => {
-            const lineE = document.createElement("div");
-            lineE.textContent = bg.Text
-            //lineE.style.fontSize = "20px"
-            lineE.classList.add("bg-line")
-            lineE.classList.add("line")
-            /* lineE.setAttribute("start", convertTime(bg.StartTime))
-            lineE.setAttribute("end", convertTime(bg.EndTime))
-            lineE.setAttribute("total", convertTime(bg.EndTime) - convertTime(bg.StartTime)) */
-
-            LyricsObject.Types.Line.Lines.push({
-              HTMLElement: lineE,
-              StartTime: convertTime(bg.StartTime),
-              EndTime: convertTime(bg.EndTime),
-              TotalTime: convertTime(bg.EndTime) - convertTime(bg.StartTime)
-            })
-
-            document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(lineE)
-            /* bg.Syllables.forEach(bw => {
-              const bwE = document.createElement("span")
-              bwE.textContent = bw.Text
-              bwE.style.fontSize = "20px"
-              bwE.classList.add("bg-word")
-              bwE.classList.add("word")
-              lineE.appendChild(bwE)
-              if (!bw.IsPartOfWord) {
-                lineE.append(" ")
-              }
-            })  */
-          })
-        }
 
         try {
           if (arr[index + 1].StartTime - line.EndTime >= lyricsBetweenShow) {
@@ -821,6 +805,11 @@ function removeAllStyles(element) {
       
       lineElem.classList.add("line")
       lineElem.classList.add("static")
+
+      if (ArabicPersianRegex.test(line.Text)) {
+        lineElem.setAttribute("font", "Vazirmatn")
+      }
+
       //lineElem.setAttribute("start", convertTime(line.StartTime))
       //lineElem.setAttribute("end", convertTime(line.EndTime))
 
@@ -885,20 +874,22 @@ function removeAllStyles(element) {
     });
   }, 200) */
 
+const lowQMode = storage.get("lowQMode");
+const lowQModeEnabled = lowQMode && lowQMode === "true";
 
-function startLyricsInInt(position) {
+
+function startLyricsInInt() {
 
   /* if (Spicetify.Player.data.item.mediaType === "video") {
     timeOffset = -950;
   } else {
     timeOffset = 0;
   } */
+    const position = Spicetify.Player.getProgress();
+    const CurrentLyricsType = Defaults.CurrentLyricsType;
+    const edtrackpos = position + timeOffset;
 
-  const lowQMode = Spicetify.LocalStorage.get("SpicyLyrics-lowQMode");
-  const lowQModeEnabled = lowQMode && lowQMode === "true";
-  const edtrackpos = position + timeOffset;
-
-      if (storage.get("currentLyricsType") != null && storage.get("currentLyricsType") === "Syllable") {
+      if (CurrentLyricsType != null && CurrentLyricsType === "Syllable") {
         //if (lastEdTrackPos === edtrackpos) return
       //lastEdTrackPos = edtrackpos
       //if (document.querySelector('#LyricsPageContainer').classList.contains('active')) {
@@ -1174,7 +1165,7 @@ function startLyricsInInt(position) {
           }
         })
       //}
-      } else if (storage.get("currentLyricsType") != null && storage.get("currentLyricsType") === "Line") {
+      } else if (CurrentLyricsType != null && CurrentLyricsType === "Line") {
         //if (lastEdTrackPos === edtrackpos) return
     //lastEdTrackPos = edtrackpos
    // if (document.querySelector('#LyricsPageContainer').classList.contains('active')) {
@@ -1457,10 +1448,9 @@ export function scrollElementIntoView(container, element) {
 
 let animFrameId = null;
 
-function runLyricsInInt() {
-    const currentTime = Spicetify.Player.getProgress();
-    startLyricsInInt(currentTime);
-    animFrameId = requestAnimationFrame(runLyricsInInt);
+async function runLyricsInInt() {
+  startLyricsInInt();
+  animFrameId = requestAnimationFrame(runLyricsInInt);
 }
 
 export function stopLyricsInInt() {

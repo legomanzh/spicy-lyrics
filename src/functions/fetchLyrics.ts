@@ -49,6 +49,7 @@ export default async function fetchLyrics(uri: string) {
                     document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").innerHTML = "";
                 }
                 if (lyricsData.Type === "Static") stopLyricsInInt();
+                Defaults.CurrentLyricsType = lyricsData.Type;
                 return lyricsData;
             }
         } catch (error) {
@@ -80,6 +81,7 @@ export default async function fetchLyrics(uri: string) {
                         document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").innerHTML = "";
                     }
                     if (lyricsFromCache.Type === "Static") stopLyricsInInt();
+                    Defaults.CurrentLyricsType = lyricsFromCache.Type;
                     return { ...lyricsFromCache, fromCache: true };
                 }
             }
@@ -162,7 +164,7 @@ export default async function fetchLyrics(uri: string) {
         }
 
         if (lyricsJson.Type === "Static") stopLyricsInInt();
-
+        Defaults.CurrentLyricsType = lyricsJson.Type;
         return { ...lyricsJson, fromCache: false };
     } catch (error) {
         console.error("Error fetching lyrics:", error);
@@ -260,6 +262,8 @@ function noLyricsMessage() {
 
     stopLyricsInInt();
 
+    Defaults.CurrentLyricsType = noLyricsMessage.Type;
+
     return noLyricsMessage;
 }
 
@@ -293,6 +297,8 @@ function urOfflineMessage() {
     }
 
     stopLyricsInInt();
+
+    Defaults.CurrentLyricsType = Message.Type;
 
     return Message;
 }
@@ -332,6 +338,8 @@ function DJMessage() {
     }
 
     stopLyricsInInt();
+
+    Defaults.CurrentLyricsType = Message.Type;
 
     return Message;
 }

@@ -23,6 +23,10 @@
   width: 100%;
 }
 
+[font="Vazirmatn"] {
+  font-family: "VazirmatnRegular", sans-serif;
+}
+
 .Root__main-view:has(#LyricsPageContainer) .main-view-container__scroll-node-child,.Root__main-view:has(#LyricsPageContainer) .main-view-container__scroll-node-child-spacer,div.os-host:has(#LyricsPageContainer) .main-view-container__scroll-node-child,div.os-host:has(#LyricsPageContainer) .main-view-container__scroll-node-child-spacer {
   display: none;
   /* left: 44cqw;
@@ -235,7 +239,7 @@
   --StrongTextGlowDef: rgba(255,255,255,0.68) 0px 0px 16.4px;
   --StrongerTextGlowDef: rgba(255,255,255,0.74) 0px 0px 16px;
   --IdleLyricsOpacity: 0.65;
-  --DefaultLyricsSize: clamp(1.85rem,calc(1cqw* 7), 3.3rem);
+  --DefaultLyricsSize: clamp(1.85rem,calc(1cqw* 7), 3.5rem);
 
   overflow-x: hidden;
   overflow-y: auto;
