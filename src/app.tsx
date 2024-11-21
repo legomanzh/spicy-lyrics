@@ -7,6 +7,7 @@ import { setSettingsMenu } from "./functions/settings";
 import DisplayLyricsPage, { DestroyLyricsPage } from "./components/PageView";
 import { Icons } from "./components/Icons";
 import ApplyDynamicBackground from "./components/dynamicBackground";
+import LoadFonts from "./components/Fonts";
 // Currently Unused: import hasLyrics from "./functions/hasLyrics";
 
 async function main() {
@@ -21,11 +22,7 @@ async function main() {
   storage.set("lastFetchedUri", null)
   storage.set("intRunning", "false")
 
-  const fontElement = document.createElement("link");
-  fontElement.href = "https://fonts.spikerko.org/lyrics/source.css";
-  fontElement.rel = "stylesheet";
-  fontElement.type = "text/css";
-  document.head.appendChild(fontElement);
+  LoadFonts();
 
   /* async function checkIfLyrics(currentUri) {
     //THIS IS CURRENTLY DISABLED
@@ -132,7 +129,7 @@ async function main() {
     //await checkIfLyrics(currentUri);
 
     fetchLyrics(currentUri).then(lyrics => {
-        storage.set("currentLyricsType", lyrics?.Type);
+        //storage.set("currentLyricsType", lyrics?.Type);
         if (lyrics?.Type === "Syllable") {
             syllableLyrics(lyrics);
         } else if (lyrics?.Type === "Line") {
@@ -166,7 +163,7 @@ async function main() {
 
     fetchLyrics(Spicetify.Player.data?.item.uri).then(lyrics => {
       storage.set("fetchedFirst", "true");
-      storage.set("currentLyricsType", lyrics?.Type);
+      //storage.set("currentLyricsType", lyrics?.Type);
       if (lyrics?.Type === "Syllable") {
           syllableLyrics(lyrics);
       } else if (lyrics?.Type === "Line") {

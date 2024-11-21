@@ -44,7 +44,7 @@ export default function DisplayLyricsPage() {
         const currentUri = Spicetify.Player.data.item.uri;
 
         fetchLyrics(currentUri).then(lyrics => {
-            storage.set("currentLyricsType", lyrics?.Type);
+            //storage.set("currentLyricsType", lyrics?.Type);
             if (lyrics?.Type === "Syllable") {
                 syllableLyrics(lyrics);
             } else if (lyrics?.Type === "Line") {
