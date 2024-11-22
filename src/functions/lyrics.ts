@@ -8,7 +8,7 @@ import { ArabicPersianRegex } from '../components/Addons';
 
 gsap.registerPlugin(ScrollToPlugin); 
 
-export const ScrollingIntervalTime = 250;
+export const ScrollingIntervalTime = 150;
 
 function convertTime(time: any): any { 
   return time * 1000;
@@ -17,6 +17,8 @@ function convertTime(time: any): any {
 const lyricsBetweenShow = 5;
 let timeOffset = 0;
 
+/* 
+OLD!!
 const WordBlurs = {
   Emphasis: {
     min: 4,
@@ -32,7 +34,26 @@ const WordBlurs = {
     min: 4,
     max: 8
   }
-}
+} */
+
+// Adjust blur levels in low-quality mode for better performance (line: 22)
+const WordBlurs = {
+  Emphasis: {
+      min: 4,
+      max: 14,
+      LowQualityMode: {
+          min: 1, // Lowered from 2 for better performance
+          max: 3  // Lowered from 6
+      }
+  },
+  min: 6,
+  max: 16,
+  LowQualityMode: {
+      min: 2, // Lowered from 4
+      max: 6  // Lowered from 8
+  }
+};
+
 
 /* const musicalEmoji = "♪"
 
@@ -91,7 +112,7 @@ function SetWordArrayInCurentLine() {
 function ClearLyricsContentArrays() {
   LyricsObject.Types.Syllable.Lines = []
   LyricsObject.Types.Line.Lines = []
-  LyricsObject.Types.Static = {}
+  LyricsObject.Types.Static.Lines = []
 }
 
 export function syllableLyrics(data) {
@@ -242,7 +263,7 @@ export function syllableLyrics(data) {
         //word.textContent = lead.Text
         const totalDuration = convertTime(lead.EndTime) - convertTime(lead.StartTime);
 
-        const IfLetterCapable = lead.Text.split("").length <= 5 && totalDuration >= 1050 ? true : totalDuration >= 1620 && lead.Text.split("").length < 12
+        const IfLetterCapable = lead.Text.split("").length <= 3 && totalDuration >= 1050 ? true : totalDuration >= 1620 && lead.Text.split("").length < 12
 
         if (IfLetterCapable) {
           word = document.createElement("div")
@@ -876,7 +897,7 @@ function removeAllStyles(element) {
 
 const lowQMode = storage.get("lowQMode");
 const lowQModeEnabled = lowQMode && lowQMode === "true";
-
+let lastGradientPercentage = 0;
 
 function startLyricsInInt() {
 
@@ -1028,15 +1049,20 @@ function startLyricsInInt() {
                   const elapsedDuration = edtrackpos - wordTimes.start;
                   const percentage = (elapsedDuration / totalDuration) * 100;
 
+                  if (Math.abs(percentage - lastGradientPercentage) > 0.001) {
+                    word.HTMLElement.style.setProperty("--gradient-position", `${percentage}%`);
+                    lastGradientPercentage = percentage
+                  }
 
-                  word.HTMLElement.style.setProperty("--gradient-position", `${percentage}%`);
                   // Map percentage to the blur radius range
-                  const textShadowBlurRadius = minBlur + (percentage / 100) * (maxBlur - minBlur);
-                  const textShadowOpacityPercentageSetModes = lowQModeEnabled ? -30 : 45;
-                  const textShadowOpacityPercentage = percentage + textShadowOpacityPercentageSetModes;
+                  if (totalDuration >= 790) {
+                    const textShadowBlurRadius = minBlur + (percentage / 100) * (maxBlur - minBlur);
+                    const textShadowOpacityPercentageSetModes = lowQModeEnabled ? -30 : 45;
+                    const textShadowOpacityPercentage = percentage + textShadowOpacityPercentageSetModes;
 
-                  word.HTMLElement.style.setProperty("--text-shadow-opacity", `${textShadowOpacityPercentage}%`);
-                  word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${textShadowBlurRadius}px`);
+                    word.HTMLElement.style.setProperty("--text-shadow-opacity", `${textShadowOpacityPercentage}%`);
+                    word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${textShadowBlurRadius}px`);
+                  }
 
                   const TransitionDuration = totalDuration < 400 ? 500 : totalDuration;
                   
@@ -1116,7 +1142,7 @@ function startLyricsInInt() {
               //line.style.display = "none"
               line.style.textShadow = "none"
             } */
-            line.Syllables.Lead.forEach(word => {
+            /* line.Syllables.Lead.forEach(word => {
               //if (!word.classList.contains("crepl")) {
                 //word.style.opacity = globalOpacityLyr
                 //word.style.setProperty("--gradient-position", "-20%")
@@ -1127,7 +1153,7 @@ function startLyricsInInt() {
                 if (word.HTMLElement.classList.contains("Sung")) word.HTMLElement.classList.remove("Sung");
                 if (!word.HTMLElement.classList.contains("NotSung")) word.HTMLElement.classList.add("NotSung")
               //}
-            })
+            }) */
           } else if (edtrackpos >= lineTimes.end) {
             // us bolo
 
@@ -1144,15 +1170,12 @@ function startLyricsInInt() {
               //line.style.display = "block"
               line.style.textShadow = "none"
             } */
-            line.Syllables.Lead.forEach(word => {
+            /* line.Syllables.Lead.forEach(word => {
               //if (!word.classList.contains("crepl")) {
                 //word.style.opacity = globalOpacityLyr
                 //word.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 100%)"
 
                // word.style.setProperty("--gradient-position", "-20%")
-                /* word.style.setProperty("--gradient-alpha", "1)
-                word.style.setProperty("--gradient-alpha-end", "1")
-                word.style.setProperty("--gradient-degrees", "90deg") */
 
                 //word.style.filter = lyricsBlur
                 //word.style.textShadow = "none"
@@ -1160,7 +1183,7 @@ function startLyricsInInt() {
                 if (!word.HTMLElement.classList.contains("Sung")) word.HTMLElement.classList.add("Sung");
                 if (word.HTMLElement.classList.contains("NotSung")) word.HTMLElement.classList.remove("NotSung");
              // }
-            })
+            }) */
 
           }
         })
@@ -1459,7 +1482,7 @@ export function stopLyricsInInt() {
 }
 
 
-const RefreshAnimationFrameInterval = new IntervalManager(1.5, () => {
+const RefreshAnimationFrameInterval = new IntervalManager(4, () => {
   if (storage.get("intRunning") === "true") {
     stopLyricsInInt();
     runLiiInt();
