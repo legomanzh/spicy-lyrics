@@ -8,7 +8,7 @@ import { ArabicPersianRegex } from '../components/Addons';
 
 gsap.registerPlugin(ScrollToPlugin); 
 
-export const ScrollingIntervalTime = 150;
+export const ScrollingIntervalTime = 450;
 
 function convertTime(time: any): any { 
   return time * 1000;
@@ -36,7 +36,7 @@ const WordBlurs = {
   }
 } */
 
-// Adjust blur levels in low-quality mode for better performance (line: 22)
+// Adjust blur levels in low-quality mode for better performance
 const WordBlurs = {
   Emphasis: {
       min: 4,
@@ -263,7 +263,7 @@ export function syllableLyrics(data) {
         //word.textContent = lead.Text
         const totalDuration = convertTime(lead.EndTime) - convertTime(lead.StartTime);
 
-        const IfLetterCapable = lead.Text.split("").length <= 3 && totalDuration >= 1050 ? true : totalDuration >= 1620 && lead.Text.split("").length < 12
+        const IfLetterCapable = lead.Text.split("").length <= 3 && totalDuration >= 800 ? true : totalDuration >= 1620 && lead.Text.split("").length < 12
 
         if (IfLetterCapable) {
           word = document.createElement("div")
@@ -274,6 +274,7 @@ export function syllableLyrics(data) {
             const letterElem = document.createElement("span");
             letterElem.textContent = letter;
             letterElem.classList.add("word");
+            letterElem.classList.add("Emphasis");
   
             // Calculate start and end time for each letter
             const letterStartTime = convertTime(lead.StartTime) + index * letterDuration;
@@ -535,8 +536,7 @@ export function syllableLyrics(data) {
       //startLyricsInInt("Syllable")
 
   //}) 
-      scrollToActiveLine(true);
-  }
+}
   
   export function lineLyrics(data) {
     if (!document.querySelector("#LyricsPageContainer .lyricsParent .lyrics")) return
@@ -770,7 +770,6 @@ export function syllableLyrics(data) {
       //startLyricsInInt("Line");
   
    
-  scrollToActiveLine(true);
   }
 
 function applyStyles(element, styles) {
@@ -899,14 +898,18 @@ const lowQMode = storage.get("lowQMode");
 const lowQModeEnabled = lowQMode && lowQMode === "true";
 let lastGradientPercentage = 0;
 
-function startLyricsInInt() {
+const TransitionDurationProperties = {
+  IfSmallerThan: 140,
+  Use: 200
+}
+
+function startLyricsInInt(position) {
 
   /* if (Spicetify.Player.data.item.mediaType === "video") {
     timeOffset = -950;
   } else {
     timeOffset = 0;
   } */
-    const position = Spicetify.Player.getProgress();
     const CurrentLyricsType = Defaults.CurrentLyricsType;
     const edtrackpos = position + timeOffset;
 
@@ -1030,7 +1033,7 @@ function startLyricsInInt() {
                 if (lowQModeEnabled) {
                   word.HTMLElement.style.setProperty("--gradient-position", `100%`)
                 } else {
-                  const ifEmphasis = word.HTMLElement.parentElement.classList.contains("letterGroup");
+                  const ifEmphasis = word.HTMLElement.classList.contains("Emphasis");
 
                   const EmphasisBlur = {
                     min: lowQModeEnabled ? WordBlurs.Emphasis.LowQualityMode.min : WordBlurs.Emphasis.min,
@@ -1055,7 +1058,8 @@ function startLyricsInInt() {
                   }
 
                   // Map percentage to the blur radius range
-                  if (totalDuration >= 790) {
+                  const Condition = ifEmphasis ? true : totalDuration >= 800;
+                  if (Condition) {
                     const textShadowBlurRadius = minBlur + (percentage / 100) * (maxBlur - minBlur);
                     const textShadowOpacityPercentageSetModes = lowQModeEnabled ? -30 : 45;
                     const textShadowOpacityPercentage = percentage + textShadowOpacityPercentageSetModes;
@@ -1064,7 +1068,7 @@ function startLyricsInInt() {
                     word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${textShadowBlurRadius}px`);
                   }
 
-                  const TransitionDuration = totalDuration < 400 ? 500 : totalDuration;
+                  const TransitionDuration = totalDuration// < TransitionDurationProperties.IfSmallerThan ? TransitionDurationProperties.Use : totalDuration;
                   
                   word.HTMLElement.style.setProperty("--TransitionDuration", `${TransitionDuration}ms`);
 
@@ -1337,7 +1341,7 @@ export function runLiiInt() {
 
 let lastLine = null;
 
-export function scrollToActiveLine(skipIsPlaying = false) {
+export function scrollToActiveLine() {
   //const edtrackpos = Spicetify.Player.getProgress();
   /* if (!document.querySelector("#LyricsPageContainer .lyricsParent .lyrics")) return
   if (Spicetify.Platform.History.location.pathname === "/spicy-lyrics") {
@@ -1363,7 +1367,6 @@ export function scrollToActiveLine(skipIsPlaying = false) {
       let currentLine = null;
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
-        if (lastLine && lastLine === line) break;
         if (line.classList.contains("Active")) {
           currentLine = line;
           break; // Exit the loop once a line is found
@@ -1372,6 +1375,8 @@ export function scrollToActiveLine(skipIsPlaying = false) {
   
       if (currentLine) { 
         const container = document.querySelector("#LyricsPageContainer .lyricsParent .lyrics");
+        if (lastLine && lastLine === currentLine) return;
+        lastLine = currentLine
         scrollElementIntoView(container, currentLine); 
       }
     }
@@ -1385,7 +1390,7 @@ export function scrollElementIntoView(container, element) {
   const offsetTop = elementRect.top - containerRect.top + container.scrollTop;
 
   gsap.to(container, {
-    duration: 0.2, // 0.2-second scroll duration
+    duration: 0.15, // 0.2-second scroll duration
     scrollTo: {
       y: offsetTop - container.clientHeight / 2 + element.clientHeight / 2 + 90, 
       autoKill: true 
@@ -1472,7 +1477,7 @@ export function scrollElementIntoView(container, element) {
 let animFrameId = null;
 
 async function runLyricsInInt() {
-  startLyricsInInt();
+  startLyricsInInt(Spicetify.Player.getProgress());
   animFrameId = requestAnimationFrame(runLyricsInInt);
 }
 
@@ -1482,7 +1487,7 @@ export function stopLyricsInInt() {
 }
 
 
-const RefreshAnimationFrameInterval = new IntervalManager(4, () => {
+const RefreshAnimationFrameInterval = new IntervalManager(1.5, () => {
   if (storage.get("intRunning") === "true") {
     stopLyricsInInt();
     runLiiInt();
