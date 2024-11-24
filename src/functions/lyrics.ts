@@ -15,7 +15,7 @@ function convertTime(time: any): any {
 }
 
 const lyricsBetweenShow = 5;
-let timeOffset = 0;
+let timeOffset = 74;
 
 /* 
 OLD!!
@@ -263,7 +263,7 @@ export function syllableLyrics(data) {
         //word.textContent = lead.Text
         const totalDuration = convertTime(lead.EndTime) - convertTime(lead.StartTime);
 
-        const IfLetterCapable = lead.Text.split("").length <= 3 && totalDuration >= 800 ? true : totalDuration >= 1620 && lead.Text.split("").length < 12
+        const IfLetterCapable = lead.Text.split("").length <= 3 && totalDuration >= 800 ? true : totalDuration >= 1620 && lead.Text.split("").length < 12;
 
         if (IfLetterCapable) {
           word = document.createElement("div")
@@ -896,7 +896,8 @@ function removeAllStyles(element) {
 
 const lowQMode = storage.get("lowQMode");
 const lowQModeEnabled = lowQMode && lowQMode === "true";
-let lastGradientPercentage = 0;
+//let lastGradientPercentage = 0;
+let lastGradientUpdate = 0;
 
 const TransitionDurationProperties = {
   IfSmallerThan: 140,
@@ -1034,43 +1035,59 @@ function startLyricsInInt(position) {
                   word.HTMLElement.style.setProperty("--gradient-position", `100%`)
                 } else {
                   const ifEmphasis = word.HTMLElement.classList.contains("Emphasis");
+                  // Adjust blur values based on low-quality mode and emphasis state
+                  const isLowQ = lowQModeEnabled;
 
-                  const EmphasisBlur = {
-                    min: lowQModeEnabled ? WordBlurs.Emphasis.LowQualityMode.min : WordBlurs.Emphasis.min,
-                    max: lowQModeEnabled ? WordBlurs.Emphasis.LowQualityMode.max : WordBlurs.Emphasis.max
-                  };
+                  // Extract Emphasis and Default blur values
+                  const EmphasisBlur = WordBlurs.Emphasis[isLowQ ? "LowQualityMode" : null] || WordBlurs.Emphasis;
+                  const DefaultBlur = WordBlurs[isLowQ ? "LowQualityMode" : null] || WordBlurs;
 
-                  const DefaultBlur = {
-                    min: lowQModeEnabled ? WordBlurs.LowQualityMode.min : WordBlurs.min,
-                    max: lowQModeEnabled ? WordBlurs.LowQualityMode.max : WordBlurs.max
-                  }
+                  // Determine blur ranges
+                  const minBlur = ifEmphasis ? EmphasisBlur.min : DefaultBlur.min;
+                  const maxBlur = ifEmphasis ? EmphasisBlur.max : DefaultBlur.max;
 
-                  const minBlur = ifEmphasis ? EmphasisBlur.min : EmphasisBlur.min; // Minimum blur radius in px
-                  const maxBlur = ifEmphasis ? EmphasisBlur.max : DefaultBlur.max; // Maximum blur radius in px
-
+                  // Compute durations and percentages
                   const totalDuration = wordTimes.total;
                   const elapsedDuration = edtrackpos - wordTimes.start;
                   const percentage = (elapsedDuration / totalDuration) * 100;
 
-                  if (Math.abs(percentage - lastGradientPercentage) > 0.001) {
-                    word.HTMLElement.style.setProperty("--gradient-position", `${percentage}%`);
-                    lastGradientPercentage = percentage
-                  }
+                  // Throttle updates for --gradient-position
+                  /* const THROTTLE_TIME = 8; // ~120 FPS for smoother updates
 
-                  // Map percentage to the blur radius range
-                  const Condition = ifEmphasis ? true : totalDuration >= 800;
+                  if (Date.now() - lastGradientUpdate > THROTTLE_TIME) { */
+                      word.HTMLElement.style.setProperty("--gradient-position", `${percentage}%`);
+                      //lastGradientUpdate = Date.now();
+                  //}
+
+                  // Determine condition for additional styles
+                  const Condition = ifEmphasis || totalDuration >= 340;
+
                   if (Condition) {
-                    const textShadowBlurRadius = minBlur + (percentage / 100) * (maxBlur - minBlur);
-                    const textShadowOpacityPercentageSetModes = lowQModeEnabled ? -30 : 45;
-                    const textShadowOpacityPercentage = percentage + textShadowOpacityPercentageSetModes;
+                      // Compute text-shadow values
+                      const textShadowBlurRadius = minBlur + (percentage / 100) * (maxBlur - minBlur);
+                      const textShadowOpacityPercentage = percentage - (isLowQ ? 40 : 9);
 
-                    word.HTMLElement.style.setProperty("--text-shadow-opacity", `${textShadowOpacityPercentage}%`);
-                    word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${textShadowBlurRadius}px`);
+                      // Only update styles if values have changed
+                      if (
+                          word.previousBlurRadius !== textShadowBlurRadius ||
+                          word.previousOpacity !== textShadowOpacityPercentage
+                      ) {
+                          word.HTMLElement.style.cssText += `
+                              --text-shadow-opacity: ${textShadowOpacityPercentage}%;
+                              --text-shadow-blur-radius: ${textShadowBlurRadius}px;
+                          `;
+
+                          // Cache current values
+                          word.previousBlurRadius = textShadowBlurRadius;
+                          word.previousOpacity = textShadowOpacityPercentage;
+                      }
                   }
 
-                  const TransitionDuration = totalDuration// < TransitionDurationProperties.IfSmallerThan ? TransitionDurationProperties.Use : totalDuration;
-                  
+                  // Set transition duration
+                  const TransitionDuration = totalDuration; // Optionally modify this logic if needed
                   word.HTMLElement.style.setProperty("--TransitionDuration", `${TransitionDuration}ms`);
+
+
 
                 }
                 /* word.style.setProperty("--gradient-alpha", "1")
@@ -1476,8 +1493,15 @@ export function scrollElementIntoView(container, element) {
 
 let animFrameId = null;
 
+const THROTTLE_TIME = 8; // ~120 FPS for smoother updates
+
+
 async function runLyricsInInt() {
-  startLyricsInInt(Spicetify.Player.getProgress());
+  if (Date.now() - lastGradientUpdate > THROTTLE_TIME) {
+    const progress = Spicetify.Player.getProgress();
+    startLyricsInInt(progress);
+    lastGradientUpdate = Date.now();
+  }
   animFrameId = requestAnimationFrame(runLyricsInInt);
 }
 

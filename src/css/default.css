@@ -133,33 +133,27 @@
 
 
 .spicy-dynamic-bg {
+  filter: saturate(1.5) brightness(.8);
   height: 100%;
   left: 0;
   overflow: hidden;
   pointer-events: none;
   position: absolute;
   top: 0;
-  width: 100%;
-  filter: saturate(2.5) brightness(0.65);
-  max-height: 55%;
-  max-width: 35%;
-  scale: 290% 185%;
-  transform-origin: left top;
-  overflow-y: hidden !important;
-  overflow-x: hidden !important;
+  width: 100%
 }
 
 .spicy-dynamic-bg .Back,.spicy-dynamic-bg .BackCenter,.spicy-dynamic-bg .Front {
   --PlaceholderHueShift: 0deg;
   animation: bgAnim 45s linear infinite;
   border-radius: 100em;
-  filter: hue-rotate(var(--PlaceholderHueShift)) blur(28px);
+  filter: hue-rotate(var(--PlaceholderHueShift)) blur(40px);
   position: absolute;
   width: 200%;
 }
 
 .spicy-dynamic-bg-in-this:is(aside) .spicy-dynamic-bg .Back, .spicy-dynamic-bg-in-this:is(aside) .spicy-dynamic-bg .BackCenter, .spicy-dynamic-bg-in-this:is(aside) .spicy-dynamic-bg .Front {
-  filter: hue-rotate(var(--PlaceholderHueShift)) blur(12px) !important;
+  filter: hue-rotate(var(--PlaceholderHueShift)) blur(30px) !important;
 }
 
 .spicy-dynamic-bg .Front {
@@ -211,6 +205,15 @@
 }
 
 
+#LyricsPageContainer .spicy-dynamic-bg {
+  filter: saturate(2.5) brightness(.65);
+  max-height: 55%;
+  max-width: 35%;
+  scale: 290% 185%;
+  transform-origin: left top
+}
+
+
 @keyframes bgAnim {
   0% {
       transform: rotate(var(--bg-rotation-degree))
@@ -244,12 +247,17 @@
   overflow-x: hidden;
   overflow-y: auto;
   height: 100cqh;
-  width: 98%;
+  width: 94cqw;
   font-size: var(--DefaultLyricsSize) !important;
-  transition: all 240ms ease-in-out;
+  transition: opacity, transform, scrollbar-color 0.2s linear;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
   z-index: 9;
+
+  --ImageMask: linear-gradient(180deg,transparent 0,transparent 16px,var(--spice-sidebar) 24px,var(--spice-sidebar) calc(100% - 64px),transparent calc(100% - 16px),transparent);
+
+  --webkit-mask-image: var(--ImageMask);
+  mask-image: var(--ImageMask);
 }
 
 #LyricsPageContainer .lyricsParent .lyrics:hover {
@@ -298,6 +306,15 @@
   position: relative;
   /* animation: lyricsBig 0.5s ease-in-out reverse forwards; */
 }
+
+/*
+// CURRENTLY IN DEVELOPMENT
+
+@property --gradient-position {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: -20%;
+} */
 
 #LyricsPageContainer .lyricsParent .lyrics .line,
 #LyricsPageContainer .lyricsParent .lyrics .line .word {
@@ -376,7 +393,7 @@
   --gradient-position: 100% !important;
   --TransitionDuration: 0.2s;
   opacity: 1;
-  transform: scale(1.02) translateY(-0.04em);
+  transform: scale(1.002) translateY(-0.008em);
 }
 
 #LyricsPageContainer .lyricsParent .lyrics .line.Active .word.NotSung {
@@ -385,7 +402,7 @@
   text-shadow: var(--TextShadowDefinition);
   --gradient-position: -20% !important;
   --TransitionDuration: 0.2s;
-  transform: scale(0.95);
+  transform: scale(0.98);
 }
 
 #LyricsPageContainer .lyricsParent .lyrics .line.NotSung .word {
@@ -393,9 +410,9 @@
   --text-shadow-opacity: 0% !important;
   text-shadow: var(--TextShadowDefinition);
   --gradient-position: -20% !important;
-/*   --TransitionDuration: 0.2s !important; */
+  --TransitionDuration: 0.2s !important;
   opacity: var(--IdleLyricsOpacity);
-  transform: scale(0.95) translateY(0);
+  transform: scale(0.98) translateY(0);
 }
 
 #LyricsPageContainer .lyricsParent .lyrics .line.Sung .word,
@@ -403,10 +420,10 @@
   --gradient-position: 100% !important;
   --text-shadow-blur-radius: 4px !important;
   --text-shadow-opacity: 0% !important;
-/*   --TransitionDuration: 0.2s !important; */
+  --TransitionDuration: 0.2s !important;
   opacity: var(--IdleLyricsOpacity);
   text-shadow: var(--TextShadowDefinition);
-  transform: scale(1.012) translateY(-0.02em) !important;
+  transform: scale(1.0008) translateY(0) !important;
 }
 
 #LyricsPageContainer .lyricsParent .lyrics .line .letterGroup {
@@ -415,12 +432,12 @@
 
 #LyricsPageContainer .lyricsParent .lyrics .line .letterGroup:has(.word.Active) {
   text-shadow: var(--TextShadowDefinition) !important;
-  transform: scale(1.01) translateY(-0.06em) !important;
+  transform: scale(1.01) translateY(-0.03em) !important;
 }
 
 
 #LyricsPageContainer .lyricsParent .lyrics .line .letterGroup:has(.word.Active) .word.Active {
-  transform: scale(1.03) translateY(-0.14em) !important;
+  transform: scale(1.034) translateY(-0.0762em) !important;
   text-shadow: var(--TextShadowDefinition) !important;
 }
 
@@ -430,8 +447,19 @@
 
 #LyricsPageContainer .lyricsParent .lyrics .line .letterGroup:has(.word.Active) .word {
   text-shadow: var(--TextShadowDefinition) !important;
-  transform: scale(1.02) translateY(-0.05em) !important;
+  transform: scale(1.0089) translateY(-0.04em) !important;
 }
+
+#LyricsPageContainer .lyricsParent .lyrics .line.Active .letterGroup:has(.word.Active) .word.Sung {
+  --text-shadow-blur-radius: 8.8px !important;
+  --text-shadow-opacity: 80% !important;
+}
+
+#LyricsPageContainer .lyricsParent .lyrics .line.Active .letterGroup:has(.word.Active) .word.NotSung {
+  --text-shadow-blur-radius: 8.5px !important;
+  --text-shadow-opacity: 40% !important;
+}
+
 
 
 /* #LyricsPageContainer .lyricsParent .lyrics .line .word.close-to-class {
@@ -464,8 +492,17 @@
   opacity: 1;
   /* text-shadow: var(--ActiveTextGlowDef); */
   text-shadow: var(--TextShadowDefinition);
-  --TransitionDuration: 0.2s;
+  /* animation: GradientProgressAnim var(--TransitionDuration) linear forwards; */
 }
+
+/* @keyframes GradientProgressAnim {
+  from {
+    --gradient-position: -20%;
+  }
+  to {
+    --gradient-position: 100%;
+  }
+} */
 
 #LyricsPageContainer .lyricsParent .lyrics .line.Active .bg-word.Active {
   /* font-size: 37.4px !important;
@@ -485,7 +522,7 @@
 }
 
 #LyricsPageContainer .lyricsParent .lyrics .line:has(.bg-word) {
-  margin-top: -35px !important;
+  margin-top: -4.2cqh !important;
 }
 
 #LyricsPageContainer .lyricsParent .lyrics .line.musical-line .dotGroup {
@@ -506,13 +543,13 @@
   border-radius: 50%;
   transition: all ease-in 0.3s;
   transform: scale(1);
-  font-size: 70px !important;
+  font-size: calc(var(--DefaultLyricsSize)*1.3) !important;
   animation: none;
   opacity: 1;
 }
 
 #LyricsPageContainer .lyricsParent .lyrics .line.musical-line.Active .dotGroup .dot.Active {
-  font-size: 70.4px !important;
+  font-size: calc(var(--DefaultLyricsSize)*1.38) !important;
   transform: scale(1.2) translateY(-0.13em);
   animation: musicalElemAnim ease-in-out 8s infinite;
   opacity: 1;
