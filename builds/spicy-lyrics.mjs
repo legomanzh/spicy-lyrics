@@ -90,7 +90,7 @@ const UpdateVersion = (toVersion) => {
 			module => {
 				// Store our maid (and if we are already destroyed, reload the page)
 				activeMaid = module.ImporterMaid
-				if (activeMaid.IsDestroyed()) {
+				if (activeMaid && activeMaid.IsDestroyed()) {
 					localStorage.setItem(BucketURL, fromVersion) // This is so we can show the notification
 					return globalThis.location.reload()
 				}
