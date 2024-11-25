@@ -904,6 +904,8 @@ const TransitionDurationProperties = {
   Use: 200
 }
 
+const BlurMultiplier = 1;
+
 function startLyricsInInt(position) {
 
   /* if (Spicetify.Player.data.item.mediaType === "video") {
@@ -948,22 +950,22 @@ function startLyricsInInt(position) {
             //line.style.filter = "blur(0px)"
             //line.style.textShadow = textGlowDef
              // Calculate base blur amount (can be 0 if you don't want any blur by default)
-           /*  let blurAmountMultiplier = 1; 
+            let blurAmountMultiplier = 1; 
 
             if (lowQModeEnabled || !Spicetify.Player.isPlaying()) {
               // Increase blur amount when both scrolling and hovering
               blurAmountMultiplier = 0; // Adjust this value as needed
             } 
               for (let i = index + 1; i < arr.length; i++) {
-                  const blurAmount = 1.25 * (i - index) * blurAmountMultiplier;
-                  arr[i].style.setProperty("--blur-px", `${blurAmount}px`)
+                  const blurAmount = BlurMultiplier * (i - index) * blurAmountMultiplier;
+                  arr[i].HTMLElement.style.setProperty("--BlurAmount", `${blurAmount >= 5 ? 5 : blurAmount}px`)
               }
       
               // Apply blur to lines BEFORE the active line (in viewport)
               for (let i = index - 1; i >= 0; i--) {
-                  const blurAmount = 1.25 * (index - i) * blurAmountMultiplier;
-                  arr[i].style.setProperty("--blur-px", `${blurAmount}px`)
-              } */
+                  const blurAmount = BlurMultiplier * (index - i) * blurAmountMultiplier;
+                  arr[i].HTMLElement.style.setProperty("--BlurAmount", `${blurAmount >= 5 ? 5 : blurAmount}px`)
+              }
             
             if (!line.HTMLElement.classList.contains("Active")) line.HTMLElement.classList.add("Active");
             if (line.HTMLElement.classList.contains("Sung")) line.HTMLElement.classList.remove("Sung");
@@ -1234,23 +1236,22 @@ function startLyricsInInt(position) {
           //line.style.textShadow = textGlowDef
 
         
-              // Calculate base blur amount (can be 0 if you don't want any blur by default)
-              /* let blurAmountMultiplier = 1;
+          let blurAmountMultiplier = 1; 
 
-              if (lowQModeEnabled || !Spicetify.Player.isPlaying()) {
-                // Increase blur amount when both scrolling and hovering
-                blurAmountMultiplier = 0; // Adjust this value as needed
-              } 
-                for (let i = index + 1; i < arr.length; i++) {
-                    const blurAmount = 1.25 * (i - index) * blurAmountMultiplier;
-                    arr[i].style.setProperty("--blur-px", `${blurAmount}px`)
-                }
-        
-                // Apply blur to lines BEFORE the active line (in viewport)
-                for (let i = index - 1; i >= 0; i--) {
-                    const blurAmount = 1.25 * (index - i) * blurAmountMultiplier;
-                    arr[i].style.setProperty("--blur-px", `${blurAmount}px`)
-                } */
+          if (lowQModeEnabled || !Spicetify.Player.isPlaying()) {
+            // Increase blur amount when both scrolling and hovering
+            blurAmountMultiplier = 0; // Adjust this value as needed
+          } 
+            for (let i = index + 1; i < arr.length; i++) {
+                const blurAmount = BlurMultiplier * (i - index) * blurAmountMultiplier;
+                arr[i].HTMLElement.style.setProperty("--BlurAmount", `${blurAmount >= 5 ? 5 : blurAmount}px`)
+            }
+    
+            // Apply blur to lines BEFORE the active line (in viewport)
+            for (let i = index - 1; i >= 0; i--) {
+                const blurAmount = BlurMultiplier * (index - i) * blurAmountMultiplier;
+                arr[i].HTMLElement.style.setProperty("--BlurAmount", `${blurAmount >= 5 ? 5 : blurAmount}px`)
+            }
 
           /* const totalDuration = line.getAttribute("total");
           const elapsedDuration = edtrackpos - line.getAttribute("start");
@@ -1401,19 +1402,35 @@ export function scrollToActiveLine() {
 
 // Track the last active line and whether the user scrolled away
 
+type ContainerScrollData = {
+  ContainerRect: DOMRect | null;
+  ScrollOffset: number | null;
+}
+
+const CurrentContainerScrollData: ContainerScrollData = {
+  ContainerRect: null,
+  ScrollOffset: 35
+}
+
 export function scrollElementIntoView(container, element) {
-  const containerRect = container.getBoundingClientRect();
-  const elementRect = element.getBoundingClientRect();
+  const containerRect = CurrentContainerScrollData.ContainerRect ?? container.getBoundingClientRect();
+  const elementRect =  element.getBoundingClientRect();
   const offsetTop = elementRect.top - containerRect.top + container.scrollTop;
 
+  CurrentContainerScrollData.ContainerRect = containerRect;
+
   gsap.to(container, {
-    duration: 0.15, // 0.2-second scroll duration
+    duration: 0.15, // 0.15-second scroll duration
     scrollTo: {
-      y: offsetTop - container.clientHeight / 2 + element.clientHeight / 2 + 90, 
+      y: offsetTop - container.clientHeight / 2 + element.clientHeight / 2 + CurrentContainerScrollData.ScrollOffset, 
       autoKill: true 
     },
     ease: "none" // Good: back.out(1.4)
   });
+}
+
+export function ClearCurrrentContainerScrollData() {
+  CurrentContainerScrollData.ContainerRect = null;
 }
 
 /* let intForScrollFirst = null;

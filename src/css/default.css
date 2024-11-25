@@ -236,7 +236,7 @@
 }
 
 #LyricsPageContainer .lyricsParent .lyrics {
-  --ScrollbarScrollerColor: #ffffff96;
+ /*  --ScrollbarScrollerColor: #ffffff96; */
   --TextGlowDef: rgba(255,255,255,0.15) 0px 0px 6px;
   --ActiveTextGlowDef: rgba(255,255,255,0.4) 0px 0px 14px;
   --StrongTextGlowDef: rgba(255,255,255,0.68) 0px 0px 16.4px;
@@ -249,8 +249,8 @@
   height: 100cqh;
   width: 94cqw;
   font-size: var(--DefaultLyricsSize) !important;
-  transition: opacity, transform, scrollbar-color 0.2s linear;
-  scrollbar-width: thin;
+  transition: opacity, transform 0.2s linear;
+  /* UNUSED: scrollbar-width: thin; */
   scrollbar-color: transparent transparent;
   z-index: 9;
 
@@ -260,9 +260,9 @@
   mask-image: var(--ImageMask);
 }
 
-#LyricsPageContainer .lyricsParent .lyrics:hover {
+/* #LyricsPageContainer .lyricsParent .lyrics:hover {
   scrollbar-color: var(--ScrollbarScrollerColor) transparent;
-}
+} */
 
 #LyricsPageContainer .lyricsParent .lyrics::after {
   content: '';
@@ -316,6 +316,12 @@
   initial-value: -20%;
 } */
 
+#LyricsPageContainer .lyricsParent .lyrics .line {
+  --BlurAmount: 0px;
+  filter: blur(var(--BlurAmount));
+}
+
+
 #LyricsPageContainer .lyricsParent .lyrics .line,
 #LyricsPageContainer .lyricsParent .lyrics .line .word {
   --gradient-position: -20%;
@@ -366,6 +372,8 @@
   text-shadow: var(--TextShadowDefinition);
   /* filter: blur(var(--blur-px)); */
 }
+
+
 
 #LyricsPageContainer .lyricsParent .lyrics .line.NotSung:hover,
 #LyricsPageContainer .lyricsParent .lyrics .line.NotSung:hover .word,
@@ -457,7 +465,7 @@
 
 #LyricsPageContainer .lyricsParent .lyrics .line.Active .letterGroup:has(.word.Active) .word.NotSung {
   --text-shadow-blur-radius: 8.5px !important;
-  --text-shadow-opacity: 40% !important;
+  --text-shadow-opacity: 17% !important;
 }
 
 
