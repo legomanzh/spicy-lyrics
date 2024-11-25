@@ -1,7 +1,7 @@
 import { Interval, Timeout } from "@spikerko/web-modules/Scheduler";
 import "./css/default.css";
 import fetchLyrics from "./functions/fetchLyrics";
-import { lineLyrics, runLiiInt, ScrollingIntervalTime, scrollToActiveLine, staticLyrics, stopLyricsInInt, syllableLyrics } from "./functions/lyrics";
+import { ClearCurrrentContainerScrollData, lineLyrics, runLiiInt, ScrollingIntervalTime, scrollToActiveLine, staticLyrics, stopLyricsInInt, syllableLyrics } from "./functions/lyrics";
 import storage from "./functions/storage";
 import { setSettingsMenu } from "./functions/settings";
 import DisplayLyricsPage, { DestroyLyricsPage } from "./components/PageView";
@@ -146,6 +146,7 @@ async function main() {
     Spicetify.Player.play(); */
     if (!document.querySelector("#LyricsPageContainer .lyricsParent")) return;
     ApplyDynamicBackground(document.querySelector("#LyricsPageContainer .lyricsParent"))
+    ClearCurrrentContainerScrollData();
   })
 
 
