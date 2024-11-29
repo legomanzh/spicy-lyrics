@@ -12,6 +12,8 @@ import { IntervalManager } from "./functions/IntervalManager";
 import Defaults from "./components/Defaults";
 import GetProgress from "./functions/GetProgress";
 import { SpotifyPlayer } from "./components/SpotifyPlayer";
+import { IsPlaying } from "./components/Addons";
+import CSSFilter from "./functions/CSSFilter";
 // Currently Unused: import hasLyrics from "./functions/hasLyrics";
 
 async function main() {
@@ -92,25 +94,32 @@ async function main() {
         nowPlayingBar.querySelector(".spicy-dynamic-bg").remove();
       }
 
+      const dynamicBackground = document.createElement("div");
+      dynamicBackground.classList.add("spicy-dynamic-bg");
+
       if (lowQModeEnabled) {
-        nowPlayingBar.classList.add("spicy-dynamic-bg-in-this")
-        Spicetify.colorExtractor(Spicetify.Player.data.item.uri).then(colors => {
+        /* Spicetify.colorExtractor(Spicetify.Player.data.item.uri).then(colors => {
           nowPlayingBar.querySelector<HTMLElement>(".AAdBM1nhG73supMfnYX7").style.backgroundColor = colors.DESATURATED;
           lastImgUrl = coverUrl;
         }).catch(err => {
           console.error("Error extracting color:", err);
         });
-        return
+        return */
+
+        CSSFilter({ blur: "20px" }, coverUrl).then(url => {
+          dynamicBackground.innerHTML = `
+              <img class="Front NoEffect" src="${url}" />
+              <img class="Back NoEffect" src="${url}" />
+              <img class="BackCenter NoEffect" src="${url}" />
+          `
+        })
+      } else {
+        dynamicBackground.innerHTML = `
+          <img class="Front" src="${coverUrl}" />
+          <img class="Back" src="${coverUrl}" />
+          <img class="BackCenter" src="${coverUrl}" />
+        `
       }
-  
-      const dynamicBackground = document.createElement("div");
-      dynamicBackground.classList.add("spicy-dynamic-bg");
-      
-      dynamicBackground.innerHTML = `
-        <img class="Front" src="${coverUrl}" />
-        <img class="Back" src="${coverUrl}" />
-        <img class="BackCenter" src="${coverUrl}" />
-      `
   
       nowPlayingBar.classList.add("spicy-dynamic-bg-in-this")
   
@@ -160,8 +169,8 @@ async function main() {
     runLiiInt(); */
     /* Spicetify.Player.pause();
     Spicetify.Player.play(); */
-    if (!document.querySelector("#LyricsPageContainer .lyricsParent")) return;
-    ApplyDynamicBackground(document.querySelector("#LyricsPageContainer .lyricsParent"))
+    if (!document.querySelector("#SpicyLyricsPage .lyricsParent")) return;
+    ApplyDynamicBackground(document.querySelector("#SpicyLyricsPage .lyricsParent"))
     applyDynamicBackgroundToNowPlayingBar(Spicetify.Player.data?.item.metadata.image_url)
     ClearCurrrentContainerScrollData();
   })
@@ -226,12 +235,10 @@ async function main() {
 
 
   Spicetify.Player.addEventListener("onplaypause", (e) => {
-    SpotifyPlayer.IsPlaying = !e.data.isPaused;
+    SpotifyPlayer.IsPlaying = !e?.data?.isPaused;
   })
 
-  /* new IntervalManager(Infinity, () => {
-    SpotifyPlayer.TrackPosition = GetProgress();
-  }).Start(); */
+  SpotifyPlayer.IsPlaying = IsPlaying();
 }
 
 /* 
