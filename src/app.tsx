@@ -1,19 +1,23 @@
-import { Interval, Timeout } from "@spikerko/web-modules/Scheduler";
+import { Timeout } from "@spikerko/web-modules/Scheduler";
 import "./css/default.css";
 import fetchLyrics from "./functions/fetchLyrics";
-import { ClearCurrrentContainerScrollData, lineLyrics, runLiiInt, ScrollingIntervalTime, scrollToActiveLine, staticLyrics, stopLyricsInInt, syllableLyrics } from "./functions/lyrics";
+import { ClearCurrrentContainerScrollData, lineLyrics, ScrollingIntervalTime, scrollToActiveLine, staticLyrics, syllableLyrics } from "./functions/lyrics";
 import storage from "./functions/storage";
 import { setSettingsMenu } from "./functions/settings";
-import DisplayLyricsPage, { DestroyLyricsPage } from "./components/PageView";
+import DisplayLyricsPage, { DestroyLyricsPage, PageRoot } from "./components/PageView";
 import { Icons } from "./components/Icons";
 import ApplyDynamicBackground from "./components/dynamicBackground";
 import LoadFonts from "./components/Fonts";
+import { IntervalManager } from "./functions/IntervalManager";
+import Defaults from "./components/Defaults";
+import GetProgress from "./functions/GetProgress";
+import { SpotifyPlayer } from "./components/SpotifyPlayer";
 // Currently Unused: import hasLyrics from "./functions/hasLyrics";
 
 async function main() {
-  while (!Spicetify?.showNotification) {
+  /* while (!Spicetify?.showNotification) {
     await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  } */
   
   // Lets set out the Settings Menu
   setSettingsMenu();
@@ -113,18 +117,30 @@ async function main() {
       nowPlayingBar.appendChild(dynamicBackground);
 
       lastImgUrl = coverUrl;
+      //NOWPLAYINGBAR_DYNAMIC_BG_UPDATE_TIME = Date.now();
     } catch (error) {
       console.error("Error:", error) 
     }
   }
 
-  Interval(1, () => applyDynamicBackgroundToNowPlayingBar(Spicetify.Player.data?.item.metadata.image_url));
+  /* function NOWPLAYINGBAR_DYNAMIC_BG() {
+    if (Date.now() - NOWPLAYINGBAR_DYNAMIC_BG_UPDATE_TIME > NOWPLAYINGBAR_DYNAMIC_BG_THROTTLE_TIME) {
+      applyDynamicBackgroundToNowPlayingBar(Spicetify.Player.data?.item.metadata.image_url);
+    }
+  
+    requestAnimationFrame(NOWPLAYINGBAR_DYNAMIC_BG)
+  }
+
+  NOWPLAYINGBAR_DYNAMIC_BG(); */
+
+  new IntervalManager(1, () => {
+    applyDynamicBackgroundToNowPlayingBar(Spicetify.Player.data?.item.metadata.image_url);
+  }).Start();
 
   Spicetify.Player.addEventListener("songchange", async (event) => {
     const currentUri = event.data.item.uri;
 
-    stopLyricsInInt();
-    runLiiInt();
+    //Intervals.LyricsInterval.Restart();
 
     //await checkIfLyrics(currentUri);
 
@@ -146,6 +162,7 @@ async function main() {
     Spicetify.Player.play(); */
     if (!document.querySelector("#LyricsPageContainer .lyricsParent")) return;
     ApplyDynamicBackground(document.querySelector("#LyricsPageContainer .lyricsParent"))
+    applyDynamicBackgroundToNowPlayingBar(Spicetify.Player.data?.item.metadata.image_url)
     ClearCurrrentContainerScrollData();
   })
 
@@ -176,7 +193,7 @@ async function main() {
     });
   });
 
-  setInterval(scrollToActiveLine, ScrollingIntervalTime);
+  new IntervalManager(ScrollingIntervalTime, scrollToActiveLine).Start();
 
   let lastLocation = null;
 
@@ -209,14 +226,12 @@ async function main() {
 
 
   Spicetify.Player.addEventListener("onplaypause", (e) => {
-    if (e.data.isPaused) {
-      stopLyricsInInt();
-    } else {
-      runLiiInt();
-    }
+    SpotifyPlayer.IsPlaying = !e.data.isPaused;
   })
 
-
+  /* new IntervalManager(Infinity, () => {
+    SpotifyPlayer.TrackPosition = GetProgress();
+  }).Start(); */
 }
 
 /* 

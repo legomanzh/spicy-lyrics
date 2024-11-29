@@ -2,8 +2,9 @@ import fetchLyrics from "../functions/fetchLyrics";
 import "../css/default.css";
 import storage from "../functions/storage";
 import "../css/loader2.css"
-import { syllableLyrics, lineLyrics, staticLyrics, runLiiInt, checkLowQStatus, stopLyricsInInt, AnimationFrameInterval, addLinesEvListener, removeLinesEvListener, scrollToActiveLine, ClearCurrrentContainerScrollData } from "../functions/lyrics";
+import { syllableLyrics, lineLyrics, staticLyrics, checkLowQStatus, addLinesEvListener, removeLinesEvListener, scrollToActiveLine, ClearCurrrentContainerScrollData } from "../functions/lyrics";
 import ApplyDynamicBackground from "./dynamicBackground";
+import Defaults from "./Defaults";
 /* function firstFetched() {
     return storage.get("")
 } */
@@ -31,6 +32,8 @@ export default function DisplayLyricsPage() {
 
     PageRoot.appendChild(elem);
 
+    Defaults.LyricsContainerExists = true;
+
     ApplyDynamicBackground(document.querySelector("#LyricsPageContainer .lyricsParent"))
 
     addLinesEvListener();
@@ -38,7 +41,7 @@ export default function DisplayLyricsPage() {
     //useEffect(() => {
     {
         if (!Spicetify.Player.data?.item?.uri) return; // Exit if `uri` is not available
-        runLiiInt();
+        //Intervals.LyricsInterval.Start();
         checkLowQStatus();
 
         const currentUri = Spicetify.Player.data.item.uri;
@@ -55,9 +58,9 @@ export default function DisplayLyricsPage() {
             storage.set("lastFetchedUri", currentUri);
         });
     }
-    AnimationFrameInterval.Refresher.Running ?
-        AnimationFrameInterval.Refresher.Restart() :
-        AnimationFrameInterval.Refresher.Start();
+    //Intervals.AnimationFrameInterval.Running ?
+       // Intervals.AnimationFrameInterval.Restart() :
+        //Intervals.AnimationFrameInterval.Start();
 
 
         /* 
@@ -254,8 +257,9 @@ export default function DisplayLyricsPage() {
 export function DestroyLyricsPage() {
     if (!PageRoot.querySelector("#LyricsPageContainer")) return
     PageRoot.querySelector("#LyricsPageContainer")?.remove();
-    stopLyricsInInt();
-    AnimationFrameInterval.Refresher.Stop();
+   // Intervals.LyricsInterval.Stop();
+    //Intervals.AnimationFrameInterval.Stop();
     removeLinesEvListener();
     ClearCurrrentContainerScrollData();
+    Defaults.LyricsContainerExists = true;
 }
