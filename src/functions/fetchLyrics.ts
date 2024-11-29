@@ -1,6 +1,5 @@
 import { SpikyCache } from "@spikerko/web-modules/SpikyCache";
 import storage from "./storage";
-import { runLiiInt, stopLyricsInInt } from "./lyrics";
 import Defaults from "../components/Defaults";
 
 export const lyricsCache = new SpikyCache({
@@ -10,8 +9,7 @@ export const lyricsCache = new SpikyCache({
 export default async function fetchLyrics(uri: string) {
     if (!document.querySelector("#LyricsPageContainer")) return;
 
-    stopLyricsInInt();
-    runLiiInt();
+    //Intervals.LyricsInterval.Restart();
 
     if (document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").classList.contains("offline")) {
         document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").classList.remove("offline");

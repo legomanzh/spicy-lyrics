@@ -1,4 +1,4 @@
-async function fetchPlayerState() {
+/* function fetchPlayerState() {
     try {
         // Query the Cosmos endpoint for player state
         const state = Spicetify.Player.data;
@@ -7,10 +7,12 @@ async function fetchPlayerState() {
         console.error("Failed to fetch player state:", error);
         throw error;
     }
-}
+} */
 
-async function GetProgress() {
-    const state = await fetchPlayerState();
+function GetProgress() {
+    const state = Spicetify?.Player?.data;
+
+    if (!state) return 0;
 
     // Extract necessary fields from the state
     const { isPaused, timestamp, positionAsOfTimestamp } = state;
