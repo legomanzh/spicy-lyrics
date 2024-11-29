@@ -17,6 +17,11 @@ function DeepFreeze(obj: Object): Readonly<Object> {
     return Object.freeze(clone);
 }
 
+function IsPlaying() {
+    const state = Spicetify?.Player?.data?.isPaused;
+    return !state;
+}
+
 export const ArabicPersianRegex = /[\u0600-\u06FF]/;
 
-export { DeepFreeze }
+export { DeepFreeze, IsPlaying }

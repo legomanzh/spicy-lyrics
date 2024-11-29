@@ -9,7 +9,7 @@ import { SpotifyPlayer } from '../components/SpotifyPlayer';
 
 //gsap.registerPlugin(ScrollToPlugin); 
 
-export const ScrollingIntervalTime = 0.5;
+export const ScrollingIntervalTime = 0.1;
 
 function convertTime(time: any): any { 
   return time * 1000;
@@ -72,10 +72,10 @@ export function checkLowQStatus() {
 
   if (lowQMode && lowQMode == "true") {
 
-    document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").style.setProperty("--TextGlowDef", "rgba(255,255,255,0.07) 0px 0px 2px")
-    document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").style.setProperty("--ActiveTextGlowDef", "rgba(255,255,255,0.24) 0px 0px 5px")
-    document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").style.setProperty("--StrongTextGlowDef", "rgba(255,255,255,0.35) 0px 0px 5.3px")
-    document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").style.setProperty("--StrongerTextGlowDef", "rgba(255,255,255,0.4) 0px 0px 4.9px")
+    document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").style.setProperty("--TextGlowDef", "rgba(255,255,255,0.07) 0px 0px 2px")
+    document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").style.setProperty("--ActiveTextGlowDef", "rgba(255,255,255,0.24) 0px 0px 5px")
+    document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").style.setProperty("--StrongTextGlowDef", "rgba(255,255,255,0.35) 0px 0px 5.3px")
+    document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").style.setProperty("--StrongerTextGlowDef", "rgba(255,255,255,0.4) 0px 0px 4.9px")
     /* textGlowDef = "rgba(255,255,255,0.07) 0px 0px 2px"
     activeTextGlowDef = "rgba(255,255,255,0.24) 0px 0px 5px" */
   }
@@ -118,7 +118,7 @@ function ClearLyricsContentArrays() {
 }
 
 /* function Lyrics_CalculateYPositions() {
-  const container = document.querySelector<HTMLElement>("#LyricsPageContainer .lyricsParent .lyrics");
+  const container = document.querySelector<HTMLElement>("#SpicyLyricsPage .lyricsParent .lyrics");
 
   if (!container || Defaults.CurrentLyricsType === "None") return;
 
@@ -152,18 +152,18 @@ export function syllableLyrics(data) {
   if (!Defaults.LyricsContainerExists) return
   ClearLyricsContentArrays();
 
-  removeAllStyles(document.querySelector("#LyricsPageContainer .lyricsParent .lyrics"))
+  removeAllStyles(document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics"))
 
   if (data.classes) {
-    document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").className = data.classes;
+    document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").className = data.classes;
   }
 
   if (data.styles) {
-    applyStyles(document.querySelector("#LyricsPageContainer .lyricsParent .lyrics"), data.styles);
+    applyStyles(document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics"), data.styles);
   }
 /*   const topSpace = document.createElement("div")
   topSpace.classList.add("topSpace")
-  document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(topSpace) */
+  document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild(topSpace) */
 
   if (data.StartTime >= lyricsBetweenShow) {
     const musicalLine = document.createElement("div")
@@ -205,7 +205,8 @@ export function syllableLyrics(data) {
       HTMLElement: musicalDots1,
       StartTime: 0,
       EndTime: dotTime,
-      TotalTime: dotTime
+      TotalTime: dotTime,
+      Dot: true
     })
 
     musicalDots2.classList.add("word");
@@ -218,7 +219,8 @@ export function syllableLyrics(data) {
       HTMLElement: musicalDots2,
       StartTime: dotTime,
       EndTime: dotTime * 2,
-      TotalTime: dotTime
+      TotalTime: dotTime,
+      Dot: true
     })
 
     musicalDots3.classList.add("word");
@@ -232,7 +234,8 @@ export function syllableLyrics(data) {
       HTMLElement: musicalDots3,
       StartTime: dotTime * 2,
       EndTime: convertTime(data.StartTime) - 400,
-      TotalTime: dotTime
+      TotalTime: dotTime,
+      Dot: true
     })
 
     dotGroup.appendChild(musicalDots1);
@@ -240,7 +243,7 @@ export function syllableLyrics(data) {
     dotGroup.appendChild(musicalDots3);
 
     musicalLine.appendChild(dotGroup);
-    document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(musicalLine)
+    document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild(musicalLine)
   }
     data.Content.forEach((line, index, arr) => {
       const lineElem = document.createElement("div")
@@ -276,18 +279,18 @@ export function syllableLyrics(data) {
       /* if (index === 0) {
         const topSpace = document.createElement("div")
         topSpace.classList.add("topSpace")
-        document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(topSpace)
+        document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild(topSpace)
       } */
 
-      document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(lineElem)
+      document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild(lineElem)
       
       /* if (arr.length - 1 === index) {
         const lineSpace = document.createElement("div")
         lineSpace.classList.add("lineSpace")
-        document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(lineSpace)
+        document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild(lineSpace)
       } */
   
-      //document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild("<br>")
+      //document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild("<br>")
   
       
   
@@ -386,10 +389,10 @@ export function syllableLyrics(data) {
   
        
   
-       /*  document.querySelector('#LyricsPageContainer .lyricsParent .lyrics').style.ponterEvents = null
+       /*  document.querySelector('#SpicyLyricsPage .lyricsParent .lyrics').style.ponterEvents = null
   
-        document.querySelector('#LyricsPageContainer .lyricsParent .llparent').style.display = 'none'
-        document.querySelector('#LyricsPageContainer .lyricsParent .bgcover').style.display = 'none' */
+        document.querySelector('#SpicyLyricsPage .lyricsParent .llparent').style.display = 'none'
+        document.querySelector('#SpicyLyricsPage .lyricsParent .bgcover').style.display = 'none' */
   
         //if (lyricsInt !== false) {
           /* clearInterval(lyricsInt)
@@ -422,7 +425,7 @@ export function syllableLyrics(data) {
           if (line.OppositeAligned) {
               lineE.classList.add("OppositeAligned")
           }
-          document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(lineE)
+          document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild(lineE)
           bg.Syllables.forEach(bw => {
             const bwE = document.createElement("span")
             bwE.textContent = bw.Text
@@ -507,7 +510,8 @@ export function syllableLyrics(data) {
             HTMLElement: musicalDots1,
             StartTime: convertTime(line.Lead.EndTime),
             EndTime: convertTime(line.Lead.EndTime) + dotTime,
-            TotalTime: dotTime
+            TotalTime: dotTime,
+            Dot: true
           })
       
           musicalDots2.classList.add("word");
@@ -521,7 +525,8 @@ export function syllableLyrics(data) {
             HTMLElement: musicalDots2,
             StartTime: convertTime(line.Lead.EndTime) + dotTime,
             EndTime: convertTime(line.Lead.EndTime) + (dotTime * 2),
-            TotalTime: dotTime
+            TotalTime: dotTime,
+            Dot: true
           })
       
           musicalDots3.classList.add("word");
@@ -535,7 +540,8 @@ export function syllableLyrics(data) {
             HTMLElement: musicalDots3,
             StartTime: convertTime(line.Lead.EndTime) + (dotTime * 2),
             EndTime: convertTime(arr[index + 1].Lead.StartTime) - 400,
-            TotalTime: dotTime
+            TotalTime: dotTime,
+            Dot: true
           })
       
           dotGroup.appendChild(musicalDots1);
@@ -543,7 +549,7 @@ export function syllableLyrics(data) {
           dotGroup.appendChild(musicalDots3);
       
           musicalLine.appendChild(dotGroup);
-          document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(musicalLine)
+          document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild(musicalLine)
         }
       } catch (error) {
         
@@ -560,7 +566,7 @@ export function syllableLyrics(data) {
           lineE.classList.add("line")
           lineE.setAttribute("start", convertTime(bg.StartTime))
           lineE.setAttribute("end", convertTime(bg.EndTime))
-          document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(lineE)
+          document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild(lineE)
           bg.Syllables.forEach(bw => {
             const bwE = document.createElement("span")
             bwE.textContent = bw.Text
@@ -586,19 +592,19 @@ export function syllableLyrics(data) {
 
     ClearLyricsContentArrays();
 
-    removeAllStyles(document.querySelector("#LyricsPageContainer .lyricsParent .lyrics"))
+    removeAllStyles(document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics"))
 
     if (data.classes) {
-      document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").className = data.classes;
+      document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").className = data.classes;
     }
 
     if (data.styles) {
-      applyStyles(document.querySelector("#LyricsPageContainer .lyricsParent .lyrics"), data.styles);
+      applyStyles(document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics"), data.styles);
     }
 
 /*     const topSpace = document.createElement("div")
     topSpace.classList.add("topSpace")
-    document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(topSpace) */
+    document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild(topSpace) */
 
       if (data.StartTime >= lyricsBetweenShow) {
         const musicalLine = document.createElement("div")
@@ -656,7 +662,7 @@ export function syllableLyrics(data) {
         dotGroup.appendChild(musicalDots3);
     
         musicalLine.appendChild(dotGroup);
-        document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(musicalLine)
+        document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild(musicalLine)
       }
 
 
@@ -696,24 +702,24 @@ export function syllableLyrics(data) {
       /* if (index === 0) {
         const topSpace = document.createElement("div")
         topSpace.classList.add("topSpace")
-        document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(topSpace)
+        document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild(topSpace)
       } */
 
-      document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(lineElem)
+      document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild(lineElem)
   
       /* if (arr.length - 1 === index) {
         const lineSpace = document.createElement("div")
         lineSpace.classList.add("lineSpace")
-        document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(lineSpace)
+        document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild(lineSpace)
       } */
   
-      //document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild("<br>")
+      //document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild("<br>")
       
   
-        /* document.querySelector('#LyricsPageContainer .lyricsParent .lyrics').style.ponterEvents = null
+        /* document.querySelector('#SpicyLyricsPage .lyricsParent .lyrics').style.ponterEvents = null
   
-        document.querySelector('#LyricsPageContainer .lyricsParent .llparent').style.display = 'none'
-        document.querySelector('#LyricsPageContainer .lyricsParent .bgcover').style.display = 'none' */
+        document.querySelector('#SpicyLyricsPage .lyricsParent .llparent').style.display = 'none'
+        document.querySelector('#SpicyLyricsPage .lyricsParent .bgcover').style.display = 'none' */
   
           /* clearInterval(lyricsInt)
           lyricsInt = null; */
@@ -781,7 +787,7 @@ export function syllableLyrics(data) {
             dotGroup.appendChild(musicalDots3);
         
             musicalLine.appendChild(dotGroup);
-            document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(musicalLine)
+            document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild(musicalLine)
           }
         } catch (error) {
           
@@ -796,7 +802,7 @@ export function syllableLyrics(data) {
             lineE.classList.add("line")
             lineE.setAttribute("start", convertTime(bg.StartTime))
             lineE.setAttribute("end", convertTime(bg.EndTime))
-            document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(lineE)
+            document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild(lineE)
             bg.Syllables.forEach(bw => {
               const bwE = document.createElement("span")
               bwE.textContent = bw.Text
@@ -836,24 +842,24 @@ function removeAllStyles(element) {
 
   export function staticLyrics(data) {
     if (!Defaults.LyricsContainerExists) return
-    if (document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").classList.contains("offline")) {
-      document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").classList.remove("offline");
+    if (document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").classList.contains("offline")) {
+      document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").classList.remove("offline");
     }
 
     ClearLyricsContentArrays();
 
     if (data.offline) {
-      document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").classList.add("offline");
+      document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").classList.add("offline");
     }
 
-    removeAllStyles(document.querySelector("#LyricsPageContainer .lyricsParent .lyrics"))
+    removeAllStyles(document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics"))
 
     if (data.classes) {
-      document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").className = data.classes;
+      document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").className = data.classes;
     }
 
     if (data.styles) {
-      applyStyles(document.querySelector("#LyricsPageContainer .lyricsParent .lyrics"), data.styles);
+      applyStyles(document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics"), data.styles);
     }
     
     data.Lines.forEach((line, index, arr) => {
@@ -883,27 +889,27 @@ function removeAllStyles(element) {
       /* if (index === 0) {
         const topSpace = document.createElement("div")
         topSpace.classList.add("topSpace")
-        document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(topSpace)
+        document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild(topSpace)
       } */
 
       
 
-      document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(lineElem)
+      document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild(lineElem)
 
       /* if (arr.length - 1 === index) {
         const lineSpace = document.createElement("div")
         lineSpace.classList.add("lineSpace")
-        document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild(lineSpace)
+        document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild(lineSpace)
       } */
   
-      //document.querySelector("#LyricsPageContainer .lyricsParent .lyrics").appendChild("<br>")
+      //document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").appendChild("<br>")
       
   
   
           /* clearInterval(lyricsInt)
           lyricsInt = null */
 
-        //document.querySelector("#LyricsPageContainer .lyricsParent .informationBox").textContent = "These lyrics haven't been synced yet."
+        //document.querySelector("#SpicyLyricsPage .lyricsParent .informationBox").textContent = "These lyrics haven't been synced yet."
   
     })
   }
@@ -914,8 +920,8 @@ function removeAllStyles(element) {
   let moveTimeout;
 
   setInterval(() => {
-    if (!document.querySelector<HTMLElement>("#LyricsPageContainer .lyricsParent .lyrics")) return;
-    const lyricsContainer = document.querySelector<HTMLElement>("#LyricsPageContainer .lyricsParent .lyrics");
+    if (!document.querySelector<HTMLElement>("#SpicyLyricsPage .lyricsParent .lyrics")) return;
+    const lyricsContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .lyricsParent .lyrics");
   
     /* lyricsContainer.addEventListener('scroll', () => {
       isScrolling = true;
@@ -1032,8 +1038,8 @@ function _OLDstartLyricsInInt(position) {
       if (CurrentLyricsType != null && CurrentLyricsType === "Syllable") {
         //if (lastEdTrackPos === edtrackpos) return
       //lastEdTrackPos = edtrackpos
-      //if (document.querySelector('#LyricsPageContainer').classList.contains('active')) {
-        //document.querySelectorAll("#LyricsPageContainer .lyricsParent .lyrics .line").forEach((line, index, arr) => {
+      //if (document.querySelector('#SpicyLyricsPage').classList.contains('active')) {
+        //document.querySelectorAll("#SpicyLyricsPage .lyricsParent .lyrics .line").forEach((line, index, arr) => {
           const arr = LyricsObject.Types.Syllable.Lines;
           //LyricsObject.Types.Syllable.Lines.forEach((line, index, arr) => {
           for (let index = 0; index < arr.length; index++) {
@@ -1359,7 +1365,7 @@ function _OLDstartLyricsInInt(position) {
       } else if (CurrentLyricsType != null && CurrentLyricsType === "Line") {
         //if (lastEdTrackPos === edtrackpos) return
     //lastEdTrackPos = edtrackpos
-   // if (document.querySelector('#LyricsPageContainer').classList.contains('active')) {
+   // if (document.querySelector('#SpicyLyricsPage').classList.contains('active')) {
         const arr = LyricsObject.Types.Line.Lines;
       //LyricsObject.Types.Line.Lines.forEach((line, index, arr) => {
       for (let index = 0; index < arr.length; index++) {
@@ -1476,6 +1482,8 @@ function _OLDstartLyricsInInt(position) {
     }
 }
 
+const IdleLyricsScale = 0.95;
+
 function startLyricsInInt(position) {
   const CurrentLyricsType = Defaults.CurrentLyricsType;
   const edtrackpos = position + timeOffset;
@@ -1536,6 +1544,7 @@ function startLyricsInInt(position) {
                   const word = words[wordIndex];
 
                   const isEmphasis = word?.Emphasis;
+                  const isDot = word?.Dot;
 
                   if (word.Status === "Active") {
                     // Calculate percentage of progress through the word
@@ -1560,7 +1569,7 @@ function startLyricsInInt(position) {
                     const textShadowOpacity = calculateOpacity(percentage); // From 0% to 100%
                     const emphasisTextShadowOpacity = calculateOpacity(percentage) * 1.7; // From 0% to 100%
                     const translateY = -0.035 + (-0.035 - -0.01) * percentage; // From -0.005 to -0.2. (multiplied by var(--DefaultLyricsSize))
-                    const scale = 0.95 + (1.02 - 0.95) * percentage; // From 0.95 to 1.02
+                    const scale = IdleLyricsScale + (1.02 - IdleLyricsScale) * percentage; // From IdleLyricsScale to 1.02
                     const gradientPosition = `${percentage * 100}%`; // Gradient position based on percentage
                 
                     // Apply styles dynamically
@@ -1568,6 +1577,7 @@ function startLyricsInInt(position) {
                     if (isEmphasis) {
                       word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${translateY * 1.6}))`;
                       word.HTMLElement.parentElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${translateY * 1.4}))`;
+                      word.HTMLElement.parentElement.style.scale = `0.98`;
                     } else {
                       word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${translateY}))`;
                     }
@@ -1575,14 +1585,22 @@ function startLyricsInInt(position) {
                     word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${isEmphasis ? emphasisBlurRadius :blurRadius}px`);
                     word.HTMLElement.style.setProperty("--text-shadow-opacity", `${isEmphasis ? emphasisTextShadowOpacity : textShadowOpacity}%`);
                     word.HTMLElement.style.setProperty("--gradient-position", gradientPosition);
+                    if (isDot) {
+                      word.HTMLElement.classList.add("Active");
+                      word.HTMLElement.classList.remove("Sung", "NotSung");
+                    }
                 } else if (word.Status === "NotSung") {
                     // NotSung styles
                     word.HTMLElement.style.opacity = "1";
                     word.HTMLElement.style.transform = "translateY(calc(var(--DefaultLyricsSize) * 0))";
-                    word.HTMLElement.style.scale = "0.95";
+                    word.HTMLElement.style.scale = IdleLyricsScale;
                     word.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
                     word.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
                     word.HTMLElement.style.setProperty("--gradient-position", "-20%");
+                    if (isDot) {
+                      word.HTMLElement.classList.add("NotSung");
+                      word.HTMLElement.classList.remove("Sung", "Active");
+                    }
                 } else if (word.Status === "Sung") {
                     // Sung styles
                     if (isEmphasis) {
@@ -1594,7 +1612,11 @@ function startLyricsInInt(position) {
                     word.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
                     word.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
                     word.HTMLElement.style.setProperty("--gradient-position", "100%");
-                }                
+                    if (isDot) {
+                      word.HTMLElement.classList.add("Sung");
+                      word.HTMLElement.classList.remove("Active", "NotSung");
+                    }
+                }
               }
           } else if (line.Status === "NotSung") {
               line.HTMLElement.classList.add("NotSung");
@@ -1612,6 +1634,15 @@ function startLyricsInInt(position) {
 
           if (line.Status === "Active") {
               applyBlur(arr, index, 0.5);
+
+              // Calculate percentage of progress through the word
+              const totalDuration = line.EndTime - line.StartTime;
+              const elapsedDuration = edtrackpos - line.StartTime;
+              const percentage = Math.max(0, Math.min(elapsedDuration / totalDuration, 1)); // Clamp percentage between 0 and 1
+              const gradientPercentage = `${percentage * 100}%`; // Convert percentage to a percentage value
+
+              line.HTMLElement.style.setProperty("--gradient-position", gradientPercentage);
+              line.HTMLElement.style.setProperty("--gradient-degrees", "180deg");
 
               if (!line.HTMLElement.classList.contains("Active")) {
                   line.HTMLElement.classList.add("Active");
@@ -1667,15 +1698,15 @@ export function isElementInViewport(el, scr) {
 } */
 
 let lastLine = null;
-//const lyricsContainer = document.querySelector("#LyricsPageContainer .lyricsParent .lyrics");
+//const lyricsContainer = document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics");
 
 export function scrollToActiveLine() {
   //const edtrackpos = Spicetify.Player.getProgress();
   /* if (!Defaults.LyricsContainerExists) return
   if (Spicetify.Platform.History.location.pathname === "/spicy-lyrics") {
-      document.querySelectorAll("#LyricsPageContainer .lyricsParent .lyrics .line").forEach(line => {
+      document.querySelectorAll("#SpicyLyricsPage .lyricsParent .lyrics .line").forEach(line => {
         if (line.classList.contains("Active")) {
-          const container = document.querySelector("#LyricsPageContainer .lyricsParent .lyrics");
+          const container = document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics");
 
           scrollElementIntoView(container, line);
         }
@@ -1724,7 +1755,7 @@ export function scrollToActiveLine() {
       function Continue(currentLine) {
         if (currentLine) {
           const LineElem = currentLine.HTMLElement
-          const container = document.querySelector<HTMLElement>("#LyricsPageContainer .lyricsParent .lyrics");
+          const container = document.querySelector<HTMLElement>("#SpicyLyricsPage .lyricsParent .lyrics");
           if (lastLine && lastLine === LineElem) return;
           lastLine = LineElem
           scrollElementIntoView(container, currentLine.HTMLElement);
@@ -1831,12 +1862,12 @@ export function ClearCurrrentContainerScrollData() {
 
 // Main function to scroll to the active line
 export function scrollToActiveLine(firstScroll = false) {
-    const lyricsContainer = document.querySelector("#LyricsPageContainer .lyricsParent .lyrics");
+    const lyricsContainer = document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics");
     if (!lyricsContainer) return;
 
     if (Spicetify.Platform.History.location.pathname !== "/spicy-lyrics") return;
 
-    let lines = document.querySelectorAll("#LyricsPageContainer .lyricsParent .lyrics .line");
+    let lines = document.querySelectorAll("#SpicyLyricsPage .lyricsParent .lyrics .line");
 
     // Find the current active line
     let currentLine = Array.from(lines).find(line => line.classList.contains("Active"));
@@ -1847,7 +1878,7 @@ export function scrollToActiveLine(firstScroll = false) {
       //if (!currentLine) {
         intForScrollFirst = setInterval(() => {
           console.log("yes")
-          const lines = document.querySelectorAll("#LyricsPageContainer .lyricsParent .lyrics .line");
+          const lines = document.querySelectorAll("#SpicyLyricsPage .lyricsParent .lyrics .line");
           const currentLine = Array.from(lines).find(line => line.classList.contains("Active"));
           if (currentLine) {
             console.log("ultra yes")
@@ -1876,7 +1907,7 @@ export function scrollToActiveLine(firstScroll = false) {
 function handleUserScroll() {
     userScrolled = true; // Mark that the user has scrolled away
 
-    const lyricsContainer = document.querySelector("#LyricsPageContainer .lyricsParent .lyrics");
+    const lyricsContainer = document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics");
 
     // Clear any existing timeout if the user is actively scrolling
     if (scrollTimeout) {
@@ -1885,7 +1916,7 @@ function handleUserScroll() {
 
     // Start a new timeout to scroll back to the active line if the user stops scrolling for 3 seconds
     scrollTimeout = setTimeout(() => {
-        const activeLine = document.querySelector("#LyricsPageContainer .lyricsParent .lyrics .line.Active");
+        const activeLine = document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics .line.Active");
         if (activeLine) {
             if (!isElementInViewport(activeLine, lyricsContainer)) return
             scrollElementIntoView(lyricsContainer, activeLine); // Scroll back to the active line
@@ -1998,7 +2029,7 @@ export function addLinesEvListener() {
 
   LinesEvListenerMaid = new Maid();
 
-  const el = document.querySelector<HTMLElement>("#LyricsPageContainer .lyricsParent .lyrics");
+  const el = document.querySelector<HTMLElement>("#SpicyLyricsPage .lyricsParent .lyrics");
   if (!el) return
   const evl = el.addEventListener("click", LinesEvListener);
   LinesEvListenerMaid.Give(evl);
@@ -2008,7 +2039,7 @@ export function removeLinesEvListener() {
   if (!LinesEvListenerExists) return
   LinesEvListenerExists = false;
 
-  const el = document.querySelector<HTMLElement>("#LyricsPageContainer .lyricsParent .lyrics");
+  const el = document.querySelector<HTMLElement>("#SpicyLyricsPage .lyricsParent .lyrics");
   if (!el) return
   el.removeEventListener("click", LinesEvListener)
   LinesEvListenerMaid.Destroy();
