@@ -304,14 +304,17 @@ export function syllableLyrics(data) {
         const IfLetterCapable = letterLength <= 12 && totalDuration >= 1000;//lead.Text.split("").length <= 3 && totalDuration >= 850 ? true : false;//totalDuration >= 1620 && lead.Text.split("").length < 12;
 
         if (IfLetterCapable) {
+          
           word = document.createElement("div")
           const letters = lead.Text.split(""); // Split word into individual letters
           const letterDuration = (totalDuration - 70) / letters.length; // Duration per letter
-          
+
+          let Letters = [];
+
           letters.forEach((letter, index, lA) => {
             const letterElem = document.createElement("span");
             letterElem.textContent = letter;
-            letterElem.classList.add("word");
+            letterElem.classList.add("letter");
             letterElem.classList.add("Emphasis");
             //letterElem.style.setProperty("--Duration", `${letterDuration + DurationTimeOffset}ms`)
   
@@ -329,20 +332,31 @@ export function syllableLyrics(data) {
               word.setAttribute("font", "Vazirmatn")
             }
 
-            word.appendChild(letterElem);
-
-            LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
+           Letters.push({
               HTMLElement: letterElem,
               StartTime: letterStartTime,
               EndTime: letterEndTime,
-              TotalTime: totalDuration,
+              TotalTime: letterDuration,
               Emphasis: true
             })
+
+            word.appendChild(letterElem);
           });
           word.classList.add("letterGroup");
           if (lead.IsPartOfWord) {
             word.classList.add("PartOfWord");
           }
+          
+          LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
+            HTMLElement: word,
+            StartTime: convertTime(lead.StartTime),
+            EndTime: convertTime(lead.EndTime),
+            TotalTime: totalDuration,
+            LetterGroup: true,
+            Letters
+          })
+
+          Letters = []
 
           lineElem.appendChild(word);
           
@@ -413,7 +427,8 @@ export function syllableLyrics(data) {
             HTMLElement: lineE,
             StartTime: convertTime(bg.StartTime),
             EndTime: convertTime(bg.EndTime),
-            TotalTime: convertTime(bg.EndTime) - convertTime(bg.StartTime)
+            TotalTime: convertTime(bg.EndTime) - convertTime(bg.StartTime),
+            BGLine: true
           })
           SetWordArrayInCurentLine();
           //lineE.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 100%)"
@@ -441,7 +456,8 @@ export function syllableLyrics(data) {
               HTMLElement: bwE,
               StartTime: convertTime(bw.StartTime),
               EndTime: convertTime(bw.EndTime),
-              TotalTime: convertTime(bw.EndTime) - convertTime(bw.StartTime)
+              TotalTime: convertTime(bw.EndTime) - convertTime(bw.StartTime),
+              BGWord: true
             })
 
             bwE.classList.add("bg-word")
@@ -984,6 +1000,20 @@ function SetLyricsStatuses(PreCurrentPosition) {
           } else if (word.EndTime <= CurrentPosition) {
             word.Status = "Sung";
           }
+
+          if (word?.LetterGroup) {
+            for (let k = 0; k < word.Letters.length; k++) {
+              const letter = word.Letters[k];
+              if (letter.StartTime <= CurrentPosition && CurrentPosition <= letter.EndTime) {
+                letter.Status = "Active";
+              } else if (letter.StartTime >= CurrentPosition) {
+                letter.Status = "NotSung";
+              } else if (letter.EndTime <= CurrentPosition) {
+                letter.Status = "Sung";
+              }
+            }
+          }
+
         }
 
       } else if (lineTimes.start >= CurrentPosition) {
@@ -993,6 +1023,13 @@ function SetLyricsStatuses(PreCurrentPosition) {
         for (let j = 0; j < words.length; j++) {
           const word = words[j];
           word.Status = "NotSung";
+
+          if (word?.LetterGroup) {
+            for (let k = 0; k < word.Letters.length; k++) {
+              const letter = word.Letters[k];
+              letter.Status = "NotSung";
+            }
+          }
         }
       } else if (lineTimes.end <= CurrentPosition) {
         line.Status = "Sung";
@@ -1001,6 +1038,13 @@ function SetLyricsStatuses(PreCurrentPosition) {
         for (let j = 0; j < words.length; j++) {
           const word = words[j];
           word.Status = "Sung";
+
+          if (word?.LetterGroup) {
+            for (let k = 0; k < word.Letters.length; k++) {
+              const letter = word.Letters[k];
+              letter.Status = "Sung";
+            }
+          }
         }
       }
     }
@@ -1483,6 +1527,7 @@ function _OLDstartLyricsInInt(position) {
 }
 
 const IdleLyricsScale = 0.95;
+const LyricsTextGlowDef = "0 0 var(--text-shadow-blur-radius) rgba(255,255,255,var(--text-shadow-opacity))"
 
 function startLyricsInInt(position) {
   const CurrentLyricsType = Defaults.CurrentLyricsType;
@@ -1543,7 +1588,7 @@ function startLyricsInInt(position) {
               for (let wordIndex = 0; wordIndex < words.length; wordIndex++) {
                   const word = words[wordIndex];
 
-                  const isEmphasis = word?.Emphasis;
+                  const isLetterGroup = word?.LetterGroup;
                   const isDot = word?.Dot;
 
                   if (word.Status === "Active") {
@@ -1554,43 +1599,99 @@ function startLyricsInInt(position) {
 
                     // Calculate opacity based on progress percentage
                     const calculateOpacity = (percentage: number): number => {
-                      if (percentage <= 0.24) {
-                          // Progress 0% to 40%: Interpolate from 10% to 100% opacity
-                          return 10 + (percentage / 0.24) * (100 - 10);
+                      if (word?.BGWord) return 0;
+                      if (percentage <= 0.5) {
+                          // Progress 0% to 50%: Interpolate from 0% to 50% opacity
+                          return percentage * 100; // Linearly scale from 0 to 50
                       } else {
-                          // Progress 40% to 100%: Interpolate from 100% to 0% opacity
-                          return 100 - ((percentage - 0.24) / 0.76) * 100;
+                          // Progress 50% to 100%: Interpolate from 50% to 0% opacity
+                          return (1 - percentage) * 100; // Linearly scale from 50 to 0
                       }
                     };
 
+
                     // Dynamic calculations based on percentage
-                    const blurRadius = 8 + (24 - 8) * percentage; // From 4px to 16px
-                    const emphasisBlurRadius = 12 + (32 - 12) * percentage; // From 8px to 24px 
-                    const textShadowOpacity = calculateOpacity(percentage); // From 0% to 100%
-                    const emphasisTextShadowOpacity = calculateOpacity(percentage) * 1.7; // From 0% to 100%
+                    const blurRadius = 4 + (16 - 4) * percentage; // From 4px to 16px
+                    const emphasisBlurRadius = 8 + (24 - 8) * percentage; // From 8px to 24px 
+                    const textShadowOpacity = calculateOpacity(percentage) * 1.5; // From 0% to 100%
+                    const emphasisTextShadowOpacity = calculateOpacity(percentage) * 5; // From 0% to 100%
                     const translateY = -0.035 + (-0.035 - -0.01) * percentage; // From -0.005 to -0.2. (multiplied by var(--DefaultLyricsSize))
-                    const scale = IdleLyricsScale + (1.02 - IdleLyricsScale) * percentage; // From IdleLyricsScale to 1.02
+                    const scale = IdleLyricsScale + (1.025 - IdleLyricsScale) * percentage; // From IdleLyricsScale to 1.025
                     const gradientPosition = `${percentage * 100}%`; // Gradient position based on percentage
-                
+                    
                     // Apply styles dynamically
                     word.HTMLElement.style.opacity = "1";
-                    if (isEmphasis) {
-                      word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${translateY * 1.6}))`;
-                      word.HTMLElement.parentElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${translateY * 1.4}))`;
-                      word.HTMLElement.parentElement.style.scale = `0.98`;
+                    word.HTMLElement.style.textShadow = LyricsTextGlowDef;
+                    if (isLetterGroup) {
+                      for (let k = 0; k < word.Letters.length; k++) {
+                        const letter = word.Letters[k];
+                        if (letter.Status === "Active") {
+                          // Calculate percentage of progress through the word
+                          const totalDuration = letter.EndTime - letter.StartTime;
+                          const elapsedDuration = edtrackpos - letter.StartTime;
+                          const percentage = Math.max(0, Math.min(elapsedDuration / totalDuration, 1)); // Clamp percentage between 0 and 1
+
+                          const letterGradientPosition = `${percentage * 100}%`; // Gradient position based on percentage
+                          letter.HTMLElement.style.textShadow = LyricsTextGlowDef;
+                          letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${translateY * 1.4}))`;
+                          letter.HTMLElement.style.scale = `${scale * 1.001}`;
+                          letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${emphasisBlurRadius}px`);
+                          letter.HTMLElement.style.setProperty("--text-shadow-opacity", `${emphasisTextShadowOpacity}%`);
+                          letter.HTMLElement.style.setProperty("--gradient-position", letterGradientPosition);
+                        } else if (letter.Status === "NotSung") {
+                          // NotSung styles
+                          letter.HTMLElement.style.textShadow = LyricsTextGlowDef;
+                          letter.HTMLElement.style.opacity = "1";
+                          letter.HTMLElement.style.transform = "translateY(calc(var(--DefaultLyricsSize) * 0))";
+                          letter.HTMLElement.style.scale = IdleLyricsScale;
+                          letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
+                          letter.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
+                          letter.HTMLElement.style.setProperty("--gradient-position", "-20%");
+                        } else if (letter.Status === "Sung") {
+                          // Sung styles
+                          letter.HTMLElement.style.textShadow = LyricsTextGlowDef;
+                          letter.HTMLElement.style.opacity = "1";
+                          letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
+                          letter.HTMLElement.style.scale = "1";
+                          /* letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px"); */
+                          letter.HTMLElement.style.setProperty("--text-shadow-opacity", "45%");
+                          letter.HTMLElement.style.setProperty("--gradient-position", "100%");
+                        }
+                      }
+                      
+                      word.HTMLElement.style.scale = `${scale * 1.0006}`;
+                      word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${translateY * 1.2}))`;
+                     /*  word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${emphasisBlurRadius * 0.8}px`);
+                      word.HTMLElement.style.setProperty("--text-shadow-opacity", `${emphasisTextShadowOpacity * 0.8}%`); */
                     } else {
-                      word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${translateY}))`;
+                      if (isDot) {
+                        word.HTMLElement.classList.add("Active");
+                        word.HTMLElement.classList.remove("Sung", "NotSung");
+                      } else {
+                        word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${translateY}))`;
+                        word.HTMLElement.style.scale = `${scale}`;
+                        word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${blurRadius}px`);
+                        word.HTMLElement.style.setProperty("--text-shadow-opacity", `${textShadowOpacity}%`);
+                      }
+                      word.HTMLElement.style.setProperty("--gradient-position", gradientPosition);
                     }
-                    word.HTMLElement.style.scale = `${isEmphasis ? scale * 1.0006 : scale}`;
-                    word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${isEmphasis ? emphasisBlurRadius :blurRadius}px`);
-                    word.HTMLElement.style.setProperty("--text-shadow-opacity", `${isEmphasis ? emphasisTextShadowOpacity : textShadowOpacity}%`);
-                    word.HTMLElement.style.setProperty("--gradient-position", gradientPosition);
-                    if (isDot) {
-                      word.HTMLElement.classList.add("Active");
-                      word.HTMLElement.classList.remove("Sung", "NotSung");
-                    }
+                    
+                      
                 } else if (word.Status === "NotSung") {
                     // NotSung styles
+                    if (isLetterGroup) {
+                      for (let k = 0; k < word.Letters.length; k++) {
+                        const letter = word.Letters[k];
+                        letter.HTMLElement.style.textShadow = LyricsTextGlowDef;
+                        letter.HTMLElement.style.opacity = "1";
+                        letter.HTMLElement.style.transform = "translateY(calc(var(--DefaultLyricsSize) * 0))";
+                        letter.HTMLElement.style.scale = IdleLyricsScale;
+                        letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
+                        letter.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
+                        letter.HTMLElement.style.setProperty("--gradient-position", "-20%");
+                      }
+                    }
+                    word.HTMLElement.style.textShadow = LyricsTextGlowDef;
                     word.HTMLElement.style.opacity = "1";
                     word.HTMLElement.style.transform = "translateY(calc(var(--DefaultLyricsSize) * 0))";
                     word.HTMLElement.style.scale = IdleLyricsScale;
@@ -1603,8 +1704,17 @@ function startLyricsInInt(position) {
                     }
                 } else if (word.Status === "Sung") {
                     // Sung styles
-                    if (isEmphasis) {
-                      word.HTMLElement.parentElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
+                    if (isLetterGroup) {
+                      for (let k = 0; k < word.Letters.length; k++) {
+                        const letter = word.Letters[k];
+                        letter.HTMLElement.style.textShadow = LyricsTextGlowDef;
+                        letter.HTMLElement.style.opacity = "1";
+                        letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
+                        letter.HTMLElement.style.scale = "1";
+                        letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
+                        letter.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
+                        letter.HTMLElement.style.setProperty("--gradient-position", "100%");
+                      }
                     }
                     word.HTMLElement.style.opacity = "1";
                     word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
@@ -1612,6 +1722,7 @@ function startLyricsInInt(position) {
                     word.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
                     word.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
                     word.HTMLElement.style.setProperty("--gradient-position", "100%");
+                    word.HTMLElement.style.textShadow = LyricsTextGlowDef;
                     if (isDot) {
                       word.HTMLElement.classList.add("Sung");
                       word.HTMLElement.classList.remove("Active", "NotSung");

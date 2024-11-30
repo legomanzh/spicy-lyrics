@@ -33,6 +33,7 @@ export default function DisplayLyricsPage() {
 
     PageRoot.appendChild(elem);
 
+
     // Let's set up our TippyProps
     {
         const closeButton = elem.querySelector("#Close");
