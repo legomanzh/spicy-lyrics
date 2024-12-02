@@ -4,16 +4,15 @@ import fetchLyrics from "./functions/fetchLyrics";
 import { ClearCurrrentContainerScrollData, lineLyrics, ScrollingIntervalTime, scrollToActiveLine, staticLyrics, syllableLyrics } from "./functions/lyrics";
 import storage from "./functions/storage";
 import { setSettingsMenu } from "./functions/settings";
-import DisplayLyricsPage, { DestroyLyricsPage, PageRoot } from "./components/PageView";
+import DisplayLyricsPage, { DestroyLyricsPage } from "./components/PageView";
 import { Icons } from "./components/Icons";
 import ApplyDynamicBackground from "./components/dynamicBackground";
 import LoadFonts from "./components/Fonts";
 import { IntervalManager } from "./functions/IntervalManager";
-import Defaults from "./components/Defaults";
-import GetProgress from "./functions/GetProgress";
 import { SpotifyPlayer } from "./components/SpotifyPlayer";
 import { IsPlaying } from "./components/Addons";
 import CSSFilter from "./functions/CSSFilter";
+import "./css/Simplebar.css";
 // Currently Unused: import hasLyrics from "./functions/hasLyrics";
 
 async function main() {
@@ -146,8 +145,23 @@ async function main() {
     applyDynamicBackgroundToNowPlayingBar(Spicetify.Player.data?.item.metadata.image_url);
   }).Start();
 
-  Spicetify.Player.addEventListener("songchange", async (event) => {
-    const currentUri = event.data.item.uri;
+  Spicetify.Player.addEventListener("songchange", onSongChange)
+
+  let songChangeLoopRan = 0;
+  const songChangeLoopMax = 15;
+  function onSongChange(event) {
+    let currentUri = event?.data?.item?.uri;
+    if (!currentUri) {
+      currentUri = Spicetify.Player.data?.item?.uri;
+      if (!currentUri) {
+        if (songChangeLoopRan >= songChangeLoopMax) {
+          return;
+        }
+        onSongChange(event);
+        songChangeLoopRan++;
+        return;
+      }
+    };
 
     //Intervals.LyricsInterval.Restart();
 
@@ -164,16 +178,13 @@ async function main() {
         }
         storage.set("lastFetchedUri", currentUri);
     });
-    /* stopLyricsInInt();
-    Spicetify.LocalStorage.set("SpicyLyrics-intRunning", "false")
-    runLiiInt(); */
-    /* Spicetify.Player.pause();
-    Spicetify.Player.play(); */
+
+    applyDynamicBackgroundToNowPlayingBar(Spicetify.Player.data?.item.metadata.image_url)
+    songChangeLoopRan = 0;
     if (!document.querySelector("#SpicyLyricsPage .lyricsParent")) return;
     ApplyDynamicBackground(document.querySelector("#SpicyLyricsPage .lyricsParent"))
-    applyDynamicBackgroundToNowPlayingBar(Spicetify.Player.data?.item.metadata.image_url)
     ClearCurrrentContainerScrollData();
-  })
+  }
 
 
   /* Timeout(3, async () => {

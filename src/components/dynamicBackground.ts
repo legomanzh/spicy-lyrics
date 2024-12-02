@@ -16,6 +16,9 @@ export default function ApplyDynamicBackground(element) {
     }).catch(err => {
         console.error("Error extracting color:", err);
     }); */
+    if (element?.querySelector(".spicy-dynamic-bg")) {
+        element.querySelector(".spicy-dynamic-bg").remove();
+    }
     const dynamicBg = document.createElement("div")
     dynamicBg.classList.add("spicy-dynamic-bg")
 
