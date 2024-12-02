@@ -1,11 +1,11 @@
 import fetchLyrics from "../functions/fetchLyrics";
-import "../css/default.css";
 import storage from "../functions/storage";
 import "../css/loader2.css"
-import { syllableLyrics, lineLyrics, staticLyrics, checkLowQStatus, addLinesEvListener, removeLinesEvListener, scrollToActiveLine, ClearCurrrentContainerScrollData } from "../functions/lyrics";
+import { syllableLyrics, lineLyrics, staticLyrics, checkLowQStatus, addLinesEvListener, removeLinesEvListener, scrollToActiveLine, ClearCurrrentContainerScrollData, ScrollSimplebar } from "../functions/lyrics";
 import ApplyDynamicBackground from "./dynamicBackground";
 import Defaults from "./Defaults";
 import { Icons } from "./Icons";
+import SimpleBar from "simplebar";
 /* function firstFetched() {
     return storage.get("")
 } */
@@ -13,6 +13,7 @@ import { Icons } from "./Icons";
 const Tooltips = {
     Close: null
 }
+
 
 export const PageRoot = document.querySelector<HTMLElement>('.Root__main-view .main-view-container div[data-overlayscrollbars-viewport]');
 
@@ -24,7 +25,7 @@ export default function DisplayLyricsPage() {
             <div class="loaderContainer">
                 <div id="ArcadeLoader"></div>
             </div>
-            <div class="lyrics"></div>
+            <div class="lyrics ScrollbarScrollable"></div>
             <div class="ViewControls">
                 <button id="Close" class="ViewControl">${Icons.Close}</button>
             </div>
@@ -32,7 +33,7 @@ export default function DisplayLyricsPage() {
     `
 
     PageRoot.appendChild(elem);
-
+    
 
     // Let's set up our TippyProps
     {
@@ -75,6 +76,7 @@ export default function DisplayLyricsPage() {
             storage.set("lastFetchedUri", currentUri);
         });
     }
+
 }
 
 export function DestroyLyricsPage() {
@@ -86,4 +88,6 @@ export function DestroyLyricsPage() {
     removeLinesEvListener();
     ClearCurrrentContainerScrollData();
     Object.values(Tooltips).forEach(a => a.destroy());
+    storage.set("currentlyFetching", "false");
+    ScrollSimplebar?.unMount();
 }
