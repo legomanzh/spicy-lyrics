@@ -1,8 +1,8 @@
 [
 	{
 		"name": "Spicy Lyrics",
-		"description": "Better lyrics for Spotify",
-		"preview": "./previews/preview.gif",
+		"description": "Spicy Lyrics is a better lyrics experience (compared to Spotify Lyrics) for Spotify. It brings word-to-word lyrics (karaoke style), beatiful animations, and more. Come and give it a try!",
+		"preview": "./previews/square.gif",
 		"main": "./builds/spicy-lyrics.mjs",
 		"readme": "README.md",
 		"branch": "main",
