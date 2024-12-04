@@ -1,7 +1,7 @@
 import { DeepFreeze } from "./Addons";
 
 const Fonts = DeepFreeze({
-    Lyrics: () => LoadFont("https://fonts.spikerko.org/lyrics/source.css"),
+    Lyrics: () => LoadFont("https://fonts.spikerko.org/spicy-lyrics/source.css"),
     Vazirmatn: () => LoadFont("https://fonts.spikerko.org/Vazirmatn/source.css"),
 })
 

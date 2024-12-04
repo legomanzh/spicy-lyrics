@@ -1,15 +1,12 @@
-import fetchLyrics from "../functions/fetchLyrics";
-import storage from "../functions/storage";
+import fetchLyrics from "../utils/Lyrics/fetchLyrics";
+import storage from "../utils/storage";
 import "../css/loader2.css"
-import { syllableLyrics, lineLyrics, staticLyrics, checkLowQStatus, addLinesEvListener, removeLinesEvListener, scrollToActiveLine, ClearCurrrentContainerScrollData, ScrollSimplebar } from "../functions/lyrics";
+import { addLinesEvListener, removeLinesEvListener } from "../utils/Lyrics/lyrics";
 import ApplyDynamicBackground from "./dynamicBackground";
 import Defaults from "./Defaults";
 import { Icons } from "./Icons";
-import SimpleBar from "simplebar";
-/* function firstFetched() {
-    return storage.get("")
-} */
-
+import { ScrollSimplebar } from "../utils/Scrolling/Simplebar/ScrollSimplebar";
+import ApplyLyrics from "../utils/Lyrics/Global/Applyer";
 const Tooltips = {
     Close: null
 }
@@ -61,20 +58,9 @@ export default function DisplayLyricsPage() {
 
     {
         if (!Spicetify.Player.data?.item?.uri) return; // Exit if `uri` is not available
-        checkLowQStatus();
-
         const currentUri = Spicetify.Player.data.item.uri;
 
-        fetchLyrics(currentUri).then(lyrics => {
-            if (lyrics?.Type === "Syllable") {
-                syllableLyrics(lyrics);
-            } else if (lyrics?.Type === "Line") {
-                lineLyrics(lyrics);
-            } else if (lyrics?.Type === "Static") {
-                staticLyrics(lyrics);
-            }
-            storage.set("lastFetchedUri", currentUri);
-        });
+        fetchLyrics(currentUri).then(ApplyLyrics);
     }
 
 }
@@ -83,10 +69,7 @@ export function DestroyLyricsPage() {
     if (!PageRoot.querySelector("#SpicyLyricsPage")) return
     PageRoot.querySelector("#SpicyLyricsPage")?.remove();
     Defaults.LyricsContainerExists = false;
-   // Intervals.LyricsInterval.Stop();
-    //Intervals.AnimationFrameInterval.Stop();
     removeLinesEvListener();
-    ClearCurrrentContainerScrollData();
     Object.values(Tooltips).forEach(a => a.destroy());
     storage.set("currentlyFetching", "false");
     ScrollSimplebar?.unMount();

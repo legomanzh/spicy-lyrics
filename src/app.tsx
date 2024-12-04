@@ -1,18 +1,21 @@
 import { Timeout } from "@spikerko/web-modules/Scheduler";
 import "./css/default.css";
-import fetchLyrics from "./functions/fetchLyrics";
-import { ClearCurrrentContainerScrollData, lineLyrics, ScrollingIntervalTime, scrollToActiveLine, staticLyrics, syllableLyrics } from "./functions/lyrics";
-import storage from "./functions/storage";
-import { setSettingsMenu } from "./functions/settings";
+import fetchLyrics from "./utils/Lyrics/fetchLyrics";
+import { ScrollingIntervalTime } from "./utils/Lyrics/lyrics";
+import storage from "./utils/storage";
+import { setSettingsMenu } from "./utils/settings";
 import DisplayLyricsPage, { DestroyLyricsPage } from "./components/PageView";
 import { Icons } from "./components/Icons";
 import ApplyDynamicBackground from "./components/dynamicBackground";
 import LoadFonts from "./components/Fonts";
-import { IntervalManager } from "./functions/IntervalManager";
+import { IntervalManager } from "./utils/IntervalManager";
 import { SpotifyPlayer } from "./components/SpotifyPlayer";
 import { IsPlaying } from "./components/Addons";
-import CSSFilter from "./functions/CSSFilter";
+import CSSFilter from "./utils/CSS/CSSFilter";
 import "./css/Simplebar.css";
+import { ScrollToActiveLine } from "./utils/Scrolling/ScrollToActiveLine";
+import { ScrollSimplebar } from "./utils/Scrolling/Simplebar/ScrollSimplebar";
+import ApplyLyrics from "./utils/Lyrics/Global/Applyer";
 // Currently Unused: import hasLyrics from "./functions/hasLyrics";
 
 async function main() {
@@ -167,23 +170,12 @@ async function main() {
 
     //await checkIfLyrics(currentUri);
 
-    fetchLyrics(currentUri).then(lyrics => {
-        //storage.set("currentLyricsType", lyrics?.Type);
-        if (lyrics?.Type === "Syllable") {
-            syllableLyrics(lyrics);
-        } else if (lyrics?.Type === "Line") {
-            lineLyrics(lyrics);
-        } else if (lyrics?.Type === "Static") {
-            staticLyrics(lyrics);
-        }
-        storage.set("lastFetchedUri", currentUri);
-    });
+    fetchLyrics(currentUri).then(ApplyLyrics);
 
     applyDynamicBackgroundToNowPlayingBar(Spicetify.Player.data?.item.metadata.image_url)
     songChangeLoopRan = 0;
     if (!document.querySelector("#SpicyLyricsPage .lyricsParent")) return;
     ApplyDynamicBackground(document.querySelector("#SpicyLyricsPage .lyricsParent"))
-    ClearCurrrentContainerScrollData();
   }
 
 
@@ -199,21 +191,10 @@ async function main() {
 
     button.disabled = false;
 
-    fetchLyrics(Spicetify.Player.data?.item.uri).then(lyrics => {
-      storage.set("fetchedFirst", "true");
-      //storage.set("currentLyricsType", lyrics?.Type);
-      if (lyrics?.Type === "Syllable") {
-          syllableLyrics(lyrics);
-      } else if (lyrics?.Type === "Line") {
-          lineLyrics(lyrics);
-      } else if (lyrics?.Type === "Static") {
-          staticLyrics(lyrics);
-      }
-      storage.set("lastFetchedUri", Spicetify.Player.data?.item.uri);
-    });
+    fetchLyrics(Spicetify.Player.data?.item.uri).then(ApplyLyrics);
   });
 
-  new IntervalManager(ScrollingIntervalTime, scrollToActiveLine).Start();
+  new IntervalManager(ScrollingIntervalTime, () => ScrollToActiveLine(ScrollSimplebar)).Start();
 
   let lastLocation = null;
 
