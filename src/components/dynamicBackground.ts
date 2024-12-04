@@ -1,5 +1,5 @@
-import CSSFilter from "../functions/CSSFilter";
-import storage from "../functions/storage";
+import CSSFilter from "../utils/CSS/CSSFilter";
+import storage from "../utils/storage";
 
 
 export default function ApplyDynamicBackground(element) {
