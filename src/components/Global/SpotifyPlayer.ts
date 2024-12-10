@@ -1,4 +1,4 @@
-import GetProgress from "../utils/Gets/GetProgress";
+import GetProgress from "../../utils/Gets/GetProgress";
 
 export const SpotifyPlayer = {
     IsPlaying: false,

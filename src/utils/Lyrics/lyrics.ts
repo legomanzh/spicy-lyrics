@@ -1,7 +1,7 @@
 import { Maid } from '@spikerko/web-modules/Maid';
 import { IntervalManager } from '../IntervalManager';
-import Defaults from '../../components/Defaults';
-import { SpotifyPlayer } from '../../components/SpotifyPlayer';
+import Defaults from '../../components/Global/Defaults';
+import { SpotifyPlayer } from '../../components/Global/SpotifyPlayer';
 import { Lyrics } from './Animator/Main';
 
 export const ScrollingIntervalTime = 0.1;
@@ -78,6 +78,24 @@ function LinesEvListener(e) {
       line.Syllables.Lead.forEach((word) => {
         if (word.HTMLElement === e.target) {
           startTime = line.StartTime;
+        }
+      })
+    })
+
+    if (startTime) {
+      Spicetify.Player.seek(startTime);
+    }
+  } else if (e.target.classList.contains("Emphasis")) {
+    let startTime;
+
+    LyricsObject.Types.Syllable.Lines.forEach((line) => {
+      line.Syllables.Lead.forEach((word) => {
+        if (word?.Letters) {
+          word.Letters.forEach((letter) => {
+            if (letter.HTMLElement === e.target) {
+              startTime = line.StartTime;
+            }
+          })
         }
       })
     })

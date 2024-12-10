@@ -4,13 +4,13 @@ import fetchLyrics from "./utils/Lyrics/fetchLyrics";
 import { ScrollingIntervalTime } from "./utils/Lyrics/lyrics";
 import storage from "./utils/storage";
 import { setSettingsMenu } from "./utils/settings";
-import DisplayLyricsPage, { DestroyLyricsPage } from "./components/PageView";
-import { Icons } from "./components/Icons";
-import ApplyDynamicBackground from "./components/dynamicBackground";
-import LoadFonts from "./components/Fonts";
+import DisplayLyricsPage, { DestroyLyricsPage } from "./components/Pages/PageView";
+import { Icons } from "./components/Styling/Icons";
+import ApplyDynamicBackground from "./components/DynamicBG/dynamicBackground";
+import LoadFonts from "./components/Styling/Fonts";
 import { IntervalManager } from "./utils/IntervalManager";
-import { SpotifyPlayer } from "./components/SpotifyPlayer";
-import { IsPlaying } from "./components/Addons";
+import { SpotifyPlayer } from "./components/Global/SpotifyPlayer";
+import { IsPlaying } from "./utils/Addons";
 import CSSFilter from "./utils/CSS/CSSFilter";
 import "./css/Simplebar.css";
 import { ScrollToActiveLine } from "./utils/Scrolling/ScrollToActiveLine";
@@ -25,10 +25,6 @@ async function main() {
   
   // Lets set out the Settings Menu
   setSettingsMenu();
-
-  storage.set("fetchedFirst", "false");
-  storage.set("lastFetchedUri", null)
-  storage.set("intRunning", "false")
 
   LoadFonts();
 
@@ -83,6 +79,7 @@ async function main() {
   const lowQModeEnabled = lowQMode && lowQMode === "true";
 
   function applyDynamicBackgroundToNowPlayingBar(coverUrl: string) {
+    if (lowQModeEnabled) return;
     const nowPlayingBar = document.querySelector<HTMLElement>(".Root__right-sidebar aside.NowPlayingView");
 
     try {
@@ -100,21 +97,13 @@ async function main() {
       dynamicBackground.classList.add("spicy-dynamic-bg");
 
       if (lowQModeEnabled) {
-        /* Spicetify.colorExtractor(Spicetify.Player.data.item.uri).then(colors => {
-          nowPlayingBar.querySelector<HTMLElement>(".AAdBM1nhG73supMfnYX7").style.backgroundColor = colors.DESATURATED;
-          lastImgUrl = coverUrl;
-        }).catch(err => {
-          console.error("Error extracting color:", err);
-        });
-        return */
-
-        CSSFilter({ blur: "20px" }, coverUrl).then(url => {
+        /* CSSFilter({ blur: "20px" }, coverUrl).then(url => {
           dynamicBackground.innerHTML = `
               <img class="Front NoEffect" src="${url}" />
               <img class="Back NoEffect" src="${url}" />
               <img class="BackCenter NoEffect" src="${url}" />
           `
-        })
+        }) */
       } else {
         dynamicBackground.innerHTML = `
           <img class="Front" src="${coverUrl}" />
@@ -231,6 +220,17 @@ async function main() {
   })
 
   SpotifyPlayer.IsPlaying = IsPlaying();
+
+  if (storage.get("customLyricsApi").includes("{SPOTIFY_ID}")) {
+    Spicetify.PopupModal.display({
+      title: "IMPORTANT NOTIFICATION!!",
+      content: `
+      <div style="font-size: 1.5rem;">If the "Spicy Lyrics" extension doesn't want to load lyrics, there's a chance that you're using the old API URL.
+      To fix this, please change the API URL to the new one, by going to the Settings and clicking on "Reset Custom APIs", and it should be fixed.
+      If the problem persists, please submit and issue on our <a href="https://github.com/spikenew7774/spicy-lyrics/" target="_blank">GitHub</a>. Thanks!</div>`,
+    })
+  }
+
 }
 
 /* 

@@ -1,5 +1,5 @@
-import { ArabicPersianRegex, BOTTOM_ApplyLyricsSpacer, TOP_ApplyLyricsSpacer } from "../../../../components/Addons";
-import Defaults from "../../../../components/Defaults";
+import { ArabicPersianRegex, BOTTOM_ApplyLyricsSpacer, TOP_ApplyLyricsSpacer } from "../../../Addons";
+import Defaults from "../../../../components/Global/Defaults";
 import { applyStyles, removeAllStyles } from "../../../CSS/Styles";
 import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../../Scrolling/Simplebar/ScrollSimplebar";
 import { ConvertTime } from "../../ConvertTime";
@@ -103,7 +103,7 @@ export function ApplyLineLyrics(data) {
             musicalLine.classList.add("musical-line")
 
             LyricsObject.Types.Line.Lines.push({
-                HTMLElement: lineElem,
+                HTMLElement: musicalLine,
                 StartTime: ConvertTime(line.EndTime),
                 EndTime: ConvertTime(arr[index + 1].StartTime),
                 TotalTime: ConvertTime(arr[index + 1].StartTime) - ConvertTime(line.EndTime)

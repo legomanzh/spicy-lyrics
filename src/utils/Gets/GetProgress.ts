@@ -1,15 +1,4 @@
-/* function fetchPlayerState() {
-    try {
-        // Query the Cosmos endpoint for player state
-        const state = Spicetify.Player.data;
-        return state;
-    } catch (error) {
-        console.error("Failed to fetch player state:", error);
-        throw error;
-    }
-} */
-
-function GetProgress() {
+export default function GetProgress() {
     const state = Spicetify?.Player?.data;
 
     if (!state) return 0;
@@ -23,5 +12,3 @@ function GetProgress() {
     }
     return (Date.now() - timestamp) + positionAsOfTimestamp;
 }
-
-export default GetProgress;

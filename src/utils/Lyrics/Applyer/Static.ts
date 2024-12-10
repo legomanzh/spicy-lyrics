@@ -1,5 +1,5 @@
-import { ArabicPersianRegex, BOTTOM_ApplyLyricsSpacer, TOP_ApplyLyricsSpacer } from "../../../components/Addons";
-import Defaults from "../../../components/Defaults";
+import { ArabicPersianRegex, BOTTOM_ApplyLyricsSpacer, TOP_ApplyLyricsSpacer } from "../../Addons";
+import Defaults from "../../../components/Global/Defaults";
 import { applyStyles, removeAllStyles } from "../../CSS/Styles";
 import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../Scrolling/Simplebar/ScrollSimplebar";
 import { ClearLyricsContentArrays, LyricsObject } from "../lyrics";

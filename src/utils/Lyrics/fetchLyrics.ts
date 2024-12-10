@@ -1,6 +1,7 @@
 import { SpikyCache } from "@spikerko/web-modules/SpikyCache";
 import storage from "../storage";
-import Defaults from "../../components/Defaults";
+import Defaults from "../../components/Global/Defaults";
+import SpicyFetch from "../API/SpicyFetch";
 
 export const lyricsCache = new SpikyCache({
     name: "SpikyCache_Spicy_Lyrics"
@@ -105,17 +106,11 @@ export default async function fetchLyrics(uri: string) {
 
 
     // Fetch new lyrics if no match in localStorage
-    const lyricsApi = storage.get("customLyricsApi") ?? Defaults.lyrics.api.url;
-    const lyricsAccessToken = storage.get("lyricsApiAccessToken") ?? Defaults.lyrics.api.accessToken;
+    /* const lyricsApi = storage.get("customLyricsApi") ?? Defaults.lyrics.api.url;
+    const lyricsAccessToken = storage.get("lyricsApiAccessToken") ?? Defaults.lyrics.api.accessToken; */
 
     try {
-        const response = await fetch(`${lyricsApi?.replace("{SPOTIFY_ID}", trackId)}`, {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${Spicetify.Platform.Session.accessToken}`,
-                "access-token": lyricsAccessToken
-            }
-        });
+        const response = await SpicyFetch(`lyrics/${trackId}`);
 
         if (response.status !== 200) {
             if (response.status === 401) {
