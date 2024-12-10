@@ -1,7 +1,7 @@
 import { SettingsSection } from "spcr-settings";
 import storage from "./storage";
 import { lyricsCache } from "./Lyrics/fetchLyrics";
-import Defaults from "../components/Defaults";
+import Defaults from "../components/Global/Defaults";
 
 export function setSettingsMenu() {
     generalSettings();

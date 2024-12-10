@@ -1,5 +1,5 @@
-import Defaults from "../../../../components/Defaults";
-import { SpotifyPlayer } from "../../../../components/SpotifyPlayer";
+import Defaults from "../../../../components/Global/Defaults";
+import { SpotifyPlayer } from "../../../../components/Global/SpotifyPlayer";
 import { LyricsObject } from "../../lyrics";
 import { BlurMultiplier, IdleEmphasisLyricsScale, IdleLyricsScale, timeOffset } from "../Shared";
 
@@ -86,13 +86,13 @@ export function Animate(position) {
 
                     // Dynamic calculations based on percentage
                     const blurRadius = 4 + (16 - 4) * percentage; // From 4px to 16px
-                    const emphasisBlurRadius = 8 + (24 - 8) * percentage; // From 8px to 24px 
+                    const emphasisBlurRadius = 6 + (18 - 6) * percentage; // From 8px to 24px 
                     const textShadowOpacity = calculateOpacity(percentage) * 1.4; // From 0% to 100%
-                    const emphasisTextShadowOpacity = calculateOpacity(percentage) * 30; // From 0% to 100%
-                    const translateY = -0.035 + (-0.035 - -0.01) * percentage; // From -0.005 to -0.2. (multiplied by var(--DefaultLyricsSize))
-                    const scale = IdleLyricsScale + (1.025 - IdleLyricsScale) * percentage; // From IdleLyricsScale to 1.025
-                    const emphasisScale = IdleEmphasisLyricsScale + (1.028 - IdleEmphasisLyricsScale) * percentage; // From IdleLyricsScale to 1.025
+                    const translateY = -0.024 + (-0.022 - -0.01) * percentage; // From -0.005 to -0.2. (multiplied by var(--DefaultLyricsSize))
+                    const scale = IdleLyricsScale + (1.03 - IdleLyricsScale) * percentage; // From IdleLyricsScale to 1.025
+                    const emphasisScale = IdleEmphasisLyricsScale + (1.035 - IdleEmphasisLyricsScale) * percentage; // From IdleLyricsScale to 1.025
                     const gradientPosition = percentage * 100; // Gradient position based on percentage
+                    const emphasisTextShadowOpacity = calculateOpacity(percentage) * 100; // From 0% to 100%
                     
                     // Apply styles dynamically
                     if (isLetterGroup) {
@@ -126,7 +126,7 @@ export function Animate(position) {
                             const totalDuration = NextLetter.EndTime - NextLetter.StartTime;
                             const elapsedDuration = edtrackpos - NextLetter.StartTime;
                             const percentage = Math.max(0, Math.min(elapsedDuration / totalDuration, 1)); // Clamp percentage between 0 and 1
-                            const translateY = -0.035 + (-0.035 - -0.01) * percentage;
+                            const translateY = -0.032 + (-0.032 - -0.01) * percentage;
                             letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.8)}))`;
 
                             if (NextLetter.Status === "Active") {
@@ -184,18 +184,19 @@ export function Animate(position) {
                     }
                 } else if (word.Status === "Sung") {
                     // Sung styles
+                    word.HTMLElement.style.scale = "1.02";
                     if (isLetterGroup) {
                       for (let k = 0; k < word.Letters.length; k++) {
                         const letter = word.Letters[k];
                         letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
-                        letter.HTMLElement.style.scale = "1";
+                        letter.HTMLElement.style.scale = "1.02";
                         letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
                         letter.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
                         letter.HTMLElement.style.setProperty("--gradient-position", "100%");
                       }
                     }
                     word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
-                    word.HTMLElement.style.scale = "1";
+                    
                     word.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
                     word.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
                     word.HTMLElement.style.setProperty("--gradient-position", "100%");
@@ -221,15 +222,6 @@ export function Animate(position) {
 
           if (line.Status === "Active") {
               applyBlur(arr, index, BlurMultiplier);
-
-              // Calculate percentage of progress through the word
-              const totalDuration = line.EndTime - line.StartTime;
-              const elapsedDuration = edtrackpos - line.StartTime;
-              const percentage = Math.max(0, Math.min(elapsedDuration / totalDuration, 1)); // Clamp percentage between 0 and 1
-              const gradientPercentage = `${percentage * 100}%`; // Convert percentage to a percentage value
-
-              line.HTMLElement.style.setProperty("--gradient-position", gradientPercentage);
-              line.HTMLElement.style.setProperty("--gradient-degrees", "180deg");
 
               if (!line.HTMLElement.classList.contains("Active")) {
                   line.HTMLElement.classList.add("Active");

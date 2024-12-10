@@ -1,5 +1,5 @@
-import Defaults from "../../components/Defaults";
-import { SpotifyPlayer } from "../../components/SpotifyPlayer";
+import Defaults from "../../components/Global/Defaults";
+import { SpotifyPlayer } from "../../components/Global/SpotifyPlayer";
 import { LyricsObject } from "../Lyrics/lyrics";
 import ScrollIntoCenterView from "../ScrollIntoView/Center";
 import SimpleBar from 'simplebar';

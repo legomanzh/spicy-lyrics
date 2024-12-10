@@ -1,16 +1,16 @@
-import fetchLyrics from "../utils/Lyrics/fetchLyrics";
-import storage from "../utils/storage";
-import "../css/loader2.css"
-import { addLinesEvListener, removeLinesEvListener } from "../utils/Lyrics/lyrics";
-import ApplyDynamicBackground from "./dynamicBackground";
-import Defaults from "./Defaults";
-import { Icons } from "./Icons";
-import { ScrollSimplebar } from "../utils/Scrolling/Simplebar/ScrollSimplebar";
-import ApplyLyrics from "../utils/Lyrics/Global/Applyer";
+import fetchLyrics from "../../utils/Lyrics/fetchLyrics";
+import storage from "../../utils/storage";
+import "../../css/loader2.css"
+import { addLinesEvListener, removeLinesEvListener } from "../../utils/Lyrics/lyrics";
+import ApplyDynamicBackground from "../DynamicBG/dynamicBackground";
+import Defaults from "../Global/Defaults";
+import { Icons } from "../Styling/Icons";
+import { ScrollSimplebar } from "../../utils/Scrolling/Simplebar/ScrollSimplebar";
+import ApplyLyrics from "../../utils/Lyrics/Global/Applyer";
+
 const Tooltips = {
     Close: null
 }
-
 
 export const PageRoot = document.querySelector<HTMLElement>('.Root__main-view .main-view-container div[data-overlayscrollbars-viewport]');
 
@@ -30,6 +30,13 @@ export default function DisplayLyricsPage() {
     `
 
     PageRoot.appendChild(elem);
+
+    const lowQMode = storage.get("lowQMode");
+    const lowQModeEnabled = lowQMode && lowQMode === "true";
+
+    if (lowQModeEnabled) {
+        elem.querySelector(".lyricsParent .lyrics").classList.add("lowqmode")
+    }
     
 
     // Let's set up our TippyProps
@@ -62,6 +69,8 @@ export default function DisplayLyricsPage() {
 
         fetchLyrics(currentUri).then(ApplyLyrics);
     }
+
+    
 
 }
 

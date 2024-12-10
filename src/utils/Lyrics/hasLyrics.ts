@@ -1,4 +1,4 @@
-import Defaults from "../../components/Defaults";
+import Defaults from "../../components/Global/Defaults";
 import storage from "../storage";
 
 // Currently Unused
