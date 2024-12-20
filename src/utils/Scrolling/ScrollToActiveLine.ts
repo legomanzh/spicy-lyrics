@@ -13,12 +13,20 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
     if (Spicetify.Platform.History.location.pathname === "/SpicyLyrics") {
 
         const Lines = LyricsObject.Types[Defaults.CurrentLyricsType]?.Lines;
+        const Position = SpotifyPlayer.GetTrackPosition();
+        const PositionOffset = 400;
+        const ProcessedPosition = Position + PositionOffset;
 
         if (!Lines) return;
 
         for (let i = 0; i < Lines.length; i++) {
             const line = Lines[i];
-            if (line.Status === "Active") {
+            /* if (line.Status === "Active") {
+                const currentLine = line;
+                Continue(currentLine)
+                return; // Exit the loop once a line is found
+            } */
+            if (line.StartTime <= ProcessedPosition && line.EndTime >= ProcessedPosition) {
                 const currentLine = line;
                 Continue(currentLine)
                 return; // Exit the loop once a line is found
@@ -27,12 +35,13 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
 
         function Continue(currentLine) {
             if (currentLine) {
-                const LineElem = currentLine.HTMLElement
+                const LineElem = currentLine.HTMLElement as HTMLElement;
                 const container = ScrollSimplebar?.getScrollElement() as HTMLElement;
                 if (!container) return;
                 if (lastLine && lastLine === LineElem) return;
                 lastLine = LineElem
-                ScrollIntoCenterView(container, currentLine.HTMLElement, 200);
+                setTimeout(() => LineElem.classList.add("Active", "OverridenByScroller"), PositionOffset / 2)
+                ScrollIntoCenterView(container, LineElem, 175);
             }
         }
     }

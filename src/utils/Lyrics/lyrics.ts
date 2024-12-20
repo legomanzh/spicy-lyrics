@@ -4,9 +4,9 @@ import Defaults from '../../components/Global/Defaults';
 import { SpotifyPlayer } from '../../components/Global/SpotifyPlayer';
 import { Lyrics } from './Animator/Main';
 
-export const ScrollingIntervalTime = 0.1;
+export const ScrollingIntervalTime = Infinity;
 
-export const lyricsBetweenShow = 5;
+export const lyricsBetweenShow = 3;
 
 export let LyricsObject = {
   Types: {
@@ -23,6 +23,7 @@ export let LyricsObject = {
 }
 
 export let CurrentLineLyricsObject = LyricsObject.Types.Syllable.Lines.length - 1;
+export let LINE_SYNCED_CurrentLineLyricsObject = LyricsObject.Types.Line.Lines.length - 1;
 
 export function SetWordArrayInAllLines() {
   LyricsObject.Types.Syllable.Lines.forEach((_, i) => {
@@ -38,6 +39,13 @@ export function SetWordArrayInCurentLine() {
   LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead = [];
 }
 
+export function SetWordArrayInCurentLine_LINE_SYNCED() {
+  LINE_SYNCED_CurrentLineLyricsObject = LyricsObject.Types.Line.Lines.length - 1;
+
+  LyricsObject.Types.Line.Lines[LINE_SYNCED_CurrentLineLyricsObject].Syllables = {};
+  LyricsObject.Types.Line.Lines[LINE_SYNCED_CurrentLineLyricsObject].Syllables.Lead = [];
+}
+
 export function ClearLyricsContentArrays() {
   LyricsObject.Types.Syllable.Lines = []
   LyricsObject.Types.Line.Lines = []
@@ -45,7 +53,7 @@ export function ClearLyricsContentArrays() {
 }
 
 
-const THROTTLE_TIME = 0;
+const THROTTLE_TIME = 0.035;
 
 const LyricsInterval = new IntervalManager(THROTTLE_TIME, () => {
   if (!Defaults.LyricsContainerExists) return
@@ -113,7 +121,7 @@ export function addLinesEvListener() {
 
   LinesEvListenerMaid = new Maid();
 
-  const el = document.querySelector<HTMLElement>("#SpicyLyricsPage .lyricsParent .lyrics");
+  const el = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
   if (!el) return
   const evl = el.addEventListener("click", LinesEvListener);
   LinesEvListenerMaid.Give(evl);
@@ -123,7 +131,7 @@ export function removeLinesEvListener() {
   if (!LinesEvListenerExists) return
   LinesEvListenerExists = false;
 
-  const el = document.querySelector<HTMLElement>("#SpicyLyricsPage .lyricsParent .lyrics");
+  const el = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
   if (!el) return
   el.removeEventListener("click", LinesEvListener)
   LinesEvListenerMaid.Destroy();

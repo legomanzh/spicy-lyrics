@@ -1,0 +1,113 @@
+
+#SpicyLyricsPage .ContentBox {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    --default-font-size: clamp(0.5rem, calc(1cqw* 2), 2.1rem);
+}
+
+#SpicyLyricsPage .ContentBox .NowBar {
+    --title-height: 5cqh;
+    display: flex;
+    position: absolute;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    width: 50cqw;
+    height: 100cqh;
+    z-index: -1;
+    margin: 5cqw;
+    transition: opacity 0.2s ease-in-out;
+    opacity: 0;
+}
+
+#SpicyLyricsPage .ContentBox .NowBar.Active {
+    position: relative;
+    opacity: 1;
+    z-index: 1;
+}
+
+#SpicyLyricsPage .ContentBox .NowBar .Header .Artwork img {
+    border-radius: 1cqh;
+    width: 25cqw;
+    box-shadow: 0 9px 20px 0 rgba(0, 0, 0, .271);
+    opacity: .95;
+    transition: opacity, scale .1s cubic-bezier(.24,.01,.97,1.41);
+}
+
+#SpicyLyricsPage .ContentBox .NowBar .Header .Artwork:hover img {
+    opacity: 1;
+    scale: 1.01;
+}
+
+#SpicyLyricsPage .ContentBox .NowBar .Header .SongName {
+    font-weight: 700;
+    font-size: var(--default-font-size);
+    display: flex;                /* Flex container */
+    align-items: center;          /* Vertically center */
+    justify-content: center;      /* Horizontally center */
+    margin: 1cqh;
+    color: white;
+    text-align: center;           /* Fallback for child alignment */
+    opacity: .95;
+}
+
+#SpicyLyricsPage .ContentBox .NowBar .Header .SongName span {
+    white-space: nowrap;          /* Prevents text from wrapping */
+    overflow: hidden;             /* Hides overflowing text */
+    text-overflow: ellipsis;      /* Adds the ellipsis (...) */
+    max-width: 440px;              /* Restricts span to the container width */
+    display: inline-block;        /* Ensures width is respected */
+    text-align: center;           /* Align text within the span */
+    line-height: var(--title-height);
+}
+
+#SpicyLyricsPage .ContentBox .NowBar .Header:hover .SongName {
+    opacity: 1;
+}
+
+#SpicyLyricsPage .ContentBox .NowBar:is(.Active.LeftSide) + .LyricsContainer .loaderContainer {
+    background: linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 20%);
+}
+
+#SpicyLyricsPage .ContentBox .NowBar:is(.Active.RightSide) + .LyricsContainer .loaderContainer {
+    background: linear-gradient(90deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 20%);
+}
+
+/* #SpicyLyricsPage .ContentBox .NowBar:is(.Active.LeftSide) + .LyricsContainer .LyricsContent .line,
+#SpicyLyricsPage .ContentBox .NowBar:is(.Active.LeftSide) + .LyricsContainer .LyricsContent .Credits {
+    margin-left: 0 !important;
+    margin-right: 10cqw !important;
+}
+
+#SpicyLyricsPage .ContentBox .NowBar:is(.Active.RightSide) + .LyricsContainer .LyricsContent .line,
+#SpicyLyricsPage .ContentBox .NowBar:is(.Active.RightSide) + .LyricsContainer .LyricsContent .Credits {
+    margin-left: 10cqw !important;
+    margin-right: 0 !important;
+}
+
+#SpicyLyricsPage .ContentBox .NowBar:is(.Active.LeftSide) + .LyricsContainer .LyricsContent .line.OppositeAligned {
+    margin-left: 0 !important;
+    margin-right: 15cqw !important;
+}
+
+#SpicyLyricsPage .ContentBox .NowBar:is(.Active.RightSide) + .LyricsContainer .LyricsContent .line.OppositeAligned {
+    margin-left: 15cqw !important;
+    margin-right: 0 !important;
+} */
+
+#SpicyLyricsPage .ContentBox .NowBar.LeftSide {
+    order: 0;
+}
+
+#SpicyLyricsPage .ContentBox .NowBar.RightSide {
+    order: 1;
+}
+
+#SpicyLyricsPage:has(.ContentBox .NowBar.Active.RightSide) .ScrollbarScrollable .simplebar-track.simplebar-vertical {
+    left: 5px;
+    right: 0;
+}

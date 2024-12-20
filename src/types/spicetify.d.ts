@@ -336,6 +336,10 @@ declare namespace Spicetify {
 		 * An object contains all information about current track and player.
 		 */
 		const data: PlayerState;
+		const origin: {
+			seekTo: (position: number) => void;
+			_state: any;
+		};
 		/**
 		 * Decrease a small amount of volume.
 		 */

@@ -5,6 +5,8 @@ export default function ScrollIntoCenterView(
 ) {
   const containerRect = container.getBoundingClientRect();
   const elementRect = element.getBoundingClientRect();
+
+
   const targetScrollTop =
     elementRect.top - containerRect.top + container.scrollTop -
     (container.clientHeight / 2 - element.clientHeight / 2);

@@ -89,12 +89,39 @@ export function TimeSetter(PreCurrentPosition) {
         total: line.EndTime - line.StartTime
       }
 
-      if (lineTimes.start <= CurrentPosition && CurrentPosition <= lineTimes.end){
+      if (lineTimes.start <= CurrentPosition && CurrentPosition <= lineTimes.end) {
         line.Status = "Active";
+        if (line.DotLine) {
+          const Array = line.Syllables.Lead;
+          for (let i = 0; i < Array.length; i++) {
+            const dot = Array[i];
+            if (dot.StartTime <= CurrentPosition && CurrentPosition <= dot.EndTime) {
+              dot.Status = "Active";
+            } else if (dot.StartTime >= CurrentPosition) {
+              dot.Status = "NotSung";
+            } else if (dot.EndTime <= CurrentPosition) {
+              dot.Status = "Sung";
+            }
+          }
+        }
       } else if (lineTimes.start >= CurrentPosition) {
         line.Status = "NotSung";
+        if (line.DotLine) {
+          const Array = line.Syllables.Lead;
+          for (let i = 0; i < Array.length; i++) {
+            const dot = Array[i];
+            dot.Status = "NotSung";
+          }
+        }
       } else if (lineTimes.end <= CurrentPosition) {
         line.Status = "Sung";
+        if (line.DotLine) {
+          const Array = line.Syllables.Lead;
+          for (let i = 0; i < Array.length; i++) {
+            const dot = Array[i];
+            dot.Status = "Sung";
+          }
+        }
       }
     }
   }

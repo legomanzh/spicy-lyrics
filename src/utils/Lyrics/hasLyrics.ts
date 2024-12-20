@@ -6,12 +6,12 @@ import storage from "../storage";
 export default async function hasLyrics(uri: string) {
     const trackId = uri.split(":")[2];
 
-    if (document.querySelector("#SpicyLyricsPage .lyricsParent .loaderContainer")) {
-        document.querySelector("#SpicyLyricsPage .lyricsParent .loaderContainer").classList.add("active");
+    if (document.querySelector("#SpicyLyricsPage .LyricsContainer .loaderContainer")) {
+        document.querySelector("#SpicyLyricsPage .LyricsContainer .loaderContainer").classList.add("active");
     }
 
-    if (document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics")) {
-        document.querySelector("#SpicyLyricsPage .lyricsParent .lyrics").innerHTML = "";
+    if (document.querySelector("#SpicyLyricsPage .LyricsContainer .lyrics")) {
+        document.querySelector("#SpicyLyricsPage .LyricsContainer .lyrics").innerHTML = "";
     }
 
     const lyricsApi = storage.get("customLyricsApi") ?? Defaults.lyrics.api.url;
@@ -32,8 +32,8 @@ export default async function hasLyrics(uri: string) {
 
         const data = await req.json();
 
-        if (document.querySelector("#SpicyLyricsPage .lyricsParent .loaderContainer")) {
-            document.querySelector("#SpicyLyricsPage .lyricsParent .loaderContainer").classList.remove("active");
+        if (document.querySelector("#SpicyLyricsPage .LyricsContainer .loaderContainer")) {
+            document.querySelector("#SpicyLyricsPage .LyricsContainer .loaderContainer").classList.remove("active");
         }
 
         if (data.exists) {
@@ -43,8 +43,8 @@ export default async function hasLyrics(uri: string) {
         return false;
 
     } catch (error) {
-        if (document.querySelector("#SpicyLyricsPage .lyricsParent .loaderContainer")) {
-            document.querySelector("#SpicyLyricsPage .lyricsParent .loaderContainer").classList.remove("active");
+        if (document.querySelector("#SpicyLyricsPage .LyricsContainer .loaderContainer")) {
+            document.querySelector("#SpicyLyricsPage .LyricsContainer .loaderContainer").classList.remove("active");
         }
         return false;
     }

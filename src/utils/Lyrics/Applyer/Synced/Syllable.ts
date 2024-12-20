@@ -5,23 +5,17 @@ import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar,
 import { ConvertTime } from "../../ConvertTime";
 import { ClearLyricsContentArrays, CurrentLineLyricsObject, lyricsBetweenShow, LyricsObject, SetWordArrayInCurentLine } from "../../lyrics";
 import { ApplyLyricsCredits } from "../Credits/ApplyLyricsCredits";
-
+import { IsLetterCapable } from "../Utils/IsLetterCapable";
+import Emphasize from "../Utils/Emphasize";
 
 export function ApplySyllableLyrics(data) {
   if (!Defaults.LyricsContainerExists) return;
-  const LyricsContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .lyricsParent .lyrics");
+  const LyricsContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
+
+  LyricsContainer.setAttribute("data-lyrics-type", "Syllable")
+
   ClearLyricsContentArrays();
   ClearScrollSimplebar();
-
-  removeAllStyles(LyricsContainer)
-
-  if (data.classes) {
-    LyricsContainer.className = data.classes;
-  }
-
-  if (data.styles) {
-    applyStyles(LyricsContainer, data.styles);
-  }
   TOP_ApplyLyricsSpacer(LyricsContainer)
   if (data.StartTime >= lyricsBetweenShow) {
     const musicalLine = document.createElement("div")
@@ -116,62 +110,22 @@ export function ApplySyllableLyrics(data) {
 
       line.Lead.Syllables.forEach((lead, iL, aL) => {
         let word = document.createElement("span")
+        
 
         const totalDuration = ConvertTime(lead.EndTime) - ConvertTime(lead.StartTime);
 
         const letterLength = lead.Text.split("").length;
 
-        const IfLetterCapable = letterLength <= 12 && totalDuration >= 1000;
+        const IfLetterCapable = IsLetterCapable(letterLength, totalDuration);
 
         if (IfLetterCapable) {
           
           word = document.createElement("div")
           const letters = lead.Text.split(""); // Split word into individual letters
-          const letterDuration = (totalDuration - 70) / letters.length; // Duration per letter
-
-          let Letters = [];
-
-          letters.forEach((letter, index, lA) => {
-            const letterElem = document.createElement("span");
-            letterElem.textContent = letter;
-            letterElem.classList.add("letter");
-            letterElem.classList.add("Emphasis");
-  
-            // Calculate start and end time for each letter
-            const letterStartTime = ConvertTime(lead.StartTime) + index * letterDuration;
-            const letterEndTime = letterStartTime + letterDuration;
-
-            index === lA.length - 1 ? lead.IsPartOfWord ? letterElem.classList.add("PartOfWord") : null : letterElem.classList.add("PartOfWord"); 
-
-            if (ArabicPersianRegex.test(lead.Text)) {
-              word.setAttribute("font", "Vazirmatn")
-            }
-
-           Letters.push({
-              HTMLElement: letterElem,
-              StartTime: letterStartTime,
-              EndTime: letterEndTime,
-              TotalTime: letterDuration,
-              Emphasis: true
-            })
-
-            word.appendChild(letterElem);
-          });
-          word.classList.add("letterGroup");
-          if (lead.IsPartOfWord) {
-            word.classList.add("PartOfWord");
-          }
           
-          LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
-            HTMLElement: word,
-            StartTime: ConvertTime(lead.StartTime),
-            EndTime: ConvertTime(lead.EndTime),
-            TotalTime: totalDuration,
-            LetterGroup: true,
-            Letters
-          })
+          Emphasize(letters, word, lead)
 
-          Letters = []
+          iL === aL.length - 1 ? word.classList.add("LastWordInLine") : lead.IsPartOfWord ? word.classList.add("PartOfWord") : null;
 
           lineElem.appendChild(word);
           
@@ -184,9 +138,7 @@ export function ApplySyllableLyrics(data) {
   
           word.classList.add("word");
 
-          if (lead.IsPartOfWord) {
-            word.classList.add("PartOfWord");
-          }
+          iL === aL.length - 1 ? word.classList.add("LastWordInLine") : lead.IsPartOfWord ? word.classList.add("PartOfWord") : null;
   
           lineElem.appendChild(word);
 
@@ -203,7 +155,7 @@ export function ApplySyllableLyrics(data) {
       if (line.Background) {
         line.Background.forEach((bg) => {
           const lineE = document.createElement("div");
-          lineE.classList.add("line")
+          lineE.classList.add("line", "bg-line")
     
           LyricsObject.Types.Syllable.Lines.push({
             HTMLElement: lineE,
@@ -218,29 +170,48 @@ export function ApplySyllableLyrics(data) {
               lineE.classList.add("OppositeAligned")
           }
           LyricsContainer.appendChild(lineE)
-          bg.Syllables.forEach(bw => {
-            const bwE = document.createElement("span")
-            bwE.textContent = bw.Text
+          bg.Syllables.forEach((bw, bI, bA) => {
+            let bwE = document.createElement("span")
 
-            if (ArabicPersianRegex.test(bw.Text)) {
-              bwE.setAttribute("font", "Vazirmatn")
+            const totalDuration = ConvertTime(bw.EndTime) - ConvertTime(bw.StartTime);
+
+            const letterLength = bw.Text.split("").length;
+    
+            const IfLetterCapable = IsLetterCapable(letterLength, totalDuration);
+    
+            if (IfLetterCapable) {
+              
+              bwE = document.createElement("div")
+              const letters = bw.Text.split(""); // Split word into individual letters
+              
+              Emphasize(letters, bwE, bw, true)
+
+              bI === bA.length - 1 ? bwE.classList.add("LastWordInLine") : bw.IsPartOfWord ? bwE.classList.add("PartOfWord") : null;
+
+              lineE.appendChild(bwE)
+
+            } else {
+              bwE.textContent = bw.Text
+
+              if (ArabicPersianRegex.test(bw.Text)) {
+                bwE.setAttribute("font", "Vazirmatn")
+              }
+
+              LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
+                HTMLElement: bwE,
+                StartTime: ConvertTime(bw.StartTime),
+                EndTime: ConvertTime(bw.EndTime),
+                TotalTime: ConvertTime(bw.EndTime) - ConvertTime(bw.StartTime),
+                BGWord: true
+              })
+
+              bwE.classList.add("bg-word")
+              bwE.classList.add("word")
+
+              bI === bA.length - 1 ? bwE.classList.add("LastWordInLine") : bw.IsPartOfWord ? bwE.classList.add("PartOfWord") : null;
+
+              lineE.appendChild(bwE)
             }
-
-            LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
-              HTMLElement: bwE,
-              StartTime: ConvertTime(bw.StartTime),
-              EndTime: ConvertTime(bw.EndTime),
-              TotalTime: ConvertTime(bw.EndTime) - ConvertTime(bw.StartTime),
-              BGWord: true
-            })
-
-            bwE.classList.add("bg-word")
-            bwE.classList.add("word")
-
-            if (bw.IsPartOfWord) {
-              bwE.classList.add("PartOfWord");
-            }
-            lineE.appendChild(bwE)
           })
         })
       }
@@ -323,5 +294,17 @@ export function ApplySyllableLyrics(data) {
 
   if (ScrollSimplebar) RecalculateScrollSimplebar();
     else MountScrollSimplebar();
+
+  const LyricsStylingContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent .simplebar-content");
+  removeAllStyles(LyricsStylingContainer)
+
+  if (data.classes) {
+    LyricsStylingContainer.className = data.classes;
+  }
+
+  if (data.styles) {
+    applyStyles(LyricsStylingContainer, data.styles);
+  }
+
 }
 

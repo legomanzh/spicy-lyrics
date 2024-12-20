@@ -8,6 +8,8 @@ const Defaults = {
     lowQualityMode: false,
     CurrentLyricsType: "None",
     LyricsContainerExists: false,
+    SkipSpicyFont: false,
+    OldStyleFont: false,
 }
 
 export default Defaults;

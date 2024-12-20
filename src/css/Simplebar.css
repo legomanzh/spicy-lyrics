@@ -1,4 +1,4 @@
-[data-simplebar] {
+#SpicyLyricsPage [data-simplebar] {
   position: relative;
   flex-direction: column;
   flex-wrap: wrap;
@@ -7,7 +7,7 @@
   align-items: flex-start;
 }
 
-.simplebar-wrapper {
+#SpicyLyricsPage .simplebar-wrapper {
   overflow: hidden;
   width: inherit;
   height: inherit;
@@ -15,7 +15,7 @@
   max-height: inherit;
 }
 
-.simplebar-mask {
+#SpicyLyricsPage .simplebar-mask {
   direction: inherit;
   position: absolute;
   overflow: hidden;
@@ -30,7 +30,7 @@
   z-index: 0;
 }
 
-.simplebar-offset {
+#SpicyLyricsPage .simplebar-offset {
   direction: inherit !important;
   box-sizing: inherit !important;
   resize: none !important;
@@ -44,7 +44,7 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.simplebar-content-wrapper {
+#SpicyLyricsPage .simplebar-content-wrapper {
   direction: inherit;
   box-sizing: border-box !important;
   position: relative;
@@ -58,27 +58,27 @@
   -ms-overflow-style: none;
 }
 
-.simplebar-content-wrapper::-webkit-scrollbar,
-.simplebar-hide-scrollbar::-webkit-scrollbar {
+#SpicyLyricsPage .simplebar-content-wrapper::-webkit-scrollbar,
+#SpicyLyricsPage .simplebar-hide-scrollbar::-webkit-scrollbar {
   display: none;
   width: 0;
   height: 0;
 }
 
-.simplebar-content:before,
-.simplebar-content:after {
+#SpicyLyricsPage .simplebar-content:before,
+#SpicyLyricsPage .simplebar-content:after {
   content: ' ';
   display: table;
 }
 
-.simplebar-placeholder {
+#SpicyLyricsPage .simplebar-placeholder {
   max-height: 100%;
   max-width: 100%;
   width: 100%;
   pointer-events: none;
 }
 
-.simplebar-height-auto-observer-wrapper {
+#SpicyLyricsPage .simplebar-height-auto-observer-wrapper {
   box-sizing: inherit !important;
   height: 100%;
   width: 100%;
@@ -96,7 +96,7 @@
   flex-basis: 0;
 }
 
-.simplebar-height-auto-observer {
+#SpicyLyricsPage .simplebar-height-auto-observer {
   box-sizing: inherit;
   display: block;
   opacity: 0;
@@ -112,7 +112,7 @@
   z-index: -1;
 }
 
-.simplebar-track {
+#SpicyLyricsPage .simplebar-track {
   z-index: 1;
   position: absolute;
   right: 0;
@@ -121,7 +121,7 @@
   overflow: hidden;
 }
 
-[data-simplebar].simplebar-dragging {
+#SpicyLyricsPage [data-simplebar].simplebar-dragging {
   pointer-events: none;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -131,7 +131,7 @@
   user-select: none;
 }
 
-[data-simplebar].simplebar-dragging .simplebar-content {
+#SpicyLyricsPage [data-simplebar].simplebar-dragging .simplebar-content {
   pointer-events: none;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -141,11 +141,11 @@
   user-select: none;
 }
 
-[data-simplebar].simplebar-dragging .simplebar-track {
+#SpicyLyricsPage [data-simplebar].simplebar-dragging .simplebar-track {
   pointer-events: all;
 }
 
-.simplebar-scrollbar {
+#SpicyLyricsPage .simplebar-scrollbar {
   position: absolute;
   left: 0;
   right: 0;
@@ -155,7 +155,7 @@
 .simplebar-scrollbar:before {
   position: absolute;
   content: '';
-  background: var(--Simplebar-Scrollbar-Color);
+  background: var(--Simplebar-Scrollbar-Color) !important;
   border-radius: 7px;
   left: 2px;
   right: 2px;
@@ -163,30 +163,30 @@
   transition: opacity 0.2s 0.5s linear;
 }
 
-.simplebar-scrollbar.simplebar-visible:before {
-  opacity: 0.5;
-  transition-delay: 0s;
-  transition-duration: 0s;
+#SpicyLyricsPage .simplebar-scrollbar.simplebar-visible:before {
+  opacity: 0.5 !important;
+  transition-delay: 0s !important;
+  transition-duration: 0s !important;
 }
 
-.simplebar-track.simplebar-vertical {
+#SpicyLyricsPage .simplebar-track.simplebar-vertical {
   top: 0;
   width: 11px;
 }
 
-.simplebar-scrollbar:before {
+#SpicyLyricsPage .simplebar-scrollbar:before {
   top: 2px;
   bottom: 2px;
   left: 2px;
   right: 2px;
 }
 
-.simplebar-track.simplebar-horizontal {
+#SpicyLyricsPage .simplebar-track.simplebar-horizontal {
   left: 0;
   height: 11px;
 }
 
-.simplebar-track.simplebar-horizontal .simplebar-scrollbar {
+#SpicyLyricsPage .simplebar-track.simplebar-horizontal .simplebar-scrollbar {
   right: auto;
   left: 0;
   top: 0;
@@ -197,12 +197,12 @@
 }
 
 /* Rtl support */
-[data-simplebar-direction='rtl'] .simplebar-track.simplebar-vertical {
+#SpicyLyricsPage [data-simplebar-direction='rtl'] .simplebar-track.simplebar-vertical {
   right: auto;
   left: 0;
 }
 
-.simplebar-dummy-scrollbar-size {
+#SpicyLyricsPage .simplebar-dummy-scrollbar-size {
   direction: rtl;
   position: fixed;
   opacity: 0;
@@ -214,25 +214,25 @@
   -ms-overflow-style: scrollbar !important;
 }
 
-.simplebar-dummy-scrollbar-size > div {
+#SpicyLyricsPage .simplebar-dummy-scrollbar-size > div {
   width: 200%;
   height: 200%;
   margin: 10px 0;
 }
 
-.ScrollbarScrollable .simplebar-track {
+#SpicyLyricsPage .ScrollbarScrollable .simplebar-track {
   transition: opacity 0.2s linear;
   opacity: 1;
 }
 
-.ScrollbarScrollable .simplebar-track.simplebar-vertical {
+#SpicyLyricsPage .ScrollbarScrollable .simplebar-track.simplebar-vertical {
   right: 5px
 }
 
-.ScrollbarScrollable .simplebar-track.simplebar-horizontal {
+#SpicyLyricsPage .ScrollbarScrollable .simplebar-track.simplebar-horizontal {
   bottom: 5px
 }
 
-.ScrollbarScrollable.hide-scrollbar .simplebar-track {
+#SpicyLyricsPage .ScrollbarScrollable.hide-scrollbar .simplebar-track {
   opacity: 0;
 }
