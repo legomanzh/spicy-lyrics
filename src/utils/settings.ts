@@ -56,9 +56,18 @@ function generalSettings() {
         storage.set("lowQMode", settings.getFieldValue("low-q-mode") as string)
     }); 
 
+    settings.addToggle("skip-spicy-font", "Skip Spicy Font**", Defaults.SkipSpicyFont, () => {
+        storage.set("skip-spicy-font", settings.getFieldValue("skip-spicy-font") as string)
+    }); 
+
+    settings.addToggle("old-style-font", "Old Style Font (Gets Overriden by the previous option)", Defaults.OldStyleFont, () => {
+        storage.set("old-style-font", settings.getFieldValue("old-style-font") as string)
+    }); 
+
     settings.addButton("save-n-reload", "Save your current settings and reload.", "Save & Reload", () => {
         window.location.reload();
     });
+    
 
     settings.pushSettings()
 }
@@ -67,6 +76,7 @@ function infos() {
     const settings = new SettingsSection("Spicy Lyrics - Info", "spicy-lyrics-settings-info");
 
     settings.addButton("more-info", "*Only if you're online", "", () => {});
+    settings.addButton("more-info2", "**If you're using a custom font modification, turn that on", "", () => {});
 
     settings.pushSettings();
 

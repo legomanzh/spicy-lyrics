@@ -8,27 +8,13 @@ import { ApplyLyricsCredits } from "./Credits/ApplyLyricsCredits";
 
 export function ApplyStaticLyrics(data) {
     if (!Defaults.LyricsContainerExists) return
-    const LyricsContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .lyricsParent .lyrics");
-    if (LyricsContainer.classList.contains("offline")) {
-      LyricsContainer.classList.remove("offline");
-    }
+    const LyricsContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
+
+    LyricsContainer.setAttribute("data-lyrics-type", "Static")
 
     ClearLyricsContentArrays();
     ClearScrollSimplebar();
 
-    if (data.offline) {
-      LyricsContainer.classList.add("offline");
-    }
-
-    removeAllStyles(LyricsContainer)
-
-    if (data.classes) {
-      LyricsContainer.className = data.classes;
-    }
-
-    if (data.styles) {
-      applyStyles(LyricsContainer, data.styles);
-    }
 
     TOP_ApplyLyricsSpacer(LyricsContainer)
     data.Lines.forEach(line => {
@@ -60,5 +46,21 @@ export function ApplyStaticLyrics(data) {
 
     if (ScrollSimplebar) RecalculateScrollSimplebar();
       else MountScrollSimplebar();
+
+    const LyricsStylingContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent .simplebar-content");
+
+    if (data.offline) {
+      LyricsStylingContainer.classList.add("offline");
+    }
+
+    removeAllStyles(LyricsStylingContainer)
+
+    if (data.classes) {
+      LyricsStylingContainer.className = data.classes;
+    }
+
+    if (data.styles) {
+      applyStyles(LyricsStylingContainer, data.styles);
+    }
 }
 

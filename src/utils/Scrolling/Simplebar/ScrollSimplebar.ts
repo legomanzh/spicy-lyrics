@@ -5,10 +5,10 @@ import { IsMouseInLyricsPage, LyricsPageMouseEnter, LyricsPageMouseLeave, SetIsM
 
 export let ScrollSimplebar: SimpleBar;
 
-const ElementEventQuery = ".Root__main-view:has(#SpicyLyricsPage)";
+const ElementEventQuery = "#SpicyLyricsPage .ContentBox .LyricsContainer";
 
 export function MountScrollSimplebar() {
-  const LyricsContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .lyricsParent .lyrics");
+  const LyricsContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
 
   LyricsContainer.style.height = `${GetElementHeight(LyricsContainer)}px`
 
@@ -33,7 +33,7 @@ export function RecalculateScrollSimplebar() {
 }
 
 new IntervalManager(Infinity, () => {
-  const LyricsContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .lyricsParent .lyrics");
+  const LyricsContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
   if (!LyricsContainer || !ScrollSimplebar) return;
   if (IsMouseInLyricsPage) {
     LyricsContainer.classList.remove("hide-scrollbar")

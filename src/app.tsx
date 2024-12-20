@@ -1,5 +1,4 @@
 import { Timeout } from "@spikerko/web-modules/Scheduler";
-import "./css/default.css";
 import fetchLyrics from "./utils/Lyrics/fetchLyrics";
 import { ScrollingIntervalTime } from "./utils/Lyrics/lyrics";
 import storage from "./utils/storage";
@@ -11,23 +10,34 @@ import LoadFonts from "./components/Styling/Fonts";
 import { IntervalManager } from "./utils/IntervalManager";
 import { SpotifyPlayer } from "./components/Global/SpotifyPlayer";
 import { IsPlaying } from "./utils/Addons";
-import CSSFilter from "./utils/CSS/CSSFilter";
-import "./css/Simplebar.css";
 import { ScrollToActiveLine } from "./utils/Scrolling/ScrollToActiveLine";
 import { ScrollSimplebar } from "./utils/Scrolling/Simplebar/ScrollSimplebar";
 import ApplyLyrics from "./utils/Lyrics/Global/Applyer";
+import { UpdateNowBar } from "./components/Utils/NowBar";
+import { requestPositionSync } from "./utils/Gets/GetProgress";
 // Currently Unused: import hasLyrics from "./functions/hasLyrics";
 
+// CSS Imports
+import "./css/default.css";
+import "./css/Simplebar.css";
+import "./css/ContentBox.css";
+import "./css/DynamicBG/spicy-dynamic-bg.css"
+import "./css/Lyrics/main.css"
+import "./css/Lyrics/Mixed.css"
+import "./css/Loaders/LoaderContainer.css"
+
 async function main() {
-  /* while (!Spicetify?.showNotification) {
+  while (!Spicetify?.showNotification) {
     await new Promise(resolve => setTimeout(resolve, 100));
-  } */
+  }
   
   // Lets set out the Settings Menu
   setSettingsMenu();
 
-  LoadFonts();
-
+  const OldStyleFont = storage.get("old-style-font");
+  if (OldStyleFont != "true") {
+    LoadFonts();
+  }
   /* async function checkIfLyrics(currentUri) {
     //THIS IS CURRENTLY DISABLED
     const trackHasLyrics = await hasLyrics(currentUri);
@@ -142,6 +152,8 @@ async function main() {
   let songChangeLoopRan = 0;
   const songChangeLoopMax = 15;
   function onSongChange(event) {
+    storage.set("currentlyFetching", "false");
+
     let currentUri = event?.data?.item?.uri;
     if (!currentUri) {
       currentUri = Spicetify.Player.data?.item?.uri;
@@ -155,16 +167,14 @@ async function main() {
       }
     };
 
-    //Intervals.LyricsInterval.Restart();
-
-    //await checkIfLyrics(currentUri);
+    if (document.querySelector("#SpicyLyricsPage .ContentBox .NowBar")) UpdateNowBar();
 
     fetchLyrics(currentUri).then(ApplyLyrics);
 
     applyDynamicBackgroundToNowPlayingBar(Spicetify.Player.data?.item.metadata.image_url)
     songChangeLoopRan = 0;
-    if (!document.querySelector("#SpicyLyricsPage .lyricsParent")) return;
-    ApplyDynamicBackground(document.querySelector("#SpicyLyricsPage .lyricsParent"))
+    if (!document.querySelector("#SpicyLyricsPage .LyricsContainer")) return;
+    ApplyDynamicBackground(document.querySelector("#SpicyLyricsPage .ContentBox"))
   }
 
 
@@ -229,6 +239,13 @@ async function main() {
       To fix this, please change the API URL to the new one, by going to the Settings and clicking on "Reset Custom APIs", and it should be fixed.
       If the problem persists, please submit and issue on our <a href="https://github.com/spikenew7774/spicy-lyrics/" target="_blank">GitHub</a>. Thanks!</div>`,
     })
+  }
+
+    // Start the sync process after ensuring Spicetify is ready
+  if (Spicetify?.Platform?.PlaybackAPI) {
+    requestPositionSync();
+  } else {
+    console.error("Spicetify Platform is not ready. Please make sure Spicetify is loaded.");
   }
 
 }
