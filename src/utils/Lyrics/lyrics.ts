@@ -6,7 +6,7 @@ import { Lyrics } from './Animator/Main';
 
 export const ScrollingIntervalTime = Infinity;
 
-export const lyricsBetweenShow = 3;
+export const lyricsBetweenShow = 2;
 
 export let LyricsObject = {
   Types: {
@@ -53,10 +53,10 @@ export function ClearLyricsContentArrays() {
 }
 
 
-const THROTTLE_TIME = 0.035;
+const THROTTLE_TIME = 0;
 
 const LyricsInterval = new IntervalManager(THROTTLE_TIME, () => {
-  if (!Defaults.LyricsContainerExists) return
+  if (!Defaults.LyricsContainerExists) return;
   const progress = SpotifyPlayer.GetTrackPosition();
   Lyrics.TimeSetter(progress);
   Lyrics.Animate(progress);

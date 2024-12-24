@@ -11,7 +11,7 @@ export default async function ApplyDynamicBackground(element) {
 
     if (lowQModeEnabled) {
         try {
-            currentImgCover = await ArtistVisuals.ApplyContent(CurrentSongArtist, CurrentSongUri);
+            currentImgCover = await LowQMode_SetDynamicBackground(CurrentSongArtist, CurrentSongUri);
         } catch (error) {
             console.error("Error happened while trying to set the Low Quality Mode Dynamic Background", error)
         }
@@ -41,4 +41,12 @@ export default async function ApplyDynamicBackground(element) {
         element.appendChild(dynamicBg)
     }
 
+}
+
+export async function LowQMode_SetDynamicBackground(CurrentSongArtist, CurrentSongUri) {
+    try {
+        return await ArtistVisuals.ApplyContent(CurrentSongArtist, CurrentSongUri);
+    } catch (error) {
+        console.error("Error happened while trying to set the Low Quality Mode Dynamic Background", error)
+    }
 }

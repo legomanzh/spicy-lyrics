@@ -1,5 +1,7 @@
+import { ResetLastLine } from "../../utils/Scrolling/ScrollToActiveLine";
+import storage from "../../utils/storage";
 import { AppendViewControls, PageRoot, Tooltips } from "../Pages/PageView";
-import { OpenNowBar } from "./NowBar";
+import { DeregisterNowBarBtn, OpenNowBar } from "./NowBar";
 import TransferElement from "./TransferElement";
 
 const Fullscreen = {
@@ -39,6 +41,8 @@ function Open() {
             document.exitFullscreen();
         }
 
+        ResetLastLine();
+
     }
 }
 
@@ -53,6 +57,13 @@ function Close() {
         if (document.fullscreenElement) {
             document.exitFullscreen();
         }
+        const NoLyrics = storage.get("currentLyricsData")?.includes("NO_LYRICS");
+        if (NoLyrics) {
+            OpenNowBar();
+            document.querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer").classList.add("Hidden");
+            DeregisterNowBarBtn();
+        }
+        ResetLastLine();
     }
 }
 
@@ -60,7 +71,7 @@ function Toggle() {
     const SpicyPage = document.querySelector<HTMLElement>("#SpicyLyricsPage");
 
     if (SpicyPage) {
-        if (SpicyPage.classList.contains("Fullscreen")) {
+        if (Fullscreen.IsOpen) {
             Close();
         } else {
             Open();

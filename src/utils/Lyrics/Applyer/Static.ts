@@ -17,6 +17,7 @@ export function ApplyStaticLyrics(data) {
 
 
     TOP_ApplyLyricsSpacer(LyricsContainer)
+
     data.Lines.forEach(line => {
       const lineElem = document.createElement("div")
       
@@ -62,5 +63,5 @@ export function ApplyStaticLyrics(data) {
     if (data.styles) {
       applyStyles(LyricsStylingContainer, data.styles);
     }
+    
 }
-

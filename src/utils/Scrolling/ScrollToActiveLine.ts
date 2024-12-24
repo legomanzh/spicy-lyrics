@@ -41,8 +41,12 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
                 if (lastLine && lastLine === LineElem) return;
                 lastLine = LineElem
                 setTimeout(() => LineElem.classList.add("Active", "OverridenByScroller"), PositionOffset / 2)
-                ScrollIntoCenterView(container, LineElem, 175);
+                ScrollIntoCenterView(container, LineElem, 300, -50); // Scroll Into View with a 300ms Animation
             }
         }
     }
+}
+
+export function ResetLastLine() {
+    lastLine = null;
 }

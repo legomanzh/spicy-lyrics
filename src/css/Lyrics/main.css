@@ -13,6 +13,7 @@
   display: none;
 }
 
+
 #SpicyLyricsPage .LyricsContainer .LyricsContent {
   --TextGlowDef: rgba(255,255,255,0.15) 0px 0px 6px;
   --ActiveTextGlowDef: rgba(255,255,255,0.4) 0px 0px 14px;
@@ -56,13 +57,13 @@
 
 
 #SpicyLyricsPage .ContentBox .NowBar:not(.Active) + .LyricsContainer .LyricsContent .simplebar-content-wrapper {
-  margin: 0 18cqw;
+  padding: 0 18cqw;
 }
 
 #SpicyLyricsPage .ContentBox .NowBar.Active:is(.LeftSide) + .LyricsContainer .LyricsContent .simplebar-content-wrapper .simplebar-content {
-  width: 55cqw;
+  padding: 0 8cqw 0 2cqw !important;
 }
 
 #SpicyLyricsPage .ContentBox .NowBar.Active:is(.RightSide) + .LyricsContainer .LyricsContent .simplebar-content-wrapper .simplebar-content {
-  margin: 0 5cqw;
+  padding: 0 2cqw 0 8cqw !important;
 }
