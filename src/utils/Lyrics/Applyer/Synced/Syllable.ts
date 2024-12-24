@@ -117,6 +117,8 @@ export function ApplySyllableLyrics(data) {
         const letterLength = lead.Text.split("").length;
 
         const IfLetterCapable = IsLetterCapable(letterLength, totalDuration);
+        const contentDuration = totalDuration > 200 ? totalDuration : 200;
+        word.style.setProperty("--content-duration", `${contentDuration}ms`);
 
         if (IfLetterCapable) {
           
@@ -305,6 +307,7 @@ export function ApplySyllableLyrics(data) {
   if (data.styles) {
     applyStyles(LyricsStylingContainer, data.styles);
   }
+  
 
 }
 

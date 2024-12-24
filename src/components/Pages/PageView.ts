@@ -99,7 +99,6 @@ export function DestroyLyricsPage() {
     Defaults.LyricsContainerExists = false;
     removeLinesEvListener();
     Object.values(Tooltips).forEach(a => a?.destroy());
-    storage.set("currentlyFetching", "false");
     ScrollSimplebar?.unMount();
 }
 

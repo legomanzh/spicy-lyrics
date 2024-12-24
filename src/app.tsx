@@ -5,7 +5,7 @@ import storage from "./utils/storage";
 import { setSettingsMenu } from "./utils/settings";
 import DisplayLyricsPage, { DestroyLyricsPage } from "./components/Pages/PageView";
 import { Icons } from "./components/Styling/Icons";
-import ApplyDynamicBackground from "./components/DynamicBG/dynamicBackground";
+import ApplyDynamicBackground, { LowQMode_SetDynamicBackground } from "./components/DynamicBG/dynamicBackground";
 import LoadFonts from "./components/Styling/Fonts";
 import { IntervalManager } from "./utils/IntervalManager";
 import { SpotifyPlayer } from "./components/Global/SpotifyPlayer";
@@ -25,6 +25,7 @@ import "./css/DynamicBG/spicy-dynamic-bg.css"
 import "./css/Lyrics/main.css"
 import "./css/Lyrics/Mixed.css"
 import "./css/Loaders/LoaderContainer.css"
+import Global from "./components/Global/Global";
 
 async function main() {
   while (!Spicetify?.showNotification) {
@@ -151,7 +152,7 @@ async function main() {
 
   let songChangeLoopRan = 0;
   const songChangeLoopMax = 15;
-  function onSongChange(event) {
+  async function onSongChange(event) {
     storage.set("currentlyFetching", "false");
 
     let currentUri = event?.data?.item?.uri;
@@ -173,6 +174,23 @@ async function main() {
 
     applyDynamicBackgroundToNowPlayingBar(Spicetify.Player.data?.item.metadata.image_url)
     songChangeLoopRan = 0;
+  
+    // Artist Header Image Prefetch (For a Faster Experience)
+    {
+      const lowQMode = storage.get("lowQMode");
+      const lowQModeEnabled = lowQMode && lowQMode === "true";
+      if (lowQModeEnabled) {
+        const CurrentSongArtist = event.data?.item.artists[0].uri;
+        const CurrentSongUri = event.data?.item.uri;
+          try {
+              await LowQMode_SetDynamicBackground(CurrentSongArtist, CurrentSongUri);
+          } catch (error) {
+              console.error("Error happened while trying to prefetch the Low Quality Mode Dynamic Background", error)
+          }
+      }
+    }
+
+
     if (!document.querySelector("#SpicyLyricsPage .LyricsContainer")) return;
     ApplyDynamicBackground(document.querySelector("#SpicyLyricsPage .ContentBox"))
   }
@@ -231,7 +249,7 @@ async function main() {
 
   SpotifyPlayer.IsPlaying = IsPlaying();
 
-  if (storage.get("customLyricsApi").includes("{SPOTIFY_ID}")) {
+  if (storage.get("customLyricsApi").includes("{SPOTIFY_ID}") || !storage.get("customLyricsApi").includes("http")) {
     Spicetify.PopupModal.display({
       title: "IMPORTANT NOTIFICATION!!",
       content: `
@@ -246,6 +264,13 @@ async function main() {
     requestPositionSync();
   } else {
     console.error("Spicetify Platform is not ready. Please make sure Spicetify is loaded.");
+  }
+
+  // Events
+  {
+    Spicetify.Player.addEventListener("onplaypause", (e) => Global.Event.evoke("playback:playpause", e));
+    Spicetify.Player.addEventListener("onprogress", (e) => Global.Event.evoke("playback:progress", e));
+    Spicetify.Player.addEventListener("songchange", (e) => Global.Event.evoke("playback:songchange", e));
   }
 
 }
@@ -274,6 +299,5 @@ And then Minimize it.
 (Reccomened: https://codebeautify.org/minify-js)
 
 */
-
 
 export default main;

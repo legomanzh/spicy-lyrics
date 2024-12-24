@@ -1,5 +1,7 @@
 import storage from "../../utils/storage";
 import { SpotifyPlayer } from "../Global/SpotifyPlayer";
+import { Tooltips } from "../Pages/PageView";
+
 
 function OpenNowBar() {
     const NowBar = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar");
@@ -67,7 +69,7 @@ function NowBar_SwapSides() {
 }
 
 
-function Session_NowBar_SetSide() {{
+function Session_NowBar_SetSide() {
     const NowBar = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar");
     if (!NowBar) return;
     const CurrentSide = storage.get("NowBarSide");
@@ -84,7 +86,15 @@ function Session_NowBar_SetSide() {{
         NowBar.classList.remove("RightSide");
         NowBar.classList.add("LeftSide");
     }
-}}
+}
+
+
+function DeregisterNowBarBtn() {
+    Tooltips.NowBarToggle?.destroy();
+    Tooltips.NowBarToggle = null;
+    const nowBarButton = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .ViewControls #NowBarToggle");
+    nowBarButton?.remove();
+}
 
 export {
     OpenNowBar,
@@ -93,5 +103,6 @@ export {
     UpdateNowBar,
     Session_OpenNowBar,
     NowBar_SwapSides,
-    Session_NowBar_SetSide
+    Session_NowBar_SetSide,
+    DeregisterNowBarBtn
 }

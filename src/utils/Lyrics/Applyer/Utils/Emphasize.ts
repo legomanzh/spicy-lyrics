@@ -18,6 +18,9 @@ export default function Emphasize(letters: Array<string>, applyTo: HTMLElement, 
         const letterStartTime = ConvertTime(lead.StartTime) + index * letterDuration;
         const letterEndTime = letterStartTime + letterDuration;
 
+        const contentDuration = letterDuration > 150 ? letterDuration : 150;
+        letterElem.style.setProperty("--content-duration", `${contentDuration}ms`);
+
         if (index === lA.length - 1) {
             letterElem.classList.add("LastLetterInWord")
         }

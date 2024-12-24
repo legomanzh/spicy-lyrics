@@ -92,8 +92,7 @@ export const requestPositionSync = () => {
         return positionAsOfTimestamp + (now - timestamp);
     }
 } */
-
-
+  
 
 // Function to get the current progress
 export default function GetProgress() {

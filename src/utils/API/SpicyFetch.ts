@@ -5,7 +5,7 @@ export default async function SpicyFetch(path: string): Promise<Response> {
     return new Promise((resolve, reject) => {
         const lyricsApi = storage.get("customLyricsApi") ?? Defaults.lyrics.api.url;
         const lyricsAccessToken = storage.get("lyricsApiAccessToken") ?? Defaults.lyrics.api.accessToken;
-        const url = `https://${lyricsApi}/${path}`
+        const url = `${lyricsApi}/${path}`
 
         fetch(url, {
             method: "GET",
@@ -17,6 +17,6 @@ export default async function SpicyFetch(path: string): Promise<Response> {
             resolve(res)
         }).catch(err => {
             reject(err)
-        })
+        });
     });
 }

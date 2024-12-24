@@ -2,6 +2,9 @@ import { SpikyCache } from "@spikerko/web-modules/SpikyCache";
 import storage from "../storage";
 import Defaults from "../../components/Global/Defaults";
 import SpicyFetch from "../API/SpicyFetch";
+import { DeregisterNowBarBtn, OpenNowBar } from "../../components/Utils/NowBar";
+import { AppendViewControls } from "../../components/Pages/PageView";
+import Fullscreen from "../../components/Utils/Fullscreen";
 
 export const lyricsCache = new SpikyCache({
     name: "SpikyCache_Spicy_Lyrics"
@@ -10,11 +13,15 @@ export const lyricsCache = new SpikyCache({
 export default async function fetchLyrics(uri: string) {
     if (!document.querySelector("#SpicyLyricsPage")) return;
 
-    if (document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent").classList.contains("offline")) {
+    if (document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent")?.classList.contains("offline")) {
         document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent").classList.remove("offline");
     }
 
-    document.querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer").classList.remove("Hidden");
+    document.querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer")?.classList.remove("Hidden");
+
+    if (!Fullscreen.IsOpen) AppendViewControls(true);
+
+    //ShowLoaderContainer();
 
     const currFetching = storage.get("currentlyFetching");
     if (currFetching == "true") return;
@@ -45,7 +52,7 @@ export default async function fetchLyrics(uri: string) {
                 const split = savedLyricsData.split(":");
                 const id = split[1];
                 if (id === trackId) {
-                    return noLyricsMessage();
+                    return await noLyricsMessage();
                 }
             }
             const lyricsData = JSON.parse(savedLyricsData);
@@ -70,12 +77,12 @@ export default async function fetchLyrics(uri: string) {
         try {
             const lyricsFromCache = await lyricsCache.get(trackId);
             if (lyricsFromCache) {
-                if (lyricsFromCache === "NO_LYRICS") {
-                    return noLyricsMessage();
-                }
                 if (navigator.onLine && lyricsFromCache?.expiresAt < new Date().getTime()) {
                     await lyricsCache.remove(trackId);
                 } else {
+                    if (lyricsFromCache?.status === "NO_LYRICS") {
+                        return await noLyricsMessage();
+                    }
                     storage.set("currentLyricsData", JSON.stringify(lyricsFromCache));
                     storage.set("currentlyFetching", "false");
                     HideLoaderContainer()
@@ -87,7 +94,7 @@ export default async function fetchLyrics(uri: string) {
         } catch (error) {
             ClearLyricsPageContainer()
             console.log("Error parsing saved lyrics data:", error);
-            return noLyricsMessage();
+            return await noLyricsMessage();
         }
     }
 
@@ -111,14 +118,14 @@ export default async function fetchLyrics(uri: string) {
                 return;
             }
             ClearLyricsPageContainer()
-            return noLyricsMessage();
+            return await noLyricsMessage();
         }
 
         const lyricsText = await response.text();
 
         ClearLyricsPageContainer();
 
-        if (lyricsText === "") return noLyricsMessage();
+        if (lyricsText === "") return await noLyricsMessage();
 
         const lyricsJson = JSON.parse(lyricsText);
 
@@ -151,13 +158,13 @@ export default async function fetchLyrics(uri: string) {
         console.error("Error fetching lyrics:", error);
         storage.set("currentlyFetching", "false");
         ClearLyricsPageContainer();
-        return noLyricsMessage();
+        return await noLyricsMessage();
     }
     
 }
 
 
-function noLyricsMessage() {
+async function noLyricsMessage() {
     /* const totalTime = Spicetify.Player.getDuration() / 1000;
     const segmentDuration = totalTime / 3;
     
@@ -212,7 +219,7 @@ function noLyricsMessage() {
         ]
     }; */
 
-    const noLyricsMessage = {
+    /* const noLyricsMessage = {
         Type: "Static",
         alternative_api: false,
         offline: false,
@@ -228,22 +235,39 @@ function noLyricsMessage() {
                 Text: "No Lyrics Found"
             }
         ]
-    }
+    } */
     
 
     storage.set("currentLyricsData", `NO_LYRICS:${Spicetify.Player.data.item.uri.split(":")[2]}`);
+
+    if (lyricsCache) {
+        const expiresAt = new Date().getTime() + 1000 * 60 * 60 * 24 * 7; // Expire after 7 days
+
+        try {
+            await lyricsCache.set(Spicetify.Player.data.item.uri.split(":")[2], {
+                status: `NO_LYRICS`,
+                expiresAt
+            });
+        } catch (error) {
+            console.error("Error saving lyrics to cache:", error);
+        }
+    }
 
     storage.set("currentlyFetching", "false");
 
     HideLoaderContainer()
 
-    Defaults.CurrentLyricsType = noLyricsMessage.Type;
+    Defaults.CurrentLyricsType = "None";
 
-    if (storage.get("IsNowBarOpen")) {
-        document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .LyricsContainer").classList.add("Hidden");
-    }
+    
+    document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .LyricsContainer")?.classList.add("Hidden");
+    document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox")?.classList.add("LyricsHidden");
 
-    return noLyricsMessage;
+    OpenNowBar();
+
+    DeregisterNowBarBtn();
+
+    return "1";
 }
 
 function urOfflineMessage() {
@@ -274,9 +298,9 @@ function urOfflineMessage() {
 
     Defaults.CurrentLyricsType = Message.Type;
 
-    if (storage.get("IsNowBarOpen")) {
+    /* if (storage.get("IsNowBarOpen")) {
         document.querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer").classList.add("Hidden");
-    }
+    } */
 
     return Message;
 }
@@ -343,14 +367,20 @@ function NotTrackMessage() {
     return Message;
 }
 
+let ContainerShowLoaderTimeout;
+
 function ShowLoaderContainer() {
     if (document.querySelector("#SpicyLyricsPage .LyricsContainer .loaderContainer")) {
-        document.querySelector("#SpicyLyricsPage .LyricsContainer .loaderContainer").classList.add("active");
+        ContainerShowLoaderTimeout = setTimeout(() => document.querySelector("#SpicyLyricsPage .LyricsContainer .loaderContainer").classList.add("active"), 500)
     }
 }
 
 function HideLoaderContainer() {
     if (document.querySelector("#SpicyLyricsPage .LyricsContainer .loaderContainer")) {
+        if (ContainerShowLoaderTimeout) {
+            clearTimeout(ContainerShowLoaderTimeout);
+            ContainerShowLoaderTimeout = null;
+        }
         document.querySelector("#SpicyLyricsPage .LyricsContainer .loaderContainer").classList.remove("active");
     }
 }
@@ -360,3 +390,5 @@ function ClearLyricsPageContainer() {
         document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent").innerHTML = "";
     }
 }
+
+

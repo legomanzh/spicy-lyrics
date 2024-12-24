@@ -18,6 +18,12 @@
   filter: blur(15px);
 }
 
+#SpicyLyricsPage.Fullscreen .spicy-dynamic-bg:not(.lowqmode) {
+  max-height: 60%;
+  max-width: 20%;
+  scale: 500% 170%
+}
+
 .spicy-dynamic-bg .Back:not(.NoEffect), .spicy-dynamic-bg .BackCenter:not(.NoEffect), .spicy-dynamic-bg .Front:not(.NoEffect) {
   filter: hue-rotate(var(--PlaceholderHueShift)) blur(40px);
 }
@@ -88,7 +94,7 @@
 
 #SpicyLyricsPage .spicy-dynamic-bg:is(.lowqmode) {
   object-fit: cover;
-  filter: brightness(.5);
+  filter: brightness(.5) blur(5px);
 }
 
 @keyframes bgAnim {
