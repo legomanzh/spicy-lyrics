@@ -1,6 +1,6 @@
 {
   "name": "spicy-lyrics",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "private": false,
   "author": "Spikerko",
   "scripts": {
@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@spikerko/web-modules": "npm:@jsr/spikerko__web-modules@^1.0.5",
+    "posthog-js": "^1.203.1",
     "simplebar": "^6.2.7",
     "spcr-settings": "^1.3.1"
   }

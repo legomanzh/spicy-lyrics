@@ -53,8 +53,8 @@
 }
 
 #SpicyLyricsPage.Fullscreen .ViewControls {
-  --ViewControlSize: 80cqh;
   position: relative;
+  width: 100cqw;
 }
 
 #SpicyLyricsPage .ViewControls .ViewControl {
@@ -80,7 +80,7 @@
 }
 
 
-#SpicyLyricsPage .ViewControls:hover {
+#SpicyLyricsPage:not(.Fullscreen) .ViewControls:hover {
   opacity: 1 !important;
 }
 
@@ -88,8 +88,8 @@
   opacity: .3;
 }
 
-#SpicyLyricsPage.Fullscreen .ContentBox .NowBar:hover .ViewControls {
-  opacity: .3;
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .ViewControls {
+  opacity: 1 !important;
 }
 
 

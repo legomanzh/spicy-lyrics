@@ -26,11 +26,19 @@ import "./css/Lyrics/main.css"
 import "./css/Lyrics/Mixed.css"
 import "./css/Loaders/LoaderContainer.css"
 import Global from "./components/Global/Global";
+import Platform from "./components/Global/Platform";
+import PostHog from "./utils/PostHog";
 
 async function main() {
-  while (!Spicetify?.showNotification) {
+  /* while (!Spicetify?.showNotification) {
     await new Promise(resolve => setTimeout(resolve, 100));
-  }
+  } */
+
+  await Platform.OnSpotifyReady;
+
+  PostHog.Load();
+
+  Spicetify.Platform.History.listen(PostHog.OnNavigate)
   
   // Lets set out the Settings Menu
   setSettingsMenu();

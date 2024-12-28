@@ -1,3 +1,4 @@
+import Animator from "../../utils/Animator";
 import { ResetLastLine } from "../../utils/Scrolling/ScrollToActiveLine";
 import storage from "../../utils/storage";
 import { AppendViewControls, PageRoot, Tooltips } from "../Pages/PageView";
@@ -10,6 +11,41 @@ const Fullscreen = {
     Toggle,
     IsOpen: false
 };
+
+const MediaBox_Data = {
+    Eventified: false,
+    Functions: {
+        MouseIn: () => {
+            if (MediaBox_Data.Animators.brightness.reversed) MediaBox_Data.Animators.brightness.Reverse();
+            if (MediaBox_Data.Animators.blur.reversed) MediaBox_Data.Animators.blur.Reverse();
+            MediaBox_Data.Animators.brightness.Start();
+            MediaBox_Data.Animators.blur.Start();
+        },
+        MouseOut: () => {
+            if (!MediaBox_Data.Animators.brightness.reversed) MediaBox_Data.Animators.brightness.Reverse();
+            if (!MediaBox_Data.Animators.blur.reversed) MediaBox_Data.Animators.blur.Reverse();
+            MediaBox_Data.Animators.brightness.Start();
+            MediaBox_Data.Animators.blur.Start();
+        },
+        Reset: (MediaImage: HTMLElement) => {
+            MediaImage.style.removeProperty("--ArtworkBrightness");
+            MediaImage.style.removeProperty("--ArtworkBlur");
+        },
+        Eventify: (MediaImage: HTMLElement) => {
+            MediaBox_Data.Animators.brightness.on("progress", (progress) => {
+                MediaImage.style.setProperty("--ArtworkBrightness", `${progress}`);
+            });
+            MediaBox_Data.Animators.blur.on("progress", (progress) => {
+                MediaImage.style.setProperty("--ArtworkBlur", `${progress}px`);
+            });
+            MediaBox_Data.Eventified = true;
+        },
+    },
+    Animators: {
+        brightness: new Animator(1, 0.5, 0.25),
+        blur: new Animator(0, 0.2, 0.25),
+    }
+}
 
 function Open() {
     const SpicyPage = document.querySelector<HTMLElement>(".Root__main-view #SpicyLyricsPage");
@@ -43,6 +79,13 @@ function Open() {
 
         ResetLastLine();
 
+        const MediaBox = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox");
+        const MediaImage = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaImage");
+
+        MediaBox_Data.Functions.Eventify(MediaImage);
+
+        MediaBox.addEventListener("mouseenter", MediaBox_Data.Functions.MouseIn);
+        MediaBox.addEventListener("mouseleave", MediaBox_Data.Functions.MouseOut);
     }
 }
 
@@ -64,6 +107,14 @@ function Close() {
             DeregisterNowBarBtn();
         }
         ResetLastLine();
+
+        const MediaBox = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox");
+        const MediaImage = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaImage");
+
+        MediaBox.removeEventListener("mouseenter", MediaBox_Data.Functions.MouseIn);
+        MediaBox.removeEventListener("mouseleave", MediaBox_Data.Functions.MouseOut);
+
+        MediaBox_Data.Functions.Reset(MediaImage);
     }
 }
 

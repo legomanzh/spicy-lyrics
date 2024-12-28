@@ -111,6 +111,7 @@ export default async function fetchLyrics(uri: string) {
         const response = await SpicyFetch(`lyrics/${trackId}`);
 
         if (response.status !== 200) {
+            if (response.status === 500) return await noLyricsMessage(false, true);
             if (response.status === 401) {
                 storage.set("currentlyFetching", "false");
                //fetchLyrics(uri);
@@ -164,7 +165,7 @@ export default async function fetchLyrics(uri: string) {
 }
 
 
-async function noLyricsMessage() {
+async function noLyricsMessage(Cache = true, LocalStorage = true) {
     /* const totalTime = Spicetify.Player.getDuration() / 1000;
     const segmentDuration = totalTime / 3;
     
@@ -238,9 +239,9 @@ async function noLyricsMessage() {
     } */
     
 
-    storage.set("currentLyricsData", `NO_LYRICS:${Spicetify.Player.data.item.uri.split(":")[2]}`);
+    LocalStorage ? storage.set("currentLyricsData", `NO_LYRICS:${Spicetify.Player.data.item.uri.split(":")[2]}`) : null;
 
-    if (lyricsCache) {
+    if (lyricsCache && Cache) {
         const expiresAt = new Date().getTime() + 1000 * 60 * 60 * 24 * 7; // Expire after 7 days
 
         try {

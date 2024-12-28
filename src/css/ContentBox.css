@@ -33,22 +33,44 @@
     z-index: 1;
 }
 
-#SpicyLyricsPage .ContentBox .NowBar .Header .Artwork img {
+#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaImage {
+    --ArtworkBrightness: 1;
+    --ArtworkBlur: 0px;
     border-radius: 1cqh;
     width: 60cqh;
     box-shadow: 0 9px 20px 0 rgba(0, 0, 0, .271);
     opacity: .95;
+    filter: brightness(var(--ArtworkBrightness)) blur(var(--ArtworkBlur));
     transition: opacity, scale .1s cubic-bezier(.24,.01,.97,1.41);
 }
 
-#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .Header .Artwork img {
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .Header .MediaBox .MediaImage {
     width: 54cqh;
 }
 
-#SpicyLyricsPage .ContentBox .NowBar .Header .Artwork:hover img {
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .Header .MediaBox .MediaContent .AlbumData {
+    font-size: calc(var(--default-font-size) * 0.75);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    z-index: 99;
+    margin-bottom: 1cqh;
+    opacity: 1;
+    color: white;
+}
+
+/* #SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox:hover .MediaImage {
     opacity: 1;
     scale: 1.01;
-}
+} */
 
 #SpicyLyricsPage .ContentBox .NowBar .Header .SongName {
     font-weight: 700;
@@ -121,4 +143,28 @@
 #SpicyLyricsPage:has(.ContentBox .NowBar.Active.RightSide) .ScrollbarScrollable .simplebar-track.simplebar-vertical {
     left: 5px;
     right: 0;
+}
+
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .Header .MediaBox .MediaContent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 99;
+    bottom: 26.5cqh;
+    top: 19.5cqh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    opacity: 0;
+    transition: opacity .2s;
+}
+
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .Header .MediaBox:hover .MediaContent {
+    opacity: 1;
+}
+
+#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaContent {
+    display: none;
 }

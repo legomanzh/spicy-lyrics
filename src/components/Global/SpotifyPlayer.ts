@@ -25,5 +25,8 @@ export const SpotifyPlayer = {
     },
     GetSongName: (): string => {
         return Spicetify.Player.data.item.metadata.title;
+    },
+    GetAlbumName: (): string => {
+        return Spicetify.Player.data.item.metadata.album_title;
     }
 }

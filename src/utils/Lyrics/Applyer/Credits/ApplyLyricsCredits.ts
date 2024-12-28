@@ -5,6 +5,6 @@ export function ApplyLyricsCredits(data) {
     CreditsElement.classList.add("Credits");
   
     const SongWriters = data.SongWriters.join(", ");
-    CreditsElement.textContent = `Song Writers: ${SongWriters}`
+    CreditsElement.textContent = `Credits: ${SongWriters}`
     LyricsContainer.appendChild(CreditsElement);
 }

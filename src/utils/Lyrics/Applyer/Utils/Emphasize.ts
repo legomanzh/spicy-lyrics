@@ -1,4 +1,5 @@
 import { ArabicPersianRegex } from "../../../Addons";
+import { IdleEmphasisLyricsScale } from "../../Animator/Shared";
 import { ConvertTime } from "../../ConvertTime";
 import { CurrentLineLyricsObject, LyricsObject } from "../../lyrics";
 
@@ -41,6 +42,12 @@ export default function Emphasize(letters: Array<string>, applyTo: HTMLElement, 
             Emphasis: true,
             ...mcont
         })
+
+        letterElem.style.setProperty("--gradient-position", `0%`);
+        letterElem.style.setProperty("--text-shadow-opacity", `0%`);
+        letterElem.style.setProperty("--text-shadow-blur-radius", `4px`);
+        letterElem.style.scale = IdleEmphasisLyricsScale.toString();
+        letterElem.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0.02))`;
 
         word.appendChild(letterElem);
     });

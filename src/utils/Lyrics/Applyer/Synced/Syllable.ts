@@ -7,6 +7,7 @@ import { ClearLyricsContentArrays, CurrentLineLyricsObject, lyricsBetweenShow, L
 import { ApplyLyricsCredits } from "../Credits/ApplyLyricsCredits";
 import { IsLetterCapable } from "../Utils/IsLetterCapable";
 import Emphasize from "../Utils/Emphasize";
+import { IdleEmphasisLyricsScale, IdleLyricsScale } from "../../Animator/Shared";
 
 export function ApplySyllableLyrics(data) {
   if (!Defaults.LyricsContainerExists) return;
@@ -129,10 +130,22 @@ export function ApplySyllableLyrics(data) {
 
           iL === aL.length - 1 ? word.classList.add("LastWordInLine") : lead.IsPartOfWord ? word.classList.add("PartOfWord") : null;
 
+          word.style.setProperty("--text-shadow-opacity", `0%`);
+          word.style.setProperty("--text-shadow-blur-radius", `4px`);
+          word.style.scale = IdleEmphasisLyricsScale.toString();
+          word.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0.02))`;
+
           lineElem.appendChild(word);
           
         } else {
           word.textContent = lead.Text;
+
+          word.style.setProperty("--gradient-position", `0%`);
+          word.style.setProperty("--text-shadow-opacity", `0%`);
+          word.style.setProperty("--text-shadow-blur-radius", `4px`);
+          word.style.scale = IdleLyricsScale.toString();
+          word.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0.01))`;
+
 
           if (ArabicPersianRegex.test(lead.Text)) {
             word.setAttribute("font", "Vazirmatn")
@@ -190,10 +203,21 @@ export function ApplySyllableLyrics(data) {
 
               bI === bA.length - 1 ? bwE.classList.add("LastWordInLine") : bw.IsPartOfWord ? bwE.classList.add("PartOfWord") : null;
 
+              bwE.style.setProperty("--text-shadow-opacity", `0%`);
+              bwE.style.setProperty("--text-shadow-blur-radius", `4px`);
+              bwE.style.scale = IdleEmphasisLyricsScale.toString();
+              bwE.style.transform = `translateY(calc(var(--font-size) * 0.02))`;
+
               lineE.appendChild(bwE)
 
             } else {
               bwE.textContent = bw.Text
+
+              bwE.style.setProperty("--gradient-position", `0%`);
+              bwE.style.setProperty("--text-shadow-opacity", `0%`);
+              bwE.style.setProperty("--text-shadow-blur-radius", `4px`);
+              bwE.style.scale = IdleLyricsScale.toString();
+              bwE.style.transform = `translateY(calc(var(--font-size) * 0.01))`;
 
               if (ArabicPersianRegex.test(bw.Text)) {
                 bwE.setAttribute("font", "Vazirmatn")
