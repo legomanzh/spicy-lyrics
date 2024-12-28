@@ -1,6 +1,7 @@
 import storage from "../../utils/storage";
 import { SpotifyPlayer } from "../Global/SpotifyPlayer";
 import { Tooltips } from "../Pages/PageView";
+import Fullscreen from "./Fullscreen";
 
 
 function OpenNowBar() {
@@ -9,6 +10,20 @@ function OpenNowBar() {
     UpdateNowBar(true);
     NowBar.classList.add("Active");
     storage.set("IsNowBarOpen", "true");
+
+    if (Fullscreen.IsOpen) {
+        const MediaBox = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaContent");
+        
+        // Let's Apply more data into the fullscreen mode.
+        {
+            if (MediaBox.querySelector(".AlbumData")) return;
+            const AlbumNameElement = document.createElement("div");
+            AlbumNameElement.classList.add("AlbumData");
+            AlbumNameElement.innerHTML = `<span>${SpotifyPlayer.GetAlbumName()}</span>`;
+            MediaBox.insertBefore(AlbumNameElement, MediaBox.firstChild);
+        }
+    }
+
 }
 
 function CloseNowBar() {
@@ -43,10 +58,18 @@ function UpdateNowBar(force: boolean = false) {
     if (IsNowBarOpen == "false" && !force) return;
     const Song = {
         Artwork: SpotifyPlayer.Artwork.Get("xl"),
-        Title: SpotifyPlayer.GetSongName()
+        Title: SpotifyPlayer.GetSongName(),
+        Album: SpotifyPlayer.GetAlbumName()
     }
-    NowBar.querySelector<HTMLImageElement>(".Header .Artwork img").src = Song.Artwork;
+    NowBar.querySelector<HTMLImageElement>(".Header .MediaBox .MediaImage").src = Song.Artwork;
     NowBar.querySelector<HTMLSpanElement>(".Header .SongName span").textContent = Song.Title;
+
+    if (Fullscreen.IsOpen) {
+        const NowBarAlbum = NowBar.querySelector<HTMLElement>(".Header .MediaBox .AlbumData");
+        if (NowBarAlbum) {
+            NowBarAlbum.querySelector<HTMLSpanElement>("span").textContent = Song.Album;
+        }
+    }
 }
 
 function NowBar_SwapSides() {

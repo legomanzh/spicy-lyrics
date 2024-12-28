@@ -98,9 +98,9 @@
   will-change: --gradient-percentage, transform, opacity, text-shadow, scale;
 }
 
-#SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line .word {
+/* #SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line .word {
   --DefaultTransitionDuration: 0.38s;
-}
+} */
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line:is(.Active, .Sung) .word,
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line:is(.Active, .Sung) .letter,
@@ -108,11 +108,16 @@
   text-shadow: var(--TextShadowDefinition);
 }
 
-#SpicyLyricsPage .LyricsContainer .LyricsContent .line:is(.Active, .Sung) .word:not(.dot),
+/* #SpicyLyricsPage .LyricsContainer .LyricsContent .line:is(.Active, .Sung) .word:not(.dot), */
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line:is(.Active, .Sung) .letter,
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line:is(.Active, .Sung) .letterGroup {
   transition: var(--TransitionDefinition);
 }
+
+/* #SpicyLyricsPage .LyricsContainer .LyricsContent .line:is(.Active, .Sung) .word:not(.dot) {
+  --TransitionDefinition: text-shadow 0.2s cubic-bezier(0.61, 1, 0.88, 1);
+  transition: var(--TransitionDefinition);
+} */
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.bg-line .word,
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.bg-line .letterGroup .letter {
@@ -205,7 +210,7 @@
   /* opacity: var(--Vocal-Sung-opacity) !important; */
   text-shadow: var(--TextShadowDefinition) !important;
   transform: translateY(0) !important;
-  scale: 1.0008 !important;
+  scale: 1 !important;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.Sung .letterGroup {
@@ -233,6 +238,7 @@
   transform-origin: center center;
   animation: MusicalLineScaleLoop 8s cubic-bezier(.35,.29,.51,1.11) infinite;
 }
+
 
 @keyframes MusicalLineScaleLoop {
   0% {
@@ -262,6 +268,7 @@
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line .dotGroup {
   display: flex;
   flex-direction: row;
+  gap: clamp(0.005rem, 1.7cqw, 0.2rem);
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line.Active .dotGroup .dot {

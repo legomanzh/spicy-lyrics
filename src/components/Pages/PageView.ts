@@ -8,7 +8,7 @@ import { Icons } from "../Styling/Icons";
 import { ScrollSimplebar } from "../../utils/Scrolling/Simplebar/ScrollSimplebar";
 import ApplyLyrics from "../../utils/Lyrics/Global/Applyer";
 import { SpotifyPlayer } from "../Global/SpotifyPlayer";
-import { NowBar_SwapSides, Session_NowBar_SetSide, Session_OpenNowBar, ToggleNowBar } from "../Utils/NowBar";
+import { Session_NowBar_SetSide, Session_OpenNowBar, ToggleNowBar } from "../Utils/NowBar";
 import Fullscreen from "../Utils/Fullscreen";
 import TransferElement from "../Utils/TransferElement";
 
@@ -29,8 +29,9 @@ export default function DisplayLyricsPage() {
             <div class="NowBar">
                 <div class="CenteredView">
                     <div class="Header">
-                        <div class="Artwork">
-                            <img src="${SpotifyPlayer.Artwork.Get("xl")}" />
+                        <div class="MediaBox">
+                            <div class="MediaContent"></div>
+                            <img class="MediaImage" src="${SpotifyPlayer.Artwork.Get("xl")}" />
                         </div>
                         <div class="SongName">
                             <span>
@@ -80,12 +81,11 @@ export default function DisplayLyricsPage() {
 
     Session_OpenNowBar();
 
-    const ArtworkButton = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .Artwork");
+    /* const ArtworkButton = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .Artwork");
 
     ArtworkButton.addEventListener("click", () => {
-        console.log("clicked");
         NowBar_SwapSides();
-    })
+    }) */
 
     Session_NowBar_SetSide();
 
@@ -114,7 +114,7 @@ export function AppendViewControls(ReAppend: boolean = false) {
     `
 
     if (Fullscreen.IsOpen) {
-        TransferElement(elem, document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header"), 0);
+        TransferElement(elem, document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaContent"));
     } else {
         if (document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .ViewControls")) {
             TransferElement(elem, document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox"));
@@ -163,7 +163,7 @@ export function AppendViewControls(ReAppend: boolean = false) {
             nowBarButton,
             {
                 ...Spicetify.TippyProps,
-                content: `Toggle the *New* NowBar`
+                content: `NowBar`
             }
         )
 
