@@ -51,6 +51,30 @@ async function main() {
   SpicyHasherElement.src = "https://storage.spicy-lyrics.spikerko.org/tools/spicy-hasher.js";
   document.head.appendChild(SpicyHasherElement);
 
+  let buttonRegistered = false;
+
+  const button = new Spicetify.Playbar.Button(
+    "Spicy Lyrics",
+    Icons.LyricsPage,
+    (self) => {
+        if (!self.active) {
+          Session.Navigate({ pathname: "/SpicyLyrics" });
+          //self.active = true;
+        } else {
+          Session.GoBack();
+          //self.active = false;
+        }
+    },
+    false, // Whether the button is disabled.
+    false, // Whether the button is active.
+  );
+
+  Global.Event.listen("pagecontainer:available", () => {
+    if (!buttonRegistered) {
+      button.register();
+    }
+  })
+
   const Hometinue = () => {
     // Because somethimes the "syncedPositon" was unavailable, I'm putting this check here that checks if the Spicetify?.Platform?.PlaybackAPI is available (which is then used in SpotifyPlayer.GetTrackPosition())
     Whentil.When(() => Spicetify.Platform.PlaybackAPI, () => {
@@ -59,22 +83,6 @@ async function main() {
 
     // Lets set out Dynamic Background (spicy-dynamic-bg) to the now playing bar
     let lastImgUrl;
-
-    const button = new Spicetify.Playbar.Button(
-      "Spicy Lyrics",
-      Icons.LyricsPage,
-      (self) => {
-          if (!self.active) {
-            Session.Navigate({ pathname: "/SpicyLyrics" });
-            //self.active = true;
-          } else {
-            Session.GoBack();
-            //self.active = false;
-          }
-      },
-      false, // Whether the button is disabled.
-      false, // Whether the button is active.
-    );
 
     /* Spicetify.Player.addEventListener("songchange", (event) => {
         const cover = event.data.item.metadata.image_url;
@@ -241,10 +249,6 @@ async function main() {
         button.active = true;
       })
     }
-
-    Global.Event.listen("pagecontainer:available", () => {
-      button.register();
-    })
 
     button.tippy.setContent("Spicy Lyrics");
 
