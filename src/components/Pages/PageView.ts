@@ -11,12 +11,14 @@ import { SpotifyPlayer } from "../Global/SpotifyPlayer";
 import { Session_NowBar_SetSide, Session_OpenNowBar, ToggleNowBar } from "../Utils/NowBar";
 import Fullscreen from "../Utils/Fullscreen";
 import TransferElement from "../Utils/TransferElement";
+import Session from "../Global/Session";
 
 export const Tooltips = {
     Close: null,
     Kofi: null,
     NowBarToggle: null,
-    FullscreenToggle: null
+    FullscreenToggle: null,
+    LyricsToggle: null
 }
 
 export const PageRoot = document.querySelector<HTMLElement>('.Root__main-view .main-view-container div[data-overlayscrollbars-viewport]');
@@ -30,13 +32,29 @@ export default function DisplayLyricsPage() {
                 <div class="CenteredView">
                     <div class="Header">
                         <div class="MediaBox">
-                            <div class="MediaContent"></div>
-                            <img class="MediaImage" src="${SpotifyPlayer.Artwork.Get("xl")}" />
+                            <div class="MediaContent" draggable="true"></div>
+                            <img class="MediaImage" src="${SpotifyPlayer.Artwork.Get("xl")}" draggable="true" />
                         </div>
-                        <div class="SongName">
-                            <span>
-                                ${SpotifyPlayer.GetSongName()}
-                            </span>
+                        <div class="Metadata">
+                            <div class="SongName">
+                                <span>
+                                    ${SpotifyPlayer.GetSongName()}
+                                </span>
+                            </div>
+                            <div class="Artists">
+                                <span></span> 
+                            </div>
+                            <!-- This style is here to prevent the @keyframes removal in the CSS. I still don't know why that's happening. -->
+                            <style>
+                                @keyframes shimmer {
+                                    0% {
+                                        background-position: 200% 0;
+                                    }
+                                    100% {
+                                        background-position: -200% 0;
+                                    }
+                                }
+                            </style>
                         </div>
                     </div>
                 </div>
@@ -48,6 +66,12 @@ export default function DisplayLyricsPage() {
                 <div class="LyricsContent ScrollbarScrollable"></div>
             </div>
             <div class="ViewControls"></div>
+            <div class="DropZone LeftSide">
+                <span>Switch Sides</span>
+            </div>
+            <div class="DropZone RightSide">
+                <span>Switch Sides</span>
+            </div>
         </div>
     `
 
@@ -135,7 +159,7 @@ export function AppendViewControls(ReAppend: boolean = false) {
 
         closeButton.addEventListener(
             "click",
-            () => Spicetify.Platform.History.goBack()
+            () => Session.GoBack()
         )
 
         // Kofi Donation
@@ -172,7 +196,7 @@ export function AppendViewControls(ReAppend: boolean = false) {
             () => ToggleNowBar()
         )
 
-        // The NEW Fullscreen Button (Still Being made)
+        // Fullscreen Button
         const fullscreenBtn = elem.querySelector("#FullscreenToggle");
 
         Tooltips.FullscreenToggle = Spicetify.Tippy(
@@ -189,3 +213,25 @@ export function AppendViewControls(ReAppend: boolean = false) {
         )
     }
 }
+
+/* const WhenPageExits = When(document.querySelector<HTMLElement>('.Root__main-view .main-view-container div[data-overlayscrollbars-viewport]'), (statement) => {
+    statement.classList.add("ColorBlue")
+})
+
+WhenPageExits.Cancel(); // Cancels the check. Can only be called while the statement is being executed (even when using repeater), or when its still trying to verify if the statement is true.
+WhenPageExits.Reset(); // Resets the whole thing. Can only be called after the statment was executed (even when using repeater) and after the check was done. Or works when it was cancelled.
+
+const UntilPageExits = Until(document.querySelector<HTMLElement>('.Root__main-view .main-view-container div[data-overlayscrollbars-viewport]'), () => {
+    console.log("Loading...")
+}, 1000)
+
+UntilPageExits.Cancel(); // Cancels the check. Can only be called while the statement is being executed, or when its still trying to verify if the statement is true.
+UntilPageExits.Reset(); // Resets the whole thing. Can only be called after the statment was executed (even when using maxRepeats) and after the check was done. Or works when it was cancelled.
+
+
+const WhenSomething = When(true | false, (statement) => {
+    console.log(statement)
+})
+const UntilSomething = Until(true | false, () => {
+    console.log("Callback")
+}) */

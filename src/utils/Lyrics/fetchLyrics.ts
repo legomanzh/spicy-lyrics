@@ -21,6 +21,11 @@ export default async function fetchLyrics(uri: string) {
 
     if (!Fullscreen.IsOpen) AppendViewControls(true);
 
+    const IsSomethingElseThanTrack = Spicetify.Player.data.item.type !== "track";
+    if (IsSomethingElseThanTrack) {
+        return NotTrackMessage();
+    }
+
     //ShowLoaderContainer();
 
     const currFetching = storage.get("currentlyFetching");

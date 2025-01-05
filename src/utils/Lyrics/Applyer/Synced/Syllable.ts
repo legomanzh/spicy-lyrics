@@ -1,3 +1,4 @@
+import { SpotifyPlayer } from './../../../../components/Global/SpotifyPlayer';
 import { ArabicPersianRegex, BOTTOM_ApplyLyricsSpacer, TOP_ApplyLyricsSpacer } from "../../../Addons";
 import Defaults from "../../../../components/Global/Defaults";
 import { applyStyles, removeAllStyles } from "../../../CSS/Styles";
@@ -18,7 +19,7 @@ export function ApplySyllableLyrics(data) {
   ClearLyricsContentArrays();
   ClearScrollSimplebar();
   TOP_ApplyLyricsSpacer(LyricsContainer)
-  if (data.StartTime >= lyricsBetweenShow) {
+  if (data.StartTime >= lyricsBetweenShow && !SpotifyPlayer.IsPodcast) {
     const musicalLine = document.createElement("div")
     musicalLine.classList.add("line")
     musicalLine.classList.add("musical-line")
@@ -26,7 +27,8 @@ export function ApplySyllableLyrics(data) {
       HTMLElement: musicalLine,
       StartTime: 0,
       EndTime: ConvertTime(data.StartTime),
-      TotalTime: ConvertTime(data.StartTime)
+      TotalTime: ConvertTime(data.StartTime),
+      DotLine: true
     })
 
     SetWordArrayInCurentLine();
@@ -117,7 +119,7 @@ export function ApplySyllableLyrics(data) {
 
         const letterLength = lead.Text.split("").length;
 
-        const IfLetterCapable = IsLetterCapable(letterLength, totalDuration);
+        const IfLetterCapable = IsLetterCapable(letterLength, totalDuration) && !SpotifyPlayer.IsPodcast;
         const contentDuration = totalDuration > 200 ? totalDuration : 200;
         word.style.setProperty("--content-duration", `${contentDuration}ms`);
 
@@ -140,11 +142,11 @@ export function ApplySyllableLyrics(data) {
         } else {
           word.textContent = lead.Text;
 
-          word.style.setProperty("--gradient-position", `0%`);
+          word.style.setProperty("--gradient-position", `-20%`);
           word.style.setProperty("--text-shadow-opacity", `0%`);
           word.style.setProperty("--text-shadow-blur-radius", `4px`);
-          word.style.scale = IdleLyricsScale.toString();
-          word.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0.01))`;
+          word.style.scale = SpotifyPlayer.IsPodcast ? "1" : IdleLyricsScale.toString();
+          word.style.transform = SpotifyPlayer.IsPodcast ? null :`translateY(calc(var(--DefaultLyricsSize) * 0.01))`;
 
 
           if (ArabicPersianRegex.test(lead.Text)) {
@@ -241,7 +243,7 @@ export function ApplySyllableLyrics(data) {
           })
         })
       }
-        if (arr[index + 1] && arr[index + 1].Lead.StartTime - line.Lead.EndTime >= lyricsBetweenShow) {
+        if (arr[index + 1] && arr[index + 1].Lead.StartTime - line.Lead.EndTime >= lyricsBetweenShow && !SpotifyPlayer.IsPodcast) {
           const musicalLine = document.createElement("div")
           musicalLine.classList.add("line")
           musicalLine.classList.add("musical-line")
@@ -250,7 +252,8 @@ export function ApplySyllableLyrics(data) {
             HTMLElement: musicalLine,
             StartTime: ConvertTime(line.Lead.EndTime),
             EndTime: ConvertTime(arr[index + 1].Lead.StartTime),
-            TotalTime: ConvertTime(arr[index + 1].Lead.StartTime) - ConvertTime(line.Lead.EndTime)
+            TotalTime: ConvertTime(arr[index + 1].Lead.StartTime) - ConvertTime(line.Lead.EndTime),
+            DotLine: true
           })
 
           SetWordArrayInCurentLine();

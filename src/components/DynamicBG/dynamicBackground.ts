@@ -1,17 +1,19 @@
 import storage from "../../utils/storage";
+import { SpotifyPlayer } from "../Global/SpotifyPlayer";
 import ArtistVisuals from "./ArtistVisuals/Main";
 
 export default async function ApplyDynamicBackground(element) {
     if (!element) return
-    let currentImgCover = Spicetify.Player.data?.item.metadata.image_url;
+    let currentImgCover = SpotifyPlayer.Artwork.Get("d");
     const lowQMode = storage.get("lowQMode");
     const lowQModeEnabled = lowQMode && lowQMode === "true";
-    const CurrentSongArtist = Spicetify.Player.data?.item.artists[0].uri;
+    const IsEpisode = Spicetify.Player.data.item.type === "episode";
+    const CurrentSongArtist = IsEpisode ? null : Spicetify.Player.data?.item.artists[0].uri;
     const CurrentSongUri = Spicetify.Player.data?.item.uri;
 
     if (lowQModeEnabled) {
         try {
-            currentImgCover = await LowQMode_SetDynamicBackground(CurrentSongArtist, CurrentSongUri);
+            currentImgCover = IsEpisode ? null : await LowQMode_SetDynamicBackground(CurrentSongArtist, CurrentSongUri);
         } catch (error) {
             console.error("Error happened while trying to set the Low Quality Mode Dynamic Background", error)
         }
@@ -23,6 +25,7 @@ export default async function ApplyDynamicBackground(element) {
     
 
     if (lowQModeEnabled) {
+        if (IsEpisode) return;
         const dynamicBg = document.createElement("img")
         dynamicBg.classList.add("spicy-dynamic-bg", "lowqmode")
 

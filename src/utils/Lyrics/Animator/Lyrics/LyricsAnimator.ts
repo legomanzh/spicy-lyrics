@@ -10,9 +10,6 @@ export function setBlurringLastLine(c) {
   Blurring_LastLine = c;
 }
 
-let AnimatorData = [];
-
-const CurrentAnimatorInstance = AnimatorData.length - 1;
 
 export function Animate(position) {
   const CurrentLyricsType = Defaults.CurrentLyricsType;
@@ -69,8 +66,11 @@ export function Animate(position) {
           const line = arr[index];
 
           if (line.Status === "Active") {
+              if (!SpotifyPlayer.IsPlaying) {
+                applyBlur(arr, index, BlurMultiplier);
+              }
               if (Blurring_LastLine !== index) {
-                applyBlur(arr, index, BlurMultiplier); // Adjust BlurMultiplier as needed.
+                applyBlur(arr, index, BlurMultiplier);
                 Blurring_LastLine = index;
               };
 
@@ -89,6 +89,7 @@ export function Animate(position) {
               if (line.HTMLElement.classList.contains("OverridenByScroller")) {
                   line.HTMLElement.classList.remove("OverridenByScroller");
               }
+
 
               const words = line.Syllables.Lead;
               for (let wordIndex = 0; wordIndex < words.length; wordIndex++) {
@@ -129,16 +130,16 @@ export function Animate(position) {
                           let translateY;
                           if (percentage <= 0.5) {
                             // Phase 1: -0.2 to -0.3
-                            translateY = 0 + (-0.08 - 0) * (percentage / 0.5);
+                            translateY = 0 + (-0.06 - 0) * (percentage / 0.5);
                           } else {
                             // Phase 2: -0.3 to 0
-                            translateY = -0.08 + (0 - -0.08) * ((percentage - 0.5) / 0.5);
+                            translateY = -0.06 + (0 - -0.06) * ((percentage - 0.5) / 0.5);
                           }
 
                           const letterGradientPosition = `${percentage * 100}%`; // Gradient position based on percentage
                           //letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${emphasisTranslateY * 1.5}))`;
                           letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${translateY}))`;
-                          letter.HTMLElement.style.scale = `${emphasisScale * 1.001}`;
+                          letter.HTMLElement.style.scale = `${emphasisScale * 1.03}`;
                           letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${emphasisBlurRadius}px`);
                           letter.HTMLElement.style.setProperty("--text-shadow-opacity", `${emphasisTextShadowOpacity}%`);
                           letter.HTMLElement.style.setProperty("--gradient-position", letterGradientPosition);
@@ -158,16 +159,18 @@ export function Animate(position) {
                             const elapsedDuration = edtrackpos - NextLetter.StartTime;
                             const percentage = Math.max(0, Math.min(elapsedDuration / totalDuration, 1)); // Clamp percentage between 0 and 1
                             const translateY = 0.02 + (-0.065 - 0.02) * percentage;
-                            letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.8)}))`;
+                            //letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.8)}))`;
 
                             if (NextLetter.Status === "Active") {
+                              letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.8)}))`;
                               letter.HTMLElement.style.setProperty("--text-shadow-opacity", `${(percentage * 100) * 0.85}%`);
                             } else {
-                              letter.HTMLElement.style.setProperty("--text-shadow-opacity", `50%`);
+                              letter.HTMLElement.style.setProperty("--text-shadow-opacity", `10%`);
+                              letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
                             }
                           } else {
+                            letter.HTMLElement.style.setProperty("--text-shadow-opacity", `5%`);
                             letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
-                            letter.HTMLElement.style.setProperty("--text-shadow-opacity", `30%`);
                           }
 
                           letter.HTMLElement.style.scale = "1";
@@ -217,6 +220,14 @@ export function Animate(position) {
                         word.glow = textShadowOpacity / 100;
                       }
                       word.translateY = translateY;
+
+                      if (!isDot && !isLetterGroup) {
+                        word.AnimatorStoreTime_glow = undefined; // Allow re-animation later if needed
+
+                        word.AnimatorStoreTime_translateY = undefined; // Allow re-animation later if needed
+
+                        word.AnimatorStoreTime_scale = undefined; // Allow re-animation later if needed
+                      }
                     }
                 } else if (word.Status === "NotSung") {
                     // NotSung styles
@@ -231,7 +242,7 @@ export function Animate(position) {
                       }
                       word.HTMLElement.style.transform = "translateY(calc(var(--DefaultLyricsSize) * 0.02))";
                       word.translateY = 0.02;
-                    } else {
+                    } else if (!isDot) {
                       word.HTMLElement.style.transform = "translateY(calc(var(--DefaultLyricsSize) * 0.01))";
                       word.translateY = 0.01;
                     }
@@ -244,6 +255,16 @@ export function Animate(position) {
                       word.HTMLElement.style.scale = isLetterGroup ? IdleEmphasisLyricsScale : IdleLyricsScale;
                       word.scale = isLetterGroup ? IdleEmphasisLyricsScale : IdleLyricsScale;
                       word.HTMLElement.style.setProperty("--gradient-position", "-20%");
+                    }
+                    if (!isDot && !isLetterGroup) {
+                        word.AnimatorStoreTime_glow = undefined; // Allow re-animation later if needed
+                        word.glow = 0;
+
+                        word.AnimatorStoreTime_translateY = undefined; // Allow re-animation later if needed
+                        word.translateY = 0.1;
+
+                        word.AnimatorStoreTime_scale = undefined; // Allow re-animation later if needed
+                        word.scale = IdleLyricsScale;
                     }
                     word.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
                     word.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
@@ -335,11 +356,11 @@ export function Animate(position) {
                         }
                         if (progress_translateY === 1) {
                             word.AnimatorStoreTime_translateY = undefined; // Allow re-animation later if needed
-                            word.translateY = 0;
+                            word.translateY = 0.005;
                         }
                         if (progress_scale === 1) {
                             word.AnimatorStoreTime_scale = undefined; // Allow re-animation later if needed
-                            word.scale = 1;
+                            word.scale = 0.99;
                         }
                     }
                     // Handle letters if it's a LetterGroup
@@ -386,6 +407,9 @@ export function Animate(position) {
           const line = arr[index];
 
           if (line.Status === "Active") {
+              if (!SpotifyPlayer.IsPlaying) {
+                applyBlur(arr, index, BlurMultiplier);
+              }
               if (Blurring_LastLine !== index) {
                 applyBlur(arr, index, BlurMultiplier); // Adjust BlurMultiplier as needed.
                 Blurring_LastLine = index;
@@ -411,7 +435,6 @@ export function Animate(position) {
               const totalDuration = line.EndTime - line.StartTime;
               const elapsedDuration = edtrackpos - line.StartTime;
               const percentage = Math.max(0, Math.min(elapsedDuration / totalDuration, 1)); // Clamp percentage between 0 and 1
-
 
               if (line.DotLine) {
                 const Array = line.Syllables.Lead;
@@ -483,6 +506,67 @@ export function Animate(position) {
   }
 }
 
+// export function AnimatePodcast(position) {
+//   const CurrentLyricsType = Defaults.CurrentLyricsType;
+//   const edtrackpos = position + timeOffset;
+
+//   if (!CurrentLyricsType || CurrentLyricsType === "None" || CurrentLyricsType === "Static") return;
+//   if (CurrentLyricsType === "Syllable") {
+//     const arr = LyricsObject.Types.Syllable.Lines;
+
+//     for (let index = 0; index < arr.length; index++) {
+//         const line = arr[index];
+
+//         if (line.Status === "Active") {
+//             if (!line.HTMLElement.classList.contains("Active")) {
+//                 line.HTMLElement.classList.add("Active");
+//             }
+
+//             if (line.HTMLElement.classList.contains("NotSung")) {
+//                 line.HTMLElement.classList.remove("NotSung");
+//             }
+
+//             if (line.HTMLElement.classList.contains("OverridenByScroller")) {
+//                 line.HTMLElement.classList.remove("OverridenByScroller");
+//             }
+
+//             if (line.HTMLElement.classList.contains("Sung")) {
+//                 line.HTMLElement.classList.remove("Sung");
+//             }
+
+//             const words = line.Syllables.Lead;
+//             for (let wordIndex = 0; wordIndex < words.length; wordIndex++) {
+//                 const word = words[wordIndex];
+
+//                 if (word.Status === "Active") {
+//                     // Calculate percentage of progress through the word
+//                     /* const totalDuration = word.EndTime - word.StartTime;
+//                     const elapsedDuration = edtrackpos - word.StartTime;
+//                     const percentage = Math.max(0, Math.min(elapsedDuration / totalDuration, 1)); // Clamp percentage between 0 and 1
+//                     const scale = IdleLyricsScale + (1 - IdleLyricsScale) * percentage; // From IdleLyricsScale to 1.025 */
+//                     word.HTMLElement.style.setProperty("--gradient-position", "100%");
+//                 } else if (word.Status === "NotSung") {
+//                     // NotSung styles
+//                     word.HTMLElement.style.setProperty("--gradient-position", "-20%");
+//                 } else if (word.Status === "Sung") {
+//                     // Sung styles
+//                     word.HTMLElement.style.setProperty("--gradient-position", "100%");
+//                 }
+//             }
+//           } else if (line.Status === "NotSung") {
+//             line.HTMLElement.classList.add("NotSung");
+//             line.HTMLElement.classList.remove("Sung");
+//             if (line.HTMLElement.classList.contains("Active") && !line.HTMLElement.classList.contains("OverridenByScroller")) {
+//               line.HTMLElement.classList.remove("Active");
+//             }
+//           } else if (line.Status === "Sung") {
+//             line.HTMLElement.classList.add("Sung");
+//             line.HTMLElement.classList.remove("Active", "NotSung");
+//           }
+//         }
+//     }
+// }
+
 
 /* const PlayPauseEID = Global.Event.listen("playback:playpause", (e) => {
   console.log("PlayedPaused", e)
@@ -506,7 +590,7 @@ export function Animate(position) {
 }) */
 
 
-function DelayAnimate(from, to, duration, word, name) {
+/* function DelayAnimate(from, to, duration, word, name) {
   // Track animation start time
   if (!word.AnimatorStoreTime) {
       word.AnimatorStoreTime = performance.now(); // Store start time for the element
@@ -528,4 +612,4 @@ function DelayAnimate(from, to, duration, word, name) {
       word.AnimatorStoreTime = undefined; // Allow re-animation later if needed
       word[name] = to;
   }
-}
+} */

@@ -147,3 +147,6 @@ out
 dist/
 
 script_removefromcache.cmd
+testScript.js
+
+src/utils/SpicyHasher.ts
