@@ -1,7 +1,7 @@
 import Animator from "../../utils/Animator";
 import { ResetLastLine } from "../../utils/Scrolling/ScrollToActiveLine";
 import storage from "../../utils/storage";
-import { AppendViewControls, PageRoot, Tooltips } from "../Pages/PageView";
+import PageView, { PageRoot, Tooltips } from "../Pages/PageView";
 import { DeregisterNowBarBtn, OpenNowBar } from "./NowBar";
 import TransferElement from "./TransferElement";
 
@@ -55,7 +55,7 @@ function Open() {
         TransferElement(SpicyPage, Root);
         SpicyPage.classList.add("Fullscreen");
         Fullscreen.IsOpen = true
-        AppendViewControls(true);
+        PageView.AppendViewControls(true);
 
         Tooltips.NowBarToggle?.destroy();
 
@@ -96,7 +96,7 @@ function Close() {
         TransferElement(SpicyPage, PageRoot);
         SpicyPage.classList.remove("Fullscreen");
         Fullscreen.IsOpen = false
-        AppendViewControls(true);
+        PageView.AppendViewControls(true);
         if (document.fullscreenElement) {
             document.exitFullscreen();
         }

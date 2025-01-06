@@ -3,7 +3,7 @@ import storage from "../storage";
 import Defaults from "../../components/Global/Defaults";
 import SpicyFetch from "../API/SpicyFetch";
 import { DeregisterNowBarBtn, OpenNowBar } from "../../components/Utils/NowBar";
-import { AppendViewControls } from "../../components/Pages/PageView";
+import PageView from "../../components/Pages/PageView";
 import Fullscreen from "../../components/Utils/Fullscreen";
 
 export const lyricsCache = new SpikyCache({
@@ -19,7 +19,7 @@ export default async function fetchLyrics(uri: string) {
 
     document.querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer")?.classList.remove("Hidden");
 
-    if (!Fullscreen.IsOpen) AppendViewControls(true);
+    if (!Fullscreen.IsOpen) PageView.AppendViewControls(true);
 
     const IsSomethingElseThanTrack = Spicetify.Player.data.item.type !== "track";
     if (IsSomethingElseThanTrack) {

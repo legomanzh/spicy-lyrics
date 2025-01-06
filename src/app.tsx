@@ -1,9 +1,8 @@
-import { Timeout } from "@spikerko/web-modules/Scheduler";
 import fetchLyrics from "./utils/Lyrics/fetchLyrics";
 import { ScrollingIntervalTime } from "./utils/Lyrics/lyrics";
 import storage from "./utils/storage";
 import { setSettingsMenu } from "./utils/settings";
-import DisplayLyricsPage, { DestroyLyricsPage } from "./components/Pages/PageView";
+import PageView from "./components/Pages/PageView";
 import { Icons } from "./components/Styling/Icons";
 import ApplyDynamicBackground, { LowQMode_SetDynamicBackground } from "./components/DynamicBG/dynamicBackground";
 import LoadFonts from "./components/Styling/Fonts";
@@ -72,6 +71,7 @@ async function main() {
   Global.Event.listen("pagecontainer:available", () => {
     if (!buttonRegistered) {
       button.register();
+      buttonRegistered = true;
     }
   })
 
@@ -171,14 +171,14 @@ async function main() {
         }
       };
 
-      SpotifyPlayer.IsPodcast = event.data.item.type === "episode";
+      /* SpotifyPlayer.IsPodcast = event.data.item.type === "episode";
       if (document.querySelector("#SpicyLyricsPage")) {
         if (SpotifyPlayer.IsPodcast) {
           document.querySelector("#SpicyLyricsPage").classList.add("Podcast");
         } else {
           document.querySelector("#SpicyLyricsPage").classList.remove("Podcast");
         }
-      };
+      }; */
 
       if (document.querySelector("#SpicyLyricsPage .ContentBox .NowBar")) UpdateNowBar();
 
@@ -229,11 +229,11 @@ async function main() {
 
     function loadPage(location) {
       if (location.pathname === "/SpicyLyrics") {
-        DisplayLyricsPage()
+        PageView.Open();
         button.active = true;
       } else {
         if (lastLocation?.pathname === "/SpicyLyrics") {
-          DestroyLyricsPage();
+          PageView.Destroy();
           button.active = false;
         }
       }

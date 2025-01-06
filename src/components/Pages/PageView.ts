@@ -21,9 +21,17 @@ export const Tooltips = {
     LyricsToggle: null
 }
 
+const PageView = {
+    Open: OpenPage,
+    Destroy: DestroyPage,
+    AppendViewControls,
+    IsOpened: false,
+};
+
 export const PageRoot = document.querySelector<HTMLElement>('.Root__main-view .main-view-container div[data-overlayscrollbars-viewport]');
 
-export default function DisplayLyricsPage() {
+function OpenPage() {
+    if (PageView.IsOpened) return;
     const elem = document.createElement("div");
     elem.id = "SpicyLyricsPage";
     elem.innerHTML = `
@@ -114,9 +122,11 @@ export default function DisplayLyricsPage() {
     Session_NowBar_SetSide();
 
     AppendViewControls();
+    PageView.IsOpened = true;
 }
 
-export function DestroyLyricsPage() {
+function DestroyPage() {
+    if (!PageView.IsOpened) return;
     if (Fullscreen.IsOpen) Fullscreen.Close();
     if (!document.querySelector("#SpicyLyricsPage")) return
     document.querySelector("#SpicyLyricsPage")?.remove();
@@ -124,9 +134,10 @@ export function DestroyLyricsPage() {
     removeLinesEvListener();
     Object.values(Tooltips).forEach(a => a?.destroy());
     ScrollSimplebar?.unMount();
+    PageView.IsOpened = false;
 }
 
-export function AppendViewControls(ReAppend: boolean = false) {
+function AppendViewControls(ReAppend: boolean = false) {
     const elem = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .ViewControls");
     if (!elem) return;
     if (ReAppend) elem.innerHTML = "";
@@ -214,24 +225,4 @@ export function AppendViewControls(ReAppend: boolean = false) {
     }
 }
 
-/* const WhenPageExits = When(document.querySelector<HTMLElement>('.Root__main-view .main-view-container div[data-overlayscrollbars-viewport]'), (statement) => {
-    statement.classList.add("ColorBlue")
-})
-
-WhenPageExits.Cancel(); // Cancels the check. Can only be called while the statement is being executed (even when using repeater), or when its still trying to verify if the statement is true.
-WhenPageExits.Reset(); // Resets the whole thing. Can only be called after the statment was executed (even when using repeater) and after the check was done. Or works when it was cancelled.
-
-const UntilPageExits = Until(document.querySelector<HTMLElement>('.Root__main-view .main-view-container div[data-overlayscrollbars-viewport]'), () => {
-    console.log("Loading...")
-}, 1000)
-
-UntilPageExits.Cancel(); // Cancels the check. Can only be called while the statement is being executed, or when its still trying to verify if the statement is true.
-UntilPageExits.Reset(); // Resets the whole thing. Can only be called after the statment was executed (even when using maxRepeats) and after the check was done. Or works when it was cancelled.
-
-
-const WhenSomething = When(true | false, (statement) => {
-    console.log(statement)
-})
-const UntilSomething = Until(true | false, () => {
-    console.log("Callback")
-}) */
+export default PageView;
