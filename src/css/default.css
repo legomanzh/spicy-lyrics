@@ -29,10 +29,12 @@
   font-family: "VazirmatnRegular", sans-serif;
 }
 
-.Root__main-view:has(#SpicyLyricsPage) .main-view-container__scroll-node-child,.Root__main-view:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer,div.os-host:has(#SpicyLyricsPage) .main-view-container__scroll-node-child,div.os-host:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer {
+body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child,
+body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer,
+body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child,
+body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer {
   display: none;
 }
-
 
 #SpicyLyricsPage .ViewControls {
   container-type: size;

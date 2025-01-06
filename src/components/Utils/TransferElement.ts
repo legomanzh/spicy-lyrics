@@ -12,7 +12,6 @@ export default function TransferElement(element, targetContainer, index = -1) {
             // Insert before the element at the specified index
             targetContainer.insertBefore(element, targetContainer.children[index]);
         }
-        console.log("Element transferred successfully.");
     } catch (error) {
         console.error("Error transferring element:", error);
     }

@@ -1,7 +1,8 @@
 import Event from "../../utils/EventManager";
 
 const Global = {
-    Event
+    Event,
+    NonLocalTimeOffset: -840,
 }
 
 export default Global;

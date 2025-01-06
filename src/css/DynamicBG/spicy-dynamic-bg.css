@@ -94,7 +94,7 @@
 
 #SpicyLyricsPage .spicy-dynamic-bg:is(.lowqmode) {
   object-fit: cover;
-  filter: brightness(.5) blur(5px);
+  filter: brightness(.5);
 }
 
 @keyframes bgAnim {
@@ -105,4 +105,13 @@
   to {
       transform: rotate(calc(var(--bg-rotation-degree) + 1turn))
   }
+}
+
+body:has(#SpicyLyricsPage.Fullscreen) .Root__right-sidebar aside:is(.NowPlayingView, .spicy-dynamic-bg-in-this) .spicy-dynamic-bg,
+body:has(#SpicyLyricsPage.Fullscreen) .Root__right-sidebar aside:is(.NowPlayingView, .spicy-dynamic-bg-in-this) .spicy-dynamic-bg .Front,
+body:has(#SpicyLyricsPage.Fullscreen) .Root__right-sidebar aside:is(.NowPlayingView, .spicy-dynamic-bg-in-this) .spicy-dynamic-bg .Back,
+body:has(#SpicyLyricsPage.Fullscreen) .Root__right-sidebar aside:is(.NowPlayingView, .spicy-dynamic-bg-in-this) .spicy-dynamic-bg .BackCenter {
+  display: none;
+  animation: none;
+  filter: none;
 }

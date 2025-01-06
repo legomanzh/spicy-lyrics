@@ -1,28 +1,82 @@
+import { SpikyCache } from "@spikerko/web-modules/SpikyCache";
 import Defaults from "../../components/Global/Defaults";
 import Platform from "../../components/Global/Platform";
 import storage from "../storage";
 
-export default async function SpicyFetch(path: string): Promise<Response> {
+export let SpicyFetchCache = new SpikyCache({
+    name: "SpicyFetch__Cache"
+});
+
+export default async function SpicyFetch(path: string, IsExternal: boolean = false, cache: boolean = false, cosmos: boolean = false): Promise<Response | any> {
     return new Promise(async (resolve, reject) => {
         const lyricsApi = storage.get("customLyricsApi") ?? Defaults.lyrics.api.url;
         const lyricsAccessToken = storage.get("lyricsApiAccessToken") ?? Defaults.lyrics.api.accessToken;
-        const url = `${lyricsApi}/${path}`
+        const url = IsExternal ? path : `${lyricsApi}/${path}`;
+
+        const CachedContent = await GetCachedContent(url);
+        if (CachedContent) {
+            resolve(CachedContent);
+            return;
+        }
 
         const SpotifyAccessToken = await Platform.GetSpotifyAccessToken();
         
-        fetch(url, {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${SpotifyAccessToken}`,
-                "access-token": lyricsAccessToken
-            }
-        }).then(CheckForErrors)
-        .then(res => {
-            resolve(res)
-        }).catch(err => {
-            reject(err)
-        });
+        if (cosmos) {
+            Spicetify.CosmosAsync.get(url)
+                .then(CheckForErrors)
+                .then(async res => {
+                    if (cache) {
+                        await CacheContent(url, res, 604800000);
+                    }
+                    resolve(res)
+                }).catch(err => {
+                    reject(err)
+                });
+        } else {
+            fetch(url, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${SpotifyAccessToken}`,
+                    "access-token": lyricsAccessToken
+                }
+            }).then(CheckForErrors)
+            .then(async res => {
+                if (cache) {
+                    await CacheContent(url, res, 604800000);
+                }
+                resolve(res)
+            }).catch(err => {
+                reject(err)
+            });
+        }
     });
+}
+
+async function CacheContent(key, data, expirationTtl: number) {
+    try {
+        const expiresIn = Date.now() + expirationTtl;
+        const processedKey = await SpicyHasher.md5(key);
+        
+        await SpicyFetchCache.set(processedKey, {
+            Content: data,
+            expiresIn
+        });
+    } catch (error) {
+        await SpicyFetchCache.destroy();
+    }
+}
+
+async function GetCachedContent(key) {
+    const processedKey = await SpicyHasher.md5(key);
+    const content = await SpicyFetchCache.get(processedKey);
+    if (content) {
+        if (content.expiresIn > Date.now()) {
+            return content.Content;
+        } else {
+            await SpicyFetchCache.remove(key);
+            return null;
+        }
+    }
 }
 
 let ENDPOINT_DISABLEMENT_Shown = false;

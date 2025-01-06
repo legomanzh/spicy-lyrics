@@ -3,11 +3,10 @@ import { IntervalManager } from '../IntervalManager';
 import Defaults from '../../components/Global/Defaults';
 import { SpotifyPlayer } from '../../components/Global/SpotifyPlayer';
 import { Lyrics } from './Animator/Main';
-import { Interval } from '@spikerko/web-modules/Scheduler';
 
 export const ScrollingIntervalTime = Infinity;
 
-export const lyricsBetweenShow = 2;
+export const lyricsBetweenShow = 3;
 
 export let LyricsObject = {
   Types: {
