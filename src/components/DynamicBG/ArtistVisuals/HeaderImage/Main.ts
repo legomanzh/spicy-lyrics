@@ -21,9 +21,8 @@ export default async function ApplyContent(CurrentSongArtist: string, CurrentSon
     return Continue();
 
     async function Continue() {
-        const req = await SpicyFetch(`artist/visuals?artist=${CurrentSongArtist}&track=${CurrentSongUri}`);
-        if (req.status === 200) {
-            const res = await req.json();
+        const [res, status] = await SpicyFetch(`artist/visuals?artist=${CurrentSongArtist}&track=${CurrentSongUri}`);
+        if (status === 200) {
             await ArtistVisuals.Cache.set(TrackId, {
                 ...res,
                 metadata: {
@@ -32,7 +31,7 @@ export default async function ApplyContent(CurrentSongArtist: string, CurrentSon
             });
             return GetHeaderUrl(res);
         } else {
-            throw new Error(`Failed to fetch visuals: ${req.status}`);
+            throw new Error(`Failed to fetch visuals: ${status}`);
         }
     }
 

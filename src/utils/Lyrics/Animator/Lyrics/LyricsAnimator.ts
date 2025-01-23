@@ -90,7 +90,6 @@ export function Animate(position) {
                   line.HTMLElement.classList.remove("OverridenByScroller");
               }
 
-
               const words = line.Syllables.Lead;
               for (let wordIndex = 0; wordIndex < words.length; wordIndex++) {
                   const word = words[wordIndex];
@@ -108,14 +107,14 @@ export function Animate(position) {
                     // Dynamic calculations based on percentage
                     const blurRadius = 4 + (16 - 4) * percentage; // From 4px to 16px
                     const textShadowOpacity = calculateOpacity(percentage, word) * 0.5; // From 0% to 100%
-                    const translateY = 0.01 + (-0.06 - 0.01) * percentage;
-                    const scale = IdleLyricsScale + (1.025 - IdleLyricsScale) * percentage; // From IdleLyricsScale to 1.025
+                    const translateY = 0.01 + (-0.03 - 0.01) * percentage;
+                    const scale = IdleLyricsScale + (1.024 - IdleLyricsScale) * percentage; // From IdleLyricsScale to 1.025
                     const gradientPosition = percentage * 100; // Gradient position based on percentage
                     
                     // Apply styles dynamically
                     if (isLetterGroup) {
-                      const emphasisBlurRadius = 4 + (12 - 4) * percentage; // From 8px to 24px 
-                      const emphasisTranslateY = 0.02 + (-0.065 - 0.02) * percentage; // From -0.005 to -0.2. (multiplied by var(--DefaultLyricsSize))
+                      const emphasisBlurRadius = 6 + (18 - 6) * percentage; // From 8px to 24px 
+                      const emphasisTranslateY = 0.02 + (-0.05 - 0.02) * percentage; // From -0.005 to -0.2. (multiplied by var(--DefaultLyricsSize))
                       const emphasisScale = IdleEmphasisLyricsScale + (1.034 - IdleEmphasisLyricsScale) * percentage; // From IdleLyricsScale to 1.025
                       const emphasisTextShadowOpacity = calculateOpacity(percentage, word) * 80; // From 0% to 100%
                       for (let k = 0; k < word.Letters.length; k++) {
@@ -130,16 +129,16 @@ export function Animate(position) {
                           let translateY;
                           if (percentage <= 0.5) {
                             // Phase 1: -0.2 to -0.3
-                            translateY = 0 + (-0.06 - 0) * (percentage / 0.5);
+                            translateY = 0 + (-0.1 - 0) * (percentage / 0.5);
                           } else {
                             // Phase 2: -0.3 to 0
-                            translateY = -0.06 + (0 - -0.06) * ((percentage - 0.5) / 0.5);
+                            translateY = -0.1 + (0 - -0.1) * ((percentage - 0.5) / 0.5);
                           }
 
                           const letterGradientPosition = `${percentage * 100}%`; // Gradient position based on percentage
                           //letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${emphasisTranslateY * 1.5}))`;
                           letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${translateY}))`;
-                          letter.HTMLElement.style.scale = `${emphasisScale * 1.03}`;
+                          letter.HTMLElement.style.scale = `${emphasisScale * 1.04}`;
                           letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${emphasisBlurRadius}px`);
                           letter.HTMLElement.style.setProperty("--text-shadow-opacity", `${emphasisTextShadowOpacity}%`);
                           letter.HTMLElement.style.setProperty("--gradient-position", letterGradientPosition);
@@ -158,15 +157,15 @@ export function Animate(position) {
                             const totalDuration = NextLetter.EndTime - NextLetter.StartTime;
                             const elapsedDuration = edtrackpos - NextLetter.StartTime;
                             const percentage = Math.max(0, Math.min(elapsedDuration / totalDuration, 1)); // Clamp percentage between 0 and 1
-                            const translateY = 0.02 + (-0.065 - 0.02) * percentage;
-                            //letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.8)}))`;
+                            const translateY = 0.02 + (-0.05 - 0.02) * percentage;
+                            letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.8)}))`;
 
                             if (NextLetter.Status === "Active") {
-                              letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.8)}))`;
+                              //letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.8)}))`;
                               letter.HTMLElement.style.setProperty("--text-shadow-opacity", `${(percentage * 100) * 0.85}%`);
                             } else {
                               letter.HTMLElement.style.setProperty("--text-shadow-opacity", `10%`);
-                              letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
+                              //letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
                             }
                           } else {
                             letter.HTMLElement.style.setProperty("--text-shadow-opacity", `5%`);
@@ -206,7 +205,7 @@ export function Animate(position) {
                         const scale = 0.75 + (1 - 0.75) * percentage;
                         word.HTMLElement.style.scale = `${0.2 + scale}`;
                         word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${blurRadius}px`);
-                        const textShadowOpacity = calculateOpacity(percentage, word) * 10; // From 0% to 100%
+                        const textShadowOpacity = calculateOpacity(percentage, word) * 1.5; // From 0% to 100%
                         word.HTMLElement.style.setProperty("--text-shadow-opacity", `${textShadowOpacity}%`);
                         word.scale = scale;
                         word.glow = textShadowOpacity / 100;
@@ -261,7 +260,7 @@ export function Animate(position) {
                         word.glow = 0;
 
                         word.AnimatorStoreTime_translateY = undefined; // Allow re-animation later if needed
-                        word.translateY = 0.1;
+                        word.translateY = 0.01;
 
                         word.AnimatorStoreTime_scale = undefined; // Allow re-animation later if needed
                         word.scale = IdleLyricsScale;
@@ -280,6 +279,7 @@ export function Animate(position) {
                         letter.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
                         letter.HTMLElement.style.setProperty("--gradient-position", "100%");
                       }
+                      word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
                       word.HTMLElement.style.scale = "1";
                     }
 
@@ -289,7 +289,10 @@ export function Animate(position) {
                       word.HTMLElement.style.setProperty("--opacity-size", `${0.2 + 1}`);
                       word.HTMLElement.style.transform = `translateY(calc(var(--font-size) * 0))`;
                       word.HTMLElement.style.scale = "1.2";
+                      word.HTMLElement.style.setProperty("--text-shadow-opacity", `${50}%`);
+                      word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${12}px`);
                     } else if (!isLetterGroup) {
+                        word.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
                         // Get current styles
                         const element = word.HTMLElement;
                         const transform = word.translateY;
@@ -321,10 +324,10 @@ export function Animate(position) {
                         const elapsed_scale = now - word.AnimatorStoreTime_scale;
                         const elapsed_glow = now - word.AnimatorStoreTime_glow;
 
-                        const duration_translateY = 250; // Animation duration in milliseconds
+                        const duration_translateY = 300; // Animation duration in milliseconds
                         const progress_translateY = Math.min(elapsed_translateY / duration_translateY, 1); // Normalize progress [0, 1]
 
-                        const duration_scale = 750; // Animation duration in milliseconds
+                        const duration_scale = 810; // Animation duration in milliseconds
                         const progress_scale = Math.min(elapsed_scale / duration_scale, 1); // Normalize progress [0, 1]
 
                         const duration_glow = 200; // Animation duration in milliseconds
@@ -356,28 +359,14 @@ export function Animate(position) {
                         }
                         if (progress_translateY === 1) {
                             word.AnimatorStoreTime_translateY = undefined; // Allow re-animation later if needed
-                            word.translateY = 0.005;
+                            word.translateY = 0;
                         }
                         if (progress_scale === 1) {
                             word.AnimatorStoreTime_scale = undefined; // Allow re-animation later if needed
-                            word.scale = 0.99;
+                            word.scale = 1;
                         }
                     }
-                    // Handle letters if it's a LetterGroup
-                    if (isLetterGroup) {
-                      for (let k = 0; k < word.Letters.length; k++) {
-                          const letter = word.Letters[k];
-                          letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
-                          letter.HTMLElement.style.scale = "1";
-                          letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
-                          letter.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
-                          letter.HTMLElement.style.setProperty("--gradient-position", "100%");
-                      }
-                    }
-                  word.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
-                  word.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
                   word.HTMLElement.style.setProperty("--gradient-position", "100%");
-                    
                 }
               }
               if (Credits) {
@@ -478,8 +467,8 @@ export function Animate(position) {
                     dot.HTMLElement.style.setProperty("--opacity-size", `${0.2 + 1}`);
                     dot.HTMLElement.style.transform = `translateY(calc(var(--font-size) * 0))`;
                     dot.HTMLElement.style.scale = `1.2`;
-                    dot.HTMLElement.style.setProperty("--text-shadow-blur-radius", `4px`);
-                    dot.HTMLElement.style.setProperty("--text-shadow-opacity", `0%`);
+                    dot.HTMLElement.style.setProperty("--text-shadow-blur-radius", `12px`);
+                    dot.HTMLElement.style.setProperty("--text-shadow-opacity", `50%`);
                   }
                 }
               } else {
@@ -505,6 +494,48 @@ export function Animate(position) {
       }
   }
 }
+
+/* function animateDots(dotLine, progress) {
+  const dotGroup = dotLine.querySelector(".dotGroup");
+  if (!dotGroup) return;
+
+  let scale;
+
+  if (progress < 0.8) {
+      // Animation stages before 0.8
+      const animationStages = [
+          { scale: 1 },
+          { scale: 1.02 },
+          { scale: 0.95 },
+          { scale: 1.2 },
+      ];
+
+      const stageDuration = 0.8 / animationStages.length; // Spread across 0-0.8
+      const currentStageIndex = Math.floor(progress / stageDuration);
+      const nextStageIndex = (currentStageIndex + 1) % animationStages.length;
+
+      const stageProgress = (progress % stageDuration) / stageDuration;
+
+      const currentStage = animationStages[currentStageIndex];
+      const nextStage = animationStages[nextStageIndex];
+
+      // Interpolate scale
+      const interpolate = (start, end, progress) => start + (end - start) * progress;
+      scale = interpolate(currentStage.scale, nextStage.scale, stageProgress);
+  } else if (progress < 0.9998) {
+      // 0.8 to 0.95: Smoothly hold at 1.05
+      //const smoothHoldProgress = (progress - 0.8) / 0.15; // Normalize for range 0.8-0.95
+      scale = 1.2; // Scale remains constant at 1.05 in this range
+  } else if (progress <= 1) {
+      // 0.95 to 1: Rapid drop to 0
+      const fastDropProgress = (progress - 0.9998) / 0.0002; // Normalize for range 0.95-1
+      scale = 1.2 - fastDropProgress * 1.2; // Rapidly scale down to 0
+  }
+
+  // Apply the calculated styles
+  dotGroup.style.scale = scale;
+} */
+
 
 // export function AnimatePodcast(position) {
 //   const CurrentLyricsType = Defaults.CurrentLyricsType;

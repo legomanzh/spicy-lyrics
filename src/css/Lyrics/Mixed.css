@@ -19,8 +19,9 @@
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line {
   --font-size: var(--DefaultLyricsSize);
-  display: block;
-  transition: all 0.2s cubic-bezier(0.61, 1, 0.88, 1);
+  display: flex;
+  flex-wrap: wrap;
+  transition: opacity 0.2s cubic-bezier(0.61, 1, 0.88, 1);
   font-size: var(--font-size);
 }
 
@@ -88,20 +89,25 @@
   transform-origin: right center;
 }
 
+#SpicyLyricsPage .LyricsContainer .LyricsContent .line .word, 
+#SpicyLyricsPage .LyricsContainer .LyricsContent .line .dotGroup, 
+#SpicyLyricsPage .LyricsContainer .LyricsContent .line .letter,
+#SpicyLyricsPage .LyricsContainer .LyricsContent .line .letterGroup {
+  --text-shadow-blur-radius: 4px;
+  --text-shadow-opacity: 0%;
+  --TextShadowDefinition: 0 0 var(--text-shadow-blur-radius) rgba(255,255,255,var(--text-shadow-opacity));
+  will-change: --gradient-percentage, transform, opacity, text-shadow, scale;
+}
+
+
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line:not(.musical-line) .word, 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line .letter,
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line .letterGroup {
   display: inline-block;
 
   --DefaultTransitionDuration: var(--content-duration, 0.15s);
-
-  --text-shadow-blur-radius: 4px;
-  --text-shadow-opacity: 0%;
-  --TextShadowDefinition: 0 0 var(--text-shadow-blur-radius) rgba(255,255,255,var(--text-shadow-opacity));
   --TransitionDuration: var(--DefaultTransitionDuration);
   --TransitionDefinition: all var(--TransitionDuration) cubic-bezier(0.61, 1, 0.88, 1);
-
-  will-change: --gradient-percentage, transform, opacity, text-shadow, scale;
 }
 
 /* #SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line .word {
@@ -132,7 +138,7 @@
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.OppositeAligned {
-  text-align: end;
+  justify-content: flex-end;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.Sung {
@@ -252,9 +258,25 @@
   initial-value: 0.2rem;
 }
  */
-#SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line.Active {
-  font-size: 0px;
+
+#SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line {
+  transition: all 0.25s ease-in-out;
+  position: absolute;
   transform-origin: center center;
+}
+
+#SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line.Active {
+  position: relative;
+}
+
+#SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line .dotGroup {
+  scale: 0;
+  transition: all 0.25s ease-in-out;
+  transform-origin: center center;
+}
+
+#SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line.Active .dotGroup {
+  scale: 1;
 }
 
 
@@ -277,13 +299,6 @@
   margin-top: -2.3cqh;
 }
 
-#SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line .dotGroup {
-  font-size: 0px;
-}
-
-#SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line.Active {
-  scale: 1 !important;
-}
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line .dotGroup {
   --dot-gap: clamp(0.005rem, 1.7cqw, 0.2rem);
@@ -293,7 +308,7 @@
   /* animation: MusicalLineScaleLoop 5s cubic-bezier(.35,.29,.51,1.11) infinite; */
 }
 
-#SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line.Active .dotGroup .dot {
+#SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line .dotGroup .dot {
   --font-size: calc(var(--DefaultLyricsSize)*1.3);
   --opacity-size: .2;
   border-radius: 50%;
@@ -302,11 +317,6 @@
   font-size: var(--font-size);
   opacity: var(--opacity-size);
   --gradient-position: 100%;
-}
-
-#SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line .dotGroup .dot {
-  font-size: 0px;
-  opacity: 0;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.Active {
@@ -334,22 +344,17 @@
   flex-direction: column;
 }
 
-#SpicyLyricsPage .LyricsContainer .LyricsContent .line,
+#SpicyLyricsPage .LyricsContainer .LyricsContent .line:not(.musical-line.Sung, .musical-line.NotSung),
 #SpicyLyricsPage .LyricsContainer .LyricsContent .Credits {
   margin: 1.5cqw 0;
 /*   margin-left: 18cqw;
   margin-right: 30cqw; */
 }
+
 /* #SpicyLyricsPage .LyricsContainer .LyricsContent .line.OppositeAligned {
   margin-right: 16cqw;
   margin-left: 30cqw;
 } */
-
-#SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line {
-  font-size: 0px ;
-  transition: all 0.25s ease-in-out;
-  animation: none;
-}
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .Credits {
   --font-size: calc(var(--DefaultLyricsSize)*0.47);

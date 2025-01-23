@@ -52,17 +52,6 @@ function OpenPage() {
                             <div class="Artists">
                                 <span></span> 
                             </div>
-                            <!-- This style is here to prevent the @keyframes removal in the CSS. I still don't know why that's happening. -->
-                            <style>
-                                @keyframes shimmer {
-                                    0% {
-                                        background-position: 200% 0;
-                                    }
-                                    100% {
-                                        background-position: -200% 0;
-                                    }
-                                }
-                            </style>
                         </div>
                     </div>
                 </div>
@@ -150,78 +139,84 @@ function AppendViewControls(ReAppend: boolean = false) {
 
     if (Fullscreen.IsOpen) {
         TransferElement(elem, document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaContent"));
+        Object.values(Tooltips).forEach(a => a?.destroy());
+        SetupTippy(document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaContent .ViewControls"));
     } else {
         if (document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .ViewControls")) {
             TransferElement(elem, document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox"));
         }
+        Object.values(Tooltips).forEach(a => a?.destroy());
+        SetupTippy(elem);
     }
 
-    // Let's set up our TippyProps
-    {
-        const closeButton = elem.querySelector("#Close");
+    function SetupTippy(elem: HTMLElement) {
+        // Let's set up our TippyProps
+        {
+            const closeButton = elem.querySelector("#Close");
 
-        Tooltips.Close = Spicetify.Tippy(
-            closeButton,
-            {
-                ...Spicetify.TippyProps,
-                content: `Close Page`
-            }
-        )
+            Tooltips.Close = Spicetify.Tippy(
+                closeButton,
+                {
+                    ...Spicetify.TippyProps,
+                    content: `Close Page`
+                }
+            )
 
-        closeButton.addEventListener(
-            "click",
-            () => Session.GoBack()
-        )
+            closeButton.addEventListener(
+                "click",
+                () => Session.GoBack()
+            )
 
-        // Kofi Donation
+            // Kofi Donation
 
-        const kofiButton = elem.querySelector("#Kofi");
+            const kofiButton = elem.querySelector("#Kofi");
 
-        Tooltips.Kofi = Spicetify.Tippy(
-            kofiButton,
-            {
-                ...Spicetify.TippyProps,
-                content: `Donate`
-            }
-        )
+            Tooltips.Kofi = Spicetify.Tippy(
+                kofiButton,
+                {
+                    ...Spicetify.TippyProps,
+                    content: `Donate`
+                }
+            )
 
-        kofiButton.addEventListener(
-            "click",
-            () => window.open("https://ko-fi.com/spikerko")
-        )
+            kofiButton.addEventListener(
+                "click",
+                () => window.open("https://ko-fi.com/spikerko")
+            )
 
-        // NowBar Toggle Button
+            // NowBar Toggle Button
 
-        const nowBarButton = elem.querySelector("#NowBarToggle");
+            const nowBarButton = elem.querySelector("#NowBarToggle");
 
-        Tooltips.NowBarToggle = Spicetify.Tippy(
-            nowBarButton,
-            {
-                ...Spicetify.TippyProps,
-                content: `NowBar`
-            }
-        )
+            Tooltips.NowBarToggle = Spicetify.Tippy(
+                nowBarButton,
+                {
+                    ...Spicetify.TippyProps,
+                    content: `NowBar`
+                }
+            )
 
-        nowBarButton.addEventListener(
-            "click",
-            () => ToggleNowBar()
-        )
+            nowBarButton.addEventListener(
+                "click",
+                () => ToggleNowBar()
+            )
 
-        // Fullscreen Button
-        const fullscreenBtn = elem.querySelector("#FullscreenToggle");
+            // Fullscreen Button
+            const fullscreenBtn = elem.querySelector("#FullscreenToggle");
 
-        Tooltips.FullscreenToggle = Spicetify.Tippy(
-            fullscreenBtn,
-            {
-                ...Spicetify.TippyProps,
-                content: `Fullscreen Mode`
-            }
-        )
+            Tooltips.FullscreenToggle = Spicetify.Tippy(
+                fullscreenBtn,
+                {
+                    ...Spicetify.TippyProps,
+                    content: `Fullscreen Mode`
+                }
+            )
 
-        fullscreenBtn.addEventListener(
-            "click",
-            () => Fullscreen.Toggle()
-        )
+            fullscreenBtn.addEventListener(
+                "click",
+                () => Fullscreen.Toggle()
+            )
+        }
     }
 }
 

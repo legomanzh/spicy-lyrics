@@ -10,6 +10,7 @@ const Defaults = {
     LyricsContainerExists: false,
     SkipSpicyFont: false,
     OldStyleFont: false,
+    SpicyLyricsVersion: "0.0.0",
 }
 
 export default Defaults;

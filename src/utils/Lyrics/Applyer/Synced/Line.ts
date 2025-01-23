@@ -130,7 +130,7 @@ export function ApplyLineLyrics(data) {
 
             SetWordArrayInCurentLine_LINE_SYNCED();
 
-            if (line.OppositeAligned) {
+            if (arr[index + 1].OppositeAligned) {
               musicalLine.classList.add("OppositeAligned")
             }
         
