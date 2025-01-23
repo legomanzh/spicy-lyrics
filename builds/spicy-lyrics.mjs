@@ -85,6 +85,12 @@ const UpdateVersion = (toVersion) => {
 
 	// Handle importing process
 	{
+
+		// Set the Current version
+		window._spicy_lyrics_metadata = {
+			LoadedVersion: toVersion
+		};
+		
 		import(`${BucketURL}${encodeURIComponent(`@${toVersion}.mjs`)}`)
 		.then(
 			module => {
@@ -154,7 +160,7 @@ let cameFromReload = false
 		.catch(() => setTimeout(GetLatestVersion, 1000))
 	)
 	GetLatestVersion()
-	setInterval(GetLatestVersion, (1000 * 60 * 15))
+	// Disabled: setInterval(GetLatestVersion, (1000 * 60 * 15))
 
 	if ((cameFromReload === false) && (ForceToVersion !== undefined)) {
 		setTimeout(() => UpdateVersion(ForceToVersion), (1000 * 10))

@@ -4,7 +4,7 @@ import ArtistVisuals from "./ArtistVisuals/Main";
 
 export default async function ApplyDynamicBackground(element) {
     if (!element) return
-    let currentImgCover = SpotifyPlayer.Artwork.Get("d");
+    let currentImgCover = await SpotifyPlayer.Artwork.Get("d");
     const lowQMode = storage.get("lowQMode");
     const lowQModeEnabled = lowQMode && lowQMode === "true";
     const IsEpisode = Spicetify.Player.data.item.type === "episode";

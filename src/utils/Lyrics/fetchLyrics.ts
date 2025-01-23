@@ -2,7 +2,7 @@ import { SpikyCache } from "@spikerko/web-modules/SpikyCache";
 import storage from "../storage";
 import Defaults from "../../components/Global/Defaults";
 import SpicyFetch from "../API/SpicyFetch";
-import { DeregisterNowBarBtn, OpenNowBar } from "../../components/Utils/NowBar";
+import { CloseNowBar, DeregisterNowBarBtn, OpenNowBar } from "../../components/Utils/NowBar";
 import PageView from "../../components/Pages/PageView";
 import Fullscreen from "../../components/Utils/Fullscreen";
 
@@ -113,21 +113,22 @@ export default async function fetchLyrics(uri: string) {
     const lyricsAccessToken = storage.get("lyricsApiAccessToken") ?? Defaults.LyricsContent.api.accessToken; */
 
     try {
-        const response = await SpicyFetch(`lyrics/${trackId}`);
+        const [lyricsText, status] = await SpicyFetch(`lyrics/${trackId}`);
 
-        if (response.status !== 200) {
-            if (response.status === 500) return await noLyricsMessage(false, true);
-            if (response.status === 401) {
+        if (status !== 200) {
+            if (status === 500) return await noLyricsMessage(false, true);
+            if (status === 401) {
                 storage.set("currentlyFetching", "false");
                //fetchLyrics(uri);
                 window.location.reload();
                 return;
             }
             ClearLyricsPageContainer()
-            return await noLyricsMessage();
+            if (status === 404) {
+                return await noLyricsMessage();
+            }
+            return await noLyricsMessage(false, true);
         }
-
-        const lyricsText = await response.text();
 
         ClearLyricsPageContainer();
 
@@ -158,7 +159,6 @@ export default async function fetchLyrics(uri: string) {
         }
 
         Defaults.CurrentLyricsType = lyricsJson.Type;
-
         return { ...lyricsJson, fromCache: false };
     } catch (error) {
         console.error("Error fetching lyrics:", error);
@@ -367,6 +367,7 @@ function NotTrackMessage() {
     HideLoaderContainer()
 
     ClearLyricsPageContainer()
+    CloseNowBar()
 
     Defaults.CurrentLyricsType = Message.Type;
 

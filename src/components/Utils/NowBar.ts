@@ -125,17 +125,26 @@ function UpdateNowBar(force: boolean = false) {
     const NowBar = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar");
     const ArtistsDiv = NowBar.querySelector<HTMLSpanElement>(".Header .Metadata .Artists");
     const ArtistsSpan = NowBar.querySelector<HTMLSpanElement>(".Header .Metadata .Artists span");
+    const MediaImage = NowBar.querySelector<HTMLImageElement>(".Header .MediaBox .MediaImage");
+    const SongNameSpan = NowBar.querySelector<HTMLSpanElement>(".Header .Metadata .SongName span");
+    const MediaBox = NowBar.querySelector<HTMLElement>(".Header .MediaBox");
+    const SongName = NowBar.querySelector<HTMLElement>(".Header .Metadata .SongName");
     ArtistsDiv.classList.add("Skeletoned");
+    MediaBox.classList.add("Skeletoned");
+    SongName.classList.add("Skeletoned");
     if (!NowBar) return;
     const IsNowBarOpen = storage.get("IsNowBarOpen");
     if (IsNowBarOpen == "false" && !force) return;
-    const Song = {
-        Artwork: SpotifyPlayer.Artwork.Get("xl"),
-        Title: SpotifyPlayer.GetSongName(),
-        Album: SpotifyPlayer.GetAlbumName()
-    }
-    NowBar.querySelector<HTMLImageElement>(".Header .MediaBox .MediaImage").src = Song.Artwork;
-    NowBar.querySelector<HTMLSpanElement>(".Header .Metadata .SongName span").textContent = Song.Title;
+
+    SpotifyPlayer.Artwork.Get("xl").then(artwork => {
+        MediaImage.src = artwork;
+        MediaBox.classList.remove("Skeletoned"); 
+    });
+
+    SpotifyPlayer.GetSongName().then(title => {
+        SongNameSpan.textContent = title;
+        SongName.classList.remove("Skeletoned");
+    });
 
     SpotifyPlayer.GetArtists().then(artists => {
         const JoinedArtists = SpotifyPlayer.JoinArtists(artists);
@@ -146,7 +155,10 @@ function UpdateNowBar(force: boolean = false) {
     if (Fullscreen.IsOpen) {
         const NowBarAlbum = NowBar.querySelector<HTMLElement>(".Header .MediaBox .AlbumData");
         if (NowBarAlbum) {
-            NowBarAlbum.querySelector<HTMLSpanElement>("span").textContent = Song.Album;
+            NowBarAlbum.classList.add("Skeletoned");
+            const AlbumSpan = NowBarAlbum.querySelector<HTMLSpanElement>("span");
+            AlbumSpan.textContent = SpotifyPlayer.GetAlbumName();
+            NowBarAlbum.classList.remove("Skeletoned");
         }
     }
 }

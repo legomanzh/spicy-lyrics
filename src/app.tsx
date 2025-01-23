@@ -4,7 +4,7 @@ import storage from "./utils/storage";
 import { setSettingsMenu } from "./utils/settings";
 import PageView from "./components/Pages/PageView";
 import { Icons } from "./components/Styling/Icons";
-import ApplyDynamicBackground, { LowQMode_SetDynamicBackground } from "./components/DynamicBG/dynamicBackground";
+import ApplyDynamicBackground from "./components/DynamicBG/dynamicBackground";
 import LoadFonts from "./components/Styling/Fonts";
 import { IntervalManager } from "./utils/IntervalManager";
 import { SpotifyPlayer } from "./components/Global/SpotifyPlayer";
@@ -29,10 +29,13 @@ import Platform from "./components/Global/Platform";
 import PostHog from "./utils/PostHog";
 import Whentil from "./utils/Whentil";
 import Session from "./components/Global/Session";
+import Defaults from "./components/Global/Defaults";
+import { CheckForUpdates } from "./utils/version/CheckForUpdates";
+import sleep from "./utils/sleep";
 
 async function main() {
   await Platform.OnSpotifyReady;
-
+  
   PostHog.Load();
 
   Spicetify.Platform.History.listen(PostHog.OnNavigate)
@@ -45,10 +48,64 @@ async function main() {
     LoadFonts();
   }
 
-  const SpicyHasherElement = document.createElement("script");
-  SpicyHasherElement.async = true;
-  SpicyHasherElement.src = "https://storage.spicy-lyrics.spikerko.org/tools/spicy-hasher.js";
-  document.head.appendChild(SpicyHasherElement);
+  // Lets import the required Scripts from our CDN
+  {
+    const scripts: HTMLScriptElement[] = [];
+    const GetFullUrl = (target: string) => `https://storage.spicy-lyrics.spikerko.org/tools/${target}`;
+
+    const AddScript = (scriptFileName: string) => {
+      const script = document.createElement("script");
+      script.async = true;
+      script.src = GetFullUrl(scriptFileName);
+      script.onerror = () => {
+        sleep(2).then(() => {
+          window._spicy_lyrics?.func_main?._deappend_scripts();
+          window._spicy_lyrics?.func_main?._add_script(scriptFileName);
+          window._spicy_lyrics?.func_main?._append_scripts();
+        })
+      };
+      scripts.push(script);
+    }
+
+    Global.SetScope("func_main._add_script", AddScript);
+
+    // spicy-hasher.js
+    AddScript("spicy-hasher.js");
+
+    // pako.min.js
+    AddScript("pako.min.js");
+
+    // Lets apply our Scripts
+    const AppendScripts = () => {
+      for (const script of scripts) {
+        document.head.appendChild(script);
+      }
+    }
+    const DeappendScripts = () => {
+      for (const script of scripts) {
+        document.head.removeChild(script);
+      }
+    }
+
+    Global.SetScope("func_main._append_scripts", AppendScripts)
+    Global.SetScope("func_main._deappend_scripts", DeappendScripts)
+    AppendScripts();
+  }
+
+  const skeletonStyle = document.createElement("style");
+  skeletonStyle.innerHTML = `
+        <!-- This style is here to prevent the @keyframes removal in the CSS. I still don't know why that's happening. -->
+        <!-- This is a part of Spicy Lyrics -->
+        <style>
+            @keyframes skeleton {
+                to {
+                    background-position-x: 0
+                }
+            }
+        </style>
+  `
+  document.head.appendChild(skeletonStyle);
+  
 
   let buttonRegistered = false;
 
@@ -75,11 +132,27 @@ async function main() {
     }
   })
 
-  const Hometinue = () => {
+  const Hometinue = async () => {
+    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "0.0.0";
+
     // Because somethimes the "syncedPositon" was unavailable, I'm putting this check here that checks if the Spicetify?.Platform?.PlaybackAPI is available (which is then used in SpotifyPlayer.GetTrackPosition())
     Whentil.When(() => Spicetify.Platform.PlaybackAPI, () => {
       requestPositionSync();
     })
+
+    const previousVersion = storage.get("previous-version");
+    if (previousVersion && previousVersion !== Defaults.SpicyLyricsVersion) {
+      Spicetify.PopupModal.display({
+        title: "Updated - Spicy Lyrics",
+        content: `
+        <div style="font-size: 1.5rem;">
+          Your Spicy Lyrics version has been successfully updated!
+          <br>
+          Version: From: ${previousVersion} -> To: ${Defaults.SpicyLyricsVersion}
+        </div>`,
+      })
+      storage.set("previous-version", Defaults.SpicyLyricsVersion);
+    }
 
     // Lets set out Dynamic Background (spicy-dynamic-bg) to the now playing bar
     let lastImgUrl;
@@ -103,10 +176,6 @@ async function main() {
         };
         if (coverUrl === lastImgUrl) return;
 
-        if (nowPlayingBar?.querySelector(".spicy-dynamic-bg")) {
-          nowPlayingBar.querySelector(".spicy-dynamic-bg").remove();
-        }
-
         const dynamicBackground = document.createElement("div");
         dynamicBackground.classList.add("spicy-dynamic-bg");
 
@@ -126,14 +195,18 @@ async function main() {
           `
         }
     
-        nowPlayingBar.classList.add("spicy-dynamic-bg-in-this")
+        nowPlayingBar.classList.add("spicy-dynamic-bg-in-this");
+
+        if (nowPlayingBar?.querySelector(".spicy-dynamic-bg")) {
+          nowPlayingBar.querySelector(".spicy-dynamic-bg").remove();
+        }
     
         nowPlayingBar.appendChild(dynamicBackground);
 
         lastImgUrl = coverUrl;
         //NOWPLAYINGBAR_DYNAMIC_BG_UPDATE_TIME = Date.now();
       } catch (error) {
-        console.error("Error:", error) 
+        console.error("Error Applying the Dynamic BG to the NowPlayingBar:", error) 
       }
     }
 
@@ -154,10 +227,8 @@ async function main() {
     Spicetify.Player.addEventListener("songchange", onSongChange)
 
     let songChangeLoopRan = 0;
-    const songChangeLoopMax = 15;
+    const songChangeLoopMax = 5;
     async function onSongChange(event) {
-      storage.set("currentlyFetching", "false");
-
       let currentUri = event?.data?.item?.uri;
       if (!currentUri) {
         currentUri = Spicetify.Player.data?.item?.uri;
@@ -180,14 +251,30 @@ async function main() {
         }
       }; */
 
-      if (document.querySelector("#SpicyLyricsPage .ContentBox .NowBar")) UpdateNowBar();
+      const IsSomethingElseThanTrack = Spicetify.Player.data.item.type !== "track";
+
+      if (IsSomethingElseThanTrack) {
+        button.deregister();
+        buttonRegistered = false;
+      } else {
+        if (!buttonRegistered) {
+          button.register();
+          buttonRegistered = true;
+        }
+      }
+
+      if (!IsSomethingElseThanTrack) {
+        // Prefetch Track Data
+        await SpotifyPlayer.Track.GetTrackInfo();
+        if (document.querySelector("#SpicyLyricsPage .ContentBox .NowBar")) UpdateNowBar();
+      }
 
       fetchLyrics(currentUri).then(ApplyLyrics);
 
       applyDynamicBackgroundToNowPlayingBar(Spicetify.Player.data?.item.metadata.image_url)
       songChangeLoopRan = 0;
     
-      // Artist Header Image Prefetch (For a Faster Experience)
+      /* // Artist Header Image Prefetch (For a Faster Experience)
       {
         const lowQMode = storage.get("lowQMode");
         const lowQModeEnabled = lowQMode && lowQMode === "true";
@@ -200,7 +287,7 @@ async function main() {
                 console.error("Error happened while trying to prefetch the Low Quality Mode Dynamic Background", error)
             }
         }
-      }
+      } */
 
 
       if (!document.querySelector("#SpicyLyricsPage .LyricsContainer")) return;
@@ -281,11 +368,56 @@ async function main() {
 
       Spicetify.Platform.History.listen(Session.RecordNavigation);
       Session.RecordNavigation(Spicetify.Platform.History.location);
+
+      Global.Event.listen("session:navigation", (data) => {
+        if (data.pathname === "/SpicyLyrics/Update") {
+          storage.set("previous-version", Defaults.SpicyLyricsVersion);
+          window._spicy_lyrics_metadata = {}
+          Session.GoBack();
+          window.location.reload();
+        }
+      })
+
+      async function CheckForUpdates_Intervaled() {
+        await CheckForUpdates();
+        setTimeout(CheckForUpdates_Intervaled, 60000);
+      }
+      setTimeout(async () => await CheckForUpdates_Intervaled(), 10000);
     }
   }
 
+  Whentil.When(() => Spicetify.Player.data.item.type, () => {
+    const IsSomethingElseThanTrack = Spicetify.Player.data.item.type !== "track";
 
-  Whentil.When(() => SpicyHasher.md5("home"), Hometinue);
+    if (IsSomethingElseThanTrack) {
+      button.deregister();
+      buttonRegistered = false;
+    } else {
+      if (!buttonRegistered) {
+        button.register();
+        buttonRegistered = true;
+      }
+    }
+  })
+
+
+  Whentil.When(() => (
+    SpicyHasher &&
+    window._spicy_lyrics_metadata.LoadedVersion && 
+    pako
+  ), Hometinue);
+
+
+  /* 
+    DEV THINGS:
+  setTimeout(() => {
+    // Simulate the loaded version in Development. 
+    // If you see this code be uncommented in the "main" Github branch, if you can IMMEDIATELY submit a new Issue on Github. This is supposed to only be here during development and not production.
+    window._spicy_lyrics_metadata = {
+      LoadedVersion: "0.0.0"
+    };
+    window._spicy_lyrics_metadata.LoadedVersion = "2.0.4"
+  }, 0) */
 
 }
 

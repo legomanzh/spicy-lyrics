@@ -1,4 +1,4 @@
-
 declare namespace SpicyHasher {
-    async function md5(string: string): Promise<string>;
+    function md5(string: string): string;
+    function spotifyHex(string: string): string;
 }

@@ -120,8 +120,6 @@ export function ApplySyllableLyrics(data) {
         const letterLength = lead.Text.split("").length;
 
         const IfLetterCapable = IsLetterCapable(letterLength, totalDuration) && !SpotifyPlayer.IsPodcast;
-        const contentDuration = totalDuration > 200 ? totalDuration : 200;
-        word.style.setProperty("--content-duration", `${contentDuration}ms`);
 
         if (IfLetterCapable) {
           
@@ -136,6 +134,9 @@ export function ApplySyllableLyrics(data) {
           word.style.setProperty("--text-shadow-blur-radius", `4px`);
           word.style.scale = IdleEmphasisLyricsScale.toString();
           word.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0.02))`;
+
+          const contentDuration = totalDuration > 200 ? totalDuration : 200;
+          word.style.setProperty("--content-duration", `${contentDuration}ms`);
 
           lineElem.appendChild(word);
           
@@ -210,6 +211,9 @@ export function ApplySyllableLyrics(data) {
               bwE.style.scale = IdleEmphasisLyricsScale.toString();
               bwE.style.transform = `translateY(calc(var(--font-size) * 0.02))`;
 
+              const contentDuration = totalDuration > 200 ? totalDuration : 200;
+              bwE.style.setProperty("--content-duration", `${contentDuration}ms`);
+
               lineE.appendChild(bwE)
 
             } else {
@@ -258,7 +262,7 @@ export function ApplySyllableLyrics(data) {
 
           SetWordArrayInCurentLine();
 
-          if (line.OppositeAligned) {
+          if (arr[index + 1].OppositeAligned) {
             musicalLine.classList.add("OppositeAligned")
           }
       
