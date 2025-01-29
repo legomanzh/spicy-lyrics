@@ -15,7 +15,11 @@ export default async function ApplyContent(CurrentSongArtist: string, CurrentSon
             await ArtistVisuals.Cache.remove(TrackId);
             return Continue();
         }
-        return GetHeaderUrl(Cached);
+        if (Cached?.data) {
+            return GetHeaderUrl(Cached?.data);
+        }
+        await ArtistVisuals.Cache.remove(TrackId);
+        return Continue();
     }
 
     return Continue();
@@ -24,7 +28,7 @@ export default async function ApplyContent(CurrentSongArtist: string, CurrentSon
         const [res, status] = await SpicyFetch(`artist/visuals?artist=${CurrentSongArtist}&track=${CurrentSongUri}`);
         if (status === 200) {
             await ArtistVisuals.Cache.set(TrackId, {
-                ...res,
+                data: res,
                 metadata: {
                     expiresIn: Date.now() + 259200000 // 3 days
                 }

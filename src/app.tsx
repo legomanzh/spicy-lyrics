@@ -133,7 +133,7 @@ async function main() {
   })
 
   const Hometinue = async () => {
-    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "0.0.0";
+    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "99.99.99";
 
     // Because somethimes the "syncedPositon" was unavailable, I'm putting this check here that checks if the Spicetify?.Platform?.PlaybackAPI is available (which is then used in SpotifyPlayer.GetTrackPosition())
     Whentil.When(() => Spicetify.Platform.PlaybackAPI, () => {
@@ -346,7 +346,7 @@ async function main() {
 
     SpotifyPlayer.IsPlaying = IsPlaying();
 
-    if (storage.get("customLyricsApi").includes("{SPOTIFY_ID}") || !storage.get("customLyricsApi").includes("http")) {
+    if (storage.get("customLyricsApi") && storage.get("customLyricsApi")?.includes("{SPOTIFY_ID}") || storage.get("customLyricsApi") && !storage.get("customLyricsApi")?.includes("http")) {
       Spicetify.PopupModal.display({
         title: "IMPORTANT NOTIFICATION!!",
         content: `
@@ -403,7 +403,6 @@ async function main() {
 
   Whentil.When(() => (
     SpicyHasher &&
-    window._spicy_lyrics_metadata.LoadedVersion && 
     pako
   ), Hometinue);
 
