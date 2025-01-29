@@ -1,3 +1,4 @@
+import BlobURLMaker from "../../utils/BlobURLMaker";
 import storage from "../../utils/storage";
 import { SpotifyPlayer } from "../Global/SpotifyPlayer";
 import { Tooltips } from "../Pages/PageView";
@@ -137,8 +138,10 @@ function UpdateNowBar(force: boolean = false) {
     if (IsNowBarOpen == "false" && !force) return;
 
     SpotifyPlayer.Artwork.Get("xl").then(artwork => {
-        MediaImage.src = artwork;
-        MediaBox.classList.remove("Skeletoned"); 
+        BlobURLMaker(`https://i.scdn.co/image/${artwork.replace("spotify:image:", "")}`).then(processedArtwork => {
+            MediaImage.src = processedArtwork ?? artwork;
+            MediaBox.classList.remove("Skeletoned");
+        });
     });
 
     SpotifyPlayer.GetSongName().then(title => {

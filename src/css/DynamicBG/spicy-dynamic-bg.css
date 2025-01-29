@@ -94,7 +94,8 @@
 
 #SpicyLyricsPage .spicy-dynamic-bg:is(.lowqmode) {
   object-fit: cover;
-  filter: brightness(.5);
+  filter: brightness(.55) blur(9px) saturate(1.05);
+  scale: 1.05;
 }
 
 @keyframes bgAnim {
