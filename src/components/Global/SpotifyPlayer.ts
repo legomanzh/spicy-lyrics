@@ -8,7 +8,7 @@ export const SpotifyPlayer = {
     GetTrackPosition: GetProgress,
     Track: {
         GetTrackInfo: async () => {
-            const URL = `https://spclient.wg.spotify.com/metadata/4/track/${SpicyHasher.spotifyHex(SpotifyPlayer.GetSongId())}?market=from_token`; 
+            const URL = `https://spclient.wg.spotify.com/metadata/4/track/${SpicyHasher.spotifyHex(SpotifyPlayer.GetSongId())}?market=from_token`;
             const [data, status] = await SpicyFetch(URL, true, true, false);
             if (status !== 200) return null;
             return ((data.startsWith(`{"`) || data.startsWith("{"))

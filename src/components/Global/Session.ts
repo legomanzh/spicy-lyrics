@@ -29,6 +29,12 @@ const Session = {
             Session.Navigate({ pathname: "/" })
         }
     },
+    GetPreviousLocation: () => {
+        if (sessionHistory.length > 1) {
+            return sessionHistory[sessionHistory.length - 2];
+        }
+        return null;
+    },
     RecordNavigation: (data: Location) => {
         Session.PushToHistory(data);
         Global.Event.evoke("session:navigation", data);
@@ -60,7 +66,7 @@ const Session = {
             return Session.SpicyLyrics.ParseVersion(Defaults.SpicyLyricsVersion);
         },
         GetLatestVersion: async (): Promise<VersionParsedData> => {
-            const res = await fetch(`https://version.spicy-lyrics.spikerko.org/?origin_version=${Session.SpicyLyrics.GetCurrentVersion().Text}`);
+            const res = await fetch(`https://portal-sl.spikerko.org/api/version?origin_version=${Session.SpicyLyrics.GetCurrentVersion().Text}`);
             const data = await res.text();
             return Session.SpicyLyrics.ParseVersion(data);
         },
