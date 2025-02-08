@@ -32,6 +32,8 @@ export default async function fetchLyrics(uri: string) {
     if (currFetching == "true") return;
 
     storage.set("currentlyFetching", "true");
+
+    document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox")?.classList.remove("LyricsHidden");
     
 
     ClearLyricsPageContainer()
@@ -120,8 +122,8 @@ export default async function fetchLyrics(uri: string) {
             if (status === 401) {
                 storage.set("currentlyFetching", "false");
                //fetchLyrics(uri);
-                window.location.reload();
-                return;
+                //window.location.reload();
+                return await noLyricsMessage(false, false);
             }
             ClearLyricsPageContainer()
             if (status === 404) {

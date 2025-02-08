@@ -14,6 +14,7 @@ import { ScrollSimplebar } from "./utils/Scrolling/Simplebar/ScrollSimplebar";
 import ApplyLyrics from "./utils/Lyrics/Global/Applyer";
 import { UpdateNowBar } from "./components/Utils/NowBar";
 import { requestPositionSync } from "./utils/Gets/GetProgress";
+import "./components/PlaylistBGs/main";
 // Currently Unused: import hasLyrics from "./functions/hasLyrics";
 
 // CSS Imports
@@ -32,6 +33,7 @@ import Session from "./components/Global/Session";
 import Defaults from "./components/Global/Defaults";
 import { CheckForUpdates } from "./utils/version/CheckForUpdates";
 import sleep from "./utils/sleep";
+import Sockets from "./utils/Sockets/main";
 
 async function main() {
   await Platform.OnSpotifyReady;
@@ -74,6 +76,9 @@ async function main() {
 
     // pako.min.js
     AddScript("pako.min.js");
+
+    // vibrant.min.js
+    AddScript("vibrant.min.js");
 
     // Lets apply our Scripts
     const AppendScripts = () => {
@@ -134,6 +139,7 @@ async function main() {
 
   const Hometinue = async () => {
     Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "99.99.99";
+    await Sockets.all.ConnectSockets();
 
     // Because somethimes the "syncedPositon" was unavailable, I'm putting this check here that checks if the Spicetify?.Platform?.PlaybackAPI is available (which is then used in SpotifyPlayer.GetTrackPosition())
     Whentil.When(() => Spicetify.Platform.PlaybackAPI, () => {
@@ -403,19 +409,19 @@ async function main() {
 
   Whentil.When(() => (
     SpicyHasher &&
-    pako
+    pako &&
+    Vibrant
   ), Hometinue);
 
 
-  /* 
-    DEV THINGS:
-  setTimeout(() => {
+  
+  /* setTimeout(() => {
     // Simulate the loaded version in Development. 
     // If you see this code be uncommented in the "main" Github branch, if you can IMMEDIATELY submit a new Issue on Github. This is supposed to only be here during development and not production.
     window._spicy_lyrics_metadata = {
       LoadedVersion: "0.0.0"
     };
-    window._spicy_lyrics_metadata.LoadedVersion = "2.0.4"
+    window._spicy_lyrics_metadata.LoadedVersion = "2.0.6"
   }, 0) */
 
 }

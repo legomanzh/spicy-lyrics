@@ -85,7 +85,7 @@ export default async function SpicyFetch(path: string, IsExternal: boolean = fal
     });
 }
 
-async function CacheContent(key, data, expirationTtl: number): Promise<void> {
+async function CacheContent(key, data, expirationTtl: number = 604800000): Promise<void> {
     try {
         const expiresIn = Date.now() + expirationTtl;
         const processedKey = SpicyHasher.md5(key);
@@ -136,6 +136,11 @@ async function GetCachedContent(key): Promise<object | string | null> {
     } catch (error) {
         console.error("ERR CC", error)
     }
+}
+
+export const _FETCH_CACHE = {
+    GetCachedContent,
+    CacheContent,
 }
 
 let ENDPOINT_DISABLEMENT_Shown = false;
