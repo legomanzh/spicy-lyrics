@@ -86,10 +86,10 @@ Global.Event.listen("session:navigation", (data) => {
             bgColorOverlayEntity?.remove();
 
             ThisPageRoot.classList.add("spicy-playlist-bg");
-            console.log("Custom Playlist BGs Loaded!")
+            // console.log("Custom Playlist BGs Loaded!")
         })
     }
-    console.log("Navigated!", data)
+    // console.log("Navigated!", data)
 })
 
 /* async function ExtractColorFromImage(imageUrl: string) {
