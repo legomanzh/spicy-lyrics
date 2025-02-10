@@ -53,7 +53,7 @@ async function main() {
   // Lets import the required Scripts from our CDN
   {
     const scripts: HTMLScriptElement[] = [];
-    const GetFullUrl = (target: string) => `https://storage.spicy-lyrics.spikerko.org/tools/${target}`;
+    const GetFullUrl = (target: string) => `https://public.storage.spicylyrics.org/tools/${target}`;
 
     const AddScript = (scriptFileName: string) => {
       const script = document.createElement("script");

@@ -33,7 +33,7 @@ Global.Event.listen("session:navigation", (data) => {
             divEntityContainer?.classList.add("main-entityHeader-withBackgroundImage");
 
             // const DEV_HOSTNAME = "http://localhost:3000";
-            const PROD_HOSTNAME = "https://portal-sl.spikerko.org";
+            const PROD_HOSTNAME = "https://portal.spicylyrics.org";
 
             const prefetchUrl = `${PROD_HOSTNAME}/api/playlist-bgs?playlistId=${currentPlaylistId}`;
             let imagePrefetch;

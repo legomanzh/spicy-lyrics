@@ -4,8 +4,8 @@
 */
 
 // Define our URLs
-const BucketURL = "https://storage.spicy-lyrics.spikerko.org/spicy-lyrics";
-const LatestVersionURL = "https://portal-sl.spikerko.org/api/version"; 
+const BucketURL = "https://public.storage.spicylyrics.org/spicy-lyrics";
+const LatestVersionURL = "https://portal.spicylyrics.org/api/version"; 
 const ForceToVersion = undefined;
 
 // Handle getting our version from the version string

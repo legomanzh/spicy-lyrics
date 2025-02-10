@@ -66,7 +66,7 @@ const Session = {
             return Session.SpicyLyrics.ParseVersion(Defaults.SpicyLyricsVersion);
         },
         GetLatestVersion: async (): Promise<VersionParsedData> => {
-            const res = await fetch(`https://portal-sl.spikerko.org/api/version?origin_version=${Session.SpicyLyrics.GetCurrentVersion().Text}`);
+            const res = await fetch(`https://portal.spicylyrics.org/api/version?origin_version=${Session.SpicyLyrics.GetCurrentVersion().Text}`);
             const data = await res.text();
             return Session.SpicyLyrics.ParseVersion(data);
         },
