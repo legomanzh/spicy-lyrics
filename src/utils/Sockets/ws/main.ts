@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 import { getUserData } from "../main";
 
-export const socket = io("https://ws-sl.spikerko.org", {
+export const socket = io("https://ws.spicylyrics.org", {
     transports: ["websocket", "polling"],
     autoConnect: false,
 });
