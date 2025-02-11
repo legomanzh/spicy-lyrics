@@ -4,7 +4,7 @@ import storage from "./utils/storage";
 import { setSettingsMenu } from "./utils/settings";
 import PageView from "./components/Pages/PageView";
 import { Icons } from "./components/Styling/Icons";
-import ApplyDynamicBackground from "./components/DynamicBG/dynamicBackground";
+import ApplyDynamicBackground, { LowQMode_SetDynamicBackground } from "./components/DynamicBG/dynamicBackground";
 import LoadFonts from "./components/Styling/Fonts";
 import { IntervalManager } from "./utils/IntervalManager";
 import { SpotifyPlayer } from "./components/Global/SpotifyPlayer";
@@ -280,7 +280,7 @@ async function main() {
       applyDynamicBackgroundToNowPlayingBar(Spicetify.Player.data?.item.metadata.image_url)
       songChangeLoopRan = 0;
     
-      /* // Artist Header Image Prefetch (For a Faster Experience)
+      // Artist Header Image Prefetch (For a Faster Experience)
       {
         const lowQMode = storage.get("lowQMode");
         const lowQModeEnabled = lowQMode && lowQMode === "true";
@@ -293,11 +293,30 @@ async function main() {
                 console.error("Error happened while trying to prefetch the Low Quality Mode Dynamic Background", error)
             }
         }
-      } */
+      }
 
 
       if (!document.querySelector("#SpicyLyricsPage .LyricsContainer")) return;
       ApplyDynamicBackground(document.querySelector("#SpicyLyricsPage .ContentBox"))
+    }
+
+    {
+      fetchLyrics(Spicetify.Player.data.item.uri).then(ApplyLyrics);
+    
+      // Artist Header Image Prefetch (For a Faster Experience)
+      {
+        const lowQMode = storage.get("lowQMode");
+        const lowQModeEnabled = lowQMode && lowQMode === "true";
+        if (lowQModeEnabled) {
+          const CurrentSongArtist = Spicetify.Player.data?.item.artists[0].uri;
+          const CurrentSongUri = Spicetify.Player.data?.item.uri;
+            try {
+                await LowQMode_SetDynamicBackground(CurrentSongArtist, CurrentSongUri);
+            } catch (error) {
+                console.error("Error happened while trying to prefetch the Low Quality Mode Dynamic Background", error)
+            }
+        }
+      }
     }
 
 
@@ -421,7 +440,7 @@ async function main() {
     window._spicy_lyrics_metadata = {
       LoadedVersion: "0.0.0"
     };
-    window._spicy_lyrics_metadata.LoadedVersion = "2.0.6"
+    window._spicy_lyrics_metadata.LoadedVersion = "2.0.9"
   }, 0) */
 
 }
