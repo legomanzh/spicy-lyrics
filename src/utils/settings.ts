@@ -12,7 +12,7 @@ export function setSettingsMenu() {
 function devSettings() {
     const settings = new SettingsSection("Spicy Lyrics - Developer Settings", "spicy-lyrics-dev-settings");
 
-    settings.addInput("custom-lyrics-api", "Custom Lyrics API", Defaults.lyrics.api.url, () => {
+/*     settings.addInput("custom-lyrics-api", "Custom Lyrics API", Defaults.lyrics.api.url, () => {
         storage.set("customLyricsApi", settings.getFieldValue("custom-lyrics-api") as string)
         Spicetify.showNotification("Custom Lyrics API Updated Successfully!", false, 1000);
     });
@@ -32,7 +32,7 @@ function devSettings() {
         settings.rerender();
 
         Spicetify.showNotification("Custom APIs Reset Successfully!", false, 3000);
-    });
+    }); */
 
     settings.addButton("remove-cached-lyrics", "Remove Cached Lyrics (Lyrics Stay in Cache for 7 days*)", "Remove Cached Lyrics", () => {
         lyricsCache.destroy();

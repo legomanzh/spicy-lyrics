@@ -10,8 +10,8 @@ export let SpicyFetchCache = new SpikyCache({
 
 export default async function SpicyFetch(path: string, IsExternal: boolean = false, cache: boolean = false, cosmos: boolean = false): Promise<Response | any> {
     return new Promise(async (resolve, reject) => {
-        const lyricsApi = storage.get("customLyricsApi") ?? Defaults.lyrics.api.url;
-        const lyricsAccessToken = storage.get("lyricsApiAccessToken") ?? Defaults.lyrics.api.accessToken;
+        const lyricsApi = Defaults.lyrics.api.url;
+        //const lyricsAccessToken = storage.get("lyricsApiAccessToken") ?? Defaults.lyrics.api.accessToken;
 
         const CurrentVersion = Session.SpicyLyrics.GetCurrentVersion();
 
@@ -44,9 +44,7 @@ export default async function SpicyFetch(path: string, IsExternal: boolean = fal
                     reject(err)
                 });
         } else {
-            const SpicyLyricsAPI_Headers = IsExternal ? null : {
-                "access-token": lyricsAccessToken,
-            };
+            const SpicyLyricsAPI_Headers = IsExternal ? null : {};
 
             const SpotifyAPI_Headers = IsExternal ? {
                 "Spotify-App-Version": Spicetify.Platform.version,

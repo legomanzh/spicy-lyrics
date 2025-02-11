@@ -11,7 +11,7 @@ export const lyricsCache = new SpikyCache({
 })
 
 export default async function fetchLyrics(uri: string) {
-    if (!document.querySelector("#SpicyLyricsPage")) return;
+    //if (!document.querySelector("#SpicyLyricsPage")) return;
 
     if (document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent")?.classList.contains("offline")) {
         document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent").classList.remove("offline");
@@ -380,7 +380,7 @@ let ContainerShowLoaderTimeout;
 
 function ShowLoaderContainer() {
     if (document.querySelector("#SpicyLyricsPage .LyricsContainer .loaderContainer")) {
-        ContainerShowLoaderTimeout = setTimeout(() => document.querySelector("#SpicyLyricsPage .LyricsContainer .loaderContainer").classList.add("active"), 500)
+        ContainerShowLoaderTimeout = setTimeout(() => document.querySelector("#SpicyLyricsPage .LyricsContainer .loaderContainer").classList.add("active"), 1000)
     }
 }
 
@@ -399,5 +399,3 @@ function ClearLyricsPageContainer() {
         document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent").innerHTML = "";
     }
 }
-
-
