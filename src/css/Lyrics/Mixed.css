@@ -3,20 +3,6 @@
     filter: none !important;
 }
 
-/* 
-
-    Introducing new CSS classes for better DevX
-    
-    New HTML Structure:
-    <button class="VocalsGroup">
-        <div class="Vocals Lead (status=Active|Sung|NotSung)" style="--blur-px: ...px;">
-            <span class="Lyric Syllable Synced">
-                ...
-            </span>
-        </div>
-    </button>
-*/
-
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line {
   --font-size: var(--DefaultLyricsSize);
   display: flex;
@@ -59,7 +45,7 @@
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line {
   --BlurAmount: 0px;
-  filter: blur(var(--BlurAmount));
+  
   --DefaultLyricsScale: 0.95;
   --DefaultEmphasisLyricsScale: 0.95;
   --DefaultLineScale: 1;
@@ -76,6 +62,9 @@
   direction: ltr;
 }
 
+#SpicyLyricsPage .LyricsContainer .LyricsContent:not(.HideLineBlur) .line {
+  filter: blur(var(--BlurAmount));
+}
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line .word {
   transform-origin: center center;

@@ -5,18 +5,52 @@ export const UserData = Spicetify.Platform.initialUser;
 
 window._spicy_lyrics.UserData = UserData;
 
+interface SpotifyImage {
+    url?: string;
+    height?: number;
+    width?: number;
+}
+
+interface Followers {
+    href?: string | null;
+    total?: number;
+}
+
+interface SpotifyProfile {
+    display_name?: string;
+    followers?: Followers;
+    href?: string;
+    id?: string;
+    images?: SpotifyImage[];
+    product?: 'free' | 'premium' | 'open' | string;
+    type?: 'user' | string;
+    uri?: string;
+}
+
 export async function getUserData() {
     const [req, status] = await SpicyFetch("https://api.spotify.com/v1/me", true, false, false);
     if (status !== 200) {
         return;
     }
 
-    const data: object | string = 
-    ((typeof req === "string" && 
+    const fullData: any = ((typeof req === "string" && 
         (req.startsWith("{") || req.startsWith(`{"`) || req.startsWith("[") || req.startsWith(`["`)))
             ? JSON.parse(req) 
             : req);
-    return data;
+
+    // Only keep the fields we want
+    const filteredData: SpotifyProfile = {
+        display_name: fullData.display_name,
+        followers: fullData.followers,
+        href: fullData.href,
+        id: fullData.id,
+        images: fullData.images,
+        product: fullData.product,
+        type: fullData.type,
+        uri: fullData.uri
+    };
+
+    return filteredData;
 }
 
 const Sockets = {
