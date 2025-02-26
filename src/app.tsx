@@ -138,7 +138,7 @@ async function main() {
   })
 
   const Hometinue = async () => {
-    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "99.99.99";
+    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.1.0";
     await Sockets.all.ConnectSockets();
 
     // Because somethimes the "syncedPositon" was unavailable, I'm putting this check here that checks if the Spicetify?.Platform?.PlaybackAPI is available (which is then used in SpotifyPlayer.GetTrackPosition())
@@ -230,7 +230,24 @@ async function main() {
       applyDynamicBackgroundToNowPlayingBar(Spicetify.Player.data?.item.metadata.image_url);
     }).Start();
 
-    Spicetify.Player.addEventListener("songchange", onSongChange)
+    Spicetify.Player.addEventListener("songchange", onSongChange);
+    Spicetify.Player.addEventListener("songchange", async (event) => {
+      fetchLyrics(event?.data?.item?.uri).then(ApplyLyrics);
+      // Artist Header Image Prefetch (For a Faster Experience)
+      {
+        const lowQMode = storage.get("lowQMode");
+        const lowQModeEnabled = lowQMode && lowQMode === "true";
+        if (lowQModeEnabled) {
+          const CurrentSongArtist = event.data?.item.artists[0].uri;
+          const CurrentSongUri = event.data?.item.uri;
+            try {
+                await LowQMode_SetDynamicBackground(CurrentSongArtist, CurrentSongUri);
+            } catch (error) {
+                console.error("Error happened while trying to prefetch the Low Quality Mode Dynamic Background", error)
+            }
+        }
+      }
+    })
 
     let songChangeLoopRan = 0;
     const songChangeLoopMax = 5;
@@ -275,25 +292,9 @@ async function main() {
         if (document.querySelector("#SpicyLyricsPage .ContentBox .NowBar")) UpdateNowBar();
       }
 
-      fetchLyrics(currentUri).then(ApplyLyrics);
 
       applyDynamicBackgroundToNowPlayingBar(Spicetify.Player.data?.item.metadata.image_url)
       songChangeLoopRan = 0;
-    
-      // Artist Header Image Prefetch (For a Faster Experience)
-      {
-        const lowQMode = storage.get("lowQMode");
-        const lowQModeEnabled = lowQMode && lowQMode === "true";
-        if (lowQModeEnabled) {
-          const CurrentSongArtist = event.data?.item.artists[0].uri;
-          const CurrentSongUri = event.data?.item.uri;
-            try {
-                await LowQMode_SetDynamicBackground(CurrentSongArtist, CurrentSongUri);
-            } catch (error) {
-                console.error("Error happened while trying to prefetch the Low Quality Mode Dynamic Background", error)
-            }
-        }
-      }
 
 
       if (!document.querySelector("#SpicyLyricsPage .LyricsContainer")) return;
@@ -336,6 +337,7 @@ async function main() {
     });
 
     new IntervalManager(ScrollingIntervalTime, () => ScrollToActiveLine(ScrollSimplebar)).Start();
+
 
     let lastLocation = null;
 
@@ -440,7 +442,7 @@ async function main() {
     window._spicy_lyrics_metadata = {
       LoadedVersion: "0.0.0"
     };
-    window._spicy_lyrics_metadata.LoadedVersion = "2.0.9"
+    window._spicy_lyrics_metadata.LoadedVersion = "2.1.0"
   }, 0) */
 
 }

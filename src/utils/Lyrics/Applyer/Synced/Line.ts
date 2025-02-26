@@ -5,6 +5,7 @@ import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar,
 import { ConvertTime } from "../../ConvertTime";
 import { ClearLyricsContentArrays, LINE_SYNCED_CurrentLineLyricsObject, lyricsBetweenShow, LyricsObject, SetWordArrayInCurentLine_LINE_SYNCED } from "../../lyrics";
 import { ApplyLyricsCredits } from "../Credits/ApplyLyricsCredits";
+import { OnUserScroll } from "../../../Scrolling/ScrollToActiveLine";
 
 export function ApplyLineLyrics(data) {
     if (!Defaults.LyricsContainerExists) return
@@ -205,5 +206,10 @@ export function ApplyLineLyrics(data) {
 
   if (data.styles) {
     applyStyles(LyricsStylingContainer, data.styles);
+  }
+
+  const container = ScrollSimplebar?.getScrollElement();
+  if (container) {
+      container.addEventListener('scroll', OnUserScroll);
   }
 }
