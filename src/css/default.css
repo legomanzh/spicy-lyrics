@@ -155,3 +155,8 @@ body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer {
 button:has(#SpicyLyricsPageSvg):after {
   transform: translateX(-370%) translateY(-40%) !important;
 }
+
+
+.KL8t9WB65UfUEPuTFAhO {
+  height: 100%;
+}
