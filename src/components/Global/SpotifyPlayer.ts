@@ -3,17 +3,29 @@ import GetProgress, { _DEPRECATED___GetProgress } from "../../utils/Gets/GetProg
 
 type ArtworkSize = "s" | "l" | "xl" | "d";
 
+const TrackData_Map = new Map();
+
 export const SpotifyPlayer = {
     IsPlaying: false,
     GetTrackPosition: GetProgress,
+    GetTrackDuration: (): number => {
+        if (Spicetify.Player.data.item.duration?.milliseconds) {
+            return Spicetify.Player.data.item.duration.milliseconds;
+        }
+        return 0;
+    },
     Track: {
         GetTrackInfo: async () => {
-            const URL = `https://spclient.wg.spotify.com/metadata/4/track/${SpicyHasher.spotifyHex(SpotifyPlayer.GetSongId())}?market=from_token`;
+            const spotifyHexString = SpicyHasher.spotifyHex(SpotifyPlayer.GetSongId());
+            if (TrackData_Map.has(spotifyHexString)) return TrackData_Map.get(spotifyHexString);
+            const URL = `https://spclient.wg.spotify.com/metadata/4/track/${spotifyHexString}?market=from_token`;
             const [data, status] = await SpicyFetch(URL, true, true, false);
             if (status !== 200) return null;
-            return ((data.startsWith(`{"`) || data.startsWith("{"))
-                        ? JSON.parse(data)
-                        : data);
+            const parsedData = ((data.startsWith(`{"`) || data.startsWith("{"))
+                                    ? JSON.parse(data)
+                                    : data);
+            TrackData_Map.set(spotifyHexString, parsedData);
+            return parsedData;
         },
         SortImages: (images: any[]) => {
             // Define size thresholds
@@ -82,5 +94,13 @@ export const SpotifyPlayer = {
     IsPodcast: false,
     _DEPRECATED_: {
         GetTrackPosition: _DEPRECATED___GetProgress
-    }
+    },
+    Pause: Spicetify.Player.pause,
+    Play: Spicetify.Player.play,
+    Skip: {
+        Next: Spicetify.Player.next,
+        Prev: Spicetify.Player.back
+    },
+    LoopType: "none",
+    ShuffleType: "none",
 }

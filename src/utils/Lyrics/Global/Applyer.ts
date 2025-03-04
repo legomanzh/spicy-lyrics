@@ -5,7 +5,7 @@ import { ApplySyllableLyrics } from "../Applyer/Synced/Syllable";
 
 export default function ApplyLyrics(lyrics) {
     if (!document.querySelector("#SpicyLyricsPage")) return;
-    setBlurringLastLine(null)
+    setBlurringLastLine(null);
     if (lyrics?.Type === "Syllable") {
         ApplySyllableLyrics(lyrics);
     } else if (lyrics?.Type === "Line") {

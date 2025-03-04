@@ -11,6 +11,7 @@ const Defaults = {
     SkipSpicyFont: false,
     OldStyleFont: false,
     SpicyLyricsVersion: "0.0.0",
+    ForceCoverImage_InLowQualityMode: false,
 }
 
 export default Defaults;

@@ -12,7 +12,7 @@ import { Session_NowBar_SetSide, Session_OpenNowBar, ToggleNowBar } from "../Uti
 import Fullscreen from "../Utils/Fullscreen";
 import TransferElement from "../Utils/TransferElement";
 import Session from "../Global/Session";
-import { OnUserScroll, ResetLastLine } from "../../utils/Scrolling/ScrollToActiveLine";
+import { ResetLastLine } from "../../utils/Scrolling/ScrollToActiveLine";
 
 export const Tooltips = {
     Close: null,
@@ -51,7 +51,7 @@ function OpenPage() {
                                 </span>
                             </div>
                             <div class="Artists">
-                                <span></span> 
+                                <span></span>
                             </div>
                         </div>
                     </div>
@@ -123,10 +123,6 @@ function DestroyPage() {
     Defaults.LyricsContainerExists = false;
     removeLinesEvListener();
     Object.values(Tooltips).forEach(a => a?.destroy());
-    const container = ScrollSimplebar?.getScrollElement();
-    if (container) {
-        container.removeEventListener('scroll', OnUserScroll);
-    }
     ResetLastLine();
     ScrollSimplebar?.unMount();
     PageView.IsOpened = false;

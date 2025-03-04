@@ -64,14 +64,15 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
 }
 
 #SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaImage {
     --ArtworkBrightness: 1;
     --ArtworkBlur: 0px;
     border-radius: 1cqh;
-    width: 60cqh;
-    height: 60cqh;
+    width: 27cqw;
+    height: 27cqw;
     box-shadow: 0 9px 20px 0 rgba(0, 0, 0, .271);
     opacity: .95;
     filter: brightness(var(--ArtworkBrightness)) blur(var(--ArtworkBlur));
@@ -79,21 +80,27 @@
     cursor: grab;
 }
 
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .Header .MediaBox .MediaImage {
+    width: 30cqw;
+    height: 30cqw;
+}
+
 #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .Header .MediaBox .MediaContent {
     cursor: grab;
 }
 
 #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .Header .MediaBox .MediaContent .AlbumData {
-    font-size: calc(var(--default-font-size) * 0.75);
-    font-weight: 600;
+    font-size: calc(var(--default-font-size) * 0.95);
+    font-weight: 900;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
     z-index: 99;
-    margin-bottom: 1cqh;
+    /* margin-bottom: 1cqh; */
     opacity: 1;
     color: white;
+    margin-top: 15.4cqh;
 }
 
 /* #SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox:hover .MediaImage {
@@ -110,7 +117,7 @@
 }
 
 #SpicyLyricsPage .ContentBox .NowBar .Header .Metadata .SongName {
-    font-weight: 700;
+    font-weight: 900;
     font-size: var(--default-font-size);
     color: white;
     text-align: center;           /* Fallback for child alignment */
@@ -150,9 +157,14 @@
 }
 
 #SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox.Skeletoned {
-    width: 60cqh;
-    height: 60cqh;
+    width: 27cqw;
+    height: 27cqw;
     --BorderRadius: 1cqh;
+}
+
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .Header .MediaBox.Skeletoned {
+    width: 30cqw;
+    height: 30cqw;
 }
 
 #SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox.Skeletoned .MediaImage {
@@ -248,19 +260,18 @@
     top: 0;
     left: 0;
     width: 100%;
+    height: 100%;
     z-index: 99;
-    bottom: 27.3cqh;
-    top: 12.702cqh;
     display: flex;
     align-items: center;
-    justify-content: center;
+    /* justify-content: space-between; */
     flex-direction: column;
     opacity: 0;
     transition: opacity .2s;
 }
 
 #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .Header .MediaBox:hover .MediaContent {
-    opacity: 1;
+    opacity: .85;
 }
 
 #SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaContent {
@@ -307,4 +318,169 @@
 
 #SpicyLyricsPage.SomethingDragging .ContentBox .DropZone.DraggingOver {
     opacity: .5;
+}
+
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 5cqh;
+    padding: 0 10cqh 0;
+    /* margin-bottom: 3.8cqh; */
+    position: absolute;
+    bottom: 7.5cqh;
+    z-index: 2;
+}
+
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl.TrackSkip.PrevTrack {
+    rotate: 180deg;
+}
+
+
+/* #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .Controls .PlaybackControl */
+
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl {
+    aspect-ratio: 1;
+    display: flex;
+    fill: #fff;
+    align-items: center;
+    cursor: pointer;
+    justify-content: center;
+    transition: opacity .175s cubic-bezier(.37,0,.63,1), filter .175s ease-out; /* Added filter transition */
+    --ShrinkScale: 0.9;
+    --ShrinkDelta: calc(1 - var(--ShrinkScale));
+    height: 4cqh;
+    width: 4cqh;
+}
+
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl svg {
+    transition: filter .175s ease-out; /* Added transition for SVG filter */
+}
+
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl.ShuffleToggle,
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl.LoopToggle {
+    height: 2cqh;
+    width: 2cqh;
+}
+
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl.PlayStateToggle.Playing {
+   /*  margin-left: .248cqw; */
+    height: 3.8cqh;
+    width: 3.8cqh;
+    /* margin-bottom: 1cqh; */
+}
+
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl.PlayStateToggle.Paused {
+    /* margin-left: .648cqw; */
+    height: 4.4cqh;
+    width: 4.4cqh;
+    /* margin-bottom: .67cqh; */
+}
+
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl:not(.Pressed) {
+    animation: pressAnimation .6s;
+    animation-fill-mode: forwards;
+}
+
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .ViewControls {
+    opacity: 1 !important;
+    position: relative;
+    width: 100%;
+    margin-top: 4cqh;
+}
+
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl.Pressed {
+    transform: scale(var(--ShrinkScale));
+    transition: opacity transform .175s cubic-bezier(.37, 0, .63, 1);
+}
+
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls:hover .PlaybackControl:not(:hover) {
+    opacity: .5;
+}
+
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl:hover {
+    opacity: 1 !important;
+}
+
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl.ShuffleToggle.Enabled,
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl.LoopToggle.Enabled {
+    filter: brightness(2.75);
+}
+
+/* #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl.ShuffleToggle.Enabled svg,
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl.LoopToggle.Enabled svg {
+    filter: drop-shadow(0 0 5px white);
+} */
+
+@keyframes pressAnimation {
+    0% {
+        transform: scale(calc(1 - var(--ShrinkDelta)*1))
+    }
+
+    16% {
+        transform: scale(calc(1 - var(--ShrinkDelta)*-.32))
+    }
+
+    28% {
+        transform: scale(calc(1 - var(--ShrinkDelta)*.13))
+    }
+
+    44% {
+        transform: scale(calc(1 - var(--ShrinkDelta)*-.05))
+    }
+
+    59% {
+        transform: scale(calc(1 - var(--ShrinkDelta)*.02))
+    }
+
+    73% {
+        transform: scale(calc(1 - var(--ShrinkDelta)*-.01))
+    }
+
+    88% {
+        transform: scale(calc(1 - var(--ShrinkDelta)*0))
+    }
+
+    to {
+        transform: scale(calc(1 - var(--ShrinkDelta)*0))
+    }
+}
+
+#SpicyLyricsPage .Timeline {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    padding: 1.8cqw;
+    gap: .6cqw;
+    position: absolute;
+    bottom: .2cqh;
+}
+
+#SpicyLyricsPage .Timeline .SliderBar {
+    --TraveledColor: hsla(0,0%,100%,.9);
+    --RemainingColor: hsla(0,0%,100%,.38);
+    --SliderProgress: 0.6;
+    background: linear-gradient(90deg,var(--TraveledColor) 0,var(--TraveledColor) calc(100%*var(--SliderProgress)),var(--RemainingColor) calc(100%*var(--SliderProgress)),var(--RemainingColor));
+    border-radius: 100cqw;
+    container-type: size;
+    flex-grow: 1;
+    position: relative;
+    width: auto;
+    height: .65cqh;
+    cursor: pointer; /* Added to make it clickable */
+}
+
+#SpicyLyricsPage .Timeline .SliderBar .Handle {
+    aspect-ratio: 1;
+    background: #fff;
+    border-radius: 100cqw;
+    display: block;
+    height: 185cqh;
+    left: calc(100cqw*var(--SliderProgress));
+    position: absolute;
+    top: 54cqh;
+    transform: translate(-50%,-50%)
 }

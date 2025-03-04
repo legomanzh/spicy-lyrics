@@ -54,14 +54,18 @@ function generalSettings() {
 
     settings.addToggle("low-q-mode", "Low Quality Mode", Defaults.lowQualityMode, () => {
         storage.set("lowQMode", settings.getFieldValue("low-q-mode") as string)
-    }); 
+    });
 
     settings.addToggle("skip-spicy-font", "Skip Spicy Font**", Defaults.SkipSpicyFont, () => {
         storage.set("skip-spicy-font", settings.getFieldValue("skip-spicy-font") as string)
-    }); 
+    });
 
     settings.addToggle("old-style-font", "Old Style Font (Gets Overriden by the previous option)", Defaults.OldStyleFont, () => {
         storage.set("old-style-font", settings.getFieldValue("old-style-font") as string)
+    });
+
+    settings.addToggle("force-cover-bg_in-lowqmode", "Force Image Cover (as the background) in Low Quality Mode", Defaults.ForceCoverImage_InLowQualityMode, () => {
+        storage.set("force-cover-bg_in-lowqmode", settings.getFieldValue("force-cover-bg_in-lowqmode") as string)
     }); 
 
     settings.addButton("save-n-reload", "Save your current settings and reload.", "Save & Reload", () => {

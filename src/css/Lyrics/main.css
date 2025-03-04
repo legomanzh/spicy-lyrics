@@ -26,7 +26,8 @@
   overflow-y: auto !important;
   height: 100cqh;
   width: 100%;
-  font-size: var(--DefaultLyricsSize) ;
+  font-size: var(--DefaultLyricsSize);
+  font-weight: 900;
   transition: opacity, transform, scale 0.2s linear;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
