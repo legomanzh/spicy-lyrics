@@ -15,7 +15,7 @@ export default async function ApplyDynamicBackground(element) {
 
     if (lowQModeEnabled) {
         try {
-            currentImgCover = IsEpisode ? null : await LowQMode_SetDynamicBackground(CurrentSongArtist, CurrentSongUri);
+            currentImgCover = (IsEpisode ? null : (storage.get("force-cover-bg_in-lowqmode") == "true" ? currentImgCover : await LowQMode_SetDynamicBackground(CurrentSongArtist, CurrentSongUri)));
         } catch (error) {
             console.error("Error happened while trying to set the Low Quality Mode Dynamic Background", error)
         }
@@ -67,13 +67,15 @@ export default async function ApplyDynamicBackground(element) {
     } else {
 
         if (element?.querySelector(".spicy-dynamic-bg")) {
-            const e = element.querySelector<HTMLElement>(".spicy-dynamic-bg");
+            const e = element.querySelector(".spicy-dynamic-bg");
             e.innerHTML = `
                 <img class="Front" src="${currentImgCover}" />
                 <img class="Back" src="${currentImgCover}" />
                 <img class="BackCenter" src="${currentImgCover}" />
             `
+            return;
         }
+
         const dynamicBg = document.createElement("div")
         dynamicBg.classList.add("spicy-dynamic-bg")
         dynamicBg.classList.remove("lowqmode")

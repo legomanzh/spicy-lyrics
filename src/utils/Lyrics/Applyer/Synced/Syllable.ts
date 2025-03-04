@@ -9,7 +9,6 @@ import { ApplyLyricsCredits } from "../Credits/ApplyLyricsCredits";
 import { IsLetterCapable } from "../Utils/IsLetterCapable";
 import Emphasize from "../Utils/Emphasize";
 import { IdleEmphasisLyricsScale, IdleLyricsScale } from "../../Animator/Shared";
-import { OnUserScroll } from '../../../Scrolling/ScrollToActiveLine';
 
 export function ApplySyllableLyrics(data) {
   if (!Defaults.LyricsContainerExists) return;
@@ -339,12 +338,5 @@ export function ApplySyllableLyrics(data) {
   if (data.styles) {
     applyStyles(LyricsStylingContainer, data.styles);
   }
-
-  const container = ScrollSimplebar?.getScrollElement();
-  if (container) {
-      container.addEventListener('scroll', OnUserScroll);
-  }
-  
-
 }
 

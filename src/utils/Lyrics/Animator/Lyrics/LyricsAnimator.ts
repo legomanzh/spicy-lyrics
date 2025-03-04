@@ -105,17 +105,17 @@ export function Animate(position) {
 
                     // Dynamic calculations based on percentage
                     const blurRadius = 4 + (16 - 4) * percentage; // From 4px to 16px
-                    const textShadowOpacity = calculateOpacity(percentage, word) * 0.5; // From 0% to 100%
-                    const translateY = 0.01 + (-0.045 - 0.01) * percentage;
-                    const scale = IdleLyricsScale + (1.035 - IdleLyricsScale) * percentage; // From IdleLyricsScale to 1.025
+                    const textShadowOpacity = calculateOpacity(percentage, word) * 0.4; // From 0% to 100%
+                    const translateY = 0.01 + (-0.038 - 0.01) * percentage;
+                    const scale = IdleLyricsScale + (1.017 - IdleLyricsScale) * percentage; // From IdleLyricsScale to 1.025
                     const gradientPosition = percentage * 100; // Gradient position based on percentage
                     
                     // Apply styles dynamically
                     if (isLetterGroup) {
                       const emphasisBlurRadius = 6 + (18 - 6) * percentage; // From 8px to 24px 
                       const emphasisTranslateY = 0.02 + (-0.065 - 0.02) * percentage; // From -0.005 to -0.2. (multiplied by var(--DefaultLyricsSize))
-                      const emphasisScale = IdleEmphasisLyricsScale + (1.045 - IdleEmphasisLyricsScale) * percentage; // From IdleLyricsScale to 1.025
-                      const emphasisTextShadowOpacity = calculateOpacity(percentage, word) * 80; // From 0% to 100%
+                      const emphasisScale = IdleEmphasisLyricsScale + (1.023 - IdleEmphasisLyricsScale) * percentage; // From IdleLyricsScale to 1.025
+                      const emphasisTextShadowOpacity = calculateOpacity(percentage, word) * 5; // From 0% to 100%
                       for (let k = 0; k < word.Letters.length; k++) {
                         const letter = word.Letters[k];
 
@@ -156,16 +156,16 @@ export function Animate(position) {
                             const totalDuration = NextLetter.EndTime - NextLetter.StartTime;
                             const elapsedDuration = edtrackpos - NextLetter.StartTime;
                             const percentage = Math.max(0, Math.min(elapsedDuration / totalDuration, 1)); // Clamp percentage between 0 and 1
-                            const translateY = 0.02 + (-0.06 - 0.02) * percentage;
-                            letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.8)}))`;
+                            const translateY = 0.02 + (-0.065 - 0.02) * percentage;
+                           /*  letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.8)}))`; */
 
-                            /* if (NextLetter.Status === "Active") {
-                              //letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.8)}))`;
+                            if (NextLetter.Status === "Active") {
+                             letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.8)}))`;
                               letter.HTMLElement.style.setProperty("--text-shadow-opacity", `${(percentage * 100) * 0.85}%`);
                             } else {
-                              letter.HTMLElement.style.setProperty("--text-shadow-opacity", `40%`);
-                              //letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
-                            } */
+                              //letter.HTMLElement.style.setProperty("--text-shadow-opacity", `40%`);
+                              letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
+                            }
                             letter.HTMLElement.style.setProperty("--text-shadow-opacity", `50%`);
                           } else {
                             letter.HTMLElement.style.setProperty("--text-shadow-opacity", `50%`);
@@ -212,7 +212,7 @@ export function Animate(position) {
                       } else {
                         word.HTMLElement.style.setProperty("--gradient-position", `${gradientPosition}%`);
 
-                        if (totalDuration > 120) {
+                        if (totalDuration > 230) {
                           word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${translateY}))`;
                           word.HTMLElement.style.scale = `${scale}`;
                           word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${blurRadius}px`);
@@ -220,19 +220,26 @@ export function Animate(position) {
                           word.scale = scale;
                           word.glow = textShadowOpacity / 100;
                         } else {
-                          word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0.0005))`;
-                          word.HTMLElement.style.scale = `1`;
-                          word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `4px`);
-                          word.HTMLElement.style.setProperty("--text-shadow-opacity", `0%`);
-                          word.scale = 1;
-                          word.glow = 0;
+                          // Dynamic calculations based on percentage
+                          const blurRadius = 4 + (0 - 4) * percentage; // From 4px to 0px
+                          const textShadowOpacity = 0; // From 0% to 100%
+                          const translateY = 0.01 + (0 - 0.01) * percentage;
+                          const scale = IdleLyricsScale + (1 - IdleLyricsScale) * percentage; // From IdleLyricsScale to 1.025
+
+                          word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${translateY}))`;
+                          word.HTMLElement.style.scale = `${scale}`;
+                          word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${blurRadius}px`);
+                          word.HTMLElement.style.setProperty("--text-shadow-opacity", `${textShadowOpacity}%`);
+                          word.scale = scale;
+                          word.glow = textShadowOpacity;
                         }
                         
                       }
-                      if (totalDuration > 120) {
+
+                      if (totalDuration > 230) {
                         word.translateY = translateY;
                       } else {
-                        word.translateY = 0.0005;
+                        word.translateY = 0;
                       }
 
                       if (!isDot && !isLetterGroup) {

@@ -10,15 +10,16 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  overflow: hidden ;
+  overflow: hidden;
   height: 100%;
   container-type: size;
-  position: absolute ;
+  position: absolute;
   left: 0;
   top: 0;
   width: 100%;
   font-weight: 700;
   z-index: 99;
+  user-select: none;
 }
 
 #SpicyLyricsPage.UseSpicyFont {
@@ -54,11 +55,6 @@ body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer {
   bottom: 24px;
 }
 
-#SpicyLyricsPage.Fullscreen .ViewControls {
-  position: relative;
-  width: 100cqw;
-}
-
 #SpicyLyricsPage .ViewControls .ViewControl {
   --ViewControlHeight: var(--ViewControlSize,100cqh);
   aspect-ratio: 1;
@@ -89,11 +85,6 @@ body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer {
 #SpicyLyricsPage:not(.Fullscreen):hover .ViewControls {
   opacity: .3;
 }
-
-#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .ViewControls {
-  opacity: 1 !important;
-}
-
 
 #SpicyLyricsPage .ViewControls button {
   cursor: pointer

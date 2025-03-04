@@ -27,7 +27,7 @@ import "./css/Lyrics/Mixed.css"
 import "./css/Loaders/LoaderContainer.css"
 import Global from "./components/Global/Global";
 import Platform from "./components/Global/Platform";
-import PostHog from "./utils/PostHog";
+/* import PostHog from "./utils/PostHog"; */
 import Whentil from "./utils/Whentil";
 import Session from "./components/Global/Session";
 import Defaults from "./components/Global/Defaults";
@@ -38,9 +38,9 @@ import Sockets from "./utils/Sockets/main";
 async function main() {
   await Platform.OnSpotifyReady;
   
-  PostHog.Load();
+  // PostHog.Load();
 
-  Spicetify.Platform.History.listen(PostHog.OnNavigate)
+  // Spicetify.Platform.History.listen(PostHog.OnNavigate)
   
   // Lets set out the Settings Menu
   setSettingsMenu();
@@ -138,7 +138,7 @@ async function main() {
   })
 
   const Hometinue = async () => {
-    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.11.1";
+    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.3.3";
     await Sockets.all.ConnectSockets();
 
     // Because somethimes the "syncedPositon" was unavailable, I'm putting this check here that checks if the Spicetify?.Platform?.PlaybackAPI is available (which is then used in SpotifyPlayer.GetTrackPosition())
@@ -369,7 +369,44 @@ async function main() {
 
     Spicetify.Player.addEventListener("onplaypause", (e) => {
       SpotifyPlayer.IsPlaying = !e?.data?.isPaused;
+      Global.Event.evoke("playback:playpause", e);
     })
+
+    {
+      let lastLoopType = null;
+      const LoopInt = new IntervalManager(Infinity, () => {
+        const LoopState = Spicetify.Player.getRepeat();
+        const LoopType = LoopState === 1 ? "context" : LoopState === 2 ? "track" : "none";
+        SpotifyPlayer.LoopType = LoopType;
+        if (lastLoopType !== LoopType) {
+          Global.Event.evoke("playback:loop", LoopType);
+        }
+        lastLoopType = LoopType;
+      }).Start();
+    }
+
+    {
+      let lastShuffleType = null;
+      const ShuffleInt = new IntervalManager(Infinity, () => {
+        const ShuffleType = (Spicetify.Player.origin._state.smartShuffle ? "smart" : (Spicetify.Player.origin._state.shuffle ? "normal" : "none"));
+        SpotifyPlayer.ShuffleType = ShuffleType;
+        if (lastShuffleType !== ShuffleType) {
+          Global.Event.evoke("playback:shuffle", ShuffleType);
+        }
+        lastShuffleType = ShuffleType;
+      }).Start();
+    }
+    
+    {
+      let lastPosition = 0;
+      const PositionInt = new IntervalManager(0.5, () => {
+        const pos = SpotifyPlayer.GetTrackPosition();
+        if (pos !== lastPosition) {
+          Global.Event.evoke("playback:position", pos);
+        }
+        lastPosition = pos;
+      }).Start();
+    }
 
     SpotifyPlayer.IsPlaying = IsPlaying();
 

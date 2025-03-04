@@ -7,7 +7,7 @@
   --font-size: var(--DefaultLyricsSize);
   display: flex;
   flex-wrap: wrap;
-  transition: opacity 0.2s cubic-bezier(0.61, 1, 0.88, 1);
+  transition: opacity .1s cubic-bezier(0.61, 1, 0.88, 1);
   font-size: var(--font-size);
 }
 
@@ -56,6 +56,7 @@
 
   --Vocal-Hover-opacity: 1;
   --gradient-degrees: 180deg !important;
+  --gradient-alpha-end: 0.35 !important;
 
   letter-spacing: 0;
   line-height: 1.1818181818;
@@ -360,7 +361,7 @@
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent[data-lyrics-type="Line"] .line {
   transform-origin: left center;
-  transition: all .3s cubic-bezier(.37,0,.63,1);
+  transition: scale .2s cubic-bezier(.37,0,.63,1), opacity .2s cubic-bezier(.37,0,.63,1);
   margin: 1cqw 0;
 }
 
@@ -386,3 +387,11 @@
   scale: 1 !important;
   transform: translateY(calc(var(--DefaultLyricsSize) * 0)) !important;
 }
+
+#SpicyLyricsPage .LyricsContainer .LyricsContent:has(.OppositeAligned) .line.OppositeAligned {
+  padding-left: 15cqw;
+}
+
+#SpicyLyricsPage .LyricsContainer .LyricsContent:has(.OppositeAligned) .line:not(.OppositeAligned) {
+  padding-right: 15cqw;
+} 

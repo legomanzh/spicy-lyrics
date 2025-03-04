@@ -1,6 +1,7 @@
 import Animator from "../../utils/Animator";
 import { ResetLastLine } from "../../utils/Scrolling/ScrollToActiveLine";
 import storage from "../../utils/storage";
+import Global from "../Global/Global";
 import PageView, { PageRoot, Tooltips } from "../Pages/PageView";
 import { DeregisterNowBarBtn, OpenNowBar } from "./NowBar";
 import TransferElement from "./TransferElement";
@@ -86,6 +87,8 @@ function Open() {
 
         MediaBox.addEventListener("mouseenter", MediaBox_Data.Functions.MouseIn);
         MediaBox.addEventListener("mouseleave", MediaBox_Data.Functions.MouseOut);
+
+        Global.Event.evoke("fullscreen:open", null);
     }
 }
 
@@ -115,6 +118,8 @@ function Close() {
         MediaBox.removeEventListener("mouseleave", MediaBox_Data.Functions.MouseOut);
 
         MediaBox_Data.Functions.Reset(MediaImage);
+
+        Global.Event.evoke("fullscreen:exit", null);
     }
 }
 
