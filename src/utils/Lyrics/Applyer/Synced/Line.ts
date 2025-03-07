@@ -5,6 +5,7 @@ import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar,
 import { ConvertTime } from "../../ConvertTime";
 import { ClearLyricsContentArrays, LINE_SYNCED_CurrentLineLyricsObject, lyricsBetweenShow, LyricsObject, SetWordArrayInCurentLine_LINE_SYNCED } from "../../lyrics";
 import { ApplyLyricsCredits } from "../Credits/ApplyLyricsCredits";
+import isRtl from "../../isRtl";
 
 export function ApplyLineLyrics(data) {
     if (!Defaults.LyricsContainerExists) return
@@ -96,6 +97,10 @@ export function ApplyLineLyrics(data) {
       const lineElem = document.createElement("div")
       lineElem.textContent = line.Text
       lineElem.classList.add("line")
+
+      if (isRtl(line.Text) && !lineElem.classList.contains("rtl")) {
+        lineElem.classList.add("rtl")
+      }
 
       if (ArabicPersianRegex.test(line.Text)) {
         lineElem.setAttribute("font", "Vazirmatn")

@@ -143,11 +143,22 @@ export function Animate(position) {
                           letter.HTMLElement.style.setProperty("--gradient-position", letterGradientPosition);
                         } else if (letter.Status === "NotSung") {
                           // NotSung styles
-                          letter.HTMLElement.style.transform = "translateY(calc(var(--DefaultLyricsSize) * 0.02))";
-                          letter.HTMLElement.style.scale = IdleLyricsScale;
-                          letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
-                          letter.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
-                          letter.HTMLElement.style.setProperty("--gradient-position", "-20%");
+
+                          if (letter.HTMLElement.style.getPropertyValue("transform") !== "translateY(calc(var(--DefaultLyricsSize) * 0.02))") {
+                            letter.HTMLElement.style.transform = "translateY(calc(var(--DefaultLyricsSize) * 0.02))";
+                          }
+                          if (letter.HTMLElement.style.getPropertyValue("scale") !== IdleLyricsScale) {
+                            letter.HTMLElement.style.scale = IdleLyricsScale;
+                          }
+                          if (letter.HTMLElement.style.getPropertyValue("--text-shadow-blur-radius") !== "4px") {
+                            letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
+                          }
+                          if (letter.HTMLElement.style.getPropertyValue("--text-shadow-opacity") !== "0%") {
+                            letter.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
+                          }
+                          if (letter.HTMLElement.style.getPropertyValue("--gradient-position") !== "-20%") {
+                            letter.HTMLElement.style.setProperty("--gradient-position", "-20%");
+                          }
                         } else if (letter.Status === "Sung") {
                           // Sung styles
                           const NextLetter = word.Letters[k + 1] ?? null;
@@ -160,26 +171,43 @@ export function Animate(position) {
                            /*  letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.8)}))`; */
 
                             if (NextLetter.Status === "Active") {
-                             letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.8)}))`;
+                              letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.8)}))`;
                               letter.HTMLElement.style.setProperty("--text-shadow-opacity", `${(percentage * 100) * 0.85}%`);
                             } else {
                               //letter.HTMLElement.style.setProperty("--text-shadow-opacity", `40%`);
+                              if (letter.HTMLElement.style.getPropertyValue("transform") !== "translateY(calc(var(--DefaultLyricsSize) * 0))") {
+                                letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
+                              }
+                            }
+                            if (letter.HTMLElement.style.getPropertyValue("--text-shadow-opacity") !== "50%") {
+                              letter.HTMLElement.style.setProperty("--text-shadow-opacity", `50%`);
+                            }
+                          } else {
+                            if (letter.HTMLElement.style.getPropertyValue("--text-shadow-opacity") !== "50%") {
+                              letter.HTMLElement.style.setProperty("--text-shadow-opacity", `50%`);
+                            }
+                            if (letter.HTMLElement.style.getPropertyValue("transform") !== "translateY(calc(var(--DefaultLyricsSize) * 0))") {
                               letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
                             }
-                            letter.HTMLElement.style.setProperty("--text-shadow-opacity", `50%`);
-                          } else {
-                            letter.HTMLElement.style.setProperty("--text-shadow-opacity", `50%`);
-                            letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
                           }
 
-                          letter.HTMLElement.style.scale = "1";
+                          if (letter.HTMLElement.style.getPropertyValue("scale") !== "1") {
+                            letter.HTMLElement.style.scale = "1";
+                          }
                           /* letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px"); */
-                          letter.HTMLElement.style.setProperty("--gradient-position", "100%");
+                          if (letter.HTMLElement.style.getPropertyValue("--gradient-position") !== "100%") {
+                            letter.HTMLElement.style.setProperty("--gradient-position", "100%");
+                          }
                         }
                       }
+
+                      if (word.HTMLElement.style.getPropertyValue("scale") !== `${emphasisScale}`) {
+                        word.HTMLElement.style.scale = `${emphasisScale}`;
+                      }
                       
-                      word.HTMLElement.style.scale = `${emphasisScale}`;
-                      word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${emphasisTranslateY}))`;
+                      if (word.HTMLElement.style.getPropertyValue("transform") !== `translateY(calc(var(--DefaultLyricsSize) * ${emphasisTranslateY}))`) {
+                        word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${emphasisTranslateY}))`;
+                      }
                       word.scale = emphasisScale;
                       word.glow = 0;
                      /*  word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${emphasisBlurRadius * 0.8}px`);
@@ -255,27 +283,51 @@ export function Animate(position) {
                     if (isLetterGroup) {
                       for (let k = 0; k < word.Letters.length; k++) {
                         const letter = word.Letters[k];
-                        letter.HTMLElement.style.transform = "translateY(calc(var(--DefaultLyricsSize) * 0.02))";
-                        letter.HTMLElement.style.scale = IdleEmphasisLyricsScale;
-                        letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
-                        letter.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
-                        letter.HTMLElement.style.setProperty("--gradient-position", "-20%");
+                        if (letter.HTMLElement.style.getPropertyValue("transform") !== "translateY(calc(var(--DefaultLyricsSize) * 0.02))") {
+                          letter.HTMLElement.style.transform = "translateY(calc(var(--DefaultLyricsSize) * 0.02))";
+                        }
+                        if (letter.HTMLElement.style.getPropertyValue("scale") !== IdleEmphasisLyricsScale) {
+                          letter.HTMLElement.style.scale = IdleEmphasisLyricsScale;
+                        }
+                        if (letter.HTMLElement.style.getPropertyValue("--text-shadow-blur-radius") !== "4px") {
+                          letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
+                        }
+                        if (letter.HTMLElement.style.getPropertyValue("--text-shadow-opacity") !== "0%") {
+                          letter.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
+                        }
+                        if (letter.HTMLElement.style.getPropertyValue("--gradient-position") !== "-20%") {
+                          letter.HTMLElement.style.setProperty("--gradient-position", "-20%");
+                        }
                       }
-                      word.HTMLElement.style.transform = "translateY(calc(var(--DefaultLyricsSize) * 0.02))";
+                      if (word.HTMLElement.style.getPropertyValue("transform") !== "translateY(calc(var(--DefaultLyricsSize) * 0.02))") {
+                        word.HTMLElement.style.transform = "translateY(calc(var(--DefaultLyricsSize) * 0.02))";
+                      }
                       word.translateY = 0.02;
                     } else if (!isDot) {
-                      word.HTMLElement.style.transform = "translateY(calc(var(--DefaultLyricsSize) * 0.01))";
+                      if (word.HTMLElement.style.getPropertyValue("transform") !== "translateY(calc(var(--DefaultLyricsSize) * 0.01))") {
+                        word.HTMLElement.style.transform = "translateY(calc(var(--DefaultLyricsSize) * 0.01))";
+                      }
                       word.translateY = 0.01;
                     }
                     if (isDot) {
-                      word.HTMLElement.style.setProperty("--opacity-size", `${0.2}`);
-                      word.HTMLElement.style.transform = "translateY(calc(var(--font-size) * 0.01))";
+                      if (word.HTMLElement.style.getPropertyValue("--opacity-size") !== `${0.2}`) {
+                        word.HTMLElement.style.setProperty("--opacity-size", `${0.2}`);
+                      }
+                      if (word.HTMLElement.style.getPropertyValue("transform") !== "translateY(calc(var(--font-size) * 0.01))") {
+                        word.HTMLElement.style.transform = "translateY(calc(var(--font-size) * 0.01))";
+                      }
                       word.translateY = 0.01;
-                      word.HTMLElement.style.scale = "0.75";
+                      if (word.HTMLElement.style.getPropertyValue("scale") !== "0.75") {
+                        word.HTMLElement.style.scale = "0.75";
+                      }
                     } else {
-                      word.HTMLElement.style.scale = isLetterGroup ? IdleEmphasisLyricsScale : IdleLyricsScale;
+                      if (word.HTMLElement.style.getPropertyValue("scale") !== (isLetterGroup ? IdleEmphasisLyricsScale : IdleLyricsScale)) {
+                        word.HTMLElement.style.scale = isLetterGroup ? IdleEmphasisLyricsScale : IdleLyricsScale;
+                      }
                       word.scale = isLetterGroup ? IdleEmphasisLyricsScale : IdleLyricsScale;
-                      word.HTMLElement.style.setProperty("--gradient-position", "-20%");
+                      if (word.HTMLElement.style.getPropertyValue("--gradient-position") !== "-20%") {
+                        word.HTMLElement.style.setProperty("--gradient-position", "-20%");
+                      }
                     }
                     if (!isDot && !isLetterGroup) {
                         word.AnimatorStoreTime_glow = undefined; // Allow re-animation later if needed
@@ -287,34 +339,64 @@ export function Animate(position) {
                         word.AnimatorStoreTime_scale = undefined; // Allow re-animation later if needed
                         word.scale = IdleLyricsScale;
                     }
-                    word.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
-                    word.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
+                    if (word.HTMLElement.style.getPropertyValue("--text-shadow-blur-radius") !== "4px") {
+                      word.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
+                    }
+                    if (word.HTMLElement.style.getPropertyValue("--text-shadow-opacity") !== "0%") {
+                      word.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
+                    }
                     word.glow = 0;
                 } else if (word.Status === "Sung") {
                     // Sung styles
                     if (isLetterGroup) {
                       for (let k = 0; k < word.Letters.length; k++) {
                         const letter = word.Letters[k];
-                        letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
-                        letter.HTMLElement.style.scale = "1";
-                        letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
-                        letter.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
-                        letter.HTMLElement.style.setProperty("--gradient-position", "100%");
+                        if (letter.HTMLElement.style.getPropertyValue("transform") !== `translateY(calc(var(--DefaultLyricsSize) * 0))`) {
+                          letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
+                        }
+                        if (letter.HTMLElement.style.getPropertyValue("scale") !== "1") {
+                          letter.HTMLElement.style.scale = "1";
+                        }
+                        if (letter.HTMLElement.style.getPropertyValue("--text-shadow-blur-radius") !== "4px") {
+                          letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
+                        }
+                        if (letter.HTMLElement.style.getPropertyValue("--text-shadow-opacity") !== "0%") {
+                          letter.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
+                        }
+                        if (letter.HTMLElement.style.getPropertyValue("--gradient-position") !== "100%") {                
+                          letter.HTMLElement.style.setProperty("--gradient-position", "100%");
+                        }
                       }
-                      word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
-                      word.HTMLElement.style.scale = "1";
+                      if (word.HTMLElement.style.getPropertyValue("transform") !== `translateY(calc(var(--DefaultLyricsSize) * 0))`) {
+                        word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
+                      }
+                      if (word.HTMLElement.style.getPropertyValue("scale") !== "1") {
+                        word.HTMLElement.style.scale = "1";
+                      }
                     }
 
                     
 
                     if (isDot) {
-                      word.HTMLElement.style.setProperty("--opacity-size", `${0.2 + 1}`);
-                      word.HTMLElement.style.transform = `translateY(calc(var(--font-size) * 0))`;
-                      word.HTMLElement.style.scale = "1.2";
-                      word.HTMLElement.style.setProperty("--text-shadow-opacity", `${50}%`);
-                      word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${12}px`);
+                      if (word.HTMLElement.style.getPropertyValue("--opacity-size") !== `${0.2 + 1}`) {
+                        word.HTMLElement.style.setProperty("--opacity-size", `${0.2 + 1}`);
+                      }
+                      if (word.HTMLElement.style.getPropertyValue("transform") !== `translateY(calc(var(--font-size) * 0))`) {
+                        word.HTMLElement.style.transform = `translateY(calc(var(--font-size) * 0))`;
+                      }
+                      if (word.HTMLElement.style.getPropertyValue("scale") !== "1.2") {
+                        word.HTMLElement.style.scale = "1.2";
+                      } 
+                      if (word.HTMLElement.style.getPropertyValue("--text-shadow-opacity") !== `${50}%`) {
+                        word.HTMLElement.style.setProperty("--text-shadow-opacity", `${50}%`);
+                      }
+                      if (word.HTMLElement.style.getPropertyValue("--text-shadow-blur-radius") !== `${12}px`) {
+                        word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${12}px`);
+                      }
                     } else if (!isLetterGroup) {
-                        word.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
+                        if (word.HTMLElement.style.getPropertyValue("--text-shadow-blur-radius") !== "4px") {
+                          word.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
+                        }
                         // Get current styles
                         const element = word.HTMLElement;
                         const transform = word.translateY;
@@ -368,11 +450,17 @@ export function Animate(position) {
                         const newGlow = interpolate(currentGlow, targetGlow, progress_glow);
                     
                         // Set new styles
-                        element.style.setProperty("--text-shadow-opacity", `${newGlow * 100}%`);
+                        if (element.style.getPropertyValue("--text-shadow-opacity") !== `${newGlow * 100}%`) {
+                          element.style.setProperty("--text-shadow-opacity", `${newGlow * 100}%`);
+                        }
                     
                         // Apply interpolated styles
-                        element.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${newTranslateY}))`;
-                        element.style.scale = `${newScale}`;
+                        if (element.style.getPropertyValue("transform") !== `translateY(calc(var(--DefaultLyricsSize) * ${newTranslateY}))`) {
+                          element.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${newTranslateY}))`;
+                        }
+                        if (element.style.getPropertyValue("scale") !== `${newScale}`) {
+                          element.style.scale = `${newScale}`;
+                        }
                     
                         // Reset animation tracking if progress is complete
                         if (progress_glow === 1) {
@@ -388,7 +476,9 @@ export function Animate(position) {
                             word.scale = 1;
                         }
                     }
-                  word.HTMLElement.style.setProperty("--gradient-position", "100%");
+                    if (word.HTMLElement.style.getPropertyValue("--gradient-position") !== "100%") {
+                      word.HTMLElement.style.setProperty("--gradient-position", "100%");
+                    }
                 }
               }
               if (Credits) {
