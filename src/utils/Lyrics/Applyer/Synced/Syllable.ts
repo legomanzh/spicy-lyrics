@@ -9,6 +9,7 @@ import { ApplyLyricsCredits } from "../Credits/ApplyLyricsCredits";
 import { IsLetterCapable } from "../Utils/IsLetterCapable";
 import Emphasize from "../Utils/Emphasize";
 import { IdleEmphasisLyricsScale, IdleLyricsScale } from "../../Animator/Shared";
+import isRtl from '../../isRtl';
 
 export function ApplySyllableLyrics(data) {
   if (!Defaults.LyricsContainerExists) return;
@@ -114,6 +115,9 @@ export function ApplySyllableLyrics(data) {
       line.Lead.Syllables.forEach((lead, iL, aL) => {
         let word = document.createElement("span")
         
+        if (isRtl(lead.Text) && !lineElem.classList.contains("rtl")) {
+          lineElem.classList.add("rtl")
+        }
 
         const totalDuration = ConvertTime(lead.EndTime) - ConvertTime(lead.StartTime);
 
@@ -190,6 +194,10 @@ export function ApplySyllableLyrics(data) {
           LyricsContainer.appendChild(lineE)
           bg.Syllables.forEach((bw, bI, bA) => {
             let bwE = document.createElement("span")
+
+            if (isRtl(bw.Text) && !lineE.classList.contains("rtl")) {
+              lineE.classList.add("rtl")
+            }
 
             const totalDuration = ConvertTime(bw.EndTime) - ConvertTime(bw.StartTime);
 

@@ -4,6 +4,7 @@ import { applyStyles, removeAllStyles } from "../../CSS/Styles";
 import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../Scrolling/Simplebar/ScrollSimplebar";
 import { ClearLyricsContentArrays, LyricsObject } from "../lyrics";
 import { ApplyLyricsCredits } from "./Credits/ApplyLyricsCredits";
+import isRtl from "../isRtl";
 
 
 export function ApplyStaticLyrics(data) {
@@ -26,6 +27,10 @@ export function ApplyStaticLyrics(data) {
         lineElem.textContent = line.Text.replace("[DEF=font_size:small]", "")
       } else {
         lineElem.textContent = line.Text
+      }
+
+      if (isRtl(line.Text) && !lineElem.classList.contains("rtl")) {
+        lineElem.classList.add("rtl")
       }
       
       lineElem.classList.add("line")

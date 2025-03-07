@@ -63,6 +63,11 @@
   direction: ltr;
 }
 
+#SpicyLyricsPage .LyricsContainer .LyricsContent .line.rtl {
+  direction: rtl !important;
+  transform-origin: right center !important;
+}
+
 #SpicyLyricsPage .LyricsContainer .LyricsContent:not(.HideLineBlur) .line {
   filter: blur(var(--BlurAmount));
 }
@@ -250,13 +255,19 @@
  */
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line {
-  transition: all 0.25s ease-in-out;
+  transition: scale 0.25s ease-in-out, position 0.25s ease-in-out;
   position: absolute;
   transform-origin: center center;
+  margin: 0;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line.Active {
   position: relative;
+  margin: -1.7cqw 0;
+}
+
+#SpicyLyricsPage .LyricsContainer .LyricsContent[data-lyrics-type="Line"] .line.musical-line.Active {
+  margin: -0.8cqw 0 !important;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line .dotGroup {
@@ -286,7 +297,7 @@
 } */
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.bg-line {
-  margin-top: -2.3cqh;
+  margin: -1.3cqw 0 1.5cqw !important;
 }
 
 
@@ -334,7 +345,7 @@
   flex-direction: column;
 }
 
-#SpicyLyricsPage .LyricsContainer .LyricsContent .line:not(.musical-line.Sung, .musical-line.NotSung),
+#SpicyLyricsPage .LyricsContainer .LyricsContent .line:not(.musical-line),
 #SpicyLyricsPage .LyricsContainer .LyricsContent .Credits {
   margin: 1.5cqw 0;
 /*   margin-left: 18cqw;
@@ -388,10 +399,18 @@
   transform: translateY(calc(var(--DefaultLyricsSize) * 0)) !important;
 }
 
-#SpicyLyricsPage .LyricsContainer .LyricsContent:has(.OppositeAligned) .line.OppositeAligned {
+#SpicyLyricsPage .LyricsContainer .LyricsContent:has(.OppositeAligned) .line.OppositeAligned:not(.rtl) {
   padding-left: 15cqw;
 }
 
-#SpicyLyricsPage .LyricsContainer .LyricsContent:has(.OppositeAligned) .line:not(.OppositeAligned) {
+#SpicyLyricsPage .LyricsContainer .LyricsContent:has(.OppositeAligned) .line:not(.OppositeAligned, .rtl) {
   padding-right: 15cqw;
-} 
+}
+
+#SpicyLyricsPage .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line.OppositeAligned {
+  padding-right: 15cqw;
+}
+
+#SpicyLyricsPage .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line:not(.OppositeAligned) {
+  padding-left: 15cqw;
+}
