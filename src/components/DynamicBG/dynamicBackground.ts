@@ -67,7 +67,9 @@ export default async function ApplyDynamicBackground(element) {
     } else {
 
         if (element?.querySelector(".spicy-dynamic-bg")) {
+            if (element.querySelector(".spicy-dynamic-bg").getAttribute("current_tag") === currentImgCover) return;
             const e = element.querySelector(".spicy-dynamic-bg");
+            e.setAttribute("current_tag", currentImgCover);
             e.innerHTML = `
                 <img class="Front" src="${currentImgCover}" />
                 <img class="Back" src="${currentImgCover}" />
@@ -79,13 +81,14 @@ export default async function ApplyDynamicBackground(element) {
         const dynamicBg = document.createElement("div")
         dynamicBg.classList.add("spicy-dynamic-bg")
         dynamicBg.classList.remove("lowqmode")
+        dynamicBg.setAttribute("current_tag", currentImgCover);
 
         dynamicBg.innerHTML = `
             <img class="Front" src="${currentImgCover}" />
             <img class="Back" src="${currentImgCover}" />
             <img class="BackCenter" src="${currentImgCover}" />
         `
-        element.appendChild(dynamicBg)
+        element.appendChild(dynamicBg);
     }
 
 }
