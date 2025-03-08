@@ -51,7 +51,7 @@ export default async function fetchLyrics(uri: string) {
     const trackId = uri.split(":")[2];
     
     // Check if there's already data in localStorage
-    const savedLyricsData = storage.get("currentLyricsData");
+    const savedLyricsData = storage.get("currentLyricsData")?.toString();
 
     if (savedLyricsData) {
         try {
@@ -59,17 +59,18 @@ export default async function fetchLyrics(uri: string) {
                 const split = savedLyricsData.split(":");
                 const id = split[1];
                 if (id === trackId) {
-                    return await noLyricsMessage();
+                    return await noLyricsMessage(false, true);
                 }
-            }
-            const lyricsData = JSON.parse(savedLyricsData);
-            // Return the stored lyrics if the ID matches the track ID
-            if (lyricsData?.id === trackId) {
-                storage.set("currentlyFetching", "false");
-                HideLoaderContainer()
-                ClearLyricsPageContainer()
-                Defaults.CurrentLyricsType = lyricsData.Type;
-                return lyricsData;
+            } else {
+                const lyricsData = JSON.parse(savedLyricsData);
+                // Return the stored lyrics if the ID matches the track ID
+                if (lyricsData?.id === trackId) {
+                    storage.set("currentlyFetching", "false");
+                    HideLoaderContainer()
+                    ClearLyricsPageContainer()
+                    Defaults.CurrentLyricsType = lyricsData.Type;
+                    return lyricsData;
+                }
             }
         } catch (error) {
             console.error("Error parsing saved lyrics data:", error);
@@ -88,7 +89,7 @@ export default async function fetchLyrics(uri: string) {
                     await lyricsCache.remove(trackId);
                 } else {
                     if (lyricsFromCache?.status === "NO_LYRICS") {
-                        return await noLyricsMessage();
+                        return await noLyricsMessage(false, true);
                     }
                     storage.set("currentLyricsData", JSON.stringify(lyricsFromCache));
                     storage.set("currentlyFetching", "false");
@@ -101,7 +102,7 @@ export default async function fetchLyrics(uri: string) {
         } catch (error) {
             ClearLyricsPageContainer()
             console.log("Error parsing saved lyrics data:", error);
-            return await noLyricsMessage();
+            return await noLyricsMessage(false, true);
         }
     }
 
@@ -127,14 +128,14 @@ export default async function fetchLyrics(uri: string) {
             }
             ClearLyricsPageContainer()
             if (status === 404) {
-                return await noLyricsMessage();
+                return await noLyricsMessage(false, true);
             }
             return await noLyricsMessage(false, true);
         }
 
         ClearLyricsPageContainer();
 
-        if (lyricsText === "") return await noLyricsMessage();
+        if (lyricsText === "") return await noLyricsMessage(false, true);
 
         const lyricsJson = JSON.parse(lyricsText);
 
@@ -166,7 +167,7 @@ export default async function fetchLyrics(uri: string) {
         console.error("Error fetching lyrics:", error);
         storage.set("currentlyFetching", "false");
         ClearLyricsPageContainer();
-        return await noLyricsMessage();
+        return await noLyricsMessage(false, true);
     }
     
 }

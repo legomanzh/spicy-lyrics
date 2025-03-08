@@ -14,7 +14,7 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
 
         const Lines = LyricsObject.Types[Defaults.CurrentLyricsType]?.Lines;
         const Position = SpotifyPlayer.GetTrackPosition();
-        const PositionOffset = 400;
+        const PositionOffset = 370;
         const ProcessedPosition = Position + PositionOffset;
 
         if (!Lines) return;
@@ -41,7 +41,7 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
                 if (lastLine && lastLine === LineElem) return;
                 lastLine = LineElem
                 setTimeout(() => LineElem.classList.add("Active", "OverridenByScroller"), PositionOffset / 2)
-                ScrollIntoCenterView(container, LineElem, 300, -50); // Scroll Into View with a 300ms Animation
+                ScrollIntoCenterView(container, LineElem, 270, -50); // Scroll Into View with a 300ms Animation
             }
         }
     }

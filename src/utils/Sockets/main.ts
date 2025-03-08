@@ -77,6 +77,4 @@ async function ConnectSockets() {
     }
 }
 
-window._spicy_lyrics._sockets = Sockets;
-
 export default Sockets;
