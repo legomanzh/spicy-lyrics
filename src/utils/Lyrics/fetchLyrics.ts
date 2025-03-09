@@ -134,7 +134,8 @@ export default async function fetchLyrics(uri: string) {
         }
 
         ClearLyricsPageContainer();
-
+        
+        if (lyricsText === null) return await noLyricsMessage(false, false);
         if (lyricsText === "") return await noLyricsMessage(false, true);
 
         const lyricsJson = JSON.parse(lyricsText);

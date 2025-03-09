@@ -3,6 +3,7 @@ import Defaults from "../../components/Global/Defaults";
 import Platform from "../../components/Global/Platform";
 import storage from "../storage";
 import Session from "../../components/Global/Session";
+import { CheckForUpdates } from "../version/CheckForUpdates";
 
 export let SpicyFetchCache = new SpikyCache({
     name: "SpicyFetch__Cache"
@@ -11,11 +12,11 @@ export let SpicyFetchCache = new SpikyCache({
 export default async function SpicyFetch(path: string, IsExternal: boolean = false, cache: boolean = false, cosmos: boolean = false): Promise<Response | any> {
     return new Promise(async (resolve, reject) => {
         const lyricsApi = Defaults.lyrics.api.url;
-        //const lyricsAccessToken = storage.get("lyricsApiAccessToken") ?? Defaults.lyrics.api.accessToken;
 
         const CurrentVersion = Session.SpicyLyrics.GetCurrentVersion();
 
-        const url = IsExternal ? path : `${lyricsApi}/${path}?origin_version=${CurrentVersion.Text}`;
+        const url = IsExternal ? path : 
+            `${lyricsApi}/${path}${path.includes('?') ? '&' : '?'}origin_version=${CurrentVersion.Text}`;
 
         const CachedContent = await GetCachedContent(url);
         if (CachedContent) {
@@ -65,6 +66,11 @@ export default async function SpicyFetch(path: string, IsExternal: boolean = fal
             })
             .then(CheckForErrors)
             .then(async res => {
+                if (res === null) {
+                    resolve([null, 500]);
+                    return;
+                };
+
                 const data = await res.text();
 /*                 const isJson = ((data.startsWith(`{"`) || data.startsWith("{")) || (data.startsWith(`[`) || data.startsWith(`["`)));
                 if (isJson) {
@@ -173,6 +179,15 @@ async function CheckForErrors(res) {
             return res;
         }
         return res;
+    } else if (res.status === 403) {
+        const TEXT = await res.text();
+        if (TEXT.includes(`{"`)) {
+            const data = JSON.parse(TEXT);
+            if (data?.message === "Update Spicy Lyrics") {
+                await CheckForUpdates();
+                return null;
+            }
+        }
     }
     return res;
 }
