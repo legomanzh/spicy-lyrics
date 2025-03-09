@@ -94,6 +94,7 @@ export default async function ApplyDynamicBackground(element) {
 }
 
 export async function LowQMode_SetDynamicBackground(CurrentSongArtist, CurrentSongUri) {
+    if (storage.get("force-cover-bg_in-lowqmode") == "true") return;
     try {
         return await ArtistVisuals.ApplyContent(CurrentSongArtist, CurrentSongUri);
     } catch (error) {
