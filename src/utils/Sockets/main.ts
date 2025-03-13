@@ -1,3 +1,4 @@
+//import Global from "../../components/Global/Global";
 import SpicyFetch from "../API/SpicyFetch";
 import { socket as ws } from "./ws/main";
 
@@ -76,5 +77,7 @@ async function ConnectSockets() {
         // console.log(`${key} connected`);
     }
 }
+
+// Global.SetScope("_spicy_lyrics_websockets", Sockets)
 
 export default Sockets;
