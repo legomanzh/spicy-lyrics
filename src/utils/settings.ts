@@ -66,7 +66,11 @@ function generalSettings() {
 
     settings.addToggle("force-cover-bg_in-lowqmode", "Force Image Cover (as the background) in Low Quality Mode", Defaults.ForceCoverImage_InLowQualityMode, () => {
         storage.set("force-cover-bg_in-lowqmode", settings.getFieldValue("force-cover-bg_in-lowqmode") as string)
-    }); 
+    });
+
+    settings.addToggle("show_topbar_notifications", "Show Topbar Notifications", Defaults.show_topbar_notifications, () => {
+        storage.set("show_topbar_notifications", settings.getFieldValue("show_topbar_notifications") as string)
+    });
 
     settings.addButton("save-n-reload", "Save your current settings and reload.", "Save & Reload", () => {
         window.location.reload();

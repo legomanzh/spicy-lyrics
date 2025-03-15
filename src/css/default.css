@@ -137,10 +137,9 @@ body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer {
   border: 1px solid hsla(0,0%,100%,.5)
 }
 
-
-
 #SpicyLyricsPageSvg {
   fill: currentColor;
+  transform: translateY(2px);
 }
 
 button:has(#SpicyLyricsPageSvg):after {

@@ -37,6 +37,10 @@ import Sockets from "./utils/Sockets/main";
 
 async function main() {
   await Platform.OnSpotifyReady;
+
+  if (!storage.get("show_topbar_notifications")) {
+    storage.set("show_topbar_notifications", "true")
+  }
   
   // PostHog.Load();
 
@@ -138,7 +142,7 @@ async function main() {
   })
 
   const Hometinue = async () => {
-    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.3.7";
+    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.3.8";
     await Sockets.all.ConnectSockets();
 
     // Because somethimes the "syncedPositon" was unavailable, I'm putting this check here that checks if the Spicetify?.Platform?.PlaybackAPI is available (which is then used in SpotifyPlayer.GetTrackPosition())

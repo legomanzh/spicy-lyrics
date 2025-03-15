@@ -1,5 +1,6 @@
 import { io } from "socket.io-client";
 import { getUserData } from "../main";
+import Global from "../../../components/Global/Global";
 /* import TransferElement from "../../../components/Utils/TransferElement";
 import Global from "../../../components/Global/Global"; */
 
@@ -12,6 +13,7 @@ export const socket = io("https://ws.spicylyrics.org", {
     reconnectionAttempts: Infinity,
 });
 
+const connectionStatusEventName = "sockets:ws:connection-status-change";
 
 socket.on("connect", () => {
     //console.log("Connected:", socket.id);
@@ -19,6 +21,7 @@ socket.on("connect", () => {
     if (document.head.querySelector("#GenericModal__SpicyLyrics-Styles")) {
         document.head.querySelector("#GenericModal__SpicyLyrics-Styles").remove();
     } */
+    Global.Event.evoke(connectionStatusEventName, { connected: socket.connected, socket });
 });
 
 socket.on("request--state-revalidation", async () => {
@@ -84,7 +87,17 @@ socket.on("request--state-revalidation", async () => {
     }
 }) */
 
-socket.on("connect_error", () => {
-  // revert to classic upgrade
-  socket.io.opts.transports = ["polling", "websocket"];
+
+socket.on("disconnect", () => {
+    Global.Event.evoke(connectionStatusEventName, { connected: socket.connected, socket });
 });
+
+socket.on("connect_error", () => {
+    //socket.io.opts.transports = ["polling", "websocket"];
+    Global.Event.evoke(connectionStatusEventName, { connected: socket.connected, socket });
+});
+
+/* setInterval(() => {
+    Global.Event.evoke(connectionStatusEventName, { connected: socket.connected, socket });
+    console.log("Evoked!")
+}, 2000) */
