@@ -12,6 +12,7 @@ const Defaults = {
     OldStyleFont: false,
     SpicyLyricsVersion: "0.0.0",
     ForceCoverImage_InLowQualityMode: false,
+    show_topbar_notifications: true,
 }
 
 export default Defaults;
