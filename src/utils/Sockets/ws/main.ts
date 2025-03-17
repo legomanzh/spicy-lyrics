@@ -7,13 +7,13 @@ import Global from "../../../components/Global/Global"; */
 export const socket = io("https://ws.spicylyrics.org", {
     transports: ["websocket", "polling"],
     autoConnect: false,
-    reconnectionDelay: 1000,
-    reconnectionDelayMax: 1000,
     timeout: 5000,
-    reconnectionAttempts: Infinity,
+    reconnection: false,
+    reconnectionAttempts: 1,
 });
 
 const connectionStatusEventName = "sockets:ws:connection-status-change";
+let disconnectionInt;
 
 socket.on("connect", () => {
     //console.log("Connected:", socket.id);
@@ -21,6 +21,10 @@ socket.on("connect", () => {
     if (document.head.querySelector("#GenericModal__SpicyLyrics-Styles")) {
         document.head.querySelector("#GenericModal__SpicyLyrics-Styles").remove();
     } */
+    if (disconnectionInt) {
+        clearInterval(disconnectionInt);
+        disconnectionInt = null;
+    }
     Global.Event.evoke(connectionStatusEventName, { connected: socket.connected, socket });
 });
 
@@ -90,11 +94,21 @@ socket.on("request--state-revalidation", async () => {
 
 socket.on("disconnect", () => {
     Global.Event.evoke(connectionStatusEventName, { connected: socket.connected, socket });
+    if (!disconnectionInt) {
+        disconnectionInt = setInterval(() => {
+            socket.connect();
+        }, 1500)
+    }
 });
 
 socket.on("connect_error", () => {
     //socket.io.opts.transports = ["polling", "websocket"];
     Global.Event.evoke(connectionStatusEventName, { connected: socket.connected, socket });
+    if (!disconnectionInt) {
+        disconnectionInt = setInterval(() => {
+            socket.connect();
+        }, 1500)
+    }
 });
 
 /* setInterval(() => {
