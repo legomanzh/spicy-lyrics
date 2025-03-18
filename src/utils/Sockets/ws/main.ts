@@ -7,7 +7,7 @@ import Global from "../../../components/Global/Global"; */
 export const socket = io("https://ws.spicylyrics.org", {
     transports: ["websocket", "polling"],
     autoConnect: false,
-    timeout: 5000,
+    timeout: 60000,
     reconnection: false,
     reconnectionAttempts: 1,
 });
@@ -97,7 +97,8 @@ socket.on("disconnect", () => {
     if (!disconnectionInt) {
         disconnectionInt = setInterval(() => {
             socket.connect();
-        }, 1500)
+        }, 61000)
+        socket.connect();
     }
 });
 
@@ -107,7 +108,8 @@ socket.on("connect_error", () => {
     if (!disconnectionInt) {
         disconnectionInt = setInterval(() => {
             socket.connect();
-        }, 1500)
+        }, 61000)
+        socket.connect();
     }
 });
 
