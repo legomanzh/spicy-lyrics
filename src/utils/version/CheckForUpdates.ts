@@ -2,10 +2,10 @@ import Session from "../../components/Global/Session";
 
 let ShownUpdateNotice = false;
 
-export async function CheckForUpdates() {
+export async function CheckForUpdates(force: boolean = false) {
     const IsOutdated = await Session.SpicyLyrics.IsOutdated();
     if (IsOutdated) {
-        if (ShownUpdateNotice) return;
+        if (!force && ShownUpdateNotice) return;
         const currentVersion = Session.SpicyLyrics.GetCurrentVersion();
         const latestVersion = await Session.SpicyLyrics.GetLatestVersion();
         Spicetify.PopupModal.display({

@@ -137,7 +137,7 @@
     white-space: nowrap;          /* Prevents text from wrapping */
     overflow: hidden;             /* Hides overflowing text */
     text-overflow: ellipsis;      /* Adds the ellipsis (...) */
-    max-width: 440px;              /* Restricts span to the container width */
+    max-width: 24cqw;              /* Restricts span to the container width */
     display: inline-block;        /* Ensures width is respected */
     text-align: center;           /* Align text within the span */
     line-height: var(--title-height);

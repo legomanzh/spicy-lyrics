@@ -184,7 +184,7 @@ async function CheckForErrors(res) {
         if (TEXT.includes(`{"`)) {
             const data = JSON.parse(TEXT);
             if (data?.message === "Update Spicy Lyrics") {
-                await CheckForUpdates();
+                await CheckForUpdates(true);
                 return null;
             }
         }
