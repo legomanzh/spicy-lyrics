@@ -27,7 +27,7 @@ import "./css/Lyrics/Mixed.css"
 import "./css/Loaders/LoaderContainer.css"
 import Global from "./components/Global/Global";
 import Platform from "./components/Global/Platform";
-/* import PostHog from "./utils/PostHog"; */
+import PostHog from "./utils/PostHog";
 import Whentil from "./utils/Whentil";
 import Session from "./components/Global/Session";
 import Defaults from "./components/Global/Defaults";
@@ -42,7 +42,7 @@ async function main() {
     storage.set("show_topbar_notifications", "true")
   }
   
-  // PostHog.Load();
+  PostHog.Load();
 
   // Spicetify.Platform.History.listen(PostHog.OnNavigate)
   
@@ -142,7 +142,7 @@ async function main() {
   })
 
   const Hometinue = async () => {
-    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.3.9";
+    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.3.94";
     await Sockets.all.ConnectSockets();
 
     // Because somethimes the "syncedPositon" was unavailable, I'm putting this check here that checks if the Spicetify?.Platform?.PlaybackAPI is available (which is then used in SpotifyPlayer.GetTrackPosition())
@@ -413,16 +413,6 @@ async function main() {
     }
 
     SpotifyPlayer.IsPlaying = IsPlaying();
-
-    if (storage.get("customLyricsApi") && storage.get("customLyricsApi")?.includes("{SPOTIFY_ID}") || storage.get("customLyricsApi") && !storage.get("customLyricsApi")?.includes("http")) {
-      Spicetify.PopupModal.display({
-        title: "IMPORTANT NOTIFICATION!!",
-        content: `
-        <div style="font-size: 1.5rem;">If the "Spicy Lyrics" extension doesn't want to load lyrics, there's a chance that you're using the old API URL.
-        To fix this, please change the API URL to the new one, by going to the Settings and clicking on "Reset Custom APIs", and it should be fixed.
-        If the problem persists, please submit and issue on our <a href="https://github.com/spikenew7774/spicy-lyrics/" target="_blank">GitHub</a>. Thanks!</div>`,
-      })
-    }
 
     // Events
     {
