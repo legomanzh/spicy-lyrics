@@ -5,6 +5,8 @@ import SpicyFetch from "../API/SpicyFetch";
 import { CloseNowBar, DeregisterNowBarBtn, OpenNowBar } from "../../components/Utils/NowBar";
 import PageView from "../../components/Pages/PageView";
 import Fullscreen from "../../components/Utils/Fullscreen";
+import { SendJob } from "../API/SendJob";
+import Platform from "../../components/Global/Platform";
 
 export const lyricsCache = new SpikyCache({
     name: "SpikyCache_Spicy_Lyrics"
@@ -116,7 +118,29 @@ export default async function fetchLyrics(uri: string) {
     const lyricsAccessToken = storage.get("lyricsApiAccessToken") ?? Defaults.LyricsContent.api.accessToken; */
 
     try {
-        const [lyricsText, status] = await SpicyFetch(`lyrics/${trackId}`);
+        const SpotifyAccessToken = await Platform.GetSpotifyAccessToken();
+
+        let lyricsText = "";
+        let status = 0;
+
+        const jobs = await SendJob([{
+            handler: "LYRICS_ID",
+            args: {
+                id: trackId,
+                auth: "SpicyLyrics-WebAuth"
+            }
+        }], {
+            "SpicyLyrics-WebAuth": `Bearer ${SpotifyAccessToken}`
+        })
+
+        const lyricsJob = jobs.get("LYRICS_ID");
+        status = lyricsJob.status;
+
+        if (lyricsJob.type !== "json") {
+            lyricsText = "";
+        }
+
+        lyricsText = JSON.stringify(lyricsJob.responseData);
 
         if (status !== 200) {
             if (status === 500) return await noLyricsMessage(false, true);

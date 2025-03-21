@@ -43,20 +43,22 @@ body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer {
   gap: 8px;
   height: 5cqh;
   justify-content: center;
-  opacity: 0;
-  transition: opacity .2s;
+  opacity: .5;
+  transition: opacity .2s, bottom .5s;
   z-index: 101;
-  --ViewControlSize: 100cqh
+  --ViewControlSize: 100cqh;
 }
 
 #SpicyLyricsPage:not(.Fullscreen) .ViewControls {
   position: absolute;
   width: 100cqw;
-  bottom: 24px;
+  bottom: -8cqh;
+  --PageHoverOffset: -2.2cqh;
+  --ControlsHoverOffset: 1.5cqh;
 }
 
 #SpicyLyricsPage .ViewControls .ViewControl {
-  --ViewControlHeight: var(--ViewControlSize,100cqh);
+  --ViewControlHeight: var(--ViewControlSize, 100cqh);
   aspect-ratio: 1;
   background: rgba(21,22,23,.72);
   border: none;
@@ -74,16 +76,17 @@ body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer {
 }
 
 #SpicyLyricsPage .ViewControls .ViewControl svg {
-  fill: currentColor
+  fill: currentColor;
 }
-
 
 #SpicyLyricsPage:not(.Fullscreen) .ViewControls:hover {
   opacity: 1 !important;
+  bottom: var(--ControlsHoverOffset) !important;
 }
 
 #SpicyLyricsPage:not(.Fullscreen):hover .ViewControls {
-  opacity: .3;
+  opacity: .5;
+  bottom: var(--PageHoverOffset);
 }
 
 #SpicyLyricsPage .ViewControls button {

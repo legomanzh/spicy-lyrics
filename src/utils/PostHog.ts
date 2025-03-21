@@ -1,7 +1,6 @@
 import posthog from 'posthog-js'
 
 function Load() {
-    // Disabled for now
     posthog.init('phc_eHG65ArGON6CfDtepgtXeE2bXNU1CPmiUYlNpxSUYBd',
         {
             api_host: 'https://eu.i.posthog.com',

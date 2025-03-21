@@ -1,7 +1,6 @@
 import { SpikyCache } from "@spikerko/web-modules/SpikyCache";
 import Defaults from "../../components/Global/Defaults";
 import Platform from "../../components/Global/Platform";
-import storage from "../storage";
 import Session from "../../components/Global/Session";
 import { CheckForUpdates } from "../version/CheckForUpdates";
 

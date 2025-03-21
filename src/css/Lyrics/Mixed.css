@@ -263,7 +263,7 @@
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line.Active {
   position: relative;
-  margin: -1.7cqw 0;
+  margin: -1.38cqw 0;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent[data-lyrics-type="Line"] .line.musical-line.Active {
@@ -347,7 +347,7 @@
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line:not(.musical-line),
 #SpicyLyricsPage .LyricsContainer .LyricsContent .Credits {
-  margin: 1.5cqw 0;
+  margin: 1cqw 0;
 /*   margin-left: 18cqw;
   margin-right: 30cqw; */
 }
