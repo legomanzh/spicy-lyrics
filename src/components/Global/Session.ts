@@ -1,3 +1,4 @@
+import { SendJob } from "../../utils/API/SendJob";
 import Defaults from "./Defaults";
 import Global from "./Global";
 
@@ -66,8 +67,13 @@ const Session = {
             return Session.SpicyLyrics.ParseVersion(Defaults.SpicyLyricsVersion);
         },
         GetLatestVersion: async (): Promise<VersionParsedData> => {
-            const res = await fetch(`https://api.spicylyrics.org/version?origin_version=${Session.SpicyLyrics.GetCurrentVersion().Text}`);
-            const data = await res.text();
+            //const res = await fetch(`https://api.spicylyrics.org/version?origin_version=${Session.SpicyLyrics.GetCurrentVersion().Text}`);
+            const res = await SendJob([{
+                handler: "VERSION"
+            }])
+            const versionJob = res.get("VERSION");
+            if (versionJob.status !== 200 || versionJob.type !== "text") return undefined;
+            const data = versionJob.responseData;
             return Session.SpicyLyrics.ParseVersion(data);
         },
         IsOutdated: async (): Promise<boolean> => {

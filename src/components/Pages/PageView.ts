@@ -152,7 +152,7 @@ function AppendViewControls(ReAppend: boolean = false) {
         <button id="Close" class="ViewControl">${Icons.Close}</button>
         <button id="NowBarToggle" class="ViewControl">${Icons.NowBar}</button>
         <button id="FullscreenToggle" class="ViewControl">${Fullscreen.IsOpen ? Icons.CloseFullscreen : Icons.Fullscreen}</button>
-    ` // <button id="Kofi" class="ViewControl">${Icons.Kofi}</button>
+    `
 
     if (Fullscreen.IsOpen) {
         TransferElement(elem, document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaContent"));
