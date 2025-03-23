@@ -13,6 +13,7 @@ const Defaults = {
     SpicyLyricsVersion: "0.0.0",
     ForceCoverImage_InLowQualityMode: false,
     show_topbar_notifications: true,
+    lyrics_spacing: 2,
 }
 
 export default Defaults;

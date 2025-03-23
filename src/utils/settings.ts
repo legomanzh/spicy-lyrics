@@ -1,4 +1,4 @@
-import { SettingsSection } from "spcr-settings";
+import { SettingsSection } from "../edited_packages/spcr-settings/settingsSection";
 import storage from "./storage";
 import { lyricsCache } from "./Lyrics/fetchLyrics";
 import Defaults from "../components/Global/Defaults";
@@ -70,6 +70,10 @@ function generalSettings() {
 
     settings.addToggle("show_topbar_notifications", "Show Topbar Notifications", Defaults.show_topbar_notifications, () => {
         storage.set("show_topbar_notifications", settings.getFieldValue("show_topbar_notifications") as string)
+    });
+
+    settings.addDropDown("lyrics_spacing", "Lyrics Spacing", ["None", "Small", "Medium", "Large", "Extra Large"], Defaults.lyrics_spacing, () => {
+        storage.set("lyrics_spacing", settings.getFieldValue("lyrics_spacing") as string);
     });
 
     settings.addButton("save-n-reload", "Save your current settings and reload.", "Save & Reload", () => {
