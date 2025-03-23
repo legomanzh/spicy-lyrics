@@ -347,7 +347,7 @@
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line:not(.musical-line),
 #SpicyLyricsPage .LyricsContainer .LyricsContent .Credits {
-  margin: 1cqw 0;
+  margin: var(--SpicyLyrics-LineSpacing, 1cqw 0);
 /*   margin-left: 18cqw;
   margin-right: 30cqw; */
 }

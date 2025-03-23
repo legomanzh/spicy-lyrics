@@ -11,6 +11,58 @@ let ActivePlaybackControlsInstance = null;
 const ActiveSongProgressBarInstance_Map = new Map();
 let ActiveSetupSongProgressBarInstance = null;
 
+/* const ActiveMarquees = new Map();
+
+/**
+ * Accurately measures the width of text content
+ * @param text The text to measure
+ * @param font Optional font specification
+ * @returns Width of the text in pixels
+ * 
+function measureTextWidth(text: string, font?: string): number {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (!context) return 0;
+    
+    // Use computed font from the document or specified font
+    if (!font) {
+        font = window.getComputedStyle(document.body).font;
+    }
+    
+    context.font = font;
+    const metrics = context.measureText(text);
+    return metrics.width;
+}
+
+function ApplyMarquee(baseWidth, elementWidth, name) {
+    const style = document.createElement("style");
+    style.innerHTML = `
+        @keyframes marquee_${name} {
+             0%, 10% {
+                transform: translateX(0);
+            }
+            45%, 55% {
+                transform: translateX(calc(-${baseWidth} - calc(${elementWidth} + calc(${baseWidth} / 1.5))));
+            }
+            90%, 100% {
+                transform: translateX(0);
+            }
+        }
+    `;
+    style.id = `spicy-lyrics-marquee_${name}`;
+    document.head.appendChild(style);
+    ActiveMarquees.set(name, style);
+    return {
+        cleanup: () => {
+            style.remove();
+            ActiveMarquees.delete(name);
+        },
+        getElement: () => style,
+        getName: () => name,
+        getComputedName: () => `marquee_${name}`,
+    };
+} */
+
 function OpenNowBar() {
     const NowBar = document.querySelector("#SpicyLyricsPage .ContentBox .NowBar");
     if (!NowBar) return;
@@ -41,6 +93,8 @@ function OpenNowBar() {
                 const AlbumNameElement = document.createElement("div");
                 AlbumNameElement.classList.add("AlbumData");
                 AlbumNameElement.innerHTML = `<span>${SpotifyPlayer.GetAlbumName()}</span>`;
+                /* AlbumNameElement.classList.add("marqueeify");
+                AlbumNameElement.setAttribute("marquee-base-width", "22cqw"); */
                 AppendQueue.push(AlbumNameElement);
             }
 
@@ -363,12 +417,38 @@ function OpenNowBar() {
                     
                     // Create a temporary fragment to avoid multiple reflows
                     const fragment = document.createDocumentFragment();
-                    AppendQueue.forEach((element) => fragment.appendChild(element));
+                    AppendQueue.forEach((element) => {
+                        fragment.appendChild(element);
+                    });
                     
                     // Ensure proper order - first view controls, then our custom elements
                     MediaBox.innerHTML = '';
                     if (viewControls) MediaBox.appendChild(viewControls);
                     MediaBox.appendChild(fragment);
+
+                    /* AppendQueue.forEach((element) => {
+                        if (element.classList.contains("marqueeify")) {
+                            const childMarquee = element.querySelector("span");
+                            if (!childMarquee) return;
+                            
+                            // Use text measurement instead of element width
+                            const textWidth = measureTextWidth(childMarquee.textContent || "");
+                            
+                            // Only apply marquee if text width is greater than 200px
+                            if (textWidth > 200) {
+                                const marquee = ApplyMarquee(
+                                    element.getAttribute("marquee-base-width") ?? "100%", 
+                                    `${textWidth}px`, 
+                                    "albumName"
+                                );
+                                childMarquee.style.animation = `${marquee.getComputedName()} 25s linear infinite`;
+                            } else {
+                                // Center the text if it doesn't need marquee
+                                childMarquee.style.textAlign = "center";
+                                childMarquee.style.width = "100%";
+                            }
+                        }
+                    }); */
                 }
             );
         }
@@ -555,12 +635,34 @@ function UpdateNowBar(force = false) {
     });
 
     if (Fullscreen.IsOpen) {
-        const NowBarAlbum = NowBar.querySelector(".Header .MediaBox .AlbumData");
+        const NowBarAlbum = NowBar.querySelector<HTMLDivElement>(".Header .MediaBox .AlbumData");
         if (NowBarAlbum) {
             NowBarAlbum.classList.add("Skeletoned");
             const AlbumSpan = NowBarAlbum.querySelector("span");
             AlbumSpan.textContent = SpotifyPlayer.GetAlbumName();
             NowBarAlbum.classList.remove("Skeletoned");
+            /* if (!AlbumSpan) return;
+            if (ActiveMarquees.has("albumName")) {
+                ActiveMarquees.get("albumName").cleanup();
+            }
+            
+            // Use text measurement instead of element width
+            const textWidth = measureTextWidth(AlbumSpan.textContent || "");
+            
+            // Only apply marquee if text width is greater than 200px
+            if (textWidth > 200) {
+                const marquee = ApplyMarquee(
+                    NowBarAlbum.getAttribute("marquee-base-width") ?? "100%", 
+                    `${textWidth}px`, 
+                    "albumName"
+                );
+                AlbumSpan.style.animation = `${marquee.getComputedName()} 25s linear infinite`;
+            } else {
+                // Center the text if it doesn't need marquee
+                AlbumSpan.style.animation = "none";
+                AlbumSpan.style.textAlign = "center";
+                AlbumSpan.style.width = "100%";
+            } */
         }
     }
 }

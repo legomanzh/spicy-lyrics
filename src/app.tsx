@@ -41,11 +41,31 @@ async function main() {
   if (!storage.get("show_topbar_notifications")) {
     storage.set("show_topbar_notifications", "true")
   }
+
+  if (!storage.get("lyrics_spacing")) {
+    storage.set("lyrics_spacing", "Medium");
+  }
+
+  if (storage.get("lyrics_spacing")) {
+    if (storage.get("lyrics_spacing") === "None") {
+      document.querySelector("html").style.setProperty("--SpicyLyrics-LineSpacing", "0");
+    }
+    if (storage.get("lyrics_spacing") === "Small") {
+      document.querySelector("html").style.setProperty("--SpicyLyrics-LineSpacing", "0.5cqw 0");
+    }
+    if (storage.get("lyrics_spacing") === "Medium") {
+      document.querySelector("html").style.setProperty("--SpicyLyrics-LineSpacing", "1cqw 0");
+    }
+    if (storage.get("lyrics_spacing") === "Large") {
+      document.querySelector("html").style.setProperty("--SpicyLyrics-LineSpacing", "1.5cqw 0");
+    }
+    if (storage.get("lyrics_spacing") === "Extra Large") {
+      document.querySelector("html").style.setProperty("--SpicyLyrics-LineSpacing", "2cqw 0");
+    }
+  }
   
   PostHog.Load();
 
-  // Spicetify.Platform.History.listen(PostHog.OnNavigate)
-  
   // Lets set out the Settings Menu
   setSettingsMenu();
 
@@ -142,7 +162,7 @@ async function main() {
   })
 
   const Hometinue = async () => {
-    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.3.95";
+    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.4.0";
     await Sockets.all.ConnectSockets();
 
     // Because somethimes the "syncedPositon" was unavailable, I'm putting this check here that checks if the Spicetify?.Platform?.PlaybackAPI is available (which is then used in SpotifyPlayer.GetTrackPosition())
