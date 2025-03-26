@@ -1,69 +1,70 @@
+/* Base styles for all dynamic backgrounds */
 .spicy-dynamic-bg {
-  filter: saturate(1.5) brightness(.8);
   height: 100%;
   left: 0;
   overflow: hidden;
   pointer-events: none;
   position: absolute;
   top: 0;
-  width: 100%
+  width: 100%;
 }
 
-.spicy-dynamic-bg .Back,.spicy-dynamic-bg .BackCenter,.spicy-dynamic-bg .Front {
-  --PlaceholderHueShift: 0deg;
-  animation: bgAnim 45s linear infinite;
-  border-radius: 100em;
-  position: absolute;
-  width: 200%;
-  filter: blur(15px);
-}
-
-#SpicyLyricsPage.Fullscreen .spicy-dynamic-bg:not(.lowqmode) {
-  max-height: 60%;
-  max-width: 20%;
-  scale: 500% 170%
-}
-
-.spicy-dynamic-bg .Back:not(.NoEffect), .spicy-dynamic-bg .BackCenter:not(.NoEffect), .spicy-dynamic-bg .Front:not(.NoEffect) {
-  filter: hue-rotate(var(--PlaceholderHueShift)) blur(40px);
-}
-
-.spicy-dynamic-bg-in-this:is(aside) .spicy-dynamic-bg .Back:not(.NoEffect), .spicy-dynamic-bg-in-this:is(aside) .spicy-dynamic-bg .BackCenter:not(.NoEffect), .spicy-dynamic-bg-in-this:is(aside) .spicy-dynamic-bg .Front:not(.NoEffect) {
-  filter: hue-rotate(var(--PlaceholderHueShift)) blur(30px);
-}
-
-.spicy-dynamic-bg .Front {
-  right: 0;
-  top: 0;
-  z-index: 2;
-}
-
-.spicy-dynamic-bg .Back {
-  animation-direction: reverse;
-  bottom: 0;
-  left: 0;
-  z-index: 1
-}
-
-.spicy-dynamic-bg .BackCenter {
-  animation-direction: reverse;
-  right: -50%;
-  top: -20%;
-  width: 300%;
-  z-index: 0
-}
-
+/* Container styles */
 .spicy-dynamic-bg-in-this {
   overflow: hidden;
   position: relative;
 }
 
+/* WebGL canvas specific styles */
+.spicy-dynamic-bg canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  filter: blur(30px);
+}
+
+/* Front, Back, and BackCenter canvas positioning */
+.spicy-dynamic-bg canvas.Front {
+  z-index: 2;
+  scale: 120% 200%;
+  bottom: -90%;
+  right: -15%;
+}
+
+.spicy-dynamic-bg canvas.Back {
+  z-index: 1;
+  scale: 120% 150%;
+  left: -70%;
+}
+
+.spicy-dynamic-bg canvas.BackCenter {
+  z-index: 0;
+  scale: 95% 110%;
+  right: -15%;
+  top: -30%;
+}
+
+/* Special styling for side panel */
 .spicy-dynamic-bg-in-this:is(aside) .spicy-dynamic-bg {
-  filter: saturate(2) brightness(0.7);
   max-height: 100%;
   max-width: 100%;
 }
 
+/* Special styling for lyrics page */
+#SpicyLyricsPage .spicy-dynamic-bg:not(.lowqmode) {
+  max-height: 55%;
+  max-width: 35%;
+  transform-origin: left top;
+  scale: 290% 185%;
+}
+
+#SpicyLyricsPage.Fullscreen .spicy-dynamic-bg:not(.lowqmode) {
+  max-height: 60%;
+  max-width: 20%;
+  scale: 500% 170%;
+}
+
+/* Video element styling */
 .spicy-dynamic-bg-in-this:is(aside) video {
   filter: opacity(0.75) brightness(0.5);
   -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 35%, rgba(0, 0, 0, 0) 90%);
@@ -72,47 +73,22 @@
 
 .main-nowPlayingView-coverArtContainer div:has(video)::before,
 .main-nowPlayingView-coverArtContainer div:has(video)::after {
-    display: none;
+  display: none;
 }
 
 .spicy-dynamic-bg-in-this:is(aside) .AAdBM1nhG73supMfnYX7 {
-  z-index: 1;
+  z-index: 10;
   position: relative;
 }
 
-
-#SpicyLyricsPage .spicy-dynamic-bg:not(.lowqmode) {
-  max-height: 55%;
-  max-width: 35%;
-  scale: 290% 185%;
-  transform-origin: left top
-}
-
-#SpicyLyricsPage .spicy-dynamic-bg {
-  filter: saturate(2.5) brightness(.65);
-}
-
+/* Low quality mode styles - kept unchanged as requested */
 #SpicyLyricsPage .spicy-dynamic-bg:is(.lowqmode) {
   object-fit: cover;
   filter: brightness(.55) blur(9px) saturate(1.05);
   scale: 1.05;
 }
 
-@keyframes bgAnim {
-  0% {
-      transform: rotate(var(--bg-rotation-degree))
-  }
-
-  to {
-      transform: rotate(calc(var(--bg-rotation-degree) + 1turn))
-  }
-}
-
-body:has(#SpicyLyricsPage.Fullscreen) .Root__right-sidebar aside:is(.NowPlayingView, .spicy-dynamic-bg-in-this) .spicy-dynamic-bg,
-body:has(#SpicyLyricsPage.Fullscreen) .Root__right-sidebar aside:is(.NowPlayingView, .spicy-dynamic-bg-in-this) .spicy-dynamic-bg .Front,
-body:has(#SpicyLyricsPage.Fullscreen) .Root__right-sidebar aside:is(.NowPlayingView, .spicy-dynamic-bg-in-this) .spicy-dynamic-bg .Back,
-body:has(#SpicyLyricsPage.Fullscreen) .Root__right-sidebar aside:is(.NowPlayingView, .spicy-dynamic-bg-in-this) .spicy-dynamic-bg .BackCenter {
+/* Hide sidebar background when in fullscreen lyrics mode */
+body:has(#SpicyLyricsPage.Fullscreen) .Root__right-sidebar aside:is(.NowPlayingView, .spicy-dynamic-bg-in-this) .spicy-dynamic-bg {
   display: none;
-  animation: none;
-  filter: none;
 }

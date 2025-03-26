@@ -34,6 +34,8 @@ import Defaults from "./components/Global/Defaults";
 import { CheckForUpdates } from "./utils/version/CheckForUpdates";
 import sleep from "./utils/sleep";
 import Sockets from "./utils/Sockets/main";
+import { CleanupContainer, CreateDynamicBackground } from "./components/DynamicBG/WebGLCoverGenerator";
+import Animator from "./utils/Animator";
 
 async function main() {
   await Platform.OnSpotifyReady;
@@ -162,7 +164,7 @@ async function main() {
   })
 
   const Hometinue = async () => {
-    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.4.0";
+    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.4.3";
     await Sockets.all.ConnectSockets();
 
     // Because somethimes the "syncedPositon" was unavailable, I'm putting this check here that checks if the Spicetify?.Platform?.PlaybackAPI is available (which is then used in SpotifyPlayer.GetTrackPosition())
@@ -198,43 +200,61 @@ async function main() {
     function applyDynamicBackgroundToNowPlayingBar(coverUrl: string) {
       if (lowQModeEnabled) return;
       const nowPlayingBar = document.querySelector<HTMLElement>(".Root__right-sidebar aside.NowPlayingView");
-
+    
       try {
         if (nowPlayingBar == null) {
           lastImgUrl = null;
           return;
         };
         if (coverUrl === lastImgUrl) return;
-
-        const dynamicBackground = document.createElement("div");
-        dynamicBackground.classList.add("spicy-dynamic-bg");
-
-        if (lowQModeEnabled) {
-          /* CSSFilter({ blur: "20px" }, coverUrl).then(url => {
-            dynamicBackground.innerHTML = `
-                <img class="Front NoEffect" src="${url}" />
-                <img class="Back NoEffect" src="${url}" />
-                <img class="BackCenter NoEffect" src="${url}" />
-            `
-          }) */
-        } else {
-          dynamicBackground.innerHTML = `
-            <img class="Front" src="${coverUrl}" />
-            <img class="Back" src="${coverUrl}" />
-            <img class="BackCenter" src="${coverUrl}" />
-          `
+        
+        // Check if we need to clean up previous background
+        const existingContainer = nowPlayingBar.querySelector(".spicy-dynamic-bg");
+        if (existingContainer && existingContainer.getAttribute("data-cover-id") === coverUrl) {
+          return;
         }
-    
+        
+        // Add container class
         nowPlayingBar.classList.add("spicy-dynamic-bg-in-this");
-
-        if (nowPlayingBar?.querySelector(".spicy-dynamic-bg")) {
-          nowPlayingBar.querySelector(".spicy-dynamic-bg").remove();
-        }
-    
-        nowPlayingBar.appendChild(dynamicBackground);
-
-        lastImgUrl = coverUrl;
-        //NOWPLAYINGBAR_DYNAMIC_BG_UPDATE_TIME = Date.now();
+        
+        // Use WebGLCoverGenerator with SidePanel type
+        const containerType = "SidePanel";
+        const width = Math.max(nowPlayingBar.clientWidth, 500);
+        const height = Math.max(nowPlayingBar.clientHeight, 500);
+        
+        // Create background with WebGL
+        CreateDynamicBackground(containerType, width, height).then(newContainer => {
+          newContainer.setAttribute("data-cover-id", coverUrl);
+          
+          // Add animation for transition
+          newContainer.style.opacity = "0";
+          
+          // Remove previous background if exists
+          if (existingContainer) {
+            CleanupContainer(existingContainer as HTMLDivElement);
+            existingContainer.remove();
+          }
+          
+          // Add new background
+          nowPlayingBar.appendChild(newContainer);
+          
+          // Fade in animation
+          const fadeIn = new Animator(0, 1, 0.6);
+          fadeIn.on("progress", (progress) => {
+            newContainer.style.opacity = progress.toString();
+          });
+          
+          fadeIn.on("finish", () => {
+            newContainer.style.opacity = "1";
+            fadeIn.Destroy();
+          });
+          
+          fadeIn.Start();
+          
+          lastImgUrl = coverUrl;
+        }).catch(error => {
+          console.error("Error applying WebGL background:", error);
+        });
       } catch (error) {
         console.error("Error Applying the Dynamic BG to the NowPlayingBar:", error) 
       }

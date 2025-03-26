@@ -97,7 +97,7 @@ socket.on("disconnect", () => {
     if (!disconnectionInt) {
         disconnectionInt = setInterval(() => {
             socket.connect();
-        }, 61000)
+        }, 2000)
         socket.connect();
     }
 });
@@ -108,7 +108,7 @@ socket.on("connect_error", () => {
     if (!disconnectionInt) {
         disconnectionInt = setInterval(() => {
             socket.connect();
-        }, 61000)
+        }, 2000)
         socket.connect();
     }
 });
