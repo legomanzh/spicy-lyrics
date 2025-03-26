@@ -3,6 +3,7 @@ import BlobURLMaker from "../../utils/BlobURLMaker";
 import storage from "../../utils/storage";
 import { SpotifyPlayer } from "../Global/SpotifyPlayer";
 import ArtistVisuals from "./ArtistVisuals/Main";
+import { CreateDynamicBackground, CleanupContainer } from "./WebGLCoverGenerator";
 
 export default async function ApplyDynamicBackground(element) {
     if (!element) return
@@ -21,7 +22,7 @@ export default async function ApplyDynamicBackground(element) {
         }
     }
     
-
+    // Keep the lowQMode implementation as is
     if (lowQModeEnabled) {
         if (IsEpisode) return;
         const dynamicBg = document.createElement("img");
@@ -65,32 +66,59 @@ export default async function ApplyDynamicBackground(element) {
         Animator2.Start();
         Animator1.Start();
     } else {
-
-        if (element?.querySelector(".spicy-dynamic-bg")) {
-            if (element.querySelector(".spicy-dynamic-bg").getAttribute("current_tag") === currentImgCover) return;
-            const e = element.querySelector(".spicy-dynamic-bg");
-            e.setAttribute("current_tag", currentImgCover);
-            e.innerHTML = `
-                <img class="Front" src="${currentImgCover}" />
-                <img class="Back" src="${currentImgCover}" />
-                <img class="BackCenter" src="${currentImgCover}" />
-            `
+        // Always use Default container type for this function
+        const containerType = "Default";
+        
+        // Check if we already have a background
+        const existingContainer = element.querySelector(".spicy-dynamic-bg");
+        
+        // If same song, do nothing
+        if (existingContainer && existingContainer.getAttribute("data-cover-id") === currentImgCover) {
             return;
         }
-
-        const dynamicBg = document.createElement("div")
-        dynamicBg.classList.add("spicy-dynamic-bg")
-        dynamicBg.classList.remove("lowqmode")
-        dynamicBg.setAttribute("current_tag", currentImgCover);
-
-        dynamicBg.innerHTML = `
-            <img class="Front" src="${currentImgCover}" />
-            <img class="Back" src="${currentImgCover}" />
-            <img class="BackCenter" src="${currentImgCover}" />
-        `
-        element.appendChild(dynamicBg);
+        
+        // Determine the canvas size - use element dimensions with a minimum
+        const width = Math.max(element.clientWidth, 500);
+        const height = Math.max(element.clientHeight, 500);
+        
+        // Create the new WebGL background container
+        const newContainer = await CreateDynamicBackground(containerType, width, height);
+        newContainer.setAttribute("data-cover-id", currentImgCover);
+        
+        // Add animation for transition
+        newContainer.style.opacity = "0";
+        element.appendChild(newContainer);
+        
+        // Fade in/out animation
+        const fadeIn = new Animator(0, 1, 0.6);
+        fadeIn.on("progress", (progress) => {
+            newContainer.style.opacity = progress.toString();
+        });
+        
+        const fadeOut = new Animator(1, 0, 0.6);
+        fadeOut.on("progress", (progress) => {
+            if (existingContainer) {
+                existingContainer.style.opacity = progress.toString();
+            }
+        });
+        
+        fadeIn.on("finish", () => {
+            newContainer.style.opacity = "1";
+            fadeIn.Destroy();
+        });
+        
+        fadeOut.on("finish", () => {
+            if (existingContainer) {
+                // Clean up old WebGL container
+                CleanupContainer(existingContainer as HTMLDivElement);
+                existingContainer.remove();
+            }
+            fadeOut.Destroy();
+        });
+        
+        fadeOut.Start();
+        fadeIn.Start();
     }
-
 }
 
 export async function LowQMode_SetDynamicBackground(CurrentSongArtist, CurrentSongUri) {
@@ -101,3 +129,5 @@ export async function LowQMode_SetDynamicBackground(CurrentSongArtist, CurrentSo
         console.error("Error happened while trying to set the Low Quality Mode Dynamic Background", error)
     }
 }
+
+

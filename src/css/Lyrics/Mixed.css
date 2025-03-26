@@ -361,7 +361,7 @@
   --font-size: calc(var(--DefaultLyricsSize)*0.47);
   font-size: var(--font-size);
   opacity: 0.65;
-  margin-top: 7cqh !important;
+  margin-top: 5cqh !important;
   scale: 1;
   transition: opacity 0.8s ease-in-out;
 }
@@ -373,7 +373,7 @@
 #SpicyLyricsPage .LyricsContainer .LyricsContent[data-lyrics-type="Line"] .line {
   transform-origin: left center;
   transition: scale .2s cubic-bezier(.37,0,.63,1), opacity .2s cubic-bezier(.37,0,.63,1);
-  margin: 1cqw 0;
+  margin: var(--SpicyLyrics-LineSpacing, 1cqw 0);
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent[data-lyrics-type="Line"] .line.OppositeAligned {

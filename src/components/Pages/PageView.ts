@@ -31,7 +31,7 @@ const PageView = {
 };
 
 export const PageRoot = document.querySelector<HTMLElement>('.Root__main-view .main-view-container div[data-overlayscrollbars-viewport]');
-let isWsConnected = false;
+let isWsConnected = true;
 
 Global.Event.listen("sockets:ws:connection-status-change", (e) => {
     isWsConnected = e.connected;
