@@ -339,21 +339,21 @@ const ContainerParameters: Map<(CoverArtContainer | "Default"), {
 }> = new Map();
 
 ContainerParameters.set("Default", { 
-  blur: 80, 
-  brightness: 0.75, 
+  blur: 80,
+  brightness: 0.64,
   saturation: 2.5,
-  frontRotationSpeed: 61,
-  backRotationSpeed: -64,
-  backCenterRotationSpeed: -65
+  frontRotationSpeed: 65,
+  backRotationSpeed: -66,
+  backCenterRotationSpeed: 65
 });
 
 ContainerParameters.set("SidePanel", { 
-  blur: 80, 
-  brightness: 0.75, 
+  blur: 80,
+  brightness: 0.6,
   saturation: 2.25,
-  frontRotationSpeed: 61,
-  backRotationSpeed: -64,
-  backCenterRotationSpeed: -65
+  frontRotationSpeed: 65,
+  backRotationSpeed: -66,
+  backCenterRotationSpeed: 65
 });
 
 // Get current cover art URL

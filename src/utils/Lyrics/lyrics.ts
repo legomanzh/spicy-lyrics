@@ -3,6 +3,7 @@ import { IntervalManager } from '../IntervalManager';
 import Defaults from '../../components/Global/Defaults';
 import { SpotifyPlayer } from '../../components/Global/SpotifyPlayer';
 import { Lyrics } from './Animator/Main';
+import Global from '../../components/Global/Global';
 
 export const ScrollingIntervalTime = Infinity;
 
@@ -78,6 +79,7 @@ function LinesEvListener(e) {
 
     if (startTime) {
       Spicetify.Player.seek(startTime);
+      Global.Event.evoke("song:seek", startTime);
     }
   } else if (e.target.classList.contains("word")) {
     let startTime; //e.target.parentNode.getAttribute("start") ?? e.target.parentNode.parentNode.getAttribute("start");
@@ -92,6 +94,7 @@ function LinesEvListener(e) {
 
     if (startTime) {
       Spicetify.Player.seek(startTime);
+      Global.Event.evoke("song:seek", startTime);
     }
   } else if (e.target.classList.contains("Emphasis")) {
     let startTime;
@@ -110,6 +113,7 @@ function LinesEvListener(e) {
 
     if (startTime) {
       Spicetify.Player.seek(startTime);
+      Global.Event.evoke("song:seek", startTime);
     }
   }
 }

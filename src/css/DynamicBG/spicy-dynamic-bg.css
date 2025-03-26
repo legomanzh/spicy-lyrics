@@ -20,7 +20,7 @@
   position: absolute;
   width: 100%;
   height: 100%;
-  filter: blur(30px);
+  filter: blur(20px);
 }
 
 /* Front, Back, and BackCenter canvas positioning */

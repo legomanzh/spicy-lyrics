@@ -164,7 +164,7 @@ async function main() {
   })
 
   const Hometinue = async () => {
-    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.4.3";
+    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.5.0";
     await Sockets.all.ConnectSockets();
 
     // Because somethimes the "syncedPositon" was unavailable, I'm putting this check here that checks if the Spicetify?.Platform?.PlaybackAPI is available (which is then used in SpotifyPlayer.GetTrackPosition())
@@ -181,6 +181,11 @@ async function main() {
           Your Spicy Lyrics version has been successfully updated!
           <br>
           Version: From: ${previousVersion} -> To: ${Defaults.SpicyLyricsVersion}
+          <br>
+          <br>
+          <p>
+            What's new: <a href="https://github.com/Spikerko/spicy-lyrics/releases/tag/${Defaults.SpicyLyricsVersion}" target="_blank" style="text-decoration: underline;">Open on Github -></a>
+          </p>
         </div>`,
       })
       storage.set("previous-version", Defaults.SpicyLyricsVersion);
