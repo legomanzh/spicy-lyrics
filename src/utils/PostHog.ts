@@ -7,6 +7,7 @@ function Load() {
             person_profiles: 'always'
         }
     );
+    posthog.capture(`User:Loaded`)
 }
 
 function OnNavigate(location) {
