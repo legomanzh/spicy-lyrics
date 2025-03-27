@@ -48,6 +48,7 @@
 .spicy-dynamic-bg-in-this:is(aside) .spicy-dynamic-bg {
   max-height: 100%;
   max-width: 100%;
+  border-radius: var(--section-border-radius, 8px);
 }
 
 /* Special styling for lyrics page */
@@ -66,9 +67,16 @@
 
 /* Video element styling */
 .spicy-dynamic-bg-in-this:is(aside) video {
-  filter: opacity(0.75) brightness(0.5);
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 35%, rgba(0, 0, 0, 0) 90%);
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 35%, rgba(0, 0, 0, 0) 90%);
+  filter: opacity(0.8) brightness(.85);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%);
+}
+
+/* Reset styles for videos inside VideoPlayer__container */
+.VideoPlayer__container video {
+  filter: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
 }
 
 .main-nowPlayingView-coverArtContainer div:has(video)::before,
