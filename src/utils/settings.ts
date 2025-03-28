@@ -72,8 +72,12 @@ function generalSettings() {
         storage.set("show_topbar_notifications", settings.getFieldValue("show_topbar_notifications") as string)
     });
 
-    settings.addDropDown("lyrics_spacing", "Lyrics Spacing", ["None", "Small", "Medium", "Large", "Extra Large"], Defaults.lyrics_spacing, () => {
+    settings.addDropDown("lyrics_spacing", "Line Spacing", ["None", "Small", "Medium", "Large", "Extra Large"], Defaults.lyrics_spacing, () => {
         storage.set("lyrics_spacing", settings.getFieldValue("lyrics_spacing") as string);
+    });
+
+    settings.addToggle("prefers_reduced_motion", "Prefers Reduced Motion", false, () => {
+        storage.set("prefers_reduced_motion", settings.getFieldValue("prefers_reduced_motion") as string);
     });
 
     settings.addButton("save-n-reload", "Save your current settings and reload.", "Save & Reload", () => {

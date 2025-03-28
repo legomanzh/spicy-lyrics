@@ -14,6 +14,7 @@ const Defaults = {
     ForceCoverImage_InLowQualityMode: false,
     show_topbar_notifications: true,
     lyrics_spacing: 2,
+    PrefersReducedMotion: undefined,
 }
 
 export default Defaults;

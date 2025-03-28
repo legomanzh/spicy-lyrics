@@ -10,6 +10,8 @@ import { IsLetterCapable } from "../Utils/IsLetterCapable";
 import Emphasize from "../Utils/Emphasize";
 import { IdleEmphasisLyricsScale, IdleLyricsScale } from "../../Animator/Shared";
 import isRtl from '../../isRtl';
+import Animator from "../../../../utils/Animator";
+import { ClearLyricsPageContainer } from '../../fetchLyrics';
 
 export function ApplySyllableLyrics(data) {
   if (!Defaults.LyricsContainerExists) return;
@@ -19,6 +21,11 @@ export function ApplySyllableLyrics(data) {
 
   ClearLyricsContentArrays();
   ClearScrollSimplebar();
+  
+  // Reset opacity to 0 at the beginning
+  LyricsContainer.style.opacity = "0";
+  ClearLyricsPageContainer()
+  
   TOP_ApplyLyricsSpacer(LyricsContainer)
   if (data.StartTime >= lyricsBetweenShow && !SpotifyPlayer.IsPodcast) {
     const musicalLine = document.createElement("div")
@@ -345,6 +352,21 @@ export function ApplySyllableLyrics(data) {
 
   if (data.styles) {
     applyStyles(LyricsStylingContainer, data.styles);
+  }
+  
+  // Add fade-in animation at the end
+  if (Defaults.PrefersReducedMotion) {
+    LyricsContainer.style.opacity = "1";
+  } else {
+    const fadeIn = new Animator(0, 1, 0.6);
+    fadeIn.on("progress", (progress) => {
+        LyricsContainer.style.opacity = progress.toString();
+    });
+    fadeIn.on("finish", () => {
+        LyricsContainer.style.opacity = "1";
+        fadeIn.Destroy();
+    });
+    fadeIn.Start();
   }
 }
 

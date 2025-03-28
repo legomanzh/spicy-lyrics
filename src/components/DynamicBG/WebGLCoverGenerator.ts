@@ -339,7 +339,7 @@ const ContainerParameters: Map<(CoverArtContainer | "Default"), {
 }> = new Map();
 
 ContainerParameters.set("Default", { 
-  blur: 80,
+  blur: 10,
   brightness: 0.64,
   saturation: 2.5,
   frontRotationSpeed: 65,
@@ -348,7 +348,7 @@ ContainerParameters.set("Default", {
 });
 
 ContainerParameters.set("SidePanel", { 
-  blur: 80,
+  blur: 10,
   brightness: 0.6,
   saturation: 2.25,
   frontRotationSpeed: 65,

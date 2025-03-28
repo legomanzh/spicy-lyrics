@@ -1,6 +1,7 @@
 import Animator from "../../utils/Animator";
 import BlobURLMaker from "../../utils/BlobURLMaker";
 import storage from "../../utils/storage";
+import Defaults from "../Global/Defaults";
 import { SpotifyPlayer } from "../Global/SpotifyPlayer";
 import ArtistVisuals from "./ArtistVisuals/Main";
 import { CreateDynamicBackground, CleanupContainer } from "./WebGLCoverGenerator";
@@ -41,30 +42,35 @@ export default async function ApplyDynamicBackground(element) {
         dynamicBg.setAttribute("spotifyimageurl", currentImgCover);
         element.appendChild(dynamicBg);
 
-        const Animator1 = new Animator(0, 1, 0.3);
-        const Animator2 = new Animator(1, 0, 0.3);
-
-        Animator1.on("progress", (progress) => {
-            dynamicBg.style.opacity = progress.toString();
-        });
-
-        Animator2.on("progress", (progress) => {
-            if (!prevBg) return;
-            prevBg.style.opacity = progress.toString();
-        });
-
-        Animator1.on("finish", () => {
+        if (Defaults.PrefersReducedMotion) {
             dynamicBg.style.opacity = "1";
-            Animator1.Destroy();
-        });
+            if (prevBg) prevBg.remove();
+        } else {
+            const Animator1 = new Animator(0, 1, 0.3);
+            const Animator2 = new Animator(1, 0, 0.3);
 
-        Animator2.on("finish", () => {
-            prevBg?.remove();
-            Animator2.Destroy();
-        });
+            Animator1.on("progress", (progress) => {
+                dynamicBg.style.opacity = progress.toString();
+            });
 
-        Animator2.Start();
-        Animator1.Start();
+            Animator2.on("progress", (progress) => {
+                if (!prevBg) return;
+                prevBg.style.opacity = progress.toString();
+            });
+
+            Animator1.on("finish", () => {
+                dynamicBg.style.opacity = "1";
+                Animator1.Destroy();
+            });
+
+            Animator2.on("finish", () => {
+                prevBg?.remove();
+                Animator2.Destroy();
+            });
+
+            Animator2.Start();
+            Animator1.Start();
+        }
     } else {
         // Always use Default container type for this function
         const containerType = "Default";
@@ -90,34 +96,42 @@ export default async function ApplyDynamicBackground(element) {
         element.appendChild(newContainer);
         
         // Fade in/out animation
-        const fadeIn = new Animator(0, 1, 0.6);
-        fadeIn.on("progress", (progress) => {
-            newContainer.style.opacity = progress.toString();
-        });
-        
-        const fadeOut = new Animator(1, 0, 0.6);
-        fadeOut.on("progress", (progress) => {
-            if (existingContainer) {
-                existingContainer.style.opacity = progress.toString();
-            }
-        });
-        
-        fadeIn.on("finish", () => {
+        if (Defaults.PrefersReducedMotion) {
             newContainer.style.opacity = "1";
-            fadeIn.Destroy();
-        });
-        
-        fadeOut.on("finish", () => {
             if (existingContainer) {
-                // Clean up old WebGL container
                 CleanupContainer(existingContainer as HTMLDivElement);
                 existingContainer.remove();
             }
-            fadeOut.Destroy();
-        });
-        
-        fadeOut.Start();
-        fadeIn.Start();
+        } else {
+            const fadeIn = new Animator(0, 1, 0.6);
+            fadeIn.on("progress", (progress) => {
+                newContainer.style.opacity = progress.toString();
+            });
+            
+            const fadeOut = new Animator(1, 0, 0.6);
+            fadeOut.on("progress", (progress) => {
+                if (existingContainer) {
+                    existingContainer.style.opacity = progress.toString();
+                }
+            });
+            
+            fadeIn.on("finish", () => {
+                newContainer.style.opacity = "1";
+                fadeIn.Destroy();
+            });
+            
+            fadeOut.on("finish", () => {
+                if (existingContainer) {
+                    // Clean up old WebGL container
+                    CleanupContainer(existingContainer as HTMLDivElement);
+                    existingContainer.remove();
+                }
+                fadeOut.Destroy();
+            });
+            
+            fadeOut.Start();
+            fadeIn.Start();
+        }
     }
 }
 
