@@ -6,6 +6,8 @@ import { ConvertTime } from "../../ConvertTime";
 import { ClearLyricsContentArrays, LINE_SYNCED_CurrentLineLyricsObject, lyricsBetweenShow, LyricsObject, SetWordArrayInCurentLine_LINE_SYNCED } from "../../lyrics";
 import { ApplyLyricsCredits } from "../Credits/ApplyLyricsCredits";
 import isRtl from "../../isRtl";
+import Animator from "../../../../utils/Animator";
+import { ClearLyricsPageContainer } from "../../fetchLyrics";
 
 export function ApplyLineLyrics(data) {
     if (!Defaults.LyricsContainerExists) return
@@ -16,6 +18,10 @@ export function ApplyLineLyrics(data) {
     ClearLyricsContentArrays();
 
     ClearScrollSimplebar();
+
+    // Reset opacity to 0 at the beginning
+    LyricsContainer.style.opacity = "0";
+    ClearLyricsPageContainer()
 
     TOP_ApplyLyricsSpacer(LyricsContainer)
 
@@ -210,5 +216,20 @@ export function ApplyLineLyrics(data) {
 
   if (data.styles) {
     applyStyles(LyricsStylingContainer, data.styles);
+  }
+  
+  // Add fade-in animation at the end
+  if (Defaults.PrefersReducedMotion) {
+    LyricsContainer.style.opacity = "1";
+  } else {
+    const fadeIn = new Animator(0, 1, 0.6);
+    fadeIn.on("progress", (progress) => {
+        LyricsContainer.style.opacity = progress.toString();
+    });
+    fadeIn.on("finish", () => {
+        LyricsContainer.style.opacity = "1";
+        fadeIn.Destroy();
+    });
+    fadeIn.Start();
   }
 }

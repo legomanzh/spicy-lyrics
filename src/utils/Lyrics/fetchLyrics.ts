@@ -7,6 +7,7 @@ import PageView from "../../components/Pages/PageView";
 import Fullscreen from "../../components/Utils/Fullscreen";
 import { SendJob } from "../API/SendJob";
 import Platform from "../../components/Global/Platform";
+import Animator from "../../utils/Animator";
 
 export const lyricsCache = new SpikyCache({
     name: "SpikyCache_Spicy_Lyrics"
@@ -28,17 +29,30 @@ export default async function fetchLyrics(uri: string) {
         return NotTrackMessage();
     }
 
-    //ShowLoaderContainer();
-
     const currFetching = storage.get("currentlyFetching");
     if (currFetching == "true") return;
 
     storage.set("currentlyFetching", "true");
 
     document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox")?.classList.remove("LyricsHidden");
-    
 
-    ClearLyricsPageContainer()
+    // Animate fade out when starting to fetch lyrics
+    const lyricsContent = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContent");
+    if (lyricsContent) {
+        if (Defaults.PrefersReducedMotion) {
+            lyricsContent.style.opacity = "0";
+        } else {
+            const fadeOut = new Animator(parseFloat(lyricsContent.style.opacity || "1"), 0, 0.3);
+            fadeOut.on("progress", (progress) => {
+                lyricsContent.style.opacity = progress.toString();
+            });
+            fadeOut.on("finish", () => {
+                lyricsContent.style.opacity = "0";
+                fadeOut.Destroy();
+            });
+            fadeOut.Start();
+        }
+    }
 
     // I'm not sure if this will entirely work, because in my country the Spotify DJ isn't available. So if anybody finds out that this doesn't work, please let me know.
     if (
@@ -69,7 +83,6 @@ export default async function fetchLyrics(uri: string) {
                 if (lyricsData?.id === trackId) {
                     storage.set("currentlyFetching", "false");
                     HideLoaderContainer()
-                    ClearLyricsPageContainer()
                     Defaults.CurrentLyricsType = lyricsData.Type;
                     return lyricsData;
                 }
@@ -78,7 +91,6 @@ export default async function fetchLyrics(uri: string) {
             console.error("Error parsing saved lyrics data:", error);
             storage.set("currentlyFetching", "false");
             HideLoaderContainer()
-            ClearLyricsPageContainer()
         }
     }
 
@@ -96,13 +108,11 @@ export default async function fetchLyrics(uri: string) {
                     storage.set("currentLyricsData", JSON.stringify(lyricsFromCache));
                     storage.set("currentlyFetching", "false");
                     HideLoaderContainer()
-                    ClearLyricsPageContainer()
                     Defaults.CurrentLyricsType = lyricsFromCache.Type;
                     return { ...lyricsFromCache, fromCache: true };
                 }
             }
         } catch (error) {
-            ClearLyricsPageContainer()
             console.log("Error parsing saved lyrics data:", error);
             return await noLyricsMessage(false, true);
         }
@@ -150,14 +160,14 @@ export default async function fetchLyrics(uri: string) {
                 //window.location.reload();
                 return await noLyricsMessage(false, false);
             }
-            ClearLyricsPageContainer()
+
             if (status === 404) {
                 return await noLyricsMessage(false, true);
             }
             return await noLyricsMessage(false, true);
         }
 
-        ClearLyricsPageContainer();
+
         
         if (lyricsText === null) return await noLyricsMessage(false, false);
         if (lyricsText === "") return await noLyricsMessage(false, true);
@@ -171,7 +181,7 @@ export default async function fetchLyrics(uri: string) {
 
         HideLoaderContainer()
 
-        ClearLyricsPageContainer();
+
 
         if (lyricsCache) {
             const expiresAt = new Date().getTime() + 1000 * 60 * 60 * 24 * 7; // Expire after 7 days
@@ -191,7 +201,7 @@ export default async function fetchLyrics(uri: string) {
     } catch (error) {
         console.error("Error fetching lyrics:", error);
         storage.set("currentlyFetching", "false");
-        ClearLyricsPageContainer();
+
         return await noLyricsMessage(false, true);
     }
     
@@ -300,6 +310,8 @@ async function noLyricsMessage(Cache = true, LocalStorage = true) {
     OpenNowBar();
 
     DeregisterNowBarBtn();
+
+    ClearLyricsPageContainer()
 
     return "1";
 }
@@ -420,7 +432,7 @@ function HideLoaderContainer() {
     }
 }
 
-function ClearLyricsPageContainer() {
+export function ClearLyricsPageContainer() {
     if (document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent")) {
         document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent").innerHTML = "";
     }

@@ -1,6 +1,7 @@
 import Animator from "../../utils/Animator";
 import { ResetLastLine } from "../../utils/Scrolling/ScrollToActiveLine";
 import storage from "../../utils/storage";
+import Defaults from "../Global/Defaults";
 import Global from "../Global/Global";
 import PageView, { PageRoot, Tooltips } from "../Pages/PageView";
 import { DeregisterNowBarBtn, OpenNowBar } from "./NowBar";
@@ -17,12 +18,24 @@ const MediaBox_Data = {
     Eventified: false,
     Functions: {
         MouseIn: () => {
+            if (Defaults.PrefersReducedMotion) {
+                MediaBox_Data.Functions.Target.style.setProperty("--ArtworkBrightness", "0.5");
+                MediaBox_Data.Functions.Target.style.setProperty("--ArtworkBlur", "0.2px");
+                return;
+            }
+            
             if (MediaBox_Data.Animators.brightness.reversed) MediaBox_Data.Animators.brightness.Reverse();
             if (MediaBox_Data.Animators.blur.reversed) MediaBox_Data.Animators.blur.Reverse();
             MediaBox_Data.Animators.brightness.Start();
             MediaBox_Data.Animators.blur.Start();
         },
         MouseOut: () => {
+            if (Defaults.PrefersReducedMotion) {
+                MediaBox_Data.Functions.Target.style.setProperty("--ArtworkBrightness", "1");
+                MediaBox_Data.Functions.Target.style.setProperty("--ArtworkBlur", "0px");
+                return;
+            }
+            
             if (!MediaBox_Data.Animators.brightness.reversed) MediaBox_Data.Animators.brightness.Reverse();
             if (!MediaBox_Data.Animators.blur.reversed) MediaBox_Data.Animators.blur.Reverse();
             MediaBox_Data.Animators.brightness.Start();
@@ -33,6 +46,7 @@ const MediaBox_Data = {
             MediaImage.style.removeProperty("--ArtworkBlur");
         },
         Eventify: (MediaImage: HTMLElement) => {
+            MediaBox_Data.Functions.Target = MediaImage;
             MediaBox_Data.Animators.brightness.on("progress", (progress) => {
                 MediaImage.style.setProperty("--ArtworkBrightness", `${progress}`);
             });
@@ -41,6 +55,7 @@ const MediaBox_Data = {
             });
             MediaBox_Data.Eventified = true;
         },
+        Target: null,
     },
     Animators: {
         brightness: new Animator(1, 0.5, 0.25),

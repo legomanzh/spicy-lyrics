@@ -48,6 +48,14 @@ async function main() {
     storage.set("lyrics_spacing", "Medium");
   }
 
+  if (!storage.get("prefers_reduced_motion")) {
+    storage.set("prefers_reduced_motion", "false");
+  }
+
+  if (storage.get("prefers_reduced_motion")) {
+    Defaults.PrefersReducedMotion = storage.get("prefers_reduced_motion") === "true";
+  }
+
   if (storage.get("lyrics_spacing")) {
     if (storage.get("lyrics_spacing") === "None") {
       document.querySelector("html").style.setProperty("--SpicyLyrics-LineSpacing", "0");
@@ -164,7 +172,7 @@ async function main() {
   })
 
   const Hometinue = async () => {
-    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.5.0";
+    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.5.2";
     await Sockets.all.ConnectSockets();
 
     // Because somethimes the "syncedPositon" was unavailable, I'm putting this check here that checks if the Spicetify?.Platform?.PlaybackAPI is available (which is then used in SpotifyPlayer.GetTrackPosition())
@@ -244,17 +252,21 @@ async function main() {
           nowPlayingBar.appendChild(newContainer);
           
           // Fade in animation
-          const fadeIn = new Animator(0, 1, 0.6);
-          fadeIn.on("progress", (progress) => {
-            newContainer.style.opacity = progress.toString();
-          });
-          
-          fadeIn.on("finish", () => {
+          if (Defaults.PrefersReducedMotion) {
             newContainer.style.opacity = "1";
-            fadeIn.Destroy();
-          });
-          
-          fadeIn.Start();
+          } else {
+            const fadeIn = new Animator(0, 1, 0.6);
+            fadeIn.on("progress", (progress) => {
+              newContainer.style.opacity = progress.toString();
+            });
+            
+            fadeIn.on("finish", () => {
+              newContainer.style.opacity = "1";
+              fadeIn.Destroy();
+            });
+            
+            fadeIn.Start();
+          }
           
           lastImgUrl = coverUrl;
         }).catch(error => {
