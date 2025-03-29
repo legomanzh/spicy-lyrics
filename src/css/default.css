@@ -44,17 +44,24 @@ body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer {
   height: 5cqh;
   justify-content: center;
   opacity: .5;
-  transition: opacity .2s, bottom .5s;
+  transition: opacity .2s, left .5s, scale .5s;
   z-index: 101;
   --ViewControlSize: 100cqh;
 }
 
 #SpicyLyricsPage:not(.Fullscreen) .ViewControls {
   position: absolute;
-  width: 100cqw;
-  bottom: -8cqh;
-  --PageHoverOffset: -2.2cqh;
-  --ControlsHoverOffset: 1.5cqh;
+  width: 55px;
+  height: 100cqh;
+  left: -5cqw;
+  flex-direction: column;
+  --ViewControlSize: 100cqw;
+  --PageHoverOffset: -22px;
+  --ControlsHoverOffset: 15px;
+  --DefaultScale: 0.5;
+  --PageHoverScale: 1;
+  --ControlsHoverScale: 1.05;
+  scale: var(--DefaultScale);
 }
 
 #SpicyLyricsPage .ViewControls .ViewControl {
@@ -81,12 +88,14 @@ body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer {
 
 #SpicyLyricsPage:not(.Fullscreen) .ViewControls:hover {
   opacity: 1 !important;
-  bottom: var(--ControlsHoverOffset) !important;
+  left: var(--ControlsHoverOffset) !important;
+  scale: var(--ControlsHoverScale) !important;
 }
 
 #SpicyLyricsPage:not(.Fullscreen):hover .ViewControls {
-  opacity: .5;
-  bottom: var(--PageHoverOffset);
+  opacity: .6;
+  left: var(--PageHoverOffset);
+  scale: var(--PageHoverScale);
 }
 
 #SpicyLyricsPage .ViewControls button {
