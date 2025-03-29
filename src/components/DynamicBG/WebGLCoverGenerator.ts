@@ -1,3 +1,5 @@
+import Whentil from "../../utils/Whentil";
+
 // Define types directly in this file
 type CoverArtContainer = "SidePanel" | string;
 
@@ -170,7 +172,7 @@ class WebGLRenderer {
     this.texture = this.gl.createTexture();
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
     
-    // Set texture parameters
+    // Set texture parameters - FIXED THIS SECTION
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
@@ -339,7 +341,7 @@ const ContainerParameters: Map<(CoverArtContainer | "Default"), {
 }> = new Map();
 
 ContainerParameters.set("Default", { 
-  blur: 10,
+  blur: 2,
   brightness: 0.64,
   saturation: 2.5,
   frontRotationSpeed: 65,
@@ -348,7 +350,7 @@ ContainerParameters.set("Default", {
 });
 
 ContainerParameters.set("SidePanel", { 
-  blur: 10,
+  blur: 2,
   brightness: 0.6,
   saturation: 2.25,
   frontRotationSpeed: 65,
@@ -363,9 +365,11 @@ const GetCoverArtURL = (): string => {
     return `https://i.scdn.co/image/${uri.replace("spotify:image:", "")}`;
   }
 
-  return GetFullUrl(Spicetify.Player.data.item.album.images[0].url ?? 
-    Spicetify.Player.data.item.album.images[1].url ?? 
-    Spicetify.Player.data.item.album.images[2].url);
+  return GetFullUrl(Spicetify.Player.data.item.album.images[0].url) ?? 
+          GetFullUrl(Spicetify.Player.data.item.album.images[1].url) ?? 
+            GetFullUrl(Spicetify.Player.data.item.album.images[2].url) ?? 
+              GetFullUrl(Spicetify.Player.data.item.album.images[3].url) ?? 
+                undefined;
 };
 
 // Create a new layer canvas for the given parameters
@@ -424,55 +428,74 @@ const createLayerCanvas = async (
 };
 
 // Generate WebGL-processed background container
-export const CreateDynamicBackground = async (
+export const CreateDynamicBackground = (
   coverArtContainer: CoverArtContainer,
   width: number,
   height: number
 ): Promise<HTMLDivElement> => {
-  // Get the cover art URL
-  const coverArtURL = GetCoverArtURL();
-  
-  // Check if we already have a container for this URL
-  const existingContainer = ProcessedContainers.get(coverArtURL)?.get(coverArtContainer);
-  if (existingContainer) {
-    return existingContainer;
-  }
-  
-  // Create a container div
-  const containerDiv = document.createElement('div');
-  containerDiv.className = 'spicy-dynamic-bg';
-  
-  // Get processing parameters for this container
-  const params = ContainerParameters.get(coverArtContainer) || ContainerParameters.get("Default");
-  
-  try {
-    // Create each layer canvas
-    await Promise.all([
-      createLayerCanvas(containerDiv, coverArtURL, params, 0, 'Front', width, height),
-      createLayerCanvas(containerDiv, coverArtURL, params, 1, 'Back', width, height),
-      createLayerCanvas(containerDiv, coverArtURL, params, 2, 'BackCenter', width, height)
-    ]);
+  return new Promise((resolve, reject) => {
+    // Use Whentil to wait for a valid cover art URL
+    const task = Whentil.When(
+      () => {
+        const url = GetCoverArtURL();
+        return url && url.length > 0 ? url : null;
+      }, 
+      async (url) => {
+        try {
+          // Check if we already have a container for this URL
+          const existingContainer = ProcessedContainers.get(url)?.get(coverArtContainer);
+          if (existingContainer) {
+            resolve(existingContainer);
+            return;
+          }
+          
+          // Create a container div
+          const containerDiv = document.createElement('div');
+          containerDiv.className = 'spicy-dynamic-bg';
+          
+          // Get processing parameters for this container
+          const params = ContainerParameters.get(coverArtContainer) ?? ContainerParameters.get("Default");
+          
+          try {
+            // Create each layer canvas
+            await Promise.all([
+              createLayerCanvas(containerDiv, url, params, 0, 'Front', width, height),
+              createLayerCanvas(containerDiv, url, params, 1, 'Back', width, height),
+              createLayerCanvas(containerDiv, url, params, 2, 'BackCenter', width, height)
+            ]);
+            
+            // Store the container for reuse
+            let storage = ProcessedContainers.get(url);
+            if (!storage) {
+              storage = new Map();
+              ProcessedContainers.set(url, storage);
+            }
+            
+            // Clean up old container if it exists
+            const oldContainer = storage.get(coverArtContainer);
+            if (oldContainer) {
+              CleanupContainer(oldContainer);
+            }
+            
+            storage.set(coverArtContainer, containerDiv);
+            
+            resolve(containerDiv);
+          } catch (error) {
+            console.error("WebGL processing failed:", error);
+            reject(error);
+          }
+        } finally {
+          task.Cancel();
+        }
+      }
+    );
     
-    // Store the container for reuse
-    let storage = ProcessedContainers.get(coverArtURL);
-    if (!storage) {
-      storage = new Map();
-      ProcessedContainers.set(coverArtURL, storage);
-    }
-    
-    // Clean up old container if it exists
-    const oldContainer = storage.get(coverArtContainer);
-    if (oldContainer) {
-      CleanupContainer(oldContainer);
-    }
-    
-    storage.set(coverArtContainer, containerDiv);
-    
-    return containerDiv;
-  } catch (error) {
-    console.error("WebGL processing failed:", error);
-    throw error;
-  }
+    // Add a timeout to reject the promise if it takes too long
+    setTimeout(() => {
+      task.Cancel();
+      reject(new Error("Timed out waiting for cover art URL"));
+    }, 10000); // 10 seconds timeout
+  });
 };
 
 // Clean up resources when a container is no longer needed
