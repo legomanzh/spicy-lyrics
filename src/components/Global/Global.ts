@@ -6,7 +6,7 @@ const SCOPE_ROOT = window._spicy_lyrics;
 const Global = {
     Scope: SCOPE_ROOT,
     Event,
-    NonLocalTimeOffset: 340,
+    NonLocalTimeOffset: 0,
     SetScope: (key: string, value: any) => {
         const keys = key.split('.'); // Split the key into individual parts
         let current = SCOPE_ROOT; // Start at the root object

@@ -1,11 +1,11 @@
 {
   "name": "spicy-lyrics",
-  "version": "2.5.9",
+  "version": "2.5.95",
   "private": false,
   "author": "Spikerko",
   "scripts": {
     "build": "spicetify-creator",
-    "build-local": "spicetify-creator --out=dist",
+    "build-local": "spicetify-creator --minify --out=dist",
     "watch": "spicetify-creator --watch"
   },
   "license": "MIT",
