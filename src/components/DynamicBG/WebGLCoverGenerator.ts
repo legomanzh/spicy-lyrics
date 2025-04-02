@@ -557,7 +557,8 @@ export const CleanupContainer = (container: HTMLDivElement): void => {
   container.remove();
 };
 
-// Modify the global pulse function
+// New (unreleased) Pulsing BG
+/* // Modify the global pulse function
 export const PulseBg = () => {
   // Only pulse the first active context we find
   const firstContext = activeContexts.values().next().value;
@@ -627,4 +628,4 @@ Global.SetScope("dynamicbg.pulses", {
     PulseBg,
     PulseOnBeat,
     StopPulseOnBeat,
-});
+}); */
