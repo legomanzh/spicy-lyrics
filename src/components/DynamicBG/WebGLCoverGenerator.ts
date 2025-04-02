@@ -1,4 +1,6 @@
 import Whentil from "../../utils/Whentil";
+import Global from "../Global/Global";
+import { SpotifyPlayer } from "../Global/SpotifyPlayer";
 
 // Define types directly in this file
 type CoverArtContainer = "SidePanel" | string;
@@ -26,119 +28,77 @@ const fragmentShaderSource = `
   varying highp vec2 vTextureCoord;
   
   uniform sampler2D uSampler;
-  uniform float uBlurAmount;
-  uniform float uBrightness;
-  uniform float uSaturation;
   uniform float uRadius;
   uniform vec2 uTextureSize;
   uniform float uTime;
-  uniform int uLayer; // 0 = Front, 1 = Back, 2 = BackCenter
   uniform float uFrontRotationSpeed;
   uniform float uBackRotationSpeed;
   uniform float uBackCenterRotationSpeed;
-  
-  // Helper for gaussian blur
-  vec4 blur13(sampler2D image, vec2 uv, vec2 resolution, vec2 direction) {
-    vec4 color = vec4(0.0);
-    vec2 off1 = vec2(1.411764705882353) * direction;
-    vec2 off2 = vec2(3.2941176470588234) * direction;
-    vec2 off3 = vec2(5.176470588235294) * direction;
-    
-    color += texture2D(image, uv) * 0.1964825501511404;
-    color += texture2D(image, uv + (off1 / resolution)) * 0.2969069646728344;
-    color += texture2D(image, uv - (off1 / resolution)) * 0.2969069646728344;
-    color += texture2D(image, uv + (off2 / resolution)) * 0.09447039785044732;
-    color += texture2D(image, uv - (off2 / resolution)) * 0.09447039785044732;
-    color += texture2D(image, uv + (off3 / resolution)) * 0.010381362401148057;
-    color += texture2D(image, uv - (off3 / resolution)) * 0.010381362401148057;
-    
-    return color;
-  }
-  
-  // Function to adjust saturation
-  vec3 adjustSaturation(vec3 color, float saturation) {
-    float gray = dot(color, vec3(0.2126, 0.7152, 0.0722));
-    return mix(vec3(gray), color, saturation);
-  }
+  uniform float uPulseIntensity;  // Add new uniform for pulse effect
   
   void main(void) {
-    // Get base center
     vec2 center = vec2(0.5, 0.5);
+    vec4 finalColor = vec4(0.0);
     
-    // Layer-specific parameters
-    float rotationSpeed, scale, offsetX, offsetY;
-    
-    if (uLayer == 0) { // Front
-      rotationSpeed = uFrontRotationSpeed;
-      scale = 2.0;
-      offsetX = 0.5; // Move right
-      offsetY = 0.0;
-    } else if (uLayer == 1) { // Back
-      rotationSpeed = uBackRotationSpeed;
-      scale = 2.0;
-      offsetX = -0.5; // Move left
-      offsetY = 1.0; // Move down
-    } else { // BackCenter
-      rotationSpeed = uBackCenterRotationSpeed;
-      scale = 3.0;
-      offsetX = -0.5;
-      offsetY = -0.2;
-    }
-    
-    // Calculate angle in radians - Convert from seconds to radians
-    // 2π radians = 360 degrees = one full rotation
-    // We divide by rotationSpeed to get seconds per rotation
-    float angle = uTime * (2.0 * 3.14159) / rotationSpeed;
-    
-    float s = sin(angle);
-    float c = cos(angle);
-    
-    // Scale and offset
-    vec2 scaledCoord = (vTextureCoord - center) / scale;
-    vec2 offsetCoord = scaledCoord + vec2(offsetX, offsetY) / scale;
-    
-    // Rotate
-    vec2 rotatedCoord = vec2(
-      offsetCoord.x * c - offsetCoord.y * s,
-      offsetCoord.x * s + offsetCoord.y * c
-    );
-    
-    // Final texture coordinates
-    vec2 finalUV = rotatedCoord + center;
-    
-    // Apply circular mask
-    float dist = distance(vTextureCoord, center);
-    if (dist > uRadius) {
-      gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
-      return;
-    }
-    
-    // Apply blur
-    vec4 color = vec4(0.0);
-    if (uBlurAmount > 0.0) {
-      // Two-pass gaussian blur
-      vec2 direction = vec2(uBlurAmount, 0.0);
-      vec4 blur1 = blur13(uSampler, finalUV, uTextureSize, direction);
+    // Process all three layers
+    for(int layer = 0; layer < 3; layer++) {
+      float rotationSpeed, scale, offsetX, offsetY;
+      float layerOpacity;
       
-      direction = vec2(0.0, uBlurAmount);
-      color = blur13(uSampler, finalUV, uTextureSize, direction);
+      if (layer == 0) { // Front
+        rotationSpeed = uFrontRotationSpeed;
+        scale = 1.5;
+        offsetX = -0.15; // Right position
+        offsetY = -0.9;  // Bottom position
+        layerOpacity = 0.7;
+      } else if (layer == 1) { // Back
+        rotationSpeed = uBackRotationSpeed;
+        scale = 2.0;
+        offsetX = -0.7;  // Left position
+        offsetY = 0.0;   // Center position
+        layerOpacity = 0.75;
+      } else { // BackCenter
+        rotationSpeed = uBackCenterRotationSpeed;
+        scale = 1.05;
+        offsetX = -0.15; // Right position
+        offsetY = -0.3;  // Top position
+        layerOpacity = 0.95;
+      }
       
-      color = (blur1 + color) * 0.5;
-    } else {
-      color = texture2D(uSampler, finalUV);
+      float angle = uTime * (2.0 * 3.14159) / rotationSpeed;
+      float s = sin(angle);
+      float c = cos(angle);
+      
+      vec2 scaledCoord = (vTextureCoord - center) / scale;
+      vec2 offsetCoord = scaledCoord + vec2(offsetX, offsetY) / scale;
+      
+      vec2 rotatedCoord = vec2(
+        offsetCoord.x * c - offsetCoord.y * s,
+        offsetCoord.x * s + offsetCoord.y * c
+      );
+      
+      vec2 finalUV = rotatedCoord + center;
+      
+      // Apply circular mask
+      float dist = distance(vTextureCoord, center);
+      if (dist <= uRadius) {
+        vec4 layerColor = texture2D(uSampler, finalUV);
+        layerColor.a *= layerOpacity;
+        finalColor = mix(finalColor, layerColor, layerColor.a);
+      }
     }
     
-    // Apply brightness
-    color.rgb *= uBrightness;
+    // Apply pulse effect to final color
+    finalColor.rgb *= (1.0 + uPulseIntensity);
     
-    // Apply saturation
-    color.rgb = adjustSaturation(color.rgb, uSaturation);
-    
-    gl_FragColor = color;
+    gl_FragColor = finalColor;
   }
 `;
 
 // Container for all WebGL resources
+const MAX_WEBGL_CONTEXTS = 8;
+const activeContexts: Set<WebGLRenderingContext> = new Set();
+
 class WebGLRenderer {
   private gl: WebGLRenderingContext;
   private program: WebGLProgram;
@@ -147,16 +107,32 @@ class WebGLRenderer {
   private texture: WebGLTexture;
   private startTime: number;
   private animationFrameId: number | null = null;
-  private layer: number; // 0 = Front, 1 = Back, 2 = BackCenter
+  private pulseStartTime: number | null = null;
+  private pulseIntensity: number = 0;
+  private isPulsing: boolean = false;  // Add pulse lock
 
-  constructor(canvas: HTMLCanvasElement, layer: number) {
-    this.layer = layer;
+  constructor(canvas: HTMLCanvasElement) {
+    // Check if we need to clean up old contexts
+    if (activeContexts.size >= MAX_WEBGL_CONTEXTS) {
+      // Get the oldest context and clean it up
+      const oldestContext = activeContexts.values().next().value;
+      const canvas = oldestContext.canvas;
+      if (canvas && (canvas as any).__renderer) {
+        (canvas as any).__renderer.destroy();
+      }
+    }
+
     this.gl = canvas.getContext('webgl', { premultipliedAlpha: false }) as WebGLRenderingContext;
     
     if (!this.gl) {
       throw new Error("WebGL not supported");
     }
-    
+
+    activeContexts.add(this.gl);
+
+    // Set the viewport to match the canvas dimensions
+    this.gl.viewport(0, 0, canvas.width, canvas.height);
+
     // Initialize shaders
     const vertexShader = this.compileShader(vertexShaderSource, this.gl.VERTEX_SHADER);
     const fragmentShader = this.compileShader(fragmentShaderSource, this.gl.FRAGMENT_SHADER);
@@ -281,23 +257,29 @@ class WebGLRenderer {
       const uFrontRotationSpeedLocation = this.gl.getUniformLocation(this.program, 'uFrontRotationSpeed');
       const uBackRotationSpeedLocation = this.gl.getUniformLocation(this.program, 'uBackRotationSpeed');
       const uBackCenterRotationSpeedLocation = this.gl.getUniformLocation(this.program, 'uBackCenterRotationSpeed');
+      const uPulseIntensityLocation = this.gl.getUniformLocation(this.program, 'uPulseIntensity');
       
       // Calculate time in seconds
       const currentTime = (performance.now() - this.startTime) / 1000;
       
+      // Calculate pulse effect
+      let currentPulseIntensity = 0;
+      if (this.pulseStartTime) {
+        const pulseProgress = (performance.now() - this.pulseStartTime) / 300;
+        currentPulseIntensity = this.pulseIntensity * Math.sin(pulseProgress * Math.PI);
+      }
+      
       this.gl.uniform1f(uBlurAmountLocation, blurAmount);
       this.gl.uniform1f(uBrightnessLocation, brightness);
       this.gl.uniform1f(uSaturationLocation, saturation);
-      this.gl.uniform1f(uRadiusLocation, 0.5); // Circular mask with radius 0.5 (normalized)
+      // Set uRadius to 1.0 so that the full image is visible
+      this.gl.uniform1f(uRadiusLocation, 1.0);
       this.gl.uniform2f(uTextureSizeLocation, this.gl.canvas.width, this.gl.canvas.height);
       this.gl.uniform1f(uTimeLocation, currentTime);
       this.gl.uniform1f(uFrontRotationSpeedLocation, frontRotationSpeed);
       this.gl.uniform1f(uBackRotationSpeedLocation, backRotationSpeed);
       this.gl.uniform1f(uBackCenterRotationSpeedLocation, backCenterRotationSpeed);
-      
-      // Set layer uniform
-      const uLayerLocation = this.gl.getUniformLocation(this.program, 'uLayer');
-      this.gl.uniform1i(uLayerLocation, this.layer);
+      this.gl.uniform1f(uPulseIntensityLocation, currentPulseIntensity);
       
       // Set up the texture unit
       const samplerLocation = this.gl.getUniformLocation(this.program, 'uSampler');
@@ -323,10 +305,54 @@ class WebGLRenderer {
       this.animationFrameId = null;
     }
   }
-  
+
+  // Add destroy method to properly clean up WebGL resources
+  destroy(): void {
+    this.stopAnimation();
+
+    // Delete shaders and program
+    if (this.program) {
+      const shaders = this.gl.getAttachedShaders(this.program);
+      if (shaders) {
+        shaders.forEach(shader => {
+          this.gl.deleteShader(shader);
+        });
+      }
+      this.gl.deleteProgram(this.program);
+    }
+
+    // Delete buffers
+    if (this.positionBuffer) this.gl.deleteBuffer(this.positionBuffer);
+    if (this.textureCoordBuffer) this.gl.deleteBuffer(this.textureCoordBuffer);
+    
+    // Delete texture
+    if (this.texture) this.gl.deleteTexture(this.texture);
+
+    // Remove from active contexts
+    activeContexts.delete(this.gl);
+
+    // Lose context
+    const ext = this.gl.getExtension('WEBGL_lose_context');
+    if (ext) ext.loseContext();
+  }
+
   // Get the WebGL context
   getContext(): WebGLRenderingContext {
     return this.gl;
+  }
+
+  // Modify pulse method
+  pulse(duration: number = 300, intensity: number = 0.3) {
+    if (this.isPulsing) return;  // Skip if already pulsing
+    this.isPulsing = true;
+    this.pulseStartTime = performance.now();
+    this.pulseIntensity = intensity;
+    
+    setTimeout(() => {
+      this.pulseStartTime = null;
+      this.pulseIntensity = 0;
+      this.isPulsing = false;  // Reset lock after pulse
+    }, duration);
   }
 }
 
@@ -341,18 +367,18 @@ const ContainerParameters: Map<(CoverArtContainer | "Default"), {
 }> = new Map();
 
 ContainerParameters.set("Default", { 
-  blur: 2,
-  brightness: 0.64,
-  saturation: 2.5,
+  blur: 0,
+  brightness: 1,
+  saturation: 1,
   frontRotationSpeed: 65,
   backRotationSpeed: -66,
   backCenterRotationSpeed: 65
 });
 
 ContainerParameters.set("SidePanel", { 
-  blur: 2,
-  brightness: 0.6,
-  saturation: 2.25,
+  blur: 0,
+  brightness: 1,
+  saturation: 1,
   frontRotationSpeed: 65,
   backRotationSpeed: -66,
   backCenterRotationSpeed: 65
@@ -372,7 +398,7 @@ const GetCoverArtURL = (): string => {
                 undefined;
 };
 
-// Create a new layer canvas for the given parameters
+// Create a new canvas for the given parameters
 const createLayerCanvas = async (
   containerDiv: HTMLDivElement,
   coverArtURL: string,
@@ -384,12 +410,9 @@ const createLayerCanvas = async (
     backRotationSpeed: number,
     backCenterRotationSpeed: number
   },
-  layer: number, // 0 = Front, 1 = Back, 2 = BackCenter
-  className: string,
   width: number,
   height: number
 ): Promise<HTMLCanvasElement> => {
-  // Load the image
   const image = await new Promise<HTMLImageElement>((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
@@ -398,19 +421,15 @@ const createLayerCanvas = async (
     img.src = coverArtURL;
   });
   
-  // Create a canvas
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
-  canvas.className = className;
+  canvas.className = 'combined-bg';
   
-  // Create WebGL renderer
-  const renderer = new WebGLRenderer(canvas, layer);
+  const renderer = new WebGLRenderer(canvas);
   
-  // Store renderer in canvas for cleanup later
   (canvas as any).__renderer = renderer;
   
-  // Process the image
   renderer.processImage(
     image, 
     params.blur, 
@@ -421,7 +440,6 @@ const createLayerCanvas = async (
     params.backCenterRotationSpeed
   );
   
-  // Add canvas to container
   containerDiv.appendChild(canvas);
   
   return canvas;
@@ -434,21 +452,49 @@ export const CreateDynamicBackground = (
   height: number
 ): Promise<HTMLDivElement> => {
   return new Promise((resolve, reject) => {
-    // Use Whentil to wait for a valid cover art URL
+    let retryCount = 0;
+    const maxRetries = 15;
+    let retryTimeout: number | null = null;
+    let checkInterval: number | null = null;
+
+    const performCheck = () => {
+      const url = GetCoverArtURL();
+      if (url && url.length > 0) {
+        if (checkInterval) clearInterval(checkInterval);
+        if (retryTimeout) clearTimeout(retryTimeout);
+        return url;
+      }
+      
+      if (retryCount >= maxRetries) {
+        if (checkInterval) clearInterval(checkInterval);
+        return null;
+      }
+      
+      retryCount++;
+      return null;
+    };
+
+    // Use Whentil with synchronous URL checker
     const task = Whentil.When(
-      () => {
-        const url = GetCoverArtURL();
-        return url && url.length > 0 ? url : null;
-      }, 
-      async (url) => {
+      performCheck,
+      async (url: string) => {
         try {
+          if (retryTimeout) {
+            clearTimeout(retryTimeout);
+            retryTimeout = null;
+          }
+          if (checkInterval) {
+            clearInterval(checkInterval);
+            checkInterval = null;
+          }
+          
           // Check if we already have a container for this URL
           const existingContainer = ProcessedContainers.get(url)?.get(coverArtContainer);
           if (existingContainer) {
             resolve(existingContainer);
             return;
           }
-          
+
           // Create a container div
           const containerDiv = document.createElement('div');
           containerDiv.className = 'spicy-dynamic-bg';
@@ -457,12 +503,8 @@ export const CreateDynamicBackground = (
           const params = ContainerParameters.get(coverArtContainer) ?? ContainerParameters.get("Default");
           
           try {
-            // Create each layer canvas
-            await Promise.all([
-              createLayerCanvas(containerDiv, url, params, 0, 'Front', width, height),
-              createLayerCanvas(containerDiv, url, params, 1, 'Back', width, height),
-              createLayerCanvas(containerDiv, url, params, 2, 'BackCenter', width, height)
-            ]);
+            // Create the canvas
+            await createLayerCanvas(containerDiv, url, params, width, height);
             
             // Store the container for reuse
             let storage = ProcessedContainers.get(url);
@@ -489,22 +531,100 @@ export const CreateDynamicBackground = (
         }
       }
     );
+
+    // Set up interval to check for URL
+    checkInterval = setInterval(performCheck, 500);
     
     // Add a timeout to reject the promise if it takes too long
     setTimeout(() => {
+      if (retryTimeout) clearTimeout(retryTimeout);
+      if (checkInterval) clearInterval(checkInterval);
       task.Cancel();
       reject(new Error("Timed out waiting for cover art URL"));
-    }, 10000); // 10 seconds timeout
+    }, 10000);
   });
 };
 
 // Clean up resources when a container is no longer needed
 export const CleanupContainer = (container: HTMLDivElement): void => {
-  // Find all canvases in the container
   const canvases = container.querySelectorAll('canvas');
   canvases.forEach(canvas => {
     if ((canvas as any).__renderer) {
-      (canvas as any).__renderer.stopAnimation();
+      (canvas as any).__renderer.destroy();
+      delete (canvas as any).__renderer;
     }
   });
+  container.remove();
 };
+
+// Modify the global pulse function
+export const PulseBg = () => {
+  // Only pulse the first active context we find
+  const firstContext = activeContexts.values().next().value;
+  if (firstContext && firstContext.canvas && (firstContext.canvas as any).__renderer) {
+    (firstContext.canvas as any).__renderer.pulse();
+  }
+};
+
+// Define Beat type
+type Beat = {
+    start: number;
+    duration: number;
+    confidence: number;
+};
+
+let currentBeats: Beat[] = [];
+let beatCheckInterval: number | null = null;
+
+export const PulseOnBeat = (beats: Beat[]) => {
+    // Clear any existing beat check interval
+    if (beatCheckInterval !== null) {
+        clearInterval(beatCheckInterval);
+    }
+
+    // Store beats array
+    currentBeats = beats;
+
+    // Start checking for beats every 10ms
+    beatCheckInterval = setInterval(() => {
+        // Check if player is actually playing
+        if (!SpotifyPlayer.IsPlaying) {
+            return;
+        }
+
+        const currentPosition = SpotifyPlayer.GetTrackPosition() / 1000; // Convert to seconds
+        
+        // Find if we're on a beat
+        const currentBeat = currentBeats.find(beat => {
+            const beatEnd = beat.start + beat.duration;
+            return currentPosition >= beat.start && currentPosition < beatEnd;
+        });
+
+        // If we found a beat and it has good confidence, pulse
+        if (currentBeat && currentBeat.confidence > 0.5) {
+            // Scale pulse intensity by beat confidence
+            const intensity = currentBeat.confidence * 0.4; // Max intensity of 0.4
+            
+            // Only pulse the first active context we find
+            const firstContext = activeContexts.values().next().value;
+            if (firstContext && firstContext.canvas && (firstContext.canvas as any).__renderer) {
+                (firstContext.canvas as any).__renderer.pulse(currentBeat.duration * 1000, intensity);
+            }
+        }
+    }, 10);
+};
+
+// Add cleanup function for when stopping beat pulses
+export const StopPulseOnBeat = () => {
+    if (beatCheckInterval !== null) {
+        clearInterval(beatCheckInterval);
+        beatCheckInterval = null;
+    }
+    currentBeats = [];
+};
+
+Global.SetScope("dynamicbg.pulses", {
+    PulseBg,
+    PulseOnBeat,
+    StopPulseOnBeat,
+});

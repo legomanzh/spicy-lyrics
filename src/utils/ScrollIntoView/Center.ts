@@ -5,6 +5,7 @@ export default function ScrollIntoCenterView(
   element: HTMLElement,
   duration: number = 150, // Duration in milliseconds
   offset: number = 0, // Offset in pixels, defaults to 0
+  instantScroll: boolean = false, // Instant scroll without animation
 ) {
   function resetContainerData(container: HTMLElement) {
     containerRects.delete(container);
@@ -54,6 +55,10 @@ export default function ScrollIntoCenterView(
   const distance = targetScrollTop - startScrollTop;
   const startTime = performance.now();
 
+  if (instantScroll) {
+    container.classList.add("InstantScroll");
+  }
+
   function smoothScroll(currentTime: number) {
     const elapsedTime = currentTime - startTime;
     const progress = Math.min(elapsedTime / duration, 1); // Progress between 0 and 1
@@ -66,14 +71,19 @@ export default function ScrollIntoCenterView(
 
     if (progress < 1) {
       requestAnimationFrame(smoothScroll);
+    } else if (instantScroll) {
+      container.classList.remove("InstantScroll");
     }
   }
 
   requestAnimationFrame(smoothScroll);
 
-  // Cleanup observers when done (optional, depending on lifecycle requirements)
+  // Cleanup observers when scrolling is done
   setTimeout(() => {
     observer.disconnect();
     resizeObserver.disconnect();
+    if (instantScroll && container.classList.contains("InstantScroll")) {
+      container.classList.remove("InstantScroll");
+    }
   }, duration);
 }
