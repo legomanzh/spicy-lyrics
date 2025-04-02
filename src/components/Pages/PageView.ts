@@ -17,10 +17,8 @@ import Global from "../Global/Global";
 
 export const Tooltips = {
     Close: null,
-    Kofi: null,
     NowBarToggle: null,
-    FullscreenToggle: null,
-    LyricsToggle: null
+    FullscreenToggle: null
 }
 
 const PageView = {
@@ -237,6 +235,12 @@ function AppendViewControls(ReAppend: boolean = false) {
     }
 }
 
+interface SpicyLyricsNotificationReturnObject {
+    cleanup: Function;
+    close: Function;
+    open: Function;
+};
+
 const showTopbarNotifications = storage.get("show_topbar_notifications") === "true";
 
 export function SpicyLyrics_Notification({
@@ -255,7 +259,7 @@ export function SpicyLyrics_Notification({
     };
     type?: "Danger" | "Information" | "Success" | "Warning";
     closeBtn?: boolean;
-}) {
+}): SpicyLyricsNotificationReturnObject {
     const nonFunctionalReturnObject = {
         cleanup: () => {},
         close: () => {},

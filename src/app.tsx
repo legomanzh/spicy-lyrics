@@ -73,6 +73,13 @@ async function main() {
       document.querySelector("html").style.setProperty("--SpicyLyrics-LineSpacing", "2cqw 0");
     }
   }
+
+  const lowQMode = storage.get("lowQMode");
+  const lowQModeEnabled = lowQMode && lowQMode === "true";
+
+  if (lowQModeEnabled) {
+    document.body.classList.add("SpicyLyrics_LowQMode")
+  }
   
   PostHog.Load();
 
@@ -172,7 +179,7 @@ async function main() {
   })
 
   const Hometinue = async () => {
-    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.5.9";
+    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.5.95";
     await Sockets.all.ConnectSockets();
 
     // Because somethimes the "syncedPositon" was unavailable, I'm putting this check here that checks if the Spicetify?.Platform?.PlaybackAPI is available (which is then used in SpotifyPlayer.GetTrackPosition())
@@ -206,9 +213,6 @@ async function main() {
         const cover = event.data.item.metadata.image_url;
         applyDynamicBackgroundToNowPlayingBar(cover)
     }); */
-
-    const lowQMode = storage.get("lowQMode");
-    const lowQModeEnabled = lowQMode && lowQMode === "true";
 
     function applyDynamicBackgroundToNowPlayingBar(coverUrl: string) {
       if (lowQModeEnabled) return;
@@ -534,30 +538,5 @@ async function main() {
   }, 0) */
 
 }
-
-/* 
-
-// Add this into the code after build.
-
-let ImporterMaid;
-
-// ... code ...
-
-ImporterMaid = new Maid(); // Do this when you find atleast one maid in the compiled code after it.
-
-// ... code ...
-
-export const UpdateNotice = {
-	Type: "Notification",
-	Name: "Spicy Lyrics"
-}
-
-export { ImporterMaid }
-
-And then Minimize it.
-
-(Reccomened: https://codebeautify.org/minify-js)
-
-*/
 
 export default main;

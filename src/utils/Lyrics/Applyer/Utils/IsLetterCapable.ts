@@ -5,7 +5,7 @@ export function IsLetterCapable(letterLength, totalDuration) {
     }
 
     // Calculate the minimum duration based on the letter length
-    const minDuration = 1500 + ((letterLength - 1) / 1) * 25; // Increases duration as letter length increases
+    const minDuration = 1050 + ((letterLength - 1) / 1) * 25; // Increases duration as letter length increases
     
     // Return whether the letter length and duration meet the criteria
     return totalDuration >= minDuration;

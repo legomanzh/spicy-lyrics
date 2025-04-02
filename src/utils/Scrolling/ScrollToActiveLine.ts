@@ -7,14 +7,13 @@ import SimpleBar from 'simplebar';
 let lastLine = null;
 
 export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
-    if (!SpotifyPlayer.IsPlaying) return;
     if (!Defaults.LyricsContainerExists) return;
 
     if (Spicetify.Platform.History.location.pathname === "/SpicyLyrics") {
 
         const Lines = LyricsObject.Types[Defaults.CurrentLyricsType]?.Lines;
         const Position = SpotifyPlayer.GetTrackPosition();
-        const PositionOffset = 370;
+        const PositionOffset = 100;
         const ProcessedPosition = Position + PositionOffset;
 
         if (!Lines) return;
@@ -39,9 +38,14 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
                 const container = ScrollSimplebar?.getScrollElement() as HTMLElement;
                 if (!container) return;
                 if (lastLine && lastLine === LineElem) return;
+                const didLastLineExist = lastLine !== null;
                 lastLine = LineElem
-                setTimeout(() => LineElem.classList.add("Active", "OverridenByScroller"), PositionOffset / 2)
-                ScrollIntoCenterView(container, LineElem, 270, -50); // Scroll Into View with a 300ms Animation
+                setTimeout(() => LineElem.classList.add("Active", "OverridenByScroller"), PositionOffset / 2);
+                if (didLastLineExist) {
+                    ScrollIntoCenterView(container, LineElem, 0, -50); // Scroll Into View with a 0ms Animation
+                } else {
+                    ScrollIntoCenterView(container, LineElem, 0, -50, true); // Scroll Into View with a 0ms Animation
+                }
             }
         }
     }

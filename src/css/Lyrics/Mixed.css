@@ -100,9 +100,9 @@
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line .letterGroup {
   display: inline-block;
 
-  --DefaultTransitionDuration: var(--content-duration, 0.15s);
+  --DefaultTransitionDuration: 0.35s;
   --TransitionDuration: var(--DefaultTransitionDuration);
-  --TransitionDefinition: all var(--TransitionDuration) cubic-bezier(0.61, 1, 0.88, 1);
+  --TransitionDefinition: text-shadow var(--TransitionDuration) cubic-bezier(0.61, 1, 0.88, 1), scale var(--TransitionDuration) cubic-bezier(0.61, 1, 0.88, 1), transform var(--TransitionDuration) cubic-bezier(0.61, 1, 0.88, 1);
 }
 
 /* #SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line .word {
@@ -360,14 +360,14 @@
 #SpicyLyricsPage .LyricsContainer .LyricsContent .Credits {
   --font-size: calc(var(--DefaultLyricsSize)*0.47);
   font-size: var(--font-size);
-  opacity: 0.65;
+  opacity: 0.75;
   margin-top: 5cqh !important;
   scale: 1;
-  transition: opacity 0.8s ease-in-out;
+  transition: color 0.5s ease-in-out;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .Credits.Active {
-  opacity: 1;
+  color: white;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent[data-lyrics-type="Line"] .line {

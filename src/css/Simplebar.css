@@ -236,3 +236,11 @@
 #SpicyLyricsPage .ScrollbarScrollable.hide-scrollbar .simplebar-track {
   opacity: 0;
 }
+
+#SpicyLyricsPage [data-simplebar]:not(.simplebar-dragging) .simplebar-content-wrapper {
+	scroll-behavior: smooth;
+}
+
+#SpicyLyricsPage [data-simplebar]:not(.simplebar-dragging) .simplebar-content-wrapper.InstantScroll {
+	scroll-behavior: auto;
+}

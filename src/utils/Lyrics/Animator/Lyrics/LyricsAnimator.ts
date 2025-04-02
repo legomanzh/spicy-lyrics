@@ -16,7 +16,7 @@ export function Animate(position) {
 
   if (!CurrentLyricsType || CurrentLyricsType === "None") return;
 
-  const Credits = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent .Credits");
+  const Credits = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent .Credits") ?? undefined;
 
   const applyBlur = (arr, activeIndex, BlurMultiplier) => {
       for (let i = activeIndex + 1; i < arr.length; i++) {
@@ -105,7 +105,7 @@ export function Animate(position) {
 
                     // Dynamic calculations based on percentage
                     const blurRadius = 4 + (16 - 4) * percentage; // From 4px to 16px
-                    const textShadowOpacity = calculateOpacity(percentage, word) * 0.4; // From 0% to 100%
+                    const textShadowOpacity = calculateOpacity(percentage, word) * 0.42; // From 0% to 100%
                     const translateY = 0.01 + (-0.038 - 0.01) * percentage;
                     const scale = IdleLyricsScale + (1.017 - IdleLyricsScale) * percentage; // From IdleLyricsScale to 1.025
                     const gradientPosition = percentage * 100; // Gradient position based on percentage
@@ -113,7 +113,7 @@ export function Animate(position) {
                     // Apply styles dynamically
                     if (isLetterGroup) {
                       const emphasisBlurRadius = 6 + (18 - 6) * percentage; // From 8px to 24px 
-                      const emphasisTranslateY = 0.02 + (-0.065 - 0.02) * percentage; // From -0.005 to -0.2. (multiplied by var(--DefaultLyricsSize))
+                      const emphasisTranslateY = 0.02 + (-0.14 - 0.02) * percentage; // From -0.005 to -0.2. (multiplied by var(--DefaultLyricsSize))
                       const emphasisScale = IdleEmphasisLyricsScale + (1.023 - IdleEmphasisLyricsScale) * percentage; // From IdleLyricsScale to 1.025
                       const emphasisTextShadowOpacity = calculateOpacity(percentage, word) * 5; // From 0% to 100%
                       for (let k = 0; k < word.Letters.length; k++) {
@@ -136,7 +136,7 @@ export function Animate(position) {
 
                           const letterGradientPosition = `${percentage * 100}%`; // Gradient position based on percentage
                           //letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${emphasisTranslateY * 1.5}))`;
-                          letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${translateY}))`;
+                          letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${emphasisTranslateY}))`;
                           letter.HTMLElement.style.scale = `${emphasisScale * 1.04}`;
                           letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${emphasisBlurRadius}px`);
                           letter.HTMLElement.style.setProperty("--text-shadow-opacity", `${emphasisTextShadowOpacity}%`);
@@ -167,24 +167,24 @@ export function Animate(position) {
                             const totalDuration = NextLetter.EndTime - NextLetter.StartTime;
                             const elapsedDuration = edtrackpos - NextLetter.StartTime;
                             const percentage = Math.max(0, Math.min(elapsedDuration / totalDuration, 1)); // Clamp percentage between 0 and 1
-                            const translateY = 0.02 + (-0.065 - 0.02) * percentage;
+                            const translateY = 0.02 + (-0.14 - 0.02) * percentage;
                            /*  letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.8)}))`; */
 
                             if (NextLetter.Status === "Active") {
-                              letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.8)}))`;
-                              letter.HTMLElement.style.setProperty("--text-shadow-opacity", `${(percentage * 100) * 0.85}%`);
+                              letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.2)}))`;
+                              letter.HTMLElement.style.setProperty("--text-shadow-opacity", `${(percentage * 100) * 0.5}%`);
                             } else {
                               //letter.HTMLElement.style.setProperty("--text-shadow-opacity", `40%`);
                               if (letter.HTMLElement.style.getPropertyValue("transform") !== "translateY(calc(var(--DefaultLyricsSize) * 0))") {
                                 letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
                               }
                             }
-                            if (letter.HTMLElement.style.getPropertyValue("--text-shadow-opacity") !== "50%") {
-                              letter.HTMLElement.style.setProperty("--text-shadow-opacity", `50%`);
+                            if (letter.HTMLElement.style.getPropertyValue("--text-shadow-opacity") !== "10%") {
+                              letter.HTMLElement.style.setProperty("--text-shadow-opacity", `10%`);
                             }
                           } else {
-                            if (letter.HTMLElement.style.getPropertyValue("--text-shadow-opacity") !== "50%") {
-                              letter.HTMLElement.style.setProperty("--text-shadow-opacity", `50%`);
+                            if (letter.HTMLElement.style.getPropertyValue("--text-shadow-opacity") !== "10%") {
+                              letter.HTMLElement.style.setProperty("--text-shadow-opacity", `10%`);
                             }
                             if (letter.HTMLElement.style.getPropertyValue("transform") !== "translateY(calc(var(--DefaultLyricsSize) * 0))") {
                               letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
@@ -200,13 +200,14 @@ export function Animate(position) {
                           }
                         }
                       }
+                      const emphasisGroupScale = IdleEmphasisLyricsScale + (1 - IdleEmphasisLyricsScale) * percentage; // From IdleLyricsScale to 1.025
 
-                      if (word.HTMLElement.style.getPropertyValue("scale") !== `${emphasisScale}`) {
-                        word.HTMLElement.style.scale = `${emphasisScale}`;
+                      if (word.HTMLElement.style.getPropertyValue("scale") !== `${emphasisGroupScale}`) {
+                        word.HTMLElement.style.scale = `${emphasisGroupScale}`;
                       }
                       
-                      if (word.HTMLElement.style.getPropertyValue("transform") !== `translateY(calc(var(--DefaultLyricsSize) * ${emphasisTranslateY}))`) {
-                        word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${emphasisTranslateY}))`;
+                      if (word.HTMLElement.style.getPropertyValue("transform") !== `translateY(calc(var(--DefaultLyricsSize) * 0))`) {
+                        word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
                       }
                       word.scale = emphasisScale;
                       word.glow = 0;
@@ -438,7 +439,7 @@ export function Animate(position) {
                         const progress_glow = Math.min(elapsed_glow / duration_glow, 1); // Normalize progress [0, 1]
                     
                         // Define target values
-                        const targetTranslateY = 0.0005; // Final translateY is 0
+                        const targetTranslateY = 0; // Final translateY is 0
                         const targetScale = 1; // Final scale is 1
                         const targetGlow = 0; // Final glow is 0
 
@@ -481,7 +482,7 @@ export function Animate(position) {
                     }
                 }
               }
-              if (Credits) {
+              if (Credits && Credits.classList.contains("Active")) {
                 Credits.classList.remove("Active");
               }
           } else if (line.Status === "NotSung") {
@@ -495,7 +496,7 @@ export function Animate(position) {
               line.HTMLElement.classList.add("Sung");
               line.HTMLElement.classList.remove("Active", "NotSung");
               if (arr.length === index + 1) {
-                if (Credits) {
+                if (Credits && !Credits.classList.contains("Active")) {
                   Credits.classList.add("Active");
                 }
               }
@@ -586,7 +587,9 @@ export function Animate(position) {
               } else {
                 line.HTMLElement.style.setProperty("--gradient-position", `${percentage * 100}%`);
               }
-
+              if (Credits && Credits.classList.contains("Active")) {
+                Credits.classList.remove("Active");
+              }
           } else if (line.Status === "NotSung") {
               if (!line.HTMLElement.classList.contains("NotSung")) {
                   line.HTMLElement.classList.add("NotSung");
@@ -602,6 +605,11 @@ export function Animate(position) {
               }
               line.HTMLElement.classList.remove("Active", "NotSung");
               line.HTMLElement.style.setProperty("--gradient-position", `100%`);
+              if (arr.length === index + 1) {
+                if (Credits && !Credits.classList.contains("Active")) {
+                  Credits.classList.add("Active");
+                }
+              }
           }
       }
   }
