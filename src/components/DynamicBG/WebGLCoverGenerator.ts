@@ -34,7 +34,7 @@ const fragmentShaderSource = `
   uniform float uFrontRotationSpeed;
   uniform float uBackRotationSpeed;
   uniform float uBackCenterRotationSpeed;
-  uniform float uPulseIntensity;  // Add new uniform for pulse effect
+  uniform float uPulseIntensity;
   
   void main(void) {
     vec2 center = vec2(0.5, 0.5);
@@ -44,25 +44,29 @@ const fragmentShaderSource = `
     for(int layer = 0; layer < 3; layer++) {
       float rotationSpeed, scale, offsetX, offsetY;
       float layerOpacity;
+      float layerRadius;  // Add radius control per layer
       
       if (layer == 0) { // Front
         rotationSpeed = uFrontRotationSpeed;
-        scale = 1.5;
-        offsetX = -0.15; // Right position
-        offsetY = -0.9;  // Bottom position
-        layerOpacity = 0.7;
+        scale = 1.35;
+        offsetX = -0.17;
+        offsetY = 0.3;
+        layerOpacity = 1.0;
+        layerRadius = 0.5;  // 50% of the normalized space
       } else if (layer == 1) { // Back
         rotationSpeed = uBackRotationSpeed;
-        scale = 2.0;
-        offsetX = -0.7;  // Left position
-        offsetY = 0.0;   // Center position
-        layerOpacity = 0.75;
+        scale = 1.25;
+        offsetX = -0.5;
+        offsetY = -0.3;
+        layerOpacity = 1.0;
+        layerRadius = 0.5;
       } else { // BackCenter
         rotationSpeed = uBackCenterRotationSpeed;
-        scale = 1.05;
-        offsetX = -0.15; // Right position
-        offsetY = -0.3;  // Top position
-        layerOpacity = 0.95;
+        scale = 1.21;
+        offsetX = 0.5;
+        offsetY = -0.1;
+        layerOpacity = 1.0;
+        layerRadius = 0.5;
       }
       
       float angle = uTime * (2.0 * 3.14159) / rotationSpeed;
@@ -79,11 +83,17 @@ const fragmentShaderSource = `
       
       vec2 finalUV = rotatedCoord + center;
       
-      // Apply circular mask
+      // Apply circular mask for both the layer and the overall shape
       float dist = distance(vTextureCoord, center);
-      if (dist <= uRadius) {
+      float layerDist = distance(finalUV, center);
+      
+      if (dist <= uRadius && layerDist <= layerRadius) {
         vec4 layerColor = texture2D(uSampler, finalUV);
-        layerColor.a *= layerOpacity;
+        
+        // Smooth the edge of the circle
+        float smoothEdge = smoothstep(layerRadius, layerRadius - 0.01, layerDist);
+        layerColor.a *= layerOpacity * smoothEdge;
+        
         finalColor = mix(finalColor, layerColor, layerColor.a);
       }
     }
@@ -368,8 +378,8 @@ const ContainerParameters: Map<(CoverArtContainer | "Default"), {
 
 ContainerParameters.set("Default", { 
   blur: 0,
-  brightness: 1,
-  saturation: 1,
+  brightness: 0.4,
+  saturation: 2.5,
   frontRotationSpeed: 65,
   backRotationSpeed: -66,
   backCenterRotationSpeed: 65
@@ -377,8 +387,8 @@ ContainerParameters.set("Default", {
 
 ContainerParameters.set("SidePanel", { 
   blur: 0,
-  brightness: 1,
-  saturation: 1,
+  brightness: 0.4,
+  saturation: 2.5,
   frontRotationSpeed: 65,
   backRotationSpeed: -66,
   backCenterRotationSpeed: 65
