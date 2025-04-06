@@ -29,13 +29,13 @@ const PageView = {
 };
 
 export const PageRoot = document.querySelector<HTMLElement>('.Root__main-view .main-view-container div[data-overlayscrollbars-viewport]');
-let isWsConnected = true;
+/* let isWsConnected = true;
 
 Global.Event.listen("sockets:ws:connection-status-change", (e) => {
     isWsConnected = e.connected;
     SocketStatusChange(e.connected);
 })
-
+ */
 function OpenPage() {
     if (PageView.IsOpened) return;
     const elem = document.createElement("div");
@@ -126,7 +126,7 @@ function OpenPage() {
 
     AppendViewControls();
     PageView.IsOpened = true;
-    SocketStatusChange(isWsConnected);
+    // SocketStatusChange(isWsConnected);
 }
 
 function DestroyPage() {
@@ -147,10 +147,10 @@ function AppendViewControls(ReAppend: boolean = false) {
     if (!elem) return;
     if (ReAppend) elem.innerHTML = "";
     elem.innerHTML = `
-        <button id="Close" class="ViewControl">${Icons.Close}</button>
         <button id="NowBarToggle" class="ViewControl">${Icons.NowBar}</button>
-        <button id="FullscreenToggle" class="ViewControl">${Fullscreen.IsOpen ? Icons.CloseFullscreen : Icons.Fullscreen}</button>
-    `
+        <button id="Close" class="ViewControl">${Icons.Close}</button>
+        ${Fullscreen.IsOpen ? `<button id="FullscreenToggle" class="ViewControl">${Icons.CloseFullscreen}</button>` : ""}
+    ` // <button id="FullscreenToggle" class="ViewControl">${Fullscreen.IsOpen ? Icons.CloseFullscreen : Icons.Fullscreen}</button>
 
     if (Fullscreen.IsOpen) {
         TransferElement(elem, document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaContent"));
@@ -216,21 +216,24 @@ function AppendViewControls(ReAppend: boolean = false) {
                 () => ToggleNowBar()
             )
 
-            // Fullscreen Button
-            const fullscreenBtn = elem.querySelector("#FullscreenToggle");
+            {
+                if (!Fullscreen.IsOpen) return;
+                // Fullscreen Button
+                const fullscreenBtn = elem.querySelector("#FullscreenToggle");
 
-            Tooltips.FullscreenToggle = Spicetify.Tippy(
-                fullscreenBtn,
-                {
-                    ...Spicetify.TippyProps,
-                    content: `Fullscreen Mode`
-                }
-            )
+                Tooltips.FullscreenToggle = Spicetify.Tippy(
+                    fullscreenBtn,
+                    {
+                        ...Spicetify.TippyProps,
+                        content: `Leave Fullscreen`
+                    }
+                )
 
-            fullscreenBtn.addEventListener(
-                "click",
-                () => Fullscreen.Toggle()
-            )
+                fullscreenBtn.addEventListener(
+                    "click",
+                    () => Fullscreen.Toggle()
+                )
+            }
         }
     }
 }
@@ -341,7 +344,7 @@ export function SpicyLyrics_Notification({
     }
 }
 
-function SocketStatusChange(status: boolean) {
+/* function SocketStatusChange(status: boolean) {
     if (!PageView.IsOpened) return;
     if (!document.querySelector("#SpicyLyricsPage")) return;
     const notif = SpicyLyrics_Notification({
@@ -361,6 +364,6 @@ function SocketStatusChange(status: boolean) {
     }
 }
 
-SocketStatusChange(isWsConnected);
+SocketStatusChange(isWsConnected); */
 
 export default PageView;

@@ -63,12 +63,12 @@ function ApplyMarquee(baseWidth, elementWidth, name) {
     };
 } */
 
-function OpenNowBar() {
+function OpenNowBar(skipSaving: boolean = false) {
     const NowBar = document.querySelector("#SpicyLyricsPage .ContentBox .NowBar");
     if (!NowBar) return;
     UpdateNowBar(true);
     NowBar.classList.add("Active");
-    storage.set("IsNowBarOpen", "true");
+    if (!skipSaving) storage.set("IsNowBarOpen", "true");
 
     if (Fullscreen.IsOpen) {
         const MediaBox = document.querySelector(
@@ -175,11 +175,7 @@ function OpenNowBar() {
 
                 // Create named handlers for click events
                 const playPauseHandler = () => {
-                    if (SpotifyPlayer.IsPlaying) {
-                        SpotifyPlayer.Pause();
-                    } else {
-                        SpotifyPlayer.Play();
-                    }
+                    SpotifyPlayer.TogglePlayState();
                 };
 
                 const prevTrackHandler = () => {
@@ -610,7 +606,7 @@ function UpdateNowBar(force = false) {
     SongName.classList.add("Skeletoned");
     
     const IsNowBarOpen = storage.get("IsNowBarOpen");
-    if (IsNowBarOpen == "false" && !force) return;
+    if (IsNowBarOpen === "false" && !force) return;
 
     SpotifyPlayer.Artwork.Get("xl").then((artwork) => {
         /* BlobURLMaker(`https://i.scdn.co/image/${artwork.replace("spotify:image:", "")}`).then(

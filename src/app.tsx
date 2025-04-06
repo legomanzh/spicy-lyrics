@@ -4,7 +4,7 @@ import storage from "./utils/storage";
 import { setSettingsMenu } from "./utils/settings";
 import PageView from "./components/Pages/PageView";
 import { Icons } from "./components/Styling/Icons";
-import ApplyDynamicBackground, { LowQMode_SetDynamicBackground } from "./components/DynamicBG/dynamicBackground";
+import ApplyDynamicBackground, { GetBlurredCoverArt, LowQMode_SetDynamicBackground, updateContainerDimensions } from "./components/DynamicBG/dynamicBackground";
 import LoadFonts from "./components/Styling/Fonts";
 import { IntervalManager } from "./utils/IntervalManager";
 import { SpotifyPlayer } from "./components/Global/SpotifyPlayer";
@@ -27,15 +27,25 @@ import "./css/Lyrics/Mixed.css"
 import "./css/Loaders/LoaderContainer.css"
 import Global from "./components/Global/Global";
 import Platform from "./components/Global/Platform";
-import PostHog from "./utils/PostHog";
 import Whentil from "./utils/Whentil";
 import Session from "./components/Global/Session";
 import Defaults from "./components/Global/Defaults";
 import { CheckForUpdates } from "./utils/version/CheckForUpdates";
 import sleep from "./utils/sleep";
 import Sockets from "./utils/Sockets/main";
-import { CleanupContainer, CreateDynamicBackground } from "./components/DynamicBG/WebGLCoverGenerator";
+import * as THREE from "three"
+import { GetShaderUniforms, VertexShader, FragmentShader, ShaderUniforms } from "./components/DynamicBG/ThreeShaders";
+import Fullscreen from "./components/Utils/Fullscreen";
+import { Defer } from "@spikerko/web-modules/Scheduler";
 import Animator from "./utils/Animator";
+
+// Add custom type for our container element
+interface DynamicBGContainer extends HTMLElement {
+    renderer: THREE.WebGLRenderer;
+    scene: THREE.Scene;
+    uniforms: ShaderUniforms;
+    animationFrame?: number;
+}
 
 async function main() {
   await Platform.OnSpotifyReady;
@@ -80,8 +90,6 @@ async function main() {
   if (lowQModeEnabled) {
     document.body.classList.add("SpicyLyrics_LowQMode")
   }
-  
-  PostHog.Load();
 
   // Lets set out the Settings Menu
   setSettingsMenu();
@@ -151,9 +159,50 @@ async function main() {
         </style>
   `
   document.head.appendChild(skeletonStyle);
-  
 
-  let buttonRegistered = false;
+  const ButtonList = [
+    {
+      Registered: false,
+      Button: new Spicetify.Playbar.Button(
+        "Spicy Lyrics",
+        Icons.LyricsPage,
+        (self) => {
+            if (!self.active) {
+              Session.Navigate({ pathname: "/SpicyLyrics" });
+              //self.active = true;
+            } else {
+              Session.GoBack();
+              //self.active = false;
+            }
+        },
+        false, // Whether the button is disabled.
+        false, // Whether the button is active.
+      )
+    },
+    {
+      Registered: false,
+      Button: new Spicetify.Playbar.Button(
+        "Enter Fullscreen",
+        Icons.Fullscreen,
+        (self) => {
+            if (!self.active) {
+              Session.Navigate({ pathname: "/SpicyLyrics" });
+              Whentil.When(() => document.querySelector<HTMLElement>(".Root__main-view #SpicyLyricsPage"), () => {
+                Fullscreen.Open();
+              })
+              //self.active = true;
+            } else {
+              Session.GoBack();
+              //self.active = false;
+            }
+        },
+        false, // Whether the button is disabled.
+        false, // Whether the button is active.
+      )
+    }
+  ]
+
+  /* let buttonRegistered = false;
 
   const button = new Spicetify.Playbar.Button(
     "Spicy Lyrics",
@@ -169,17 +218,43 @@ async function main() {
     },
     false, // Whether the button is disabled.
     false, // Whether the button is active.
-  );
-
+  ); */
   Global.Event.listen("pagecontainer:available", () => {
-    if (!buttonRegistered) {
-      button.register();
-      buttonRegistered = true;
+    for (const button of ButtonList) {
+      if (!button.Registered) {
+        button.Button.register();
+        button.Registered = true;
+      }
     }
   })
 
+  {
+    const fullscreenButton = ButtonList[1].Button;
+    fullscreenButton.element.style.order = "100000"
+		fullscreenButton.element.id = "SpicyLyrics_FullscreenButton"
+
+    const SearchDOMForFullscreenButtons = () => {
+			const controlsContainer = document.querySelector<HTMLButtonElement>(".main-nowPlayingBar-extraControls")
+			if (controlsContainer === null) {
+				Defer(SearchDOMForFullscreenButtons)
+			} else {
+				for (const element of controlsContainer.children) {
+					if (
+						(element.attributes.getNamedItem("data-testid")?.value === "fullscreen-mode-button")
+						&& (element.id !== "SpicyLyrics_FullscreenButton")
+					) {
+						(element as HTMLElement).style.display = "none"
+					}
+				}
+			}
+		}
+		SearchDOMForFullscreenButtons()
+  }
+
+  const button = ButtonList[0];
+
   const Hometinue = async () => {
-    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.6.1";
+    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.6.2";
     await Sockets.all.ConnectSockets();
 
     // Because somethimes the "syncedPositon" was unavailable, I'm putting this check here that checks if the Spicetify?.Platform?.PlaybackAPI is available (which is then used in SpotifyPlayer.GetTrackPosition())
@@ -209,11 +284,10 @@ async function main() {
     // Lets set out Dynamic Background (spicy-dynamic-bg) to the now playing bar
     let lastImgUrl;
 
-    /* Spicetify.Player.addEventListener("songchange", (event) => {
-        const cover = event.data.item.metadata.image_url;
-        applyDynamicBackgroundToNowPlayingBar(cover)
-    }); */
-
+    // Setup static THREE.js objects
+    const RenderCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+    RenderCamera.position.z = 1;
+    const MeshGeometry = new THREE.PlaneGeometry(2, 2);
     function applyDynamicBackgroundToNowPlayingBar(coverUrl: string) {
       if (lowQModeEnabled) return;
       const nowPlayingBar = document.querySelector<HTMLElement>(".Root__right-sidebar aside.NowPlayingView");
@@ -225,71 +299,112 @@ async function main() {
         };
         if (coverUrl === lastImgUrl) return;
         
-        // Check if we need to clean up previous background
-        const existingContainer = nowPlayingBar.querySelector(".spicy-dynamic-bg");
-        if (existingContainer && existingContainer.getAttribute("data-cover-id") === coverUrl) {
-          return;
-        }
-        
-        // Add container class
         nowPlayingBar.classList.add("spicy-dynamic-bg-in-this");
         
-        // Use WebGLCoverGenerator with SidePanel type
-        const containerType = "SidePanel";
+        let container = nowPlayingBar.querySelector<DynamicBGContainer>(".spicy-dynamic-bg");
+        const prevContainer = container;
+        
+        // If same song, do nothing
+        if (container && container.getAttribute("data-cover-id") === coverUrl) {
+          return;
+        }
+
+        // Create new container
+        const renderer = new THREE.WebGLRenderer({ alpha: true });
+        container = renderer.domElement as DynamicBGContainer;
+        container.classList.add("spicy-dynamic-bg");
+        container.style.opacity = "0"; // Start hidden for animation
+
+        // Setup THREE.js scene
+        const renderScene = new THREE.Scene();
+        const materialUniforms = GetShaderUniforms();
+        const meshMaterial = new THREE.ShaderMaterial({
+          uniforms: materialUniforms,
+          vertexShader: VertexShader,
+          fragmentShader: FragmentShader,
+        });
+        const sceneMesh = new THREE.Mesh(MeshGeometry, meshMaterial);
+        renderScene.add(sceneMesh);
+
+        // Store references
+        container.renderer = renderer;
+        container.scene = renderScene;
+        container.uniforms = materialUniforms;
+
+        // Add to DOM
+        nowPlayingBar.appendChild(container);
+
+        // Update attributes and set initial size
+        container.setAttribute("data-cover-id", coverUrl);
         const width = Math.max(nowPlayingBar.clientWidth, 500);
         const height = Math.max(nowPlayingBar.clientHeight, 500);
         
-        // Create background with WebGL
-        CreateDynamicBackground(containerType, width, height).then(newContainer => {
-          newContainer.setAttribute("data-cover-id", coverUrl);
-          
-          // Add animation for transition
-          newContainer.style.opacity = "0";
-          
-          // Remove previous background if exists
-          if (existingContainer) {
-            CleanupContainer(existingContainer as HTMLDivElement);
-            existingContainer.remove();
+        // Set size and update uniforms
+        updateContainerDimensions(container, width, height);
+
+        // Setup animation
+        if (Defaults.PrefersReducedMotion) {
+          container.style.opacity = "1";
+          if (prevContainer) {
+            if (prevContainer.animationFrame) {
+              cancelAnimationFrame(prevContainer.animationFrame);
+            }
+            prevContainer.remove();
           }
-          
-          // Add new background
-          nowPlayingBar.appendChild(newContainer);
-          
-          // Fade in animation
-          if (Defaults.PrefersReducedMotion) {
-            newContainer.style.opacity = "1";
-          } else {
-            const fadeIn = new Animator(0, 1, 0.6);
-            fadeIn.on("progress", (progress) => {
-              newContainer.style.opacity = progress.toString();
-            });
-            
-            fadeIn.on("finish", () => {
-              newContainer.style.opacity = "1";
-              fadeIn.Destroy();
-            });
-            
-            fadeIn.Start();
-          }
-          
-          lastImgUrl = coverUrl;
-        }).catch(error => {
-          console.error("Error applying WebGL background:", error);
+        } else {
+          const fadeIn = new Animator(0, 1, 0.6);
+          const fadeOut = new Animator(1, 0, 0.6);
+
+          fadeIn.on("progress", (progress) => {
+            container.style.opacity = progress.toString();
+          });
+
+          fadeOut.on("progress", (progress) => {
+            if (prevContainer) {
+              prevContainer.style.opacity = progress.toString();
+            }
+          });
+
+          fadeIn.on("finish", () => {
+            container.style.opacity = "1";
+            fadeIn.Destroy();
+          });
+
+          fadeOut.on("finish", () => {
+            if (prevContainer) {
+              if (prevContainer.animationFrame) {
+                cancelAnimationFrame(prevContainer.animationFrame);
+              }
+              prevContainer.remove();
+            }
+            fadeOut.Destroy();
+          });
+
+          fadeOut.Start();
+          fadeIn.Start();
+        }
+
+        // Update texture and start animation loop
+        GetBlurredCoverArt().then(blurredCover => {
+          const texture = new THREE.CanvasTexture(blurredCover);
+          texture.minFilter = THREE.NearestFilter;
+          texture.magFilter = THREE.NearestFilter;
+          container.uniforms.BlurredCoverArt.value = texture;
+          container.uniforms.RotationSpeed.value = 1.0;
+
+          const animate = () => {
+            container.uniforms.Time.value = performance.now() / 3500;
+            container.renderer.render(container.scene, RenderCamera);
+            container.animationFrame = requestAnimationFrame(animate);
+          };
+          animate();
         });
+
+        lastImgUrl = coverUrl;
       } catch (error) {
-        console.error("Error Applying the Dynamic BG to the NowPlayingBar:", error) 
+        console.error("Error Applying the Dynamic BG to the NowPlayingBar:", error);
       }
     }
-
-    /* function NOWPLAYINGBAR_DYNAMIC_BG() {
-      if (Date.now() - NOWPLAYINGBAR_DYNAMIC_BG_UPDATE_TIME > NOWPLAYINGBAR_DYNAMIC_BG_THROTTLE_TIME) {
-        applyDynamicBackgroundToNowPlayingBar(Spicetify.Player.data?.item.metadata.image_url);
-      }
-    
-      requestAnimationFrame(NOWPLAYINGBAR_DYNAMIC_BG)
-    }
-
-    NOWPLAYINGBAR_DYNAMIC_BG(); */
 
     new IntervalManager(1, () => {
       applyDynamicBackgroundToNowPlayingBar(Spicetify.Player.data?.item.metadata.image_url);
@@ -330,31 +445,24 @@ async function main() {
         }
       };
 
-      /* SpotifyPlayer.IsPodcast = event.data.item.type === "episode";
-      if (document.querySelector("#SpicyLyricsPage")) {
-        if (SpotifyPlayer.IsPodcast) {
-          document.querySelector("#SpicyLyricsPage").classList.add("Podcast");
-        } else {
-          document.querySelector("#SpicyLyricsPage").classList.remove("Podcast");
-        }
-      }; */
-
       const IsSomethingElseThanTrack = Spicetify.Player.data.item.type !== "track";
 
       if (IsSomethingElseThanTrack) {
-        button.deregister();
-        buttonRegistered = false;
+        button.Button.deregister();
+        button.Registered = false;
       } else {
-        if (!buttonRegistered) {
-          button.register();
-          buttonRegistered = true;
+        if (!button.Registered) {
+          button.Button.register();
+          button.Registered = true;
         }
       }
 
       if (!IsSomethingElseThanTrack) {
         // Prefetch Track Data
         await SpotifyPlayer.Track.GetTrackInfo();
-        if (document.querySelector("#SpicyLyricsPage .ContentBox .NowBar")) UpdateNowBar();
+        if (document.querySelector("#SpicyLyricsPage .ContentBox .NowBar")) {
+          Fullscreen.IsOpen ? UpdateNowBar(true) : UpdateNowBar();
+        }
       }
 
 
@@ -386,17 +494,9 @@ async function main() {
     }
 
 
-    /* Timeout(3, async () => {
-      await checkIfLyrics(Spicetify.Player.data?.item.uri);
-    }) */
-
     window.addEventListener("online", async () => {
 
       storage.set("lastFetchedUri", null);
-
-      //await checkIfLyrics(Spicetify.Player.data?.item.uri);
-
-      //button.disabled = false;
 
       fetchLyrics(Spicetify.Player.data?.item.uri).then(ApplyLyrics);
     });
@@ -409,11 +509,11 @@ async function main() {
     function loadPage(location) {
       if (location.pathname === "/SpicyLyrics") {
         PageView.Open();
-        button.active = true;
+        button.Button.active = true;
       } else {
         if (lastLocation?.pathname === "/SpicyLyrics") {
           PageView.Destroy();
-          button.active = false;
+          button.Button.active = false;
         }
       }
       lastLocation = location;
@@ -425,15 +525,15 @@ async function main() {
     if (Spicetify.Platform.History.location.pathname === "/SpicyLyrics") {
       Global.Event.listen("pagecontainer:available", () => {
         loadPage(Spicetify.Platform.History.location);
-        button.active = true;
+        button.Button.active = true;
       })
     }
 
-    button.tippy.setContent("Spicy Lyrics");
+    button.Button.tippy.setContent("Spicy Lyrics");
 
 
     Spicetify.Player.addEventListener("onplaypause", (e) => {
-      SpotifyPlayer.IsPlaying = !e?.data?.isPaused;
+      SpotifyPlayer.IsPlaying = !e?.data?.is_paused;
       Global.Event.evoke("playback:playpause", e);
     })
 
@@ -509,12 +609,12 @@ async function main() {
     const IsSomethingElseThanTrack = Spicetify.Player.data.item.type !== "track";
 
     if (IsSomethingElseThanTrack) {
-      button.deregister();
-      buttonRegistered = false;
+      button.Button.deregister();
+      button.Registered = false;
     } else {
-      if (!buttonRegistered) {
-        button.register();
-        buttonRegistered = true;
+      if (!button.Registered) {
+        button.Button.register();
+        button.Registered = true;
       }
     }
   })
@@ -525,18 +625,6 @@ async function main() {
     pako &&
     Vibrant
   ), Hometinue);
-
-
-  
-  /* setTimeout(() => {
-    // Simulate the loaded version in Development. 
-    // If you see this code be uncommented in the "main" Github branch, if you can IMMEDIATELY submit a new Issue on Github. This is supposed to only be here during development and not production.
-    window._spicy_lyrics_metadata = {
-      LoadedVersion: "0.0.0"
-    };
-    window._spicy_lyrics_metadata.LoadedVersion = "2.1.0"
-  }, 0) */
-
 }
 
 export default main;

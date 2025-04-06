@@ -97,6 +97,7 @@ export const SpotifyPlayer = {
     },
     Pause: Spicetify.Player.pause,
     Play: Spicetify.Player.play,
+    TogglePlayState: Spicetify.Player.togglePlay,
     Skip: {
         Next: Spicetify.Player.next,
         Prev: Spicetify.Player.back

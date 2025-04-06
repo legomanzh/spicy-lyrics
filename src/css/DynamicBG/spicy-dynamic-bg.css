@@ -7,22 +7,14 @@
   position: absolute;
   top: 0;
   width: 100%;
+  transform-origin: center center;
+  filter: brightness(0.7) saturate(2.5);
 }
 
 /* Container styles */
 .spicy-dynamic-bg-in-this {
   overflow: hidden;
   position: relative;
-}
-
-/* Replace the multiple canvas positions with single combined canvas */
-.spicy-dynamic-bg canvas.combined-bg {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  transform-origin: center center;
-  scale: 120%;
-  filter: blur(30px);
 }
 
 /* Special styling for side panel */
@@ -32,22 +24,8 @@
   border-radius: var(--section-border-radius, 8px);
 }
 
-.spicy-dynamic-bg-in-this:is(aside) .spicy-dynamic-bg canvas.combined-bg {
-  filter: blur(30px) brightness(0.95);
-}
-
-/* Special styling for lyrics page */
-#SpicyLyricsPage .spicy-dynamic-bg:not(.lowqmode) {
-  max-height: 55%;
-  max-width: 35%;
-  transform-origin: left top;
-  scale: 290% 185%;
-}
-
-#SpicyLyricsPage.Fullscreen .spicy-dynamic-bg:not(.lowqmode) {
-  max-height: 60%;
-  max-width: 20%;
-  scale: 500% 170%;
+.spicy-dynamic-bg-in-this:is(aside) .spicy-dynamic-bg {
+  filter: brightness(0.8) saturate(1.5);
 }
 
 /* Video element styling */

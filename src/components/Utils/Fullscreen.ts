@@ -4,7 +4,7 @@ import storage from "../../utils/storage";
 import Defaults from "../Global/Defaults";
 import Global from "../Global/Global";
 import PageView, { PageRoot, Tooltips } from "../Pages/PageView";
-import { DeregisterNowBarBtn, OpenNowBar } from "./NowBar";
+import { CloseNowBar, DeregisterNowBarBtn, OpenNowBar } from "./NowBar";
 import TransferElement from "./TransferElement";
 
 const Fullscreen = {
@@ -81,7 +81,7 @@ function Open() {
             NowBarToggle.remove();
         }
 
-        OpenNowBar();
+        OpenNowBar(true);
 
         if (!document.fullscreenElement) {
             Root.querySelector("#SpicyLyricsPage").requestFullscreen().catch((err) => {
@@ -118,13 +118,17 @@ function Close() {
         if (document.fullscreenElement) {
             document.exitFullscreen();
         }
-        const NoLyrics = storage.get("currentLyricsData")?.includes("NO_LYRICS");
+        const NoLyrics = storage.get("currentLyricsData")?.toString()?.includes("NO_LYRICS");
         if (NoLyrics) {
             OpenNowBar();
             document.querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer").classList.add("Hidden");
             DeregisterNowBarBtn();
         }
         ResetLastLine();
+
+        if (storage.get("IsNowBarOpen") !== "true") {
+            CloseNowBar();
+        }
 
         const MediaBox = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox");
         const MediaImage = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaImage");
