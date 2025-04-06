@@ -7,4 +7,4 @@ I've seen a problem with the Spotify Lyrics. They're plain, just static colors. 
 ![Extension Example](./previews/page.gif)
 
 
-*Inspired by (Beautiful Lyrics)[https://github.com/surfbryce/beautiful-lyrics] by (@surfbryce)[https://github.com/surfbryce]*
+*Inspired by [Beautiful Lyrics](https://github.com/surfbryce/beautiful-lyrics) by [@surfbryce](https://github.com/surfbryce)*
