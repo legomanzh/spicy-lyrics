@@ -168,3 +168,27 @@ button:has(#SpicyLyricsPageSvg):after {
 .Root__main-view:has(#SpicyLyricsPage) .main-view-container .div[data-overlayscrollbars-viewport] {
   height: 100% !important;
 }
+
+
+body:not(:has(.Root__main-view-overlay #SpicyLyricsPage:is(.Fullscreen))) #SpicyLyrics_FullscreenButton {
+	scale: 1.25;
+}
+
+#SpicyLyrics_FullscreenButton {
+	color: rgba(var(--spice-rgb-selected-row),.7) !important;
+}
+
+#SpicyLyrics_FullscreenButton svg {
+  fill: currentColor;
+}
+
+body:not(:has(.Root__main-view-overlay .BeautifulLyricsPage:is(.Fullscreen))) #BeautifulLyricsFullscreenButton {
+  scale: 0.85 !important;
+  order: 1000 !important;
+  opacity: 0.65 !important;
+}
+
+#SpicyLyricsPage .ViewControls #Close svg {
+  width: auto;
+  height: auto;
+}

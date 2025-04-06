@@ -6,4 +6,5 @@ I've seen a problem with the Spotify Lyrics. They're plain, just static colors. 
 
 ![Extension Example](./previews/page.gif)
 
-*By using our extension, you agree to our [Terms of Service](https://spicylyrics.org/terms-of-service) and [Privacy Policy](https://spicylyrics.org/privacy-policy) that's stated on https://spicylyrics.org .*
+
+*Inspired by (Beautiful Lyrics)[https://github.com/surfbryce/beautiful-lyrics] by (@surfbryce)[https://github.com/surfbryce]*

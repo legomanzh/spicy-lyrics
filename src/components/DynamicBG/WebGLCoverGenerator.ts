@@ -378,8 +378,8 @@ const ContainerParameters: Map<(CoverArtContainer | "Default"), {
 
 ContainerParameters.set("Default", { 
   blur: 0,
-  brightness: 0.4,
-  saturation: 2.5,
+  brightness: 0.2,
+  saturation: 2.65,
   frontRotationSpeed: 65,
   backRotationSpeed: -66,
   backCenterRotationSpeed: 65
@@ -387,25 +387,28 @@ ContainerParameters.set("Default", {
 
 ContainerParameters.set("SidePanel", { 
   blur: 0,
-  brightness: 0.4,
-  saturation: 2.5,
+  brightness: 0.2,
+  saturation: 2.65,
   frontRotationSpeed: 65,
   backRotationSpeed: -66,
   backCenterRotationSpeed: 65
 });
 
 // Get current cover art URL
-const GetCoverArtURL = (): string => {
+const GetCoverArtURL = (): string | null => {
   const GetFullUrl = (uri: string): string | undefined => {
-    if (!uri) return undefined
+    if (!uri) return undefined;
     return `https://i.scdn.co/image/${uri.replace("spotify:image:", "")}`;
   }
 
-  return GetFullUrl(Spicetify.Player.data.item.album.images[0].url) ?? 
-          GetFullUrl(Spicetify.Player.data.item.album.images[1].url) ?? 
-            GetFullUrl(Spicetify.Player.data.item.album.images[2].url) ?? 
-              GetFullUrl(Spicetify.Player.data.item.album.images[3].url) ?? 
-                undefined;
+  const images = Spicetify.Player.data?.item?.album?.images;
+  if (!images || images.length === 0) return null;
+
+  for (const image of images) {
+    const url = GetFullUrl(image.url);
+    if (url) return url;
+  }
+  return null;
 };
 
 // Create a new canvas for the given parameters
@@ -423,14 +426,26 @@ const createLayerCanvas = async (
   width: number,
   height: number
 ): Promise<HTMLCanvasElement> => {
+  // Validate URL before creating image
+  if (!coverArtURL || coverArtURL.trim() === '') {
+    throw new Error('Invalid cover art URL');
+  }
+
   const image = await new Promise<HTMLImageElement>((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
-    img.onerror = reject;
+    img.onload = () => {
+      // Verify the loaded image has valid dimensions
+      if (img.width === 0 || img.height === 0) {
+        reject(new Error('Loaded image has invalid dimensions'));
+        return;
+      }
+      resolve(img);
+    };
+    img.onerror = () => reject(new Error('Failed to load image'));
     img.src = coverArtURL;
   });
-  
+
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
@@ -489,6 +504,11 @@ export const CreateDynamicBackground = (
       performCheck,
       async (url: string) => {
         try {
+          // Additional URL validation
+          if (!url || url.trim() === '') {
+            throw new Error('Invalid cover art URL received');
+          }
+
           if (retryTimeout) {
             clearTimeout(retryTimeout);
             retryTimeout = null;
@@ -536,6 +556,12 @@ export const CreateDynamicBackground = (
             console.error("WebGL processing failed:", error);
             reject(error);
           }
+        } catch (error) {
+          console.error("WebGL background creation failed:", error);
+          task.Cancel();
+          if (retryTimeout) clearTimeout(retryTimeout);
+          if (checkInterval) clearInterval(checkInterval);
+          reject(error);
         } finally {
           task.Cancel();
         }

@@ -4,10 +4,53 @@ import storage from "../../utils/storage";
 import Defaults from "../Global/Defaults";
 import { SpotifyPlayer } from "../Global/SpotifyPlayer";
 import ArtistVisuals from "./ArtistVisuals/Main";
-import { CreateDynamicBackground, CleanupContainer } from "./WebGLCoverGenerator";
+import * as THREE from "three";
+import { GetShaderUniforms, VertexShader, FragmentShader, ShaderUniforms } from "./ThreeShaders";
+import Global from "../Global/Global";
+import Platform from "../Global/Platform";
 
-export default async function ApplyDynamicBackground(element) {
-    if (!element) return
+// Add custom type for our container element
+interface DynamicBGContainer extends HTMLElement {
+    renderer: THREE.WebGLRenderer;
+    scene: THREE.Scene;
+    uniforms: ShaderUniforms;
+    animationFrame?: number;
+}
+
+// Setup static THREE.js objects
+const RenderCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+RenderCamera.position.z = 1;
+const MeshGeometry = new THREE.PlaneGeometry(2, 2);
+
+export const updateContainerDimensions = (container: DynamicBGContainer, width: number, height: number) => {
+    const { renderer, scene, uniforms } = container;
+        
+    // Set size
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    // Update dimensions and uniforms
+    const scaledWidth = (width * window.devicePixelRatio);
+    const scaledHeight = (height * window.devicePixelRatio);
+    
+    const largestAxis = ((scaledWidth > scaledHeight) ? "X" : "Y");
+    const largestAxisSize = ((scaledWidth > scaledHeight) ? scaledWidth : scaledHeight);
+
+    uniforms.BackgroundCircleOrigin.value.set(scaledWidth / 2, scaledHeight / 2);
+    uniforms.BackgroundCircleRadius.value = largestAxisSize * 1.5;
+    uniforms.CenterCircleOrigin.value.set(scaledWidth / 2, scaledHeight / 2);
+    uniforms.CenterCircleRadius.value = largestAxisSize * (largestAxis === "X" ? 1 : 0.75);
+    uniforms.LeftCircleOrigin.value.set(0, scaledHeight);
+    uniforms.LeftCircleRadius.value = largestAxisSize * 0.75;
+    uniforms.RightCircleOrigin.value.set(scaledWidth, 0);
+    uniforms.RightCircleRadius.value = largestAxisSize * (largestAxis === "X" ? 0.65 : 0.5);
+
+    // Re-render scene
+    renderer.render(scene, RenderCamera);
+}
+
+export default async function ApplyDynamicBackground(element: HTMLElement) {
+    if (!element) return;
     let currentImgCover = await SpotifyPlayer.Artwork.Get("d");
     const lowQMode = storage.get("lowQMode");
     const lowQModeEnabled = lowQMode && lowQMode === "true";
@@ -19,22 +62,19 @@ export default async function ApplyDynamicBackground(element) {
         try {
             currentImgCover = (IsEpisode ? null : (storage.get("force-cover-bg_in-lowqmode") == "true" ? currentImgCover : await LowQMode_SetDynamicBackground(CurrentSongArtist, CurrentSongUri)));
         } catch (error) {
-            console.error("Error happened while trying to set the Low Quality Mode Dynamic Background", error)
+            console.error("Error happened while trying to set the Low Quality Mode Dynamic Background", error);
         }
-    }
-    
-    // Keep the lowQMode implementation as is
-    if (lowQModeEnabled) {
+
         if (IsEpisode) return;
         const dynamicBg = document.createElement("img");
-        const prevBg = element.querySelector(".spicy-dynamic-bg.lowqmode");
+        const prevBg = element.querySelector<HTMLElement>(".spicy-dynamic-bg.lowqmode");
 
         if (prevBg && prevBg.getAttribute("spotifyimageurl") === currentImgCover) {
             dynamicBg.remove();
             return;
         }
 
-        dynamicBg.classList.add("spicy-dynamic-bg", "lowqmode")
+        dynamicBg.classList.add("spicy-dynamic-bg", "lowqmode");
 
         const processedCover = `https://i.scdn.co/image/${currentImgCover.replace("spotify:image:", "")}`;
 
@@ -72,66 +112,112 @@ export default async function ApplyDynamicBackground(element) {
             Animator1.Start();
         }
     } else {
-        // Always use Default container type for this function
-        const containerType = "Default";
-        
-        // Check if we already have a background
-        const existingContainer = element.querySelector(".spicy-dynamic-bg");
+        let container = element.querySelector<DynamicBGContainer>(".spicy-dynamic-bg");
+        const prevContainer = container;
         
         // If same song, do nothing
-        if (existingContainer && existingContainer.getAttribute("data-cover-id") === currentImgCover) {
+        if (container && container.getAttribute("data-cover-id") === currentImgCover) {
             return;
         }
-        
-        // Determine the canvas size - use element dimensions with a minimum
+
+        // Create new container
+        const renderer = new THREE.WebGLRenderer({ alpha: true });
+        container = renderer.domElement as DynamicBGContainer;
+        container.classList.add("spicy-dynamic-bg");
+        container.style.opacity = "0"; // Start hidden for animation
+
+        // Setup THREE.js scene
+        const renderScene = new THREE.Scene();
+        const materialUniforms = GetShaderUniforms();
+        const meshMaterial = new THREE.ShaderMaterial({
+            uniforms: materialUniforms,
+            vertexShader: VertexShader,
+            fragmentShader: FragmentShader,
+        });
+        const sceneMesh = new THREE.Mesh(MeshGeometry, meshMaterial);
+        renderScene.add(sceneMesh);
+
+        // Store references on the container
+        container.renderer = renderer;
+        container.scene = renderScene;
+        container.uniforms = materialUniforms;
+
+        // Add to DOM
+        element.appendChild(container);
+
+        // Add resize observer
+        const resizeObserver = new ResizeObserver(entries => {
+            for (const entry of entries) {
+                const width = Math.max(entry.contentRect.width, 500);
+                const height = Math.max(entry.contentRect.height, 500);
+                updateContainerDimensions(container, width, height);
+            }
+        });
+        resizeObserver.observe(element);
+
+        // Update container attributes and initial size
+        container.setAttribute("data-cover-id", currentImgCover);
         const width = Math.max(element.clientWidth, 500);
         const height = Math.max(element.clientHeight, 500);
-        
-        // Create the new WebGL background container
-        const newContainer = await CreateDynamicBackground(containerType, width, height);
-        newContainer.setAttribute("data-cover-id", currentImgCover);
-        
-        // Add animation for transition
-        newContainer.style.opacity = "0";
-        element.appendChild(newContainer);
-        
-        // Fade in/out animation
+        updateContainerDimensions(container, width, height);
+
+        // Update texture
+        const blurredCover = await GetBlurredCoverArt();
+        const texture = new THREE.CanvasTexture(blurredCover);
+        texture.minFilter = THREE.NearestFilter;
+        texture.magFilter = THREE.NearestFilter;
+        container.uniforms.BlurredCoverArt.value = texture;
+        container.uniforms.RotationSpeed.value = 1.0;
+
+        // Setup animation
         if (Defaults.PrefersReducedMotion) {
-            newContainer.style.opacity = "1";
-            if (existingContainer) {
-                CleanupContainer(existingContainer as HTMLDivElement);
-                existingContainer.remove();
+            container.style.opacity = "1";
+            if (prevContainer) {
+                if (prevContainer.animationFrame) {
+                    cancelAnimationFrame(prevContainer.animationFrame);
+                }
+                prevContainer.remove();
             }
         } else {
             const fadeIn = new Animator(0, 1, 0.6);
-            fadeIn.on("progress", (progress) => {
-                newContainer.style.opacity = progress.toString();
-            });
-            
             const fadeOut = new Animator(1, 0, 0.6);
+
+            fadeIn.on("progress", (progress) => {
+                container.style.opacity = progress.toString();
+            });
+
             fadeOut.on("progress", (progress) => {
-                if (existingContainer) {
-                    existingContainer.style.opacity = progress.toString();
+                if (prevContainer) {
+                    prevContainer.style.opacity = progress.toString();
                 }
             });
-            
+
             fadeIn.on("finish", () => {
-                newContainer.style.opacity = "1";
+                container.style.opacity = "1";
                 fadeIn.Destroy();
             });
-            
+
             fadeOut.on("finish", () => {
-                if (existingContainer) {
-                    // Clean up old WebGL container
-                    CleanupContainer(existingContainer as HTMLDivElement);
-                    existingContainer.remove();
+                if (prevContainer) {
+                    if (prevContainer.animationFrame) {
+                        cancelAnimationFrame(prevContainer.animationFrame);
+                    }
+                    prevContainer.remove();
                 }
                 fadeOut.Destroy();
             });
-            
+
             fadeOut.Start();
             fadeIn.Start();
         }
+
+        // Start animation loop
+        const animate = () => {
+            container.uniforms.Time.value = performance.now() / 3500;
+            container.renderer.render(container.scene, RenderCamera);
+            container.animationFrame = requestAnimationFrame(animate);
+        };
+        animate();
     }
 }
 
@@ -140,8 +226,84 @@ export async function LowQMode_SetDynamicBackground(CurrentSongArtist, CurrentSo
     try {
         return await ArtistVisuals.ApplyContent(CurrentSongArtist, CurrentSongUri);
     } catch (error) {
-        console.error("Error happened while trying to set the Low Quality Mode Dynamic Background", error)
+        console.error("Error happened while trying to set the Low Quality Mode Dynamic Background", error);
     }
 }
 
+const GetCoverArtURL = (): string | null => {
+    const images = Spicetify.Player.data?.item?.album?.images;
+    if (!images || images.length === 0) return null;
+  
+    for (const image of images) {
+      const url = image.url;
+      if (url) return url;
+    }
+    return null;
+};
 
+const BlurredCoverArts = new Map<string, OffscreenCanvas>();
+export async function GetBlurredCoverArt() {
+    const coverArt = GetCoverArtURL();
+
+    if (BlurredCoverArts.has(coverArt)) {
+        return BlurredCoverArts.get(coverArt);
+    }
+
+    const image = new Image();
+    image.src = coverArt;
+    await image.decode();
+
+    const originalSize = Math.min(image.width, image.height); // Crop to a square
+    const blurExtent = Math.ceil(3 * 40); // Blur spread extent
+
+    // Create a square canvas to crop the image into a circle
+    const circleCanvas = new OffscreenCanvas(originalSize, originalSize);
+    const circleCtx = circleCanvas.getContext('2d')!;
+
+    // Create circular clipping mask
+    circleCtx.beginPath();
+    circleCtx.arc(originalSize / 2, originalSize / 2, originalSize / 2, 0, Math.PI * 2);
+    circleCtx.closePath();
+    circleCtx.clip();
+
+    // Draw the original image inside the circular clip
+    circleCtx.drawImage(
+        image,
+        ((image.width - originalSize) / 2), ((image.height - originalSize) / 2),
+        originalSize, originalSize,
+        0, 0,
+        originalSize, originalSize
+    );
+
+    // Expand canvas to accommodate blur effect
+    const padding = (blurExtent * 1.5);
+    const expandedSize = originalSize + padding;
+    const blurredCanvas = new OffscreenCanvas(expandedSize, expandedSize);
+    const blurredCtx = blurredCanvas.getContext('2d')!;
+
+    blurredCtx.filter = `blur(${40}px)`;
+
+    // Draw the cropped circular image in the center of the expanded canvas
+    blurredCtx.drawImage(circleCanvas, (padding / 2), (padding / 2));
+
+    BlurredCoverArts.set(coverArt, blurredCanvas);
+    return blurredCanvas;
+}
+
+Global.Event.listen("playback:songchange", async () => {
+    if (Defaults.LyricsContainerExists) return;
+    setTimeout(async () => {
+        await GetBlurredCoverArt();
+    }, 500)
+})
+
+const prefetchBlurredCoverArt = async () =>{
+    if (!Defaults.LyricsContainerExists) {
+        await GetBlurredCoverArt();
+    };
+}
+
+Platform.OnSpotifyReady
+.then(() => {
+    prefetchBlurredCoverArt();
+})

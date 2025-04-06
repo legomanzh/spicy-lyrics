@@ -33,11 +33,11 @@
     justify-content: center;
     height: 100%;
     width: 100%;
-    --default-font-size: clamp(0.5rem, calc(1cqw* 3), 2.1rem);
+    --default-font-size: clamp(0.5rem, calc(1cqw* 3), 2.4rem);
 }
 
 #SpicyLyricsPage .ContentBox .NowBar {
-    --title-height: 5cqh;
+    --title-height: 4.2cqh;
     display: flex;
     position: absolute;
     inset: 0;
@@ -92,7 +92,7 @@
 }
 
 #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .Header .MediaBox .MediaContent .AlbumData {
-    font-size: calc(var(--default-font-size) * 0.95);
+    font-size: calc(var(--default-font-size) * 0.8);
     font-weight: 600;
     display: flex;
     align-items: center;
@@ -122,12 +122,14 @@
     scale: 1.01;
 } */
 
+
+
 #SpicyLyricsPage .ContentBox .NowBar .Header .Metadata {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    margin: 2cqh;
+    margin: 2cqh 0 0;
 }
 
 #SpicyLyricsPage .ContentBox .NowBar .Header .Metadata .SongName {
@@ -342,6 +344,11 @@
     opacity: .5;
 }
 
+#SpicyLyricsPage .ContentBox .NowBar .CenteredView {
+    height: 100cqh;
+    padding: 19cqh 0 0;
+}
+
 #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls {
     display: flex;
     flex-direction: row;
@@ -359,6 +366,7 @@
 #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl.TrackSkip.PrevTrack {
     rotate: 180deg;
 }
+
 
 
 /* #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .Controls .PlaybackControl */
@@ -411,6 +419,15 @@
     position: relative;
     width: 100%;
     margin-top: 4cqh;
+}
+
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .ViewControls .ViewControl {
+    background: rgba(38, 38, 38, 0.7) !important;
+}
+
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .ViewControls .ViewControl svg {
+    width: 20px !important;
+    height: 20px !important;
 }
 
 #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl.Pressed {
@@ -609,4 +626,14 @@
     z-index: -1;
     pointer-events: none;
     cursor: default;
+}
+
+#SpicyLyricsPage.Fullscreen .Separator {
+    background: hsla(0, 0%, 92%, .28);
+    border-radius: 100cqh;
+    display: inline-block;
+    height: calc(30cqh * .125);
+    margin-left: 7.5cqh;
+    margin-right: 6.5cqh;
+    width: calc(30cqh * .25);
 }
