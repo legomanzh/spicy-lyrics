@@ -44,6 +44,7 @@
 
   --webkit-mask-image: var(--ImageMask);
   mask-image: var(--ImageMask);
+  container-type: size;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .BottomSpacer {
@@ -53,7 +54,7 @@
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .TopSpacer {
   display: block;
-  height: 22cqh;
+  height: 25cqh;
 }
 
 

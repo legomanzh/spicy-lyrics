@@ -20,6 +20,8 @@
   font-weight: 700;
   z-index: 99;
   user-select: none;
+  -webkit-user-drag: none;
+  background-color: #000000;
 }
 
 #SpicyLyricsPage.UseSpicyFont {
@@ -64,6 +66,90 @@ body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer {
   scale: var(--DefaultScale);
 }
 
+/* When NowBar is on right side and open, move controls to right */
+#SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Right):is(.NowBarStatus__Open) .ViewControls {
+  transition: opacity .2s, right .5s, scale .5s;
+  right: -5cqw;
+  left: unset;
+}
+
+/* When NowBar is on right side and open, handle hover states */
+#SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Right):is(.NowBarStatus__Open):hover .ViewControls {
+  opacity: .6;
+  right: var(--PageHoverOffset);
+  scale: var(--PageHoverScale);
+}
+
+/* When NowBar is on right side and open, handle hover states */
+#SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Right):is(.NowBarStatus__Open) .ViewControls:hover {
+  opacity: 1;
+  right: var(--ControlsHoverOffset);
+  scale: var(--ControlsHoverScale);
+}
+
+/* When NowBar is on left side (open or closed), keep controls on left */
+#SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Left) .ViewControls {
+  transition: opacity .2s, left .5s, scale .5s;
+  left: -5cqw;
+  right: unset;
+}
+
+/* When NowBar is on left side, handle hover states */
+#SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Left):hover .ViewControls {
+  opacity: .6;
+  left: var(--PageHoverOffset);
+  scale: var(--PageHoverScale);
+}
+
+/* When NowBar is on left side, handle hover states */
+#SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Left) .ViewControls:hover {
+  opacity: 1;
+  left: var(--ControlsHoverOffset);
+  scale: var(--ControlsHoverScale);
+}
+
+/* When NowBar is closed (regardless of side), keep controls on left */
+#SpicyLyricsPage:not(.Fullscreen):is(.NowBarStatus__Closed) .ViewControls {
+  transition: opacity .2s, left .5s, scale .5s;
+  left: -5cqw;
+  right: unset;
+}
+
+/* When NowBar is closed, handle hover states */
+#SpicyLyricsPage:not(.Fullscreen):is(.NowBarStatus__Closed):hover .ViewControls {
+  opacity: .6 !important;
+  left: var(--PageHoverOffset) !important;
+  scale: var(--PageHoverScale) !important;
+  right: unset !important;
+}
+
+/* When NowBar is closed, handle hover states */
+#SpicyLyricsPage:not(.Fullscreen):is(.NowBarStatus__Closed) .ViewControls:hover {
+  opacity: 1 !important;
+  left: var(--ControlsHoverOffset) !important;
+  scale: var(--ControlsHoverScale) !important;
+  right: unset !important;
+}
+
+/* When NowBar is on right side but closed, ensure proper hover behavior */
+#SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Right):is(.NowBarStatus__Closed) .ViewControls {
+  transition: opacity .2s, left .5s, scale .5s;
+  left: -5cqw;
+  right: unset;
+}
+
+#SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Right):is(.NowBarStatus__Closed) .ViewControls:hover {
+  opacity: 1;
+  left: var(--ControlsHoverOffset);
+  scale: var(--ControlsHoverScale);
+}
+
+#SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Right):is(.NowBarStatus__Closed):hover .ViewControls {
+  opacity: .6;
+  left: var(--PageHoverOffset);
+  scale: var(--PageHoverScale);
+}
+
 #SpicyLyricsPage .ViewControls .ViewControl {
   --ViewControlHeight: var(--ViewControlSize, 100cqh);
   aspect-ratio: 1;
@@ -86,17 +172,29 @@ body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer {
   fill: currentColor;
 }
 
-#SpicyLyricsPage:not(.Fullscreen) .ViewControls:hover {
+/* #SpicyLyricsPage:not(.Fullscreen, .NowBarSide__Right) .ViewControls:hover {
   opacity: 1 !important;
   left: var(--ControlsHoverOffset) !important;
   scale: var(--ControlsHoverScale) !important;
 }
 
-#SpicyLyricsPage:not(.Fullscreen):hover .ViewControls {
+#SpicyLyricsPage:not(.Fullscreen, .NowBarSide__Right):hover .ViewControls {
   opacity: .6;
   left: var(--PageHoverOffset);
   scale: var(--PageHoverScale);
 }
+
+#SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Right):is(.NowBarStatus__Open) .ViewControls:hover {
+  opacity: 1 !important;
+  right: var(--ControlsHoverOffset) !important;
+  scale: var(--ControlsHoverScale) !important;
+}
+
+#SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Right):is(.NowBarStatus__Open):hover .ViewControls {
+  opacity: .6;
+  right: var(--PageHoverOffset);
+  scale: var(--PageHoverScale);
+} */
 
 #SpicyLyricsPage .ViewControls button {
   cursor: pointer
@@ -191,4 +289,16 @@ body:not(:has(.Root__main-view-overlay .BeautifulLyricsPage:is(.Fullscreen))) #B
 #SpicyLyricsPage .ViewControls #Close svg {
   width: auto;
   height: auto;
+}
+
+#SpicyLyricsPage .MediaImage,
+#SpicyLyricsPage .MediaContent {
+  user-select: none;
+  -webkit-user-drag: element;
+  cursor: grab;
+}
+
+#SpicyLyricsPage .MediaImage:active,
+#SpicyLyricsPage .MediaContent:active {
+  cursor: grabbing;
 }

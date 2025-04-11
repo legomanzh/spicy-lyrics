@@ -3,7 +3,7 @@ import storage from "../../utils/storage";
 import Whentil from "../../utils/Whentil";
 import Global from "../Global/Global";
 import { SpotifyPlayer } from "../Global/SpotifyPlayer";
-import { Tooltips } from "../Pages/PageView";
+import PageView from "../Pages/PageView";
 import { Icons } from "../Styling/Icons";
 import Fullscreen from "./Fullscreen";
 
@@ -68,6 +68,8 @@ function OpenNowBar(skipSaving: boolean = false) {
     if (!NowBar) return;
     UpdateNowBar(true);
     NowBar.classList.add("Active");
+    document.querySelector("#SpicyLyricsPage").classList.remove("NowBarStatus__Closed");
+    document.querySelector("#SpicyLyricsPage").classList.add("NowBarStatus__Open");
     if (!skipSaving) storage.set("IsNowBarOpen", "true");
 
     if (Fullscreen.IsOpen) {
@@ -458,12 +460,16 @@ function OpenNowBar(skipSaving: boolean = false) {
               "#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaImage"
           );
 
-    const dropZones = document.querySelectorAll(
-        "#SpicyLyricsPage .ContentBox .DropZone"
-    );
-
-    DragBox.addEventListener("dragstart", (e) => {
-        setTimeout(() => {
+    {
+        const dropZones = document.querySelectorAll(
+            "#SpicyLyricsPage .ContentBox .DropZone"
+        );
+    
+        DragBox.addEventListener("dragstart", (e) => {
+            const missingLyrics = storage.get("currentLyricsData")?.toString() === `NO_LYRICS:${SpotifyPlayer.GetSongId()}`;
+            if (missingLyrics) return;
+            
+            // Don't prevent default - allow the drag to start
             document.querySelector("#SpicyLyricsPage").classList.add("SomethingDragging");
             if (NowBar.classList.contains("LeftSide")) {
                 dropZones.forEach((zone) => {
@@ -483,45 +489,57 @@ function OpenNowBar(skipSaving: boolean = false) {
                 });
             }
             DragBox.classList.add("Dragging");
-        }, 0);
-    });
-
-    DragBox.addEventListener("dragend", () => {
-        document.querySelector("#SpicyLyricsPage").classList.remove("SomethingDragging");
-        dropZones.forEach((zone) => zone.classList.remove("Hidden"));
-        DragBox.classList.remove("Dragging");
-    });
-
-    dropZones.forEach((zone) => {
-        zone.addEventListener("dragover", (e) => {
-            e.preventDefault();
-            zone.classList.add("DraggingOver");
         });
-
-        zone.addEventListener("dragleave", () => {
-            zone.classList.remove("DraggingOver");
+    
+        DragBox.addEventListener("dragend", () => {
+            const missingLyrics = storage.get("currentLyricsData")?.toString() === `NO_LYRICS:${SpotifyPlayer.GetSongId()}`;
+            if (missingLyrics) return;
+            document.querySelector("#SpicyLyricsPage").classList.remove("SomethingDragging");
+            dropZones.forEach((zone) => zone.classList.remove("Hidden"));
+            DragBox.classList.remove("Dragging");
         });
+    
+        dropZones.forEach((zone) => {
+            zone.addEventListener("dragover", (e) => {
+                e.preventDefault();
+                const missingLyrics = storage.get("currentLyricsData")?.toString() === `NO_LYRICS:${SpotifyPlayer.GetSongId()}`;
+                if (missingLyrics) return;
+                zone.classList.add("DraggingOver");
+            });
+    
+            zone.addEventListener("dragleave", () => {
+                const missingLyrics = storage.get("currentLyricsData")?.toString() === `NO_LYRICS:${SpotifyPlayer.GetSongId()}`;
+                if (missingLyrics) return;
+                zone.classList.remove("DraggingOver");
+            });
+    
+            zone.addEventListener("drop", (e) => {
+                e.preventDefault();
+                const missingLyrics = storage.get("currentLyricsData")?.toString() === `NO_LYRICS:${SpotifyPlayer.GetSongId()}`;
+                if (missingLyrics) return;
+                zone.classList.remove("DraggingOver");
+    
+                const currentClass = NowBar.classList.contains("LeftSide")
+                    ? "LeftSide"
+                    : "RightSide";
+    
+                const newClass = zone.classList.contains("RightSide")
+                    ? "RightSide"
+                    : "LeftSide";
+    
+                NowBar.classList.remove(currentClass);
+                NowBar.classList.add(newClass);
 
-        zone.addEventListener("drop", (e) => {
-            e.preventDefault();
-            zone.classList.remove("DraggingOver");
+                document.querySelector("#SpicyLyricsPage").classList.remove("NowBarSide__Left");
+                document.querySelector("#SpicyLyricsPage").classList.remove("NowBarSide__Right");
+                document.querySelector("#SpicyLyricsPage").classList.add(`NowBarSide__${newClass.replace("Side", "")}`);
 
-            const currentClass = NowBar.classList.contains("LeftSide")
-                ? "LeftSide"
-                : "RightSide";
-
-            const newClass = zone.classList.contains("RightSide")
-                ? "RightSide"
-                : "LeftSide";
-
-            NowBar.classList.remove(currentClass);
-            NowBar.classList.add(newClass);
-
-            const side = zone.classList.contains("RightSide") ? "right" : "left";
-
-            storage.set("NowBarSide", side);
+                const side = zone.classList.contains("RightSide") ? "right" : "left";
+    
+                storage.set("NowBarSide", side);
+            });
         });
-    });
+    }
 }
 
 function CleanUpActiveComponents() {
@@ -570,6 +588,8 @@ function CloseNowBar() {
     NowBar.classList.remove("Active");
     storage.set("IsNowBarOpen", "false");
     CleanUpActiveComponents();
+    document.querySelector("#SpicyLyricsPage").classList.remove("NowBarStatus__Open");
+    document.querySelector("#SpicyLyricsPage").classList.add("NowBarStatus__Closed");
 }
 
 function ToggleNowBar() {
@@ -671,14 +691,20 @@ function NowBar_SwapSides() {
         storage.set("NowBarSide", "right");
         NowBar.classList.remove("LeftSide");
         NowBar.classList.add("RightSide");
+        document.querySelector("#SpicyLyricsPage").classList.remove("NowBarSide__Left");
+        document.querySelector("#SpicyLyricsPage").classList.add("NowBarSide__Right");
     } else if (CurrentSide === "right") {
         storage.set("NowBarSide", "left");
         NowBar.classList.remove("RightSide");
         NowBar.classList.add("LeftSide");
+        document.querySelector("#SpicyLyricsPage").classList.remove("NowBarSide__Right");
+        document.querySelector("#SpicyLyricsPage").classList.add("NowBarSide__Left");
     } else {
         storage.set("NowBarSide", "right");
         NowBar.classList.remove("LeftSide");
         NowBar.classList.add("RightSide");
+        document.querySelector("#SpicyLyricsPage").classList.remove("NowBarSide__Left");
+        document.querySelector("#SpicyLyricsPage").classList.add("NowBarSide__Right");
     }
 }
 
@@ -690,24 +716,29 @@ function Session_NowBar_SetSide() {
         storage.set("NowBarSide", "left");
         NowBar.classList.remove("RightSide");
         NowBar.classList.add("LeftSide");
+        document.querySelector("#SpicyLyricsPage").classList.remove("NowBarSide__Right");
+        document.querySelector("#SpicyLyricsPage").classList.add("NowBarSide__Left");
     } else if (CurrentSide === "right") {
         storage.set("NowBarSide", "right");
         NowBar.classList.remove("LeftSide");
         NowBar.classList.add("RightSide");
+        document.querySelector("#SpicyLyricsPage").classList.remove("NowBarSide__Left");
+        document.querySelector("#SpicyLyricsPage").classList.add("NowBarSide__Right");
     } else {
         storage.set("NowBarSide", "left");
         NowBar.classList.remove("RightSide");
         NowBar.classList.add("LeftSide");
+        document.querySelector("#SpicyLyricsPage").classList.remove("NowBarSide__Right");
+        document.querySelector("#SpicyLyricsPage").classList.add("NowBarSide__Left");
     }
 }
 
 function DeregisterNowBarBtn() {
-    Tooltips.NowBarToggle?.destroy();
-    Tooltips.NowBarToggle = null;
-    const nowBarButton = document.querySelector(
+    /* const nowBarButton = document.querySelector(
         "#SpicyLyricsPage .ContentBox .ViewControls #NowBarToggle"
     );
-    nowBarButton?.remove();
+    nowBarButton?.remove(); */
+    PageView.AppendViewControls(true);
 }
 
 Global.Event.listen("playback:playpause", (e) => {

@@ -5,30 +5,82 @@ import ScrollIntoCenterView from "../ScrollIntoView/Center";
 import SimpleBar from 'simplebar';
 
 let lastLine = null;
+let isUserScrolling = false;
+let lastUserScrollTime = 0;
+const USER_SCROLL_COOLDOWN = 750; // 0.75 second cooldown
+const POSITION_THRESHOLD = 150; // 20ms threshold for start/end detection
+
+// Add focus event listener to reset state when window is focused
+window.addEventListener('focus', ResetLastLine);
+// Add resize event listener to reset state when window is resized
+window.addEventListener('resize', ResetLastLine);
+
+function handleUserScroll(ScrollSimplebar: SimpleBar) {
+    if (!isUserScrolling) {
+        isUserScrolling = true;
+        // Add HideLineBlur class when user starts scrolling
+        const lyricsContent = document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent");
+        if (lyricsContent) {
+            lyricsContent.classList.add("HideLineBlur");
+        }
+    }
+    lastUserScrollTime = performance.now();
+}
 
 export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
     if (!Defaults.LyricsContainerExists) return;
 
-    if (Spicetify.Platform.History.location.pathname === "/SpicyLyrics") {
+    // Add scroll event listener
+    const scrollElement = ScrollSimplebar?.getScrollElement();
+    if (scrollElement) {
+        scrollElement.addEventListener('wheel', () => handleUserScroll(ScrollSimplebar));
+        scrollElement.addEventListener('touchmove', () => handleUserScroll(ScrollSimplebar));
+    }
 
+    if (Spicetify.Platform.History.location.pathname === "/SpicyLyrics") {
         const Lines = LyricsObject.Types[Defaults.CurrentLyricsType]?.Lines;
         const Position = SpotifyPlayer.GetTrackPosition();
-        const PositionOffset = 100;
+        const PositionOffset = 0;
         const ProcessedPosition = Position + PositionOffset;
+        const TrackDuration = SpotifyPlayer.GetTrackDuration();
 
         if (!Lines) return;
 
+        // Check if all lines are sung
+        const allLinesSung = Lines.every(line => line.Status === "Sung");
+
+        if (allLinesSung) {
+            const container = ScrollSimplebar?.getScrollElement() as HTMLElement;
+            if (container) {
+                container.scrollTop = container.scrollHeight;
+                return;
+            }
+        }
+
+        // Handle start of track
+        if (ProcessedPosition <= POSITION_THRESHOLD) {
+            const container = ScrollSimplebar?.getScrollElement() as HTMLElement;
+            if (container) {
+                container.scrollTop = 0;
+                return;
+            }
+        }
+
+        // Handle end of track
+        if (ProcessedPosition >= TrackDuration - POSITION_THRESHOLD) {
+            const container = ScrollSimplebar?.getScrollElement() as HTMLElement;
+            if (container) {
+                container.scrollTop = container.scrollHeight;
+                return;
+            }
+        }
+
         for (let i = 0; i < Lines.length; i++) {
             const line = Lines[i];
-            /* if (line.Status === "Active") {
-                const currentLine = line;
-                Continue(currentLine)
-                return; // Exit the loop once a line is found
-            } */
             if (line.StartTime <= ProcessedPosition && line.EndTime >= ProcessedPosition) {
                 const currentLine = line;
                 Continue(currentLine)
-                return; // Exit the loop once a line is found
+                return;
             }
         }
 
@@ -37,14 +89,39 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
                 const LineElem = currentLine.HTMLElement as HTMLElement;
                 const container = ScrollSimplebar?.getScrollElement() as HTMLElement;
                 if (!container) return;
-                if (lastLine && lastLine === LineElem) return;
+
+                const timeSinceLastScroll = performance.now() - lastUserScrollTime;
+                
+                // Check if the line is in viewport
+                const lineRect = LineElem.getBoundingClientRect();
+                const containerRect = container.getBoundingClientRect();
+                const isLineInViewport = lineRect.top >= containerRect.top && lineRect.bottom <= containerRect.bottom;
+
                 const didLastLineExist = lastLine !== null;
-                lastLine = LineElem
-                setTimeout(() => LineElem.classList.add("Active", "OverridenByScroller"), PositionOffset / 2);
-                if (didLastLineExist) {
-                    ScrollIntoCenterView(container, LineElem, 0, -50); // Scroll Into View with a 0ms Animation
-                } else {
-                    ScrollIntoCenterView(container, LineElem, 0, -50, true); // Scroll Into View with a 0ms Animation
+                const isSameLine = lastLine === LineElem;
+
+                // If this is the first line (no previous line), force scroll without checks
+                if (!didLastLineExist) {
+                    isUserScrolling = false;
+                    lastLine = LineElem;
+                    ScrollIntoCenterView(container, LineElem, 0, -50, true);
+                    return;
+                }
+
+                // Only auto-scroll if BOTH conditions are met:
+                // 1. User hasn't scrolled in the last second (cooldown passed)
+                // 2. AND the active line is in viewport
+                if (timeSinceLastScroll > USER_SCROLL_COOLDOWN && isLineInViewport) {
+                    isUserScrolling = false;
+                    // Remove HideLineBlur class when auto-scroll resumes
+                    const lyricsContent = document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent");
+                    if (lyricsContent) {
+                        lyricsContent.classList.remove("HideLineBlur");
+                    }
+                    if (isUserScrolling || !isSameLine) {
+                        lastLine = LineElem;
+                        ScrollIntoCenterView(container, LineElem, 0, -50);
+                    }
                 }
             }
         }
@@ -53,4 +130,6 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
 
 export function ResetLastLine() {
     lastLine = null;
+    isUserScrolling = false;
+    lastUserScrollTime = 0;
 }

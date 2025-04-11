@@ -15,6 +15,9 @@ interface DynamicBGContainer extends HTMLElement {
     scene: THREE.Scene;
     uniforms: ShaderUniforms;
     animationFrame?: number;
+    resizeObserver?: ResizeObserver;
+    texture?: THREE.Texture;
+    material?: THREE.ShaderMaterial;
 }
 
 // Setup static THREE.js objects
@@ -22,6 +25,7 @@ const RenderCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
 RenderCamera.position.z = 1;
 const MeshGeometry = new THREE.PlaneGeometry(2, 2);
 
+let previousRenderer: THREE.WebGLRenderer | null = null;
 export const updateContainerDimensions = (container: DynamicBGContainer, width: number, height: number) => {
     const { renderer, scene, uniforms } = container;
         
@@ -49,14 +53,47 @@ export const updateContainerDimensions = (container: DynamicBGContainer, width: 
     renderer.render(scene, RenderCamera);
 }
 
+const lowQMode = storage.get("lowQMode");
+const lowQModeEnabled = lowQMode && lowQMode === "true";
+
+const cleanup = (container: DynamicBGContainer) => {
+    if (container.animationFrame) {
+        cancelAnimationFrame(container.animationFrame);
+    }
+    if (container.resizeObserver) {
+        container.resizeObserver.disconnect();
+    }
+    if (container.texture) {
+        container.texture.dispose();
+    }
+    if (container.material) {
+        container.material.dispose();
+    }
+    if (container.renderer) {
+        container.renderer.dispose();
+        container.renderer.forceContextLoss();
+        const gl = container.renderer.getContext();
+        if (gl) {
+            const loseContext = gl.getExtension('WEBGL_lose_context');
+            if (loseContext) loseContext.loseContext();
+        }
+    }
+    container.remove();
+}
+
 export default async function ApplyDynamicBackground(element: HTMLElement) {
     if (!element) return;
-    let currentImgCover = await SpotifyPlayer.Artwork.Get("d");
-    const lowQMode = storage.get("lowQMode");
-    const lowQModeEnabled = lowQMode && lowQMode === "true";
+    let currentImgCover = Spicetify.Player.data?.item?.album?.images[3]?.url ?? Spicetify.Player.data?.item?.album?.images[2]?.url ?? Spicetify.Player.data?.item?.album?.images[1]?.url ?? Spicetify.Player.data?.item?.album?.images[0]?.url;
     const IsEpisode = Spicetify.Player.data.item.type === "episode";
     const CurrentSongArtist = IsEpisode ? null : Spicetify.Player.data?.item.artists[0].uri;
     const CurrentSongUri = Spicetify.Player.data?.item.uri;
+
+    // Added Cleanup to the previous renderer
+    if (previousRenderer) {
+        previousRenderer.dispose();
+        previousRenderer.forceContextLoss();
+        previousRenderer = null;
+    }
 
     if (lowQModeEnabled) {
         try {
@@ -134,6 +171,7 @@ export default async function ApplyDynamicBackground(element: HTMLElement) {
             vertexShader: VertexShader,
             fragmentShader: FragmentShader,
         });
+        container.material = meshMaterial;
         const sceneMesh = new THREE.Mesh(MeshGeometry, meshMaterial);
         renderScene.add(sceneMesh);
 
@@ -153,6 +191,7 @@ export default async function ApplyDynamicBackground(element: HTMLElement) {
                 updateContainerDimensions(container, width, height);
             }
         });
+        container.resizeObserver = resizeObserver;
         resizeObserver.observe(element);
 
         // Update container attributes and initial size
@@ -166,6 +205,7 @@ export default async function ApplyDynamicBackground(element: HTMLElement) {
         const texture = new THREE.CanvasTexture(blurredCover);
         texture.minFilter = THREE.NearestFilter;
         texture.magFilter = THREE.NearestFilter;
+        container.texture = texture;
         container.uniforms.BlurredCoverArt.value = texture;
         container.uniforms.RotationSpeed.value = 1.0;
 
@@ -173,10 +213,7 @@ export default async function ApplyDynamicBackground(element: HTMLElement) {
         if (Defaults.PrefersReducedMotion) {
             container.style.opacity = "1";
             if (prevContainer) {
-                if (prevContainer.animationFrame) {
-                    cancelAnimationFrame(prevContainer.animationFrame);
-                }
-                prevContainer.remove();
+                cleanup(prevContainer);
             }
         } else {
             const fadeIn = new Animator(0, 1, 0.6);
@@ -199,10 +236,7 @@ export default async function ApplyDynamicBackground(element: HTMLElement) {
 
             fadeOut.on("finish", () => {
                 if (prevContainer) {
-                    if (prevContainer.animationFrame) {
-                        cancelAnimationFrame(prevContainer.animationFrame);
-                    }
-                    prevContainer.remove();
+                    cleanup(prevContainer);
                 }
                 fadeOut.Destroy();
             });

@@ -152,3 +152,6 @@ testScript.js
 src/utils/SpicyHasher.ts
 
 .github/
+
+src/components/PopupModal/
+src/components/PopupModal/PopupModal.ts

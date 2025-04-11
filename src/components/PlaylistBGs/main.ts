@@ -28,8 +28,8 @@ Global.Event.listen("session:navigation", (data) => {
 
             //const OriginalImageUrl = `https://storage.spicy-lyrics.spikerko.org/playlist-bgs/${currentPlaylistId}.png`;
 
-            bgColorEntity.style.setProperty("--BorderRadius", "0");
-            bgColorEntity.classList.add("Skeletoned");
+            bgColorEntity?.style.setProperty("--BorderRadius", "0");
+            bgColorEntity?.classList.add("Skeletoned");
             divEntityContainer?.classList.add("main-entityHeader-withBackgroundImage");
 
             // const DEV_HOSTNAME = "http://localhost:3000";
@@ -44,13 +44,13 @@ Global.Event.listen("session:navigation", (data) => {
                 });
             } catch (error) {
                 console.error("Error fetching playlist bg", error);
-                bgColorEntity.classList.remove("Skeletoned");
+                bgColorEntity?.classList.remove("Skeletoned");
                 divEntityContainer?.classList.remove("main-entityHeader-withBackgroundImage");
                 return;
             }
 
             if (imagePrefetch.status !== 200) {
-                bgColorEntity.classList.remove("Skeletoned");
+                bgColorEntity?.classList.remove("Skeletoned");
                 divEntityContainer?.classList.remove("main-entityHeader-withBackgroundImage");
                 return;
             }
