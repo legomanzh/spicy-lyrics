@@ -1,7 +1,6 @@
 import { SpikyCache } from "@spikerko/web-modules/SpikyCache";
 import storage from "../storage";
 import Defaults from "../../components/Global/Defaults";
-import SpicyFetch from "../API/SpicyFetch";
 import { CloseNowBar, DeregisterNowBarBtn, OpenNowBar } from "../../components/Utils/NowBar";
 import PageView from "../../components/Pages/PageView";
 import Fullscreen from "../../components/Utils/Fullscreen";

@@ -15,7 +15,7 @@ import ApplyLyrics from "./utils/Lyrics/Global/Applyer";
 import { UpdateNowBar } from "./components/Utils/NowBar";
 import { requestPositionSync } from "./utils/Gets/GetProgress";
 import "./components/PlaylistBGs/main";
-// Currently Unused: import hasLyrics from "./functions/hasLyrics";
+import "./components/PopupModal/PopupModal";
 
 // CSS Imports
 import "./css/default.css";
@@ -36,9 +36,8 @@ import Sockets from "./utils/Sockets/main";
 import * as THREE from "three"
 import { GetShaderUniforms, VertexShader, FragmentShader, ShaderUniforms } from "./components/DynamicBG/ThreeShaders";
 import Fullscreen from "./components/Utils/Fullscreen";
-import { Defer } from "@spikerko/web-modules/Scheduler";
+import { Defer } from "@socali/modules/Scheduler";
 import Animator from "./utils/Animator";
-
 // Add custom type for our container element
 interface DynamicBGContainer extends HTMLElement {
     renderer: THREE.WebGLRenderer;
@@ -150,13 +149,11 @@ async function main() {
   skeletonStyle.innerHTML = `
         <!-- This style is here to prevent the @keyframes removal in the CSS. I still don't know why that's happening. -->
         <!-- This is a part of Spicy Lyrics -->
-        <style>
-            @keyframes skeleton {
-                to {
-                    background-position-x: 0
-                }
+        @keyframes skeleton {
+            to {
+                background-position-x: 0
             }
-        </style>
+        }
   `
   document.head.appendChild(skeletonStyle);
 
@@ -169,14 +166,12 @@ async function main() {
         (self) => {
             if (!self.active) {
               Session.Navigate({ pathname: "/SpicyLyrics" });
-              //self.active = true;
             } else {
               Session.GoBack();
-              //self.active = false;
             }
         },
-        false, // Whether the button is disabled.
-        false, // Whether the button is active.
+        false,
+        false,
       )
     },
     {
@@ -187,38 +182,20 @@ async function main() {
         (self) => {
             if (!self.active) {
               Session.Navigate({ pathname: "/SpicyLyrics" });
-              Whentil.When(() => document.querySelector<HTMLElement>(".Root__main-view #SpicyLyricsPage"), () => {
+              const pageWhentil = Whentil.When(() => document.querySelector<HTMLElement>(".Root__main-view #SpicyLyricsPage"), () => {
                 Fullscreen.Open();
+                pageWhentil?.Cancel();
               })
-              //self.active = true;
             } else {
               Session.GoBack();
-              //self.active = false;
             }
         },
-        false, // Whether the button is disabled.
-        false, // Whether the button is active.
+        false,
+        false,
       )
     }
   ]
 
-  /* let buttonRegistered = false;
-
-  const button = new Spicetify.Playbar.Button(
-    "Spicy Lyrics",
-    Icons.LyricsPage,
-    (self) => {
-        if (!self.active) {
-          Session.Navigate({ pathname: "/SpicyLyrics" });
-          //self.active = true;
-        } else {
-          Session.GoBack();
-          //self.active = false;
-        }
-    },
-    false, // Whether the button is disabled.
-    false, // Whether the button is active.
-  ); */
   Global.Event.listen("pagecontainer:available", () => {
     for (const button of ButtonList) {
       if (!button.Registered) {
@@ -254,10 +231,9 @@ async function main() {
   const button = ButtonList[0];
 
   const Hometinue = async () => {
-    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.6.2";
+    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.6.5";
     await Sockets.all.ConnectSockets();
 
-    // Because somethimes the "syncedPositon" was unavailable, I'm putting this check here that checks if the Spicetify?.Platform?.PlaybackAPI is available (which is then used in SpotifyPlayer.GetTrackPosition())
     Whentil.When(() => Spicetify.Platform.PlaybackAPI, () => {
       requestPositionSync();
     })
@@ -288,6 +264,26 @@ async function main() {
     const RenderCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
     RenderCamera.position.z = 1;
     const MeshGeometry = new THREE.PlaneGeometry(2, 2);
+
+    const cleanupDynamicBg = (container: DynamicBGContainer) => {
+      if (container.animationFrame) {
+        cancelAnimationFrame(container.animationFrame);
+      }
+      if (container.renderer) {
+        if (container.uniforms?.BlurredCoverArt?.value) {
+          container.uniforms.BlurredCoverArt.value.dispose();
+        }
+        container.renderer.dispose();
+        container.renderer.forceContextLoss();
+        const gl = container.renderer.getContext();
+        if (gl) {
+          const loseContext = gl.getExtension('WEBGL_lose_context');
+          if (loseContext) loseContext.loseContext();
+        }
+      }
+      container.remove();
+    }
+
     function applyDynamicBackgroundToNowPlayingBar(coverUrl: string) {
       if (lowQModeEnabled) return;
       const nowPlayingBar = document.querySelector<HTMLElement>(".Root__right-sidebar aside.NowPlayingView");
@@ -346,10 +342,7 @@ async function main() {
         if (Defaults.PrefersReducedMotion) {
           container.style.opacity = "1";
           if (prevContainer) {
-            if (prevContainer.animationFrame) {
-              cancelAnimationFrame(prevContainer.animationFrame);
-            }
-            prevContainer.remove();
+            cleanupDynamicBg(prevContainer);
           }
         } else {
           const fadeIn = new Animator(0, 1, 0.6);
@@ -372,10 +365,7 @@ async function main() {
 
           fadeOut.on("finish", () => {
             if (prevContainer) {
-              if (prevContainer.animationFrame) {
-                cancelAnimationFrame(prevContainer.animationFrame);
-              }
-              prevContainer.remove();
+              cleanupDynamicBg(prevContainer);
             }
             fadeOut.Destroy();
           });

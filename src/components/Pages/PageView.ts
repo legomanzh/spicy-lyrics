@@ -133,11 +133,11 @@ function DestroyPage() {
     if (!PageView.IsOpened) return;
     if (Fullscreen.IsOpen) Fullscreen.Close();
     if (!document.querySelector("#SpicyLyricsPage")) return
+    ResetLastLine();
     document.querySelector("#SpicyLyricsPage")?.remove();
     Defaults.LyricsContainerExists = false;
     removeLinesEvListener();
     Object.values(Tooltips).forEach(a => a?.destroy());
-    ResetLastLine();
     ScrollSimplebar?.unMount();
     PageView.IsOpened = false;
 }
@@ -146,8 +146,9 @@ function AppendViewControls(ReAppend: boolean = false) {
     const elem = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .ViewControls");
     if (!elem) return;
     if (ReAppend) elem.innerHTML = "";
+    const isNoLyrics = storage.get("currentLyricsData")?.toString() === `NO_LYRICS:${SpotifyPlayer.GetSongId()}`;
     elem.innerHTML = `
-        <button id="NowBarToggle" class="ViewControl">${Icons.NowBar}</button>
+        ${!isNoLyrics ? `<button id="NowBarToggle" class="ViewControl">${Icons.NowBar}</button>` : ""}
         <button id="Close" class="ViewControl">${Icons.Close}</button>
         ${Fullscreen.IsOpen ? `<button id="FullscreenToggle" class="ViewControl">${Icons.CloseFullscreen}</button>` : ""}
     ` // <button id="FullscreenToggle" class="ViewControl">${Fullscreen.IsOpen ? Icons.CloseFullscreen : Icons.Fullscreen}</button>
@@ -201,20 +202,22 @@ function AppendViewControls(ReAppend: boolean = false) {
 
             // NowBar Toggle Button
 
-            const nowBarButton = elem.querySelector("#NowBarToggle");
+            if (!isNoLyrics) {
+                const nowBarButton = elem.querySelector("#NowBarToggle");
 
-            Tooltips.NowBarToggle = Spicetify.Tippy(
-                nowBarButton,
-                {
-                    ...Spicetify.TippyProps,
-                    content: `NowBar`
-                }
-            )
+                Tooltips.NowBarToggle = Spicetify.Tippy(
+                    nowBarButton,
+                    {
+                        ...Spicetify.TippyProps,
+                        content: `NowBar`
+                    }
+                )
 
-            nowBarButton.addEventListener(
-                "click",
-                () => ToggleNowBar()
-            )
+                nowBarButton.addEventListener(
+                    "click",
+                    () => ToggleNowBar()
+                )
+            }
 
             {
                 if (!Fullscreen.IsOpen) return;

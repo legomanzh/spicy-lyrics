@@ -10,8 +10,7 @@ import {
 } from "./types/settings-field";
 
 class SettingsSection {
-  settingsFields: { [nameId: string]: ISettingsField } =
-    this.initialSettingsFields;
+  settingsFields: { [nameId: string]: ISettingsField };
   private stopHistoryListener: any;
   private setRerender: Function | null = null;
 
@@ -19,7 +18,9 @@ class SettingsSection {
     public name: string,
     public settingsId: string,
     public initialSettingsFields: { [key: string]: ISettingsField } = {}
-  ) {}
+  ) {
+    this.settingsFields = initialSettingsFields;
+  }
 
   pushSettings = async () => {
     Object.entries(this.settingsFields).forEach(([nameId, field]) => {

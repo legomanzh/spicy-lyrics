@@ -1,4 +1,4 @@
-import { Maid, Giveable } from '@spikerko/web-modules/Maid';
+import { Maid, Giveable } from '@socali/modules/Maid';
 
 class IntervalManager implements Giveable {
   private maid: Maid;

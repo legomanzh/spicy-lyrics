@@ -1,4 +1,4 @@
-import { Maid } from "@spikerko/web-modules/Maid";
+import { Maid } from "@socali/modules/Maid";
 
 type EventCallback = (progress: number, start: number, end: number) => void;
 

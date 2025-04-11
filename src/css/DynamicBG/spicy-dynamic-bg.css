@@ -8,7 +8,11 @@
   top: 0;
   width: 100%;
   transform-origin: center center;
-  filter: brightness(0.7) saturate(2.5);
+  filter: brightness(0.65) saturate(2.5);
+}
+
+#SpicyLyricsPage:not(.Fullscreen) .spicy-dynamic-bg {
+  border-radius: var(--section-border-radius, 8px);
 }
 
 /* Container styles */
@@ -21,7 +25,6 @@
 .spicy-dynamic-bg-in-this:is(aside) .spicy-dynamic-bg {
   max-height: 100%;
   max-width: 100%;
-  border-radius: var(--section-border-radius, 8px);
 }
 
 .spicy-dynamic-bg-in-this:is(aside) .spicy-dynamic-bg {
@@ -55,8 +58,8 @@
 /* Low quality mode styles - kept unchanged as requested */
 #SpicyLyricsPage .spicy-dynamic-bg:is(.lowqmode) {
   object-fit: cover;
-  filter: brightness(.55) blur(9px) saturate(1.05);
-  scale: 1.05;
+  filter: brightness(.65) blur(5px) saturate(1.18);
+  scale: 1.1;
 }
 
 /* Hide sidebar background when in fullscreen lyrics mode */
