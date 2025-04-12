@@ -302,3 +302,9 @@ body:not(:has(.Root__main-view-overlay .BeautifulLyricsPage:is(.Fullscreen))) #B
 #SpicyLyricsPage .MediaContent:active {
   cursor: grabbing;
 }
+
+#SpicyLyricsPage .ViewControls svg {
+  aspect-ratio: 1;
+  height: calc(var(--ViewControlSize)* .35);
+  width: auto;
+}

@@ -7,9 +7,9 @@ import SimpleBar from 'simplebar';
 let lastLine = null;
 let isUserScrolling = false;
 let lastUserScrollTime = 0;
+let lastPosition = null;
 const USER_SCROLL_COOLDOWN = 750; // 0.75 second cooldown
 const POSITION_THRESHOLD = 150; // 20ms threshold for start/end detection
-
 // Add focus event listener to reset state when window is focused
 window.addEventListener('focus', ResetLastLine);
 // Add resize event listener to reset state when window is resized
@@ -44,6 +44,12 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
         const ProcessedPosition = Position + PositionOffset;
         const TrackDuration = SpotifyPlayer.GetTrackDuration();
 
+        // Check if position changed while paused
+        if (!Spicetify.Player.isPlaying() && lastPosition !== null && lastPosition !== Position) {
+            ResetLastLine();
+        }
+        lastPosition = Position;
+
         if (!Lines) return;
 
         // Check if all lines are sung
@@ -52,7 +58,20 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
         if (allLinesSung) {
             const container = ScrollSimplebar?.getScrollElement() as HTMLElement;
             if (container) {
-                container.scrollTop = container.scrollHeight;
+                const timeSinceLastScroll = performance.now() - lastUserScrollTime;
+                
+                // Only auto-scroll if user hasn't scrolled recently
+                if (timeSinceLastScroll > USER_SCROLL_COOLDOWN) {
+                    isUserScrolling = false;
+                    // Remove HideLineBlur class when auto-scroll resumes
+                    const lyricsContent = document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent");
+                    if (lyricsContent) {
+                        lyricsContent.classList.remove("HideLineBlur");
+                    }
+                    // Get the last line element to scroll to
+                    const lastLineElement = Lines[Lines.length - 1].HTMLElement as HTMLElement;
+                    ScrollIntoCenterView(container, lastLineElement, 0, -50, true);
+                }
                 return;
             }
         }
@@ -132,4 +151,5 @@ export function ResetLastLine() {
     lastLine = null;
     isUserScrolling = false;
     lastUserScrollTime = 0;
+    lastPosition = null;
 }

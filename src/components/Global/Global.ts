@@ -7,6 +7,7 @@ const Global = {
     Scope: SCOPE_ROOT,
     Event,
     NonLocalTimeOffset: 0,
+    Saves: {} as any,
     SetScope: (key: string, value: any) => {
         const keys = key.split('.'); // Split the key into individual parts
         let current = SCOPE_ROOT; // Start at the root object
