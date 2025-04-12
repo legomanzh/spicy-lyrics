@@ -472,7 +472,7 @@ export function Animate(position) {
                 line.HTMLElement.style.setProperty("--gradient-position", `${percentage * 100}%`);
 
                 const blurRadius = 12 + (20 - 12) * percentage;
-                const textShadowOpacity = calculateLineGlowOpacity(percentage) * 0.8;
+                const textShadowOpacity = calculateLineGlowOpacity(percentage) * 0.4;
 
                 line.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${blurRadius}px`);
                 line.HTMLElement.style.setProperty("--text-shadow-opacity", `${textShadowOpacity}%`);

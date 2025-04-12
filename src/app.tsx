@@ -15,7 +15,6 @@ import ApplyLyrics from "./utils/Lyrics/Global/Applyer";
 import { UpdateNowBar } from "./components/Utils/NowBar";
 import { requestPositionSync } from "./utils/Gets/GetProgress";
 import "./components/PlaylistBGs/main";
-import "./components/PopupModal/PopupModal";
 
 // CSS Imports
 import "./css/default.css";
@@ -53,9 +52,9 @@ async function main() {
     storage.set("show_topbar_notifications", "true")
   }
 
-  if (!storage.get("lyrics_spacing")) {
+ /*  if (!storage.get("lyrics_spacing")) {
     storage.set("lyrics_spacing", "Medium");
-  }
+  } */
 
   if (!storage.get("prefers_reduced_motion")) {
     storage.set("prefers_reduced_motion", "false");
@@ -65,7 +64,7 @@ async function main() {
     Defaults.PrefersReducedMotion = storage.get("prefers_reduced_motion") === "true";
   }
 
-  if (storage.get("lyrics_spacing")) {
+  /* if (storage.get("lyrics_spacing")) {
     if (storage.get("lyrics_spacing") === "None") {
       document.querySelector("html").style.setProperty("--SpicyLyrics-LineSpacing", "0");
     }
@@ -81,7 +80,7 @@ async function main() {
     if (storage.get("lyrics_spacing") === "Extra Large") {
       document.querySelector("html").style.setProperty("--SpicyLyrics-LineSpacing", "2cqw 0");
     }
-  }
+  } */
 
   const lowQMode = storage.get("lowQMode");
   const lowQModeEnabled = lowQMode && lowQMode === "true";
@@ -107,17 +106,17 @@ async function main() {
       const script = document.createElement("script");
       script.async = true;
       script.src = GetFullUrl(scriptFileName);
-      script.onerror = () => {
+      /* script.onerror = () => {
         sleep(2).then(() => {
           window._spicy_lyrics?.func_main?._deappend_scripts();
           window._spicy_lyrics?.func_main?._add_script(scriptFileName);
           window._spicy_lyrics?.func_main?._append_scripts();
         })
-      };
+      }; */
       scripts.push(script);
     }
 
-    Global.SetScope("func_main._add_script", AddScript);
+    //Global.SetScope("func_main._add_script", AddScript);
 
     // spicy-hasher.js
     AddScript("spicy-hasher.js");
@@ -134,14 +133,14 @@ async function main() {
         document.head.appendChild(script);
       }
     }
-    const DeappendScripts = () => {
+    /* const DeappendScripts = () => {
       for (const script of scripts) {
         document.head.removeChild(script);
       }
-    }
+    } */
 
-    Global.SetScope("func_main._append_scripts", AppendScripts)
-    Global.SetScope("func_main._deappend_scripts", DeappendScripts)
+    /* Global.SetScope("func_main._append_scripts", AppendScripts)
+    Global.SetScope("func_main._deappend_scripts", DeappendScripts) */
     AppendScripts();
   }
 
@@ -166,6 +165,12 @@ async function main() {
         (self) => {
             if (!self.active) {
               Session.Navigate({ pathname: "/SpicyLyrics" });
+              if (Global.Saves.shift_key_pressed) {
+                const pageWhentil = Whentil.When(() => document.querySelector<HTMLElement>(".Root__main-view #SpicyLyricsPage"), () => {
+                  Fullscreen.Open(true);
+                  pageWhentil?.Cancel();
+                });
+              }
             } else {
               Session.GoBack();
             }
@@ -183,7 +188,7 @@ async function main() {
             if (!self.active) {
               Session.Navigate({ pathname: "/SpicyLyrics" });
               const pageWhentil = Whentil.When(() => document.querySelector<HTMLElement>(".Root__main-view #SpicyLyricsPage"), () => {
-                Fullscreen.Open();
+                Fullscreen.Open(Global.Saves.shift_key_pressed ?? false);
                 pageWhentil?.Cancel();
               })
             } else {
@@ -195,6 +200,21 @@ async function main() {
       )
     }
   ]
+
+  // Add shift key tracking
+  Global.Saves.shift_key_pressed = false;
+  
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Shift') {
+      Global.Saves.shift_key_pressed = true;
+    }
+  });
+  
+  window.addEventListener('keyup', (e) => {
+    if (e.key === 'Shift') {
+      Global.Saves.shift_key_pressed = false;
+    }
+  });
 
   Global.Event.listen("pagecontainer:available", () => {
     for (const button of ButtonList) {
@@ -231,7 +251,7 @@ async function main() {
   const button = ButtonList[0];
 
   const Hometinue = async () => {
-    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "2.6.5";
+    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "3.0.0";
     await Sockets.all.ConnectSockets();
 
     Whentil.When(() => Spicetify.Platform.PlaybackAPI, () => {

@@ -18,7 +18,8 @@ import Global from "../Global/Global";
 export const Tooltips = {
     Close: null,
     NowBarToggle: null,
-    FullscreenToggle: null
+    FullscreenToggle: null,
+    CinemaView: null
 }
 
 const PageView = {
@@ -145,97 +146,123 @@ function DestroyPage() {
 function AppendViewControls(ReAppend: boolean = false) {
     const elem = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .ViewControls");
     if (!elem) return;
+    
+    // Safely destroy existing tooltips first
+    for (const key in Tooltips) {
+        if (Tooltips[key]?.destroy && typeof Tooltips[key].destroy === 'function') {
+            Tooltips[key].destroy();
+            Tooltips[key] = null;
+        }
+    }
+
     if (ReAppend) elem.innerHTML = "";
     const isNoLyrics = storage.get("currentLyricsData")?.toString() === `NO_LYRICS:${SpotifyPlayer.GetSongId()}`;
     elem.innerHTML = `
-        ${!isNoLyrics ? `<button id="NowBarToggle" class="ViewControl">${Icons.NowBar}</button>` : ""}
+        ${Fullscreen.IsOpen ? "" : `<button id="CinemaView" class="ViewControl">${Icons.CinemaView}</button>`}
+        ${!isNoLyrics && !Fullscreen.IsOpen ? `<button id="NowBarToggle" class="ViewControl">${Icons.NowBar}</button>` : ""}
         <button id="Close" class="ViewControl">${Icons.Close}</button>
-        ${Fullscreen.IsOpen ? `<button id="FullscreenToggle" class="ViewControl">${Icons.CloseFullscreen}</button>` : ""}
-    ` // <button id="FullscreenToggle" class="ViewControl">${Fullscreen.IsOpen ? Icons.CloseFullscreen : Icons.Fullscreen}</button>
+        ${Fullscreen.IsOpen ? `<button id="FullscreenToggle" class="ViewControl">${Fullscreen.CinemaViewOpen ? Icons.Fullscreen : Icons.CloseFullscreen}</button>` : ""}
+    `
 
+    let targetElem = elem;
     if (Fullscreen.IsOpen) {
-        TransferElement(elem, document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaContent"));
-        Object.values(Tooltips).forEach(a => a?.destroy());
-        SetupTippy(document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaContent .ViewControls"));
+        const mediaContent = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaContent");
+        if (mediaContent) {
+            TransferElement(elem, mediaContent);
+            targetElem = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaContent .ViewControls");
+        }
     } else {
         if (document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .ViewControls")) {
             TransferElement(elem, document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox"));
         }
-        Object.values(Tooltips).forEach(a => a?.destroy());
-        SetupTippy(elem);
+    }
+
+    if (targetElem) {
+        SetupTippy(targetElem);
     }
 
     function SetupTippy(elem: HTMLElement) {
         // Let's set up our TippyProps
-        {
-            const closeButton = elem.querySelector("#Close");
-
-            Tooltips.Close = Spicetify.Tippy(
-                closeButton,
-                {
-                    ...Spicetify.TippyProps,
-                    content: `Close Page`
-                }
-            )
-
-            closeButton.addEventListener(
-                "click",
-                () => Session.GoBack()
-            )
-
-            /* // Kofi Donation
-
-            const kofiButton = elem.querySelector("#Kofi");
-
-            Tooltips.Kofi = Spicetify.Tippy(
-                kofiButton,
-                {
-                    ...Spicetify.TippyProps,
-                    content: `Donate`
-                }
-            )
-
-            kofiButton.addEventListener(
-                "click",
-                () => window.open("https://ko-fi.com/spikerko")
-            ) */
-
-            // NowBar Toggle Button
-
-            if (!isNoLyrics) {
-                const nowBarButton = elem.querySelector("#NowBarToggle");
-
-                Tooltips.NowBarToggle = Spicetify.Tippy(
-                    nowBarButton,
+        const closeButton = elem.querySelector("#Close");
+        if (closeButton) {
+            try {
+                Tooltips.Close = Spicetify.Tippy(
+                    closeButton,
                     {
                         ...Spicetify.TippyProps,
-                        content: `NowBar`
+                        content: `Close Page`
                     }
-                )
-
-                nowBarButton.addEventListener(
-                    "click",
-                    () => ToggleNowBar()
-                )
+                );
+                closeButton.addEventListener("click", () => {
+                    if (Fullscreen.IsOpen) {
+                        // If in any fullscreen mode, close it first
+                        Fullscreen.Close();
+                    }
+                    // Then go back
+                    Session.GoBack();
+                });
+            } catch (err) {
+                console.warn("Failed to setup Close tooltip:", err);
             }
+        }
 
-            {
-                if (!Fullscreen.IsOpen) return;
-                // Fullscreen Button
-                const fullscreenBtn = elem.querySelector("#FullscreenToggle");
+        if (!isNoLyrics && !Fullscreen.IsOpen) {
+            const nowBarButton = elem.querySelector("#NowBarToggle");
+            if (nowBarButton) {
+                try {
+                    Tooltips.NowBarToggle = Spicetify.Tippy(
+                        nowBarButton,
+                        {
+                            ...Spicetify.TippyProps,
+                            content: `NowBar`
+                        }
+                    );
+                    nowBarButton.addEventListener("click", () => ToggleNowBar());
+                } catch (err) {
+                    console.warn("Failed to setup NowBar tooltip:", err);
+                }
+            }
+        }
 
+        const fullscreenBtn = elem.querySelector("#FullscreenToggle");
+        if (fullscreenBtn) {
+            try {
                 Tooltips.FullscreenToggle = Spicetify.Tippy(
                     fullscreenBtn,
                     {
                         ...Spicetify.TippyProps,
-                        content: `Leave Fullscreen`
+                        content: `Toggle Fullscreen Mode`
                     }
-                )
+                );
+                fullscreenBtn.addEventListener("click", () => {
+                    // If we're in cinema view, go to full fullscreen
+                    if (Fullscreen.CinemaViewOpen) {
+                        Fullscreen.Close(); // First close current fullscreen state
+                        setTimeout(() => Fullscreen.Open(false), 50); // Then open in full fullscreen
+                    } else {
+                        // If we're in full fullscreen, go to cinema view
+                        Fullscreen.Close(); // First close current fullscreen state
+                        setTimeout(() => Fullscreen.Open(true), 50); // Then open in cinema view
+                    }
+                });
+            } catch (err) {
+                console.warn("Failed to setup Fullscreen tooltip:", err);
+            }
+        }
 
-                fullscreenBtn.addEventListener(
-                    "click",
-                    () => Fullscreen.Toggle()
-                )
+        const cinemaViewBtn = elem.querySelector("#CinemaView");
+        if (cinemaViewBtn && !Fullscreen.IsOpen) {
+            try {
+                Tooltips.CinemaView = Spicetify.Tippy(
+                    cinemaViewBtn,
+                    {
+                        ...Spicetify.TippyProps,
+                        content: `Cinema View`
+                    }
+                );
+                cinemaViewBtn.addEventListener("click", () => Fullscreen.Open(true));
+            } catch (err) {
+                console.warn("Failed to setup CinemaView tooltip:", err);
             }
         }
     }

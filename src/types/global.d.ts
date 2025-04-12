@@ -5,7 +5,8 @@ declare global {
     _spicy_lyrics?: any;
     _spicy_lyrics_session?: any;
   }
-  type Vibrant = Promise<any>;
+
+  const Vibrant: any;
 }
 
 export {};

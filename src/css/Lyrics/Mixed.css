@@ -1,3 +1,7 @@
+:root {
+  --SpicyLyrics-LineSpacing: 2cqw 0;
+}
+
 #SpicyLyricsPage .lyricsParent .LyricsContent.lowqmode .line {
     --BlurAmount: 0px !important;
     filter: none !important;
@@ -256,17 +260,13 @@
   transition: scale 0.25s ease-in-out, margin 0.1s ease-in-out, z-index 0.1s linear !important;
   position: relative;
   transform-origin: center center !important;
-  margin: -3cqw 0 !important;
+  margin: -4cqw 0 !important;
   z-index: -1;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line.Active {
   z-index: auto;
   margin: -1.38cqw 0 !important;
-}
-
-#SpicyLyricsPage .LyricsContainer .LyricsContent[data-lyrics-type="Line"] .line.musical-line.Active {
-  margin: -0.8cqw 0 !important;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line .dotGroup {
@@ -344,9 +344,8 @@
   flex-direction: column;
 }
 
-#SpicyLyricsPage .LyricsContainer .LyricsContent .line:not(.musical-line),
-#SpicyLyricsPage .LyricsContainer .LyricsContent .Credits {
-  margin: var(--SpicyLyrics-LineSpacing, 1cqw 0);
+#SpicyLyricsPage .LyricsContainer .LyricsContent .line:not(.musical-line) {
+  margin: var(--SpicyLyrics-LineSpacing, 2cqw 0);
 /*   margin-left: 18cqw;
   margin-right: 30cqw; */
 }
@@ -360,7 +359,7 @@
   --font-size: calc(var(--DefaultLyricsSize)*0.47);
   font-size: var(--font-size);
   opacity: 0.75;
-  margin-top: 5cqh !important;
+  margin: 3cqw 0 0 !important;
   scale: 1;
   transition: color 0.5s ease-in-out;
 }
@@ -374,7 +373,7 @@
   --text-shadow-opacity: 0%;
   transform-origin: left center;
   transition: scale .2s cubic-bezier(.37,0,.63,1), opacity .2s cubic-bezier(.37,0,.63,1);
-  margin: var(--SpicyLyrics-LineSpacing, 1cqw 0);
+  margin: var(--SpicyLyrics-LineSpacing, 2cqw 0);
   text-shadow: 0 0 var(--text-shadow-blur-radius) rgba(255,255,255,var(--text-shadow-opacity));
 }
 
@@ -407,17 +406,17 @@
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent:has(.OppositeAligned) .line.OppositeAligned:not(.rtl) {
-  padding-left: 15cqw;
+  padding-left: 30cqw;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent:has(.OppositeAligned) .line:not(.OppositeAligned, .rtl) {
-  padding-right: 15cqw;
+  padding-right: 30cqw;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line.OppositeAligned {
-  padding-right: 15cqw;
+  padding-right: 30cqw;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line:not(.OppositeAligned) {
-  padding-left: 15cqw;
+  padding-left: 30cqw;
 }

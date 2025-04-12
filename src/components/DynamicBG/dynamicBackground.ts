@@ -315,7 +315,7 @@ export async function GetBlurredCoverArt() {
     const blurredCanvas = new OffscreenCanvas(expandedSize, expandedSize);
     const blurredCtx = blurredCanvas.getContext('2d')!;
 
-    blurredCtx.filter = `blur(${40}px)`;
+    blurredCtx.filter = `blur(${25}px)`;
 
     // Draw the cropped circular image in the center of the expanded canvas
     blurredCtx.drawImage(circleCanvas, (padding / 2), (padding / 2));
