@@ -15,6 +15,19 @@ window.addEventListener('focus', ResetLastLine);
 // Add resize event listener to reset state when window is resized
 window.addEventListener('resize', ResetLastLine);
 
+// Create ResizeObserver to monitor LyricsContent container dimensions
+const lyricsContentObserver = new ResizeObserver(() => {
+    ResetLastLine();
+});
+
+// Function to setup the observer
+function setupLyricsContentObserver() {
+    const lyricsContent = document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent");
+    if (lyricsContent) {
+        lyricsContentObserver.observe(lyricsContent);
+    }
+}
+
 function handleUserScroll(ScrollSimplebar: SimpleBar) {
     if (!isUserScrolling) {
         isUserScrolling = true;
@@ -30,6 +43,9 @@ function handleUserScroll(ScrollSimplebar: SimpleBar) {
 export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
     if (!Defaults.LyricsContainerExists) return;
 
+    // Setup the observer when lyrics container exists
+    setupLyricsContentObserver();
+
     // Add scroll event listener
     const scrollElement = ScrollSimplebar?.getScrollElement();
     if (scrollElement) {
@@ -40,12 +56,13 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
     if (Spicetify.Platform.History.location.pathname === "/SpicyLyrics") {
         const Lines = LyricsObject.Types[Defaults.CurrentLyricsType]?.Lines;
         const Position = SpotifyPlayer.GetTrackPosition();
-        const PositionOffset = 0;
+        const PositionOffset = 250;
         const ProcessedPosition = Position + PositionOffset;
         const TrackDuration = SpotifyPlayer.GetTrackDuration();
+        const didLastLineExist = lastLine !== null;
 
         // Check if position changed while paused
-        if (!Spicetify.Player.isPlaying() && lastPosition !== null && lastPosition !== Position) {
+        if (!SpotifyPlayer.IsPlaying && lastPosition !== null && lastPosition !== Position) {
             ResetLastLine();
         }
         lastPosition = Position;
@@ -77,7 +94,7 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
         }
 
         // Handle start of track
-        if (ProcessedPosition <= POSITION_THRESHOLD) {
+        if (Position <= POSITION_THRESHOLD) {
             const container = ScrollSimplebar?.getScrollElement() as HTMLElement;
             if (container) {
                 container.scrollTop = 0;
@@ -116,7 +133,6 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
                 const containerRect = container.getBoundingClientRect();
                 const isLineInViewport = lineRect.top >= containerRect.top && lineRect.bottom <= containerRect.bottom;
 
-                const didLastLineExist = lastLine !== null;
                 const isSameLine = lastLine === LineElem;
 
                 // If this is the first line (no previous line), force scroll without checks

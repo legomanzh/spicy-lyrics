@@ -46,7 +46,7 @@ body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer {
   height: 5cqh;
   justify-content: center;
   opacity: .5;
-  transition: opacity .2s, left .5s, scale .5s;
+  transition: opacity .2s, left .5s, scale .5s !important;
   z-index: 101;
   --ViewControlSize: 100cqh;
 }
@@ -55,7 +55,7 @@ body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer {
   position: absolute;
   width: 55px;
   height: 100cqh;
-  left: -5cqw;
+  left: -100px;
   flex-direction: column;
   --ViewControlSize: 100cqw;
   --PageHoverOffset: -22px;
@@ -68,8 +68,8 @@ body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer {
 
 /* When NowBar is on right side and open, move controls to right */
 #SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Right):is(.NowBarStatus__Open) .ViewControls {
-  transition: opacity .2s, right .5s, scale .5s;
-  right: -5cqw;
+  transition: opacity .2s, right .5s, scale .5s !important;
+  right: -100px;
   left: unset;
 }
 
@@ -89,8 +89,8 @@ body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer {
 
 /* When NowBar is on left side (open or closed), keep controls on left */
 #SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Left) .ViewControls {
-  transition: opacity .2s, left .5s, scale .5s;
-  left: -5cqw;
+  transition: opacity .2s, left .5s, scale .5s !important;
+  left: -100px;
   right: unset;
 }
 
@@ -110,8 +110,8 @@ body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer {
 
 /* When NowBar is closed (regardless of side), keep controls on left */
 #SpicyLyricsPage:not(.Fullscreen):is(.NowBarStatus__Closed) .ViewControls {
-  transition: opacity .2s, left .5s, scale .5s;
-  left: -5cqw;
+  transition: opacity .2s, left .5s, scale .5s !important;
+  left: -100px;
   right: unset;
 }
 
@@ -133,8 +133,8 @@ body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer {
 
 /* When NowBar is on right side but closed, ensure proper hover behavior */
 #SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Right):is(.NowBarStatus__Closed) .ViewControls {
-  transition: opacity .2s, left .5s, scale .5s;
-  left: -5cqw;
+  transition: opacity .2s, left .5s, scale .5s !important;
+  left: -100px;
   right: unset;
 }
 
@@ -284,11 +284,6 @@ body:not(:has(.Root__main-view-overlay .BeautifulLyricsPage:is(.Fullscreen))) #B
   scale: 0.85 !important;
   order: 1000 !important;
   opacity: 0.65 !important;
-}
-
-#SpicyLyricsPage .ViewControls #Close svg {
-  width: auto;
-  height: auto;
 }
 
 #SpicyLyricsPage .MediaImage,

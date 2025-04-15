@@ -14,15 +14,15 @@ export default function Emphasize(letters: Array<string>, applyTo: HTMLElement, 
         letterElem.textContent = letter;
         letterElem.classList.add("letter");
         letterElem.classList.add("Emphasis");
-
+        const isLastLetter = index === letters.length - 1;
         // Calculate start and end time for each letter
         const letterStartTime = ConvertTime(lead.StartTime) + index * letterDuration;
-        const letterEndTime = letterStartTime + letterDuration;
+        const letterEndTime = (isLastLetter ? ((letterStartTime + letterDuration) - 0) : (letterStartTime + letterDuration));
 
         //const contentDuration = letterDuration > 150 ? letterDuration : 150;
         //letterElem.style.setProperty("--content-duration", `${contentDuration}ms`);
 
-        if (index === lA.length - 1) {
+        if (isLastLetter) {
             letterElem.classList.add("LastLetterInWord")
         }
 

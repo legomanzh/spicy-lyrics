@@ -251,7 +251,7 @@ async function main() {
   const button = ButtonList[0];
 
   const Hometinue = async () => {
-    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "3.0.0";
+    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "3.1.2";
     await Sockets.all.ConnectSockets();
 
     Whentil.When(() => Spicetify.Platform.PlaybackAPI, () => {
@@ -542,11 +542,6 @@ async function main() {
     button.Button.tippy.setContent("Spicy Lyrics");
 
 
-    Spicetify.Player.addEventListener("onplaypause", (e) => {
-      SpotifyPlayer.IsPlaying = !e?.data?.is_paused;
-      Global.Event.evoke("playback:playpause", e);
-    })
-
     {
       let lastLoopType = null;
       const LoopInt = new IntervalManager(Infinity, () => {
@@ -587,7 +582,10 @@ async function main() {
 
     // Events
     {
-      Spicetify.Player.addEventListener("onplaypause", (e) => Global.Event.evoke("playback:playpause", e));
+      Spicetify.Player.addEventListener("onplaypause", (e) => {
+        SpotifyPlayer.IsPlaying = !e?.data?.isPaused;
+        Global.Event.evoke("playback:playpause", e)
+      });
       Spicetify.Player.addEventListener("onprogress", (e) => Global.Event.evoke("playback:progress", e));
       Spicetify.Player.addEventListener("songchange", (e) => Global.Event.evoke("playback:songchange", e));
 

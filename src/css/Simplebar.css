@@ -160,7 +160,7 @@
   left: 2px;
   right: 2px;
   opacity: 0;
-  transition: opacity 0.2s 0.5s linear;
+  transition: opacity 0.2s 0.5s linear !important;
 }
 
 #SpicyLyricsPage .simplebar-scrollbar.simplebar-visible:before {
@@ -221,7 +221,7 @@
 }
 
 #SpicyLyricsPage .ScrollbarScrollable .simplebar-track {
-  transition: opacity 0.2s linear;
+  transition: opacity 0.2s linear !important;
   opacity: 1;
 }
 

@@ -27,18 +27,19 @@
   width: 100%;
   font-size: var(--DefaultLyricsSize);
   font-weight: 900;
-  transition: opacity, transform, scale 0.2s linear;
+  transition: opacity, transform, scale 0.2s linear !important;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
   z-index: 9;
 
   --ImageMask: linear-gradient(
     180deg,
-    transparent 0,                          /* Fully transparent at the top */
-    var(--spice-sidebar) 16px,              /* Sidebar color starts at 16px */
-    var(--spice-sidebar) calc(100% - 64px), /* Sidebar color ends before the bottom */
-    transparent calc(100% - 16px),          /* Starts fading to transparent */
-    transparent                             /* Fully transparent at the bottom */
+    transparent 0,
+    transparent 16px,
+    var(--spice-sidebar) 64px,
+    var(--spice-sidebar) calc(100% - 64px),
+    transparent calc(100% - 16px),
+    transparent
   );
 
   --webkit-mask-image: var(--ImageMask);
