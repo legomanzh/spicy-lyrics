@@ -46,7 +46,7 @@
     height: 100cqh;
     z-index: -1;
     padding: 0 3cqw 0 11cqw;
-    transition: opacity 0.2s ease-in-out;
+    transition: opacity 0.2s ease-in-out !important;
     opacity: 0;
 }
 
@@ -80,12 +80,12 @@
 
 #SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaImage {
     border-radius: 2cqh;
-    width: 100%;
-    height: 100%;
+    width: 100cqw;
+    height: 100cqh;
     box-shadow: 0 9px 20px 0 rgba(0, 0, 0, .271);
     opacity: .95;
     filter: brightness(var(--ArtworkBrightness)) blur(var(--ArtworkBlur));
-    transition: opacity, scale .1s cubic-bezier(.24,.01,.97,1.41);
+    transition: opacity, scale .1s cubic-bezier(.24,.01,.97,1.41) !important;
     cursor: grab;
 }
 
@@ -152,7 +152,7 @@
     white-space: nowrap;          /* Prevents text from wrapping */
     overflow: hidden;             /* Hides overflowing text */
     text-overflow: ellipsis;      /* Adds the ellipsis (...) */
-    max-width: 80cqw;              /* Restricts span to the container width */
+    max-width: 90cqw;              /* Restricts span to the container width */
     display: inline-block;        /* Ensures width is respected */
     text-align: center;           /* Align text within the span */
     line-height: calc(var(--title-height) * 20);
@@ -170,7 +170,7 @@
     white-space: nowrap;          /* Prevents text from wrapping */
     overflow: hidden;             /* Hides overflowing text */
     text-overflow: ellipsis;      /* Adds the ellipsis (...) */
-    max-width: 75cqw;             /* Restricts span to the container width */
+    max-width: 85cqw;             /* Restricts span to the container width */
     display: inline-block;        /* Ensures width is respected */
     text-align: center;           /* Align text within the span */
 }
@@ -184,7 +184,7 @@
 }
 
 #SpicyLyricsPage .ContentBox.LyricsHidden .NowBar {
-    margin: 0 !important;
+    padding: 0 !important;
 }
 
 #SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox.Skeletoned {
@@ -282,8 +282,8 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100cqw;
+    height: 100cqh;
     z-index: 99;
     display: flex;
     align-items: center;
@@ -305,7 +305,7 @@
     position: absolute;
     z-index: -1;
     opacity: 0;
-    transition: opacity 0.25s ease-in-out;
+    transition: opacity 0.25s ease-in-out !important;
     background: white;
     display: flex;
     align-items: center;
@@ -351,12 +351,13 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
+    width: 100cqw;
     height: 10cqh;
     padding: 0 20cqh 0;
     position: absolute;
     bottom: 11cqh;
     z-index: 2;
+    container-type: size;
 }
 
 #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl.TrackSkip.PrevTrack {
@@ -374,26 +375,24 @@
     align-items: center;
     cursor: pointer;
     justify-content: center;
-    transition: opacity .175s cubic-bezier(.37,0,.63,1), filter .175s ease-out; /* Added filter transition */
+    transition: opacity .175s cubic-bezier(.37,0,.63,1), filter .175s ease-out !important; /* Added filter transition */
     --ShrinkScale: 0.9;
     --ShrinkDelta: calc(1 - var(--ShrinkScale));
-    height: 6cqh;
-    width: 6cqh;
+    height: 100cqh;
+    width: 12cqw;
 }
 
 #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl svg {
-    transition: filter .175s ease-out; /* Added transition for SVG filter */
+    transition: filter .175s ease-out !important; /* Added transition for SVG filter */
 }
 
 #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl.ShuffleToggle,
 #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl.LoopToggle {
-    height: 4cqh;
-    width: 4cqh;
+    width: 7cqw;
 }
 
 #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl.PlayStateToggle {
-    height: 7cqh;
-    width: 7cqh;
+    width: 9.25cqw;
 }
 #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl:not(.Pressed) {
     animation: pressAnimation .6s;
@@ -412,14 +411,10 @@
     background: rgba(38, 38, 38, 0.7) !important;
 }
 
-#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .ViewControls .ViewControl svg {
-    width: 20px !important;
-    height: 20px !important;
-}
 
 #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls .PlaybackControl.Pressed {
     transform: scale(var(--ShrinkScale));
-    transition: opacity transform .175s cubic-bezier(.37, 0, .63, 1);
+    transition: opacity transform .175s cubic-bezier(.37, 0, .63, 1) !important;
 }
 
 #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .PlaybackControls:hover .PlaybackControl:not(:hover) {

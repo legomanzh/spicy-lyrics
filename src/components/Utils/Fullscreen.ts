@@ -50,8 +50,15 @@ const Fullscreen = {
 
 const MediaBox_Data = {
     Eventified: false,
+    hoverTimeoutId: null,
     Functions: {
         MouseIn: () => {
+            // Clear any existing timeout when entering MediaBox
+            if (MediaBox_Data.hoverTimeoutId) {
+                clearTimeout(MediaBox_Data.hoverTimeoutId);
+                MediaBox_Data.hoverTimeoutId = null;
+            }
+
             if (Defaults.PrefersReducedMotion) {
                 MediaBox_Data.Functions.Target.style.setProperty("--ArtworkBrightness", `${ArtworkBrightness.End}`);
                 MediaBox_Data.Functions.Target.style.setProperty("--ArtworkBlur", `${ArtworkBlur.End}px`);
@@ -67,6 +74,12 @@ const MediaBox_Data = {
             MediaBox_Data.Animators.opacity.Start();
         },
         NowBarMouseIn: () => {
+            // Clear any existing timeout when entering NowBar
+            if (MediaBox_Data.hoverTimeoutId) {
+                clearTimeout(MediaBox_Data.hoverTimeoutId);
+                MediaBox_Data.hoverTimeoutId = null;
+            }
+
             if (Defaults.PrefersReducedMotion) {
                 MediaBox_Data.Functions.Target.style.setProperty("--ArtworkBrightness", `${ArtworkBrightness.ParentHover.End}`);
                 MediaBox_Data.Functions.Target.style.setProperty("--ArtworkBlur", `${ArtworkBlur.ParentHover.End}px`);
@@ -83,6 +96,12 @@ const MediaBox_Data = {
             MediaBox_Data.Animators.opacityHalf.Start();
         },
         MouseOut: (event?: MouseEvent) => {
+            // Clear any existing timeout when leaving
+            if (MediaBox_Data.hoverTimeoutId) {
+                clearTimeout(MediaBox_Data.hoverTimeoutId);
+                MediaBox_Data.hoverTimeoutId = null;
+            }
+
             if (Defaults.PrefersReducedMotion) {
                 MediaBox_Data.Functions.Target.style.setProperty("--ArtworkBrightness", `${ArtworkBrightness.Start}`);
                 MediaBox_Data.Functions.Target.style.setProperty("--ArtworkBlur", `${ArtworkBlur.Start}px`);
@@ -102,21 +121,70 @@ const MediaBox_Data = {
                 MediaBox_Data.Animators.blur.Start();
                 MediaBox_Data.Animators.opacity.Start();
             } else {
+                // If any half-strength animator is still not reversed, set timeout to reverse them
+                if (!MediaBox_Data.Animators.brightnessHalf.reversed || 
+                    !MediaBox_Data.Animators.blurHalf.reversed || 
+                    !MediaBox_Data.Animators.opacityHalf.reversed) {
+                    
+                    MediaBox_Data.hoverTimeoutId = setTimeout(() => {
+                        MediaBox_Data.Animators.brightnessHalf.Reverse();
+                        MediaBox_Data.Animators.blurHalf.Reverse();
+                        MediaBox_Data.Animators.opacityHalf.Reverse();
+                        
+                        MediaBox_Data.Animators.brightnessHalf.Start();
+                        MediaBox_Data.Animators.blurHalf.Start();
+                        MediaBox_Data.Animators.opacityHalf.Start();
+                    }, 750);
+                }
+
                 // Reverse all animators when leaving completely
                 if (!MediaBox_Data.Animators.brightness.reversed) MediaBox_Data.Animators.brightness.Reverse();
                 if (!MediaBox_Data.Animators.blur.reversed) MediaBox_Data.Animators.blur.Reverse();
                 if (!MediaBox_Data.Animators.opacity.reversed) MediaBox_Data.Animators.opacity.Reverse();
-                if (!MediaBox_Data.Animators.brightnessHalf.reversed) MediaBox_Data.Animators.brightnessHalf.Reverse();
-                if (!MediaBox_Data.Animators.blurHalf.reversed) MediaBox_Data.Animators.blurHalf.Reverse();
-                if (!MediaBox_Data.Animators.opacityHalf.reversed) MediaBox_Data.Animators.opacityHalf.Reverse();
                 
                 MediaBox_Data.Animators.brightness.Start();
                 MediaBox_Data.Animators.blur.Start();
                 MediaBox_Data.Animators.opacity.Start();
+            }
+        },
+        handleNowBarMove: (event: MouseEvent) => {
+            const MediaBox = MediaBox_Data.Functions.Target;
+            const NowBar = event.currentTarget as HTMLElement;
+            
+            // Don't handle moves if mouse is over MediaBox
+            if (MediaBox && event.target && MediaBox.contains(event.target as Node)) {
+                return;
+            }
+
+            // If animations are reversed, bring them back
+            if (MediaBox_Data.Animators.brightnessHalf.reversed) {
+                MediaBox_Data.Animators.brightnessHalf.Reverse();
+                MediaBox_Data.Animators.blurHalf.Reverse();
+                MediaBox_Data.Animators.opacityHalf.Reverse();
+                
                 MediaBox_Data.Animators.brightnessHalf.Start();
                 MediaBox_Data.Animators.blurHalf.Start();
                 MediaBox_Data.Animators.opacityHalf.Start();
             }
+
+            // Clear existing timeout
+            if (MediaBox_Data.hoverTimeoutId) {
+                clearTimeout(MediaBox_Data.hoverTimeoutId);
+            }
+
+            // Set new timeout
+            MediaBox_Data.hoverTimeoutId = setTimeout(() => {
+                // Only reverse if we're still in NowBar state
+                if (!MediaBox_Data.Animators.brightnessHalf.reversed) {
+                    MediaBox_Data.Animators.brightnessHalf.Reverse();
+                    MediaBox_Data.Animators.blurHalf.Reverse();
+                    MediaBox_Data.Animators.opacityHalf.Reverse();
+                    
+                    MediaBox_Data.Animators.brightnessHalf.Start();
+                    MediaBox_Data.Animators.blurHalf.Start();
+                    MediaBox_Data.Animators.opacityHalf.Start();
+                }
+            }, 750);
         },
         Reset: (MediaBox: HTMLElement) => {
             MediaBox.style.removeProperty("--ArtworkBrightness");
@@ -214,11 +282,11 @@ function Open(skipDocumentFullscreen: boolean = false) {
             MediaBox.addEventListener("mouseenter", MediaBox_Data.Functions.MouseIn);
             MediaBox.addEventListener("mouseleave", (e) => MediaBox_Data.Functions.MouseOut(e));
             
-            // Add NowBar hover animation
+            // Add NowBar hover animation and movement tracking
             const NowBar = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar");
             if (NowBar) {
                 NowBar.addEventListener("mouseenter", MediaBox_Data.Functions.NowBarMouseIn);
-                NowBar.addEventListener("mouseleave", (e) => MediaBox_Data.Functions.MouseOut(e));
+                NowBar.addEventListener("mousemove", MediaBox_Data.Functions.handleNowBarMove);
             }
         }
 
@@ -274,11 +342,17 @@ function Close() {
             MediaBox.removeEventListener("mouseenter", MediaBox_Data.Functions.MouseIn);
             MediaBox.removeEventListener("mouseleave", MediaBox_Data.Functions.MouseOut);
             
-            // Remove NowBar hover animation
+            // Remove NowBar hover animation and movement tracking
             const NowBar = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar");
             if (NowBar) {
                 NowBar.removeEventListener("mouseenter", MediaBox_Data.Functions.NowBarMouseIn);
-                NowBar.removeEventListener("mouseleave", MediaBox_Data.Functions.MouseOut);
+                NowBar.removeEventListener("mousemove", MediaBox_Data.Functions.handleNowBarMove);
+            }
+            
+            // Clear any existing timeout
+            if (MediaBox_Data.hoverTimeoutId) {
+                clearTimeout(MediaBox_Data.hoverTimeoutId);
+                MediaBox_Data.hoverTimeoutId = null;
             }
             
             MediaBox_Data.Functions.Reset(MediaBox);

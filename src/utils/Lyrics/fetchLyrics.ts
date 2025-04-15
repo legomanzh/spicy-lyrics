@@ -61,7 +61,9 @@ export default async function fetchLyrics(uri: string) {
         Spicetify.Player.data?.item?.provider?.startsWith("narration")
     ) return DJMessage();
 
-    if (Spicetify.Player.data?.item?.mediaType && Spicetify.Player.data?.item?.mediaType !== "audio") return NotTrackMessage();
+    if (Spicetify.Player.data?.item?.mediaType && Spicetify.Player.data?.item?.mediaType !== "audio") {
+        return NotTrackMessage()
+    };
 
     const trackId = uri.split(":")[2];
     

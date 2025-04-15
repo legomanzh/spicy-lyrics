@@ -43,7 +43,7 @@ declare namespace Spicetify {
         position_as_of_timestamp: number;
         duration: number;
         is_playing: boolean;
-        is_paused: boolean;
+        isPaused: boolean;
         is_buffering: boolean;
         play_origin: {
             feature_identifier: string;

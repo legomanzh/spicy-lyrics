@@ -2,7 +2,6 @@ import Animator from "../../utils/Animator";
 import BlobURLMaker from "../../utils/BlobURLMaker";
 import storage from "../../utils/storage";
 import Defaults from "../Global/Defaults";
-import { SpotifyPlayer } from "../Global/SpotifyPlayer";
 import ArtistVisuals from "./ArtistVisuals/Main";
 import * as THREE from "three";
 import { GetShaderUniforms, VertexShader, FragmentShader, ShaderUniforms } from "./ThreeShaders";
@@ -315,7 +314,7 @@ export async function GetBlurredCoverArt() {
     const blurredCanvas = new OffscreenCanvas(expandedSize, expandedSize);
     const blurredCtx = blurredCanvas.getContext('2d')!;
 
-    blurredCtx.filter = `blur(${25}px)`;
+    blurredCtx.filter = `blur(${22}px)`;
 
     // Draw the cropped circular image in the center of the expanded canvas
     blurredCtx.drawImage(circleCanvas, (padding / 2), (padding / 2));

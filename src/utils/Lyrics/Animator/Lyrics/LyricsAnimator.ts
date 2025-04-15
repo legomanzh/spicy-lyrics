@@ -1,5 +1,5 @@
+import { easeSinOut } from "d3-ease";
 import Defaults from "../../../../components/Global/Defaults";
-import { SpotifyPlayer } from "../../../../components/Global/SpotifyPlayer";
 import { LyricsObject } from "../../lyrics";
 import { BlurMultiplier, IdleEmphasisLyricsScale, IdleLyricsScale, timeOffset } from "../Shared";
 
@@ -32,12 +32,15 @@ export function Animate(position) {
   const Credits = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent .Credits") ?? undefined;
 
   const applyBlur = (arr, activeIndex, BlurMultiplier) => {
+      // Set blur to 0 for the active line
+      arr[activeIndex].HTMLElement.style.setProperty("--BlurAmount", "0px");
+
       for (let i = activeIndex + 1; i < arr.length; i++) {
           const blurAmount = BlurMultiplier * (i - activeIndex);
           if (getElementState(edtrackpos, arr[i].StartTime, arr[i].EndTime) === "Active") {
-            arr[i].HTMLElement.style.setProperty("--BlurAmount", `0px`);
+              arr[i].HTMLElement.style.setProperty("--BlurAmount", "0px");
           } else {
-            arr[i].HTMLElement.style.setProperty("--BlurAmount", `${blurAmount >= 5 ? 5 : blurAmount}px`);
+              arr[i].HTMLElement.style.setProperty("--BlurAmount", `${blurAmount >= 5 ? 5 : blurAmount}px`);
           }
       }
 
@@ -80,9 +83,6 @@ export function Animate(position) {
           const lineState = getElementState(edtrackpos, line.StartTime, line.EndTime);
 
           if (lineState === "Active") {
-              if (!SpotifyPlayer.IsPlaying) {
-                applyBlur(arr, index, BlurMultiplier);
-              }
               if (Blurring_LastLine !== index) {
                 applyBlur(arr, index, BlurMultiplier);
                 Blurring_LastLine = index;
@@ -144,7 +144,7 @@ export function Animate(position) {
                           letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${translateY}))`;
                           letter.HTMLElement.style.scale = `${emphasisScale * 1.04}`;
                           letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${emphasisBlurRadius}px`);
-                          letter.HTMLElement.style.setProperty("--text-shadow-opacity", `${emphasisTextShadowOpacity}%`);
+                          letter.HTMLElement.style.setProperty("--text-shadow-opacity", `${emphasisTextShadowOpacity * 10}%`);
                           letter.HTMLElement.style.setProperty("--gradient-position", letterGradientPosition);
                         } else if (letterState === "NotSung") {
                           letter.HTMLElement.style.transform = "translateY(calc(var(--DefaultLyricsSize) * 0.02))";
@@ -153,21 +153,35 @@ export function Animate(position) {
                           letter.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
                           letter.HTMLElement.style.setProperty("--gradient-position", "-20%");
                         } else if (letterState === "Sung") {
+
                           const NextLetter = word.Letters[k + 1] ?? null;
                           if (NextLetter) {
                             const nextLetterPercentage = getProgressPercentage(edtrackpos, NextLetter.StartTime, NextLetter.EndTime);
-                            const translateY = 0.02 + (-0.14 - 0.02) * nextLetterPercentage;
+                            const translateY = 0.02 + (-0.13 - 0.02) * nextLetterPercentage;
 
                             if (getElementState(edtrackpos, NextLetter.StartTime, NextLetter.EndTime) === "Active") {
-                              letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.75)}))`;
-                              letter.HTMLElement.style.setProperty("--text-shadow-opacity", `${(nextLetterPercentage * 100) * 0.95}%`);
+                              letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.15)}))`;
+                              //letter.HTMLElement.style.setProperty("--text-shadow-opacity", `${(nextLetterPercentage * 100) * 0.95}%`);
                             } else {
                               const activeWord = word.Letters.find(l => getElementState(edtrackpos, l.StartTime, l.EndTime) === "Active");
                               if (activeWord) {
                                 const activeWordPercentage = getProgressPercentage(edtrackpos, activeWord.StartTime, activeWord.EndTime);
-                                const translateY = 0.02 + (-0.14 - 0.02) * activeWordPercentage;
-                                letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${Math.abs(translateY * 0.5)}))`;
-                                letter.HTMLElement.style.setProperty("--text-shadow-opacity", `${(activeWordPercentage * 100) * 0.75}%`);
+                                //const translateY = 0.02 + (-0.14 - 0.02) * activeWordPercentage;
+                                
+                                // Calculate distance from active letter
+                                const activeLetterIndex = word.Letters.indexOf(activeWord);
+                                const currentLetterIndex = word.Letters.indexOf(letter);
+                                const distance = Math.abs(currentLetterIndex - activeLetterIndex);
+                                
+                                // Create a falloff effect (1 for active letter, decreasing for further letters)
+                                const falloff = Math.max(0, 1 - (distance * 0.25)); // Adjust 0.25 to control falloff speed
+                                
+                                // Apply distance-based scaling to the animation with 20x stronger glow
+                                //const scaledTranslateY = translateY * falloff;
+                                const scaledOpacity = (activeWordPercentage * 100 * 0.75) * falloff * 20; // Multiplied by 20 for stronger glow
+                                
+                                letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0))`;
+                                letter.HTMLElement.style.setProperty("--text-shadow-opacity", `${Math.min(scaledOpacity, 100)}%`);
                               }
                               letter.HTMLElement.style.scale = "1";
                             }
@@ -282,14 +296,18 @@ export function Animate(position) {
                     if (isLetterGroup) {
                       for (let k = 0; k < word.Letters.length; k++) {
                         const letter = word.Letters[k];
+                        // Reset all effects to default state
                         letter.HTMLElement.style.transform = "translateY(calc(var(--DefaultLyricsSize) * 0))";
                         letter.HTMLElement.style.scale = "1";
                         letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
                         letter.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
                         letter.HTMLElement.style.setProperty("--gradient-position", "100%");
                       }
+                      // Reset word container effects
                       word.HTMLElement.style.transform = "translateY(calc(var(--DefaultLyricsSize) * 0))";
                       word.HTMLElement.style.scale = "1";
+                      word.HTMLElement.style.setProperty("--text-shadow-blur-radius", "4px");
+                      word.HTMLElement.style.setProperty("--text-shadow-opacity", "0%");
                     }
 
                     if (isDot) {
@@ -331,17 +349,17 @@ export function Animate(position) {
                         const isAnimatingDown = currentTranslateY > 0 || currentScale > 1 || currentGlow > 0;
 
                         // Set durations based on direction
-                        const duration_translateY = isAnimatingDown ? 550 : 480;
-                        const duration_scale = isAnimatingDown ? 910 : 860;
+                        const duration_translateY = isAnimatingDown ? 550 : 210;
+                        const duration_scale = isAnimatingDown ? 910 : 450;
                         const duration_glow = isAnimatingDown ? 85 : 85;
 
                         // Easing function for smoother animation
-                        const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
-                        const easeInOutCubic = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+                        /* const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+                        const easeInOutCubic = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; */
 
-                        const progress_translateY = easeInOutCubic(Math.min(elapsed_translateY / duration_translateY, 1));
-                        const progress_scale = easeInOutCubic(Math.min(elapsed_scale / duration_scale, 1));
-                        const progress_glow = currentGlow === 0 ? 1 : easeOutCubic(Math.min(elapsed_glow / duration_glow, 1));
+                        const progress_translateY = easeSinOut(Math.min(elapsed_translateY / duration_translateY, 1));
+                        const progress_scale = easeSinOut(Math.min(elapsed_scale / duration_scale, 1));
+                        const progress_glow = currentGlow === 0 ? 1 : easeSinOut(Math.min(elapsed_glow / duration_glow, 1));
                     
                         // Define target values - always the same regardless of direction
                         const targetTranslateY = 0;
@@ -402,9 +420,6 @@ export function Animate(position) {
           const lineState = getElementState(edtrackpos, line.StartTime, line.EndTime);
 
           if (lineState === "Active") {
-              if (!SpotifyPlayer.IsPlaying) {
-                applyBlur(arr, index, BlurMultiplier);
-              }
               if (Blurring_LastLine !== index) {
                 applyBlur(arr, index, BlurMultiplier);
                 Blurring_LastLine = index;
@@ -472,7 +487,7 @@ export function Animate(position) {
                 line.HTMLElement.style.setProperty("--gradient-position", `${percentage * 100}%`);
 
                 const blurRadius = 12 + (20 - 12) * percentage;
-                const textShadowOpacity = calculateLineGlowOpacity(percentage) * 0.4;
+                const textShadowOpacity = calculateLineGlowOpacity(percentage) * 0.55;
 
                 line.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${blurRadius}px`);
                 line.HTMLElement.style.setProperty("--text-shadow-opacity", `${textShadowOpacity}%`);
