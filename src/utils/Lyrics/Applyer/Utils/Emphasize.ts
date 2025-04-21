@@ -3,8 +3,15 @@ import { IdleEmphasisLyricsScale } from "../../Animator/Shared";
 import { ConvertTime } from "../../ConvertTime";
 import { CurrentLineLyricsObject, LyricsObject } from "../../lyrics";
 
+const Substractions = {
+    StartTime: 0,
+    EndTime: 0
+}
+
 export default function Emphasize(letters: Array<string>, applyTo: HTMLElement, lead: any, isBgWord: boolean = false) {
-    const totalDuration = ConvertTime(lead.EndTime) - ConvertTime(lead.StartTime);
+    const StartTime = ConvertTime(lead.StartTime) - Substractions.StartTime;
+    const EndTime = ConvertTime(lead.EndTime) - Substractions.EndTime;
+    const totalDuration = EndTime - StartTime;
     const letterDuration = totalDuration / letters.length; // Duration per letter
     const word = applyTo;
     let Letters = [];
@@ -16,8 +23,8 @@ export default function Emphasize(letters: Array<string>, applyTo: HTMLElement, 
         letterElem.classList.add("Emphasis");
         const isLastLetter = index === letters.length - 1;
         // Calculate start and end time for each letter
-        const letterStartTime = ConvertTime(lead.StartTime) + index * letterDuration;
-        const letterEndTime = (isLastLetter ? ((letterStartTime + letterDuration) - 0) : (letterStartTime + letterDuration));
+        const letterStartTime = StartTime + index * letterDuration;
+        const letterEndTime = (isLastLetter ? ((letterStartTime + letterDuration) + 0) : (letterStartTime + letterDuration));
 
         //const contentDuration = letterDuration > 150 ? letterDuration : 150;
         //letterElem.style.setProperty("--content-duration", `${contentDuration}ms`);
@@ -60,8 +67,8 @@ export default function Emphasize(letters: Array<string>, applyTo: HTMLElement, 
     
     LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
         HTMLElement: word,
-        StartTime: ConvertTime(lead.StartTime),
-        EndTime: ConvertTime(lead.EndTime),
+        StartTime: StartTime,
+        EndTime: EndTime,
         TotalTime: totalDuration,
         LetterGroup: true,
         Letters,

@@ -45,13 +45,13 @@
     justify-content: center;
     height: 100cqh;
     z-index: -1;
-    padding: 0 3cqw 0 11cqw;
+    padding: 0 4cqw 0 12cqw;
     transition: opacity 0.2s ease-in-out !important;
     opacity: 0;
 }
 
 #SpicyLyricsPage .ContentBox .NowBar.RightSide {
-    padding: 0 11cqw 0 3cqw;
+    padding: 0 12cqw 0 4cqw;
 }
 
 #SpicyLyricsPage .ContentBox .NowBar.Active {
@@ -72,7 +72,6 @@
 
 #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .Header .MediaBox {
     --ArtworkBrightness: 1;
-    --ArtworkBlur: 0px;
     --ControlsOpacity: 0;
     width: 30cqw;
     height: 30cqw;
@@ -84,7 +83,7 @@
     height: 100cqh;
     box-shadow: 0 9px 20px 0 rgba(0, 0, 0, .271);
     opacity: .95;
-    filter: brightness(var(--ArtworkBrightness)) blur(var(--ArtworkBlur));
+    filter: brightness(var(--ArtworkBrightness));
     transition: opacity, scale .1s cubic-bezier(.24,.01,.97,1.41) !important;
     cursor: grab;
 }

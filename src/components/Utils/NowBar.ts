@@ -5,7 +5,8 @@ import Global from "../Global/Global";
 import { SpotifyPlayer } from "../Global/SpotifyPlayer";
 import PageView from "../Pages/PageView";
 import { Icons } from "../Styling/Icons";
-import Fullscreen from "./Fullscreen";
+import Fullscreen, { CleanupMediaBox } from "./Fullscreen";
+import { ResetLastLine } from '../../utils/Scrolling/ScrollToActiveLine';
 
 let ActivePlaybackControlsInstance = null;
 const ActiveSongProgressBarInstance_Map = new Map();
@@ -537,6 +538,7 @@ function OpenNowBar(skipSaving: boolean = false) {
                 const side = zone.classList.contains("RightSide") ? "right" : "left";
     
                 storage.set("NowBarSide", side);
+                ResetLastLine();
             });
         });
     }
@@ -706,6 +708,7 @@ function NowBar_SwapSides() {
         document.querySelector("#SpicyLyricsPage").classList.remove("NowBarSide__Left");
         document.querySelector("#SpicyLyricsPage").classList.add("NowBarSide__Right");
     }
+    ResetLastLine();
 }
 
 function Session_NowBar_SetSide() {
@@ -731,6 +734,7 @@ function Session_NowBar_SetSide() {
         document.querySelector("#SpicyLyricsPage").classList.remove("NowBarSide__Right");
         document.querySelector("#SpicyLyricsPage").classList.add("NowBarSide__Left");
     }
+    ResetLastLine();
 }
 
 function DeregisterNowBarBtn() {
@@ -835,7 +839,13 @@ Global.Event.listen("playback:position", (e) => {
 
 Global.Event.listen("fullscreen:exit", () => {
     CleanUpActiveComponents();
+    CleanupMediaBox();
 })
+
+Global.Event.listen("page:destroy", () => {
+    CleanupMediaBox();
+    CleanUpActiveComponents();
+});
 
 export {
     OpenNowBar,
@@ -846,4 +856,5 @@ export {
     NowBar_SwapSides,
     Session_NowBar_SetSide,
     DeregisterNowBarBtn,
+    CleanUpActiveComponents as CleanUpNowBarComponents
 };

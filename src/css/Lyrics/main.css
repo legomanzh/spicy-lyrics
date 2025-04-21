@@ -4,7 +4,7 @@
   align-items: center;
   flex-direction: column;
   justify-content: center;
-  overflow: hidden ;
+  overflow: hidden;
   width: 100%;
 }
 
@@ -26,8 +26,7 @@
   height: 100cqh;
   width: 100%;
   font-size: var(--DefaultLyricsSize);
-  font-weight: 900;
-  transition: opacity, transform, scale 0.2s linear !important;
+  font-weight: 700;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
   z-index: 9;

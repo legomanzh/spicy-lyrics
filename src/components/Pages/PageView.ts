@@ -141,6 +141,7 @@ function DestroyPage() {
     Object.values(Tooltips).forEach(a => a?.destroy());
     ScrollSimplebar?.unMount();
     PageView.IsOpened = false;
+    Global.Event.evoke("page:destroy", null);
 }
 
 function AppendViewControls(ReAppend: boolean = false) {
