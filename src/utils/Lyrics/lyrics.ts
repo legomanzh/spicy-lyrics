@@ -1,13 +1,13 @@
 import { Maid } from '@socali/modules/Maid';
-import { IntervalManager } from '../IntervalManager';
 import Defaults from '../../components/Global/Defaults';
 import { SpotifyPlayer } from '../../components/Global/SpotifyPlayer';
 import { Lyrics } from './Animator/Main';
 import Global from '../../components/Global/Global';
+import { IntervalManager } from '../IntervalManager';
 
 export const ScrollingIntervalTime = Infinity;
 
-export const lyricsBetweenShow = 3;
+export const lyricsBetweenShow = 2;
 
 export let LyricsObject = {
   Types: {
