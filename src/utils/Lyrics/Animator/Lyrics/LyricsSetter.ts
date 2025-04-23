@@ -15,7 +15,7 @@ export function TimeSetter(PreCurrentPosition) {
       const lineTimes = {
         start: line.StartTime,
         end: line.EndTime,
-        total: line.EndTime - line.StartTimea
+        total: line.EndTime - line.StartTime
       }
 
       if (lineTimes.start <= CurrentPosition && CurrentPosition <= lineTimes.end) {
