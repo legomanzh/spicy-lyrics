@@ -149,6 +149,8 @@ export let Blurring_LastLine = null;
 //const SKIP_ANIMATING_ACTIVE_WORD_DURATION = 235;
 let lastFrameTime = performance.now();
 
+
+
 export function setBlurringLastLine(c) {
   Blurring_LastLine = c;
 }
@@ -346,7 +348,7 @@ export function Animate(position) {
                       word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (6 * currentGlow)}px`); // Match inspiration
                       word.HTMLElement.style.setProperty("--text-shadow-opacity", `${currentGlow * 90}%`); // Match inspiration
                   }
-                    
+
                     if (isLetterGroup) {
                     if (wordState === "Active") {
                       for (let k = 0; k < word.Letters.length; k++) {
@@ -360,9 +362,9 @@ export function Animate(position) {
                         }
 
                         let targetScale: number, targetYOffset: number, targetGlow: number, targetGradient: number;
-                        
+
                         // Find active letter info (needed only for Active state calculation)
-                        let activeLetterIndex = -1; 
+                        let activeLetterIndex = -1;
                         let activeLetterPercentage = 0;
                         if (wordState === "Active") {
                           for (let i = 0; i < word.Letters.length; i++) {
@@ -397,7 +399,7 @@ export function Animate(position) {
                           targetGlow = restingGlow + (baseGlow - restingGlow) * falloff;
                         } // else - if no active letter, targets remain at resting state set above
 
-                        // --- Override targets if individual letter is NotSung --- 
+                        // --- Override targets if individual letter is NotSung ---
                         const letterState = getElementState(edtrackpos, letter.StartTime, letter.EndTime);
                         if (letterState === "NotSung") {
                           targetScale = ScaleSpline.at(0);
@@ -407,7 +409,7 @@ export function Animate(position) {
                           targetGlow = GlowSpline.at(SungLetterGlow);
                         }
 
-                        // --- Determine Gradient based on individual letter state --- 
+                        // --- Determine Gradient based on individual letter state ---
                         if (letterState === "NotSung") {
                           targetGradient = -20;
                         } else if (letterState === "Sung") {

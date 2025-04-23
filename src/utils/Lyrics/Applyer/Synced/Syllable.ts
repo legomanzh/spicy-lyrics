@@ -1,4 +1,3 @@
-import { SpotifyPlayer } from './../../../../components/Global/SpotifyPlayer';
 import { ArabicPersianRegex, BOTTOM_ApplyLyricsSpacer, TOP_ApplyLyricsSpacer } from "../../../Addons";
 import Defaults from "../../../../components/Global/Defaults";
 import { applyStyles, removeAllStyles } from "../../../CSS/Styles";
@@ -12,9 +11,11 @@ import { IdleEmphasisLyricsScale, IdleLyricsScale } from "../../Animator/Shared"
 import isRtl from '../../isRtl';
 import Animator from "../../../../utils/Animator";
 import { ClearLyricsPageContainer } from '../../fetchLyrics';
+import { EmitApply, EmitNotApplyed } from '../OnApply';
 
 export function ApplySyllableLyrics(data) {
   if (!Defaults.LyricsContainerExists) return;
+  EmitNotApplyed()
   const LyricsContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
 
   LyricsContainer.setAttribute("data-lyrics-type", "Syllable")
@@ -105,8 +106,8 @@ export function ApplySyllableLyrics(data) {
       LyricsObject.Types.Syllable.Lines.push({
         HTMLElement: lineElem,
         StartTime: ConvertTime(line.Lead.StartTime),
-        EndTime: ConvertTime(line.Lead.EndTime + 0.35),
-        TotalTime: ConvertTime(line.Lead.EndTime + 0.35) - ConvertTime(line.Lead.StartTime)
+        EndTime: ConvertTime(line.Lead.EndTime + 0.25),
+        TotalTime: ConvertTime(line.Lead.EndTime + 0.25) - ConvertTime(line.Lead.StartTime)
       });
 
       SetWordArrayInCurentLine();
@@ -189,8 +190,8 @@ export function ApplySyllableLyrics(data) {
           LyricsObject.Types.Syllable.Lines.push({
             HTMLElement: lineE,
             StartTime: ConvertTime(bg.StartTime),
-            EndTime: ConvertTime(bg.EndTime + 0.35),
-            TotalTime: ConvertTime(bg.EndTime + 0.35) - ConvertTime(bg.StartTime),
+            EndTime: ConvertTime(bg.EndTime + 0.25),
+            TotalTime: ConvertTime(bg.EndTime + 0.25) - ConvertTime(bg.StartTime),
             BGLine: true
           })
           SetWordArrayInCurentLine();
@@ -368,5 +369,7 @@ export function ApplySyllableLyrics(data) {
     });
     fadeIn.Start();
   }
+
+  EmitApply(data.Type, data.Content)
 }
 

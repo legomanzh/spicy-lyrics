@@ -1,7 +1,8 @@
 import Defaults from "../../components/Global/Defaults";
 import { SpotifyPlayer } from "../../components/Global/SpotifyPlayer";
+import { LyricsApplied } from "../../components/Pages/PageView";
 import { LyricsObject } from "../Lyrics/lyrics";
-import ScrollIntoCenterView from "../ScrollIntoView/Center";
+import { ScrollIntoCenterViewCSS } from "../ScrollIntoView/Center";
 import SimpleBar from 'simplebar';
 
 let lastLine = null;
@@ -9,7 +10,17 @@ let isUserScrolling = false;
 let lastUserScrollTime = 0;
 let lastPosition = null;
 const USER_SCROLL_COOLDOWN = 750; // 0.75 second cooldown
-const POSITION_THRESHOLD = 150; // 20ms threshold for start/end detection
+const POSITION_THRESHOLD = 250; // 250ms threshold for start/end detection
+
+// Force scroll queue mechanism
+let forceScrollQueued = false;
+
+// --- NEW: Module variables for cleanup ---
+let currentSimpleBarInstance: SimpleBar | null = null;
+let wheelHandler: (() => void) | null = null;
+let touchMoveHandler: (() => void) | null = null;
+// --- END NEW ---
+
 // Add focus event listener to reset state when window is focused
 window.addEventListener('focus', ResetLastLine);
 // Add resize event listener to reset state when window is resized
@@ -24,42 +35,72 @@ const lyricsContentObserver = new ResizeObserver(() => {
 function setupLyricsContentObserver() {
     const lyricsContent = document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent");
     if (lyricsContent) {
+        // Ensure we don't observe multiple times if called again
+        lyricsContentObserver.disconnect();
         lyricsContentObserver.observe(lyricsContent);
     }
 }
 
-function handleUserScroll(ScrollSimplebar: SimpleBar) {
+function handleUserScroll(ScrollSimplebar: SimpleBar | null) { // Allow null
+    if (!ScrollSimplebar) return; // Add null check
     if (!isUserScrolling) {
         isUserScrolling = true;
         // Add HideLineBlur class when user starts scrolling
         const lyricsContent = document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent");
         if (lyricsContent) {
             lyricsContent.classList.add("HideLineBlur");
+        } else {
+            // --- NEW: Add warning if element not found ---
+            console.warn("SpicyLyrics: Could not find .LyricsContent in handleUserScroll to add HideLineBlur.");
+            // --- END NEW ---
         }
     }
     lastUserScrollTime = performance.now();
 }
 
-export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
+// Initialization function for scroll events and observers
+export function InitializeScrollEvents(ScrollSimplebar: SimpleBar) {
     if (!Defaults.LyricsContainerExists) return;
+    // --- NEW: Store instance and define handlers ---
+    currentSimpleBarInstance = ScrollSimplebar;
+    wheelHandler = () => handleUserScroll(currentSimpleBarInstance);
+    touchMoveHandler = () => handleUserScroll(currentSimpleBarInstance);
+    // --- END NEW ---
 
-    // Setup the observer when lyrics container exists
+    // Setup the observer
     setupLyricsContentObserver();
 
     // Add scroll event listener
     const scrollElement = ScrollSimplebar?.getScrollElement();
-    if (scrollElement) {
-        scrollElement.addEventListener('wheel', () => handleUserScroll(ScrollSimplebar));
-        scrollElement.addEventListener('touchmove', () => handleUserScroll(ScrollSimplebar));
+    if (scrollElement && wheelHandler && touchMoveHandler) { // Check handlers exist
+        // Remove potential old listeners first (optional, but safer if called multiple times)
+        scrollElement.removeEventListener('wheel', wheelHandler);
+        scrollElement.removeEventListener('touchmove', touchMoveHandler);
+        // Add new listeners
+        scrollElement.addEventListener('wheel', wheelHandler);
+        scrollElement.addEventListener('touchmove', touchMoveHandler);
+    }
+}
+
+export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
+    if (!Defaults.LyricsContainerExists) return;
+    if (!LyricsApplied) return;
+
+    // Check if a force scroll was queued
+    let isForceScrollQueued = forceScrollQueued;
+    if (forceScrollQueued) {
+        forceScrollQueued = false; // Reset the queue after using it
     }
 
-    if (Spicetify.Platform.History.location.pathname === "/SpicyLyrics") {
+    // Setup logic moved to InitializeScrollEvents
+
+    //if (Spicetify.Platform.History.location.pathname === "/SpicyLyrics") {
         const Lines = LyricsObject.Types[Defaults.CurrentLyricsType]?.Lines;
         const Position = SpotifyPlayer.GetTrackPosition();
+        const shouldForceScroll = (isForceScrollQueued || lastLine !== null);
         const PositionOffset = 250;
         const ProcessedPosition = Position + PositionOffset;
         const TrackDuration = SpotifyPlayer.GetTrackDuration();
-        const didLastLineExist = lastLine !== null;
 
         // Check if position changed while paused
         if (!SpotifyPlayer.IsPlaying && lastPosition !== null && lastPosition !== Position) {
@@ -69,14 +110,39 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
 
         if (!Lines) return;
 
+        // --- NEW: Check conditions to scroll to top ---
+        const allLinesNotSung = Lines.every((line: any) => line.Status === "NotSung");
+        const activeLines = Lines.filter((line: any) => line.Status === "Active");
+        const sungLines = Lines.filter((line: any) => line.Status === "Sung");
+        const oneActiveNoSung = activeLines.length === 1 && sungLines.length === 0;
+
+        if (allLinesNotSung || oneActiveNoSung) {
+            const container = ScrollSimplebar?.getScrollElement() as HTMLElement;
+            if (container) {
+                const timeSinceLastScroll = performance.now() - lastUserScrollTime;
+                // Only auto-scroll if user hasn't scrolled recently
+                if (timeSinceLastScroll > USER_SCROLL_COOLDOWN) {
+                    isUserScrolling = false;
+                    const lyricsContent = document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent");
+                    if (lyricsContent) {
+                        lyricsContent.classList.remove("HideLineBlur");
+                    }
+                    // Use smooth scrolling to top
+                    container.scrollTop = 0;
+                }
+                return; // Exit early after handling scroll to top
+            }
+        }
+        // --- END NEW ---
+
         // Check if all lines are sung
-        const allLinesSung = Lines.every(line => line.Status === "Sung");
+        const allLinesSung = Lines.every((line: any) => line.Status === "Sung");
 
         if (allLinesSung) {
             const container = ScrollSimplebar?.getScrollElement() as HTMLElement;
             if (container) {
                 const timeSinceLastScroll = performance.now() - lastUserScrollTime;
-                
+
                 // Only auto-scroll if user hasn't scrolled recently
                 if (timeSinceLastScroll > USER_SCROLL_COOLDOWN) {
                     isUserScrolling = false;
@@ -87,7 +153,7 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
                     }
                     // Get the last line element to scroll to
                     const lastLineElement = Lines[Lines.length - 1].HTMLElement as HTMLElement;
-                    ScrollIntoCenterView(container, lastLineElement, 0, -50, true);
+                    ScrollIntoCenterViewCSS(container, lastLineElement, -50, true);
                 }
                 return;
             }
@@ -97,6 +163,7 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
         if (Position <= POSITION_THRESHOLD) {
             const container = ScrollSimplebar?.getScrollElement() as HTMLElement;
             if (container) {
+                // Use smooth scrolling to top
                 container.scrollTop = 0;
                 return;
             }
@@ -106,6 +173,7 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
         if (ProcessedPosition >= TrackDuration - POSITION_THRESHOLD) {
             const container = ScrollSimplebar?.getScrollElement() as HTMLElement;
             if (container) {
+                // Use smooth scrolling to bottom
                 container.scrollTop = container.scrollHeight;
                 return;
             }
@@ -120,14 +188,14 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
             }
         }
 
-        function Continue(currentLine) {
+        function Continue(currentLine: any) {
             if (currentLine) {
                 const LineElem = currentLine.HTMLElement as HTMLElement;
                 const container = ScrollSimplebar?.getScrollElement() as HTMLElement;
                 if (!container) return;
 
                 const timeSinceLastScroll = performance.now() - lastUserScrollTime;
-                
+
                 // Check if the line is in viewport
                 const lineRect = LineElem.getBoundingClientRect();
                 const containerRect = container.getBoundingClientRect();
@@ -135,11 +203,19 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
 
                 const isSameLine = lastLine === LineElem;
 
-                // If this is the first line (no previous line), force scroll without checks
-                if (!didLastLineExist) {
+                // If force scroll was queued, scroll regardless of other conditions
+                if (isForceScrollQueued) {
                     isUserScrolling = false;
                     lastLine = LineElem;
-                    ScrollIntoCenterView(container, LineElem, 0, -50, true);
+                    ScrollIntoCenterViewCSS(container, LineElem, -50, true);
+                    return;
+                }
+
+                // If this is the first line (no previous line), force scroll without checks
+                if (!shouldForceScroll) {
+                    isUserScrolling = false;
+                    lastLine = LineElem;
+                    ScrollIntoCenterViewCSS(container, LineElem, -50, true);
                     return;
                 }
 
@@ -147,20 +223,33 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
                 // 1. User hasn't scrolled in the last second (cooldown passed)
                 // 2. AND the active line is in viewport
                 if (timeSinceLastScroll > USER_SCROLL_COOLDOWN && isLineInViewport) {
+                    // --- REVISED LOGIC for resuming auto-scroll ---
+                    const wasUserScrolling = isUserScrolling; // Capture state before changing
                     isUserScrolling = false;
-                    // Remove HideLineBlur class when auto-scroll resumes
-                    const lyricsContent = document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent");
-                    if (lyricsContent) {
-                        lyricsContent.classList.remove("HideLineBlur");
+                    // Remove HideLineBlur class ONLY if we were user scrolling
+                    if (wasUserScrolling) {
+                        const lyricsContent = document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent");
+                        if (lyricsContent) {
+                            lyricsContent.classList.remove("HideLineBlur");
+                        } else {
+                             console.warn("SpicyLyrics: Could not find .LyricsContent in ScrollToActiveLine to remove HideLineBlur.");
+                        }
                     }
-                    if (isUserScrolling || !isSameLine) {
+                    // Scroll if the line is different from the last auto-scrolled line
+                    if (!isSameLine) {
                         lastLine = LineElem;
-                        ScrollIntoCenterView(container, LineElem, 0, -50);
+                        ScrollIntoCenterViewCSS(container, LineElem, -50);
                     }
+                    // --- END REVISED LOGIC ---
                 }
             }
         }
-    }
+    //}
+}
+
+// Function to queue a force scroll for the next frame
+export function QueueForceScroll() {
+    forceScrollQueued = true;
 }
 
 export function ResetLastLine() {
@@ -168,4 +257,36 @@ export function ResetLastLine() {
     isUserScrolling = false;
     lastUserScrollTime = 0;
     lastPosition = null;
+    forceScrollQueued = false;
+    // Also disconnect observer on reset if needed, though setup handles disconnect now
+    // lyricsContentObserver.disconnect();
 }
+
+// --- NEW: Cleanup Function ---
+export function CleanupScrollEvents() {
+    // Remove scroll listeners
+    const scrollElement = currentSimpleBarInstance?.getScrollElement();
+    if (scrollElement) {
+        if (wheelHandler) {
+            scrollElement.removeEventListener('wheel', wheelHandler);
+        }
+        if (touchMoveHandler) {
+            scrollElement.removeEventListener('touchmove', touchMoveHandler);
+        }
+    }
+
+    // Disconnect observer
+    lyricsContentObserver?.disconnect();
+
+    // Remove window listeners
+    window.removeEventListener('focus', ResetLastLine);
+    window.removeEventListener('resize', ResetLastLine);
+
+    // Reset module variables
+    currentSimpleBarInstance = null;
+    wheelHandler = null;
+    touchMoveHandler = null;
+    forceScrollQueued = false; // Reset force scroll queue
+    //console.log("SpicyLyrics scroll events cleaned up."); // Optional log
+}
+// --- END NEW ---

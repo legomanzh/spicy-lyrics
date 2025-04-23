@@ -54,7 +54,7 @@ const MediaBox_Data = {
                 MediaBox_Data.Functions.Target.style.setProperty("--ControlsOpacity", `${ControlsOpacity.End}`);
                 return;
             }
-            
+
             if (MediaBox_Data.Animators.brightness.reversed) MediaBox_Data.Animators.brightness.Reverse();
             if (MediaBox_Data.Animators.opacity.reversed) MediaBox_Data.Animators.opacity.Reverse();
             MediaBox_Data.Animators.brightness.Start();
@@ -72,7 +72,7 @@ const MediaBox_Data = {
                 MediaBox_Data.Functions.Target.style.setProperty("--ControlsOpacity", `${ControlsOpacity.ParentHover.End}`);
                 return;
             }
-            
+
             // Use half-strength animators
             if (MediaBox_Data.Animators.brightnessHalf.reversed) MediaBox_Data.Animators.brightnessHalf.Reverse();
             if (MediaBox_Data.Animators.opacityHalf.reversed) MediaBox_Data.Animators.opacityHalf.Reverse();
@@ -98,18 +98,18 @@ const MediaBox_Data = {
                 // Only reverse full-strength animators when moving to NowBar
                 if (!MediaBox_Data.Animators.brightness.reversed) MediaBox_Data.Animators.brightness.Reverse();
                 if (!MediaBox_Data.Animators.opacity.reversed) MediaBox_Data.Animators.opacity.Reverse();
-                
+
                 MediaBox_Data.Animators.brightness.Start();
                 MediaBox_Data.Animators.opacity.Start();
             } else {
                 // If any half-strength animator is still not reversed, set timeout to reverse them
-                if (!MediaBox_Data.Animators.brightnessHalf.reversed || 
+                if (!MediaBox_Data.Animators.brightnessHalf.reversed ||
                     !MediaBox_Data.Animators.opacityHalf.reversed) {
-                    
+
                     MediaBox_Data.hoverTimeoutId = setTimeout(() => {
                         MediaBox_Data.Animators.brightnessHalf.Reverse();
                         MediaBox_Data.Animators.opacityHalf.Reverse();
-                        
+
                         MediaBox_Data.Animators.brightnessHalf.Start();
                         MediaBox_Data.Animators.opacityHalf.Start();
                     }, 750);
@@ -118,7 +118,7 @@ const MediaBox_Data = {
                 // Reverse all animators when leaving completely
                 if (!MediaBox_Data.Animators.brightness.reversed) MediaBox_Data.Animators.brightness.Reverse();
                 if (!MediaBox_Data.Animators.opacity.reversed) MediaBox_Data.Animators.opacity.Reverse();
-                
+
                 MediaBox_Data.Animators.brightness.Start();
                 MediaBox_Data.Animators.opacity.Start();
             }
@@ -126,7 +126,7 @@ const MediaBox_Data = {
         handleNowBarMove: (event: MouseEvent) => {
             const MediaBox = MediaBox_Data.Functions.Target;
             const NowBar = event.currentTarget as HTMLElement;
-            
+
             // Don't handle moves if mouse is over MediaBox
             if (MediaBox && event.target && MediaBox.contains(event.target as Node)) {
                 return;
@@ -136,7 +136,7 @@ const MediaBox_Data = {
             if (MediaBox_Data.Animators.brightnessHalf.reversed) {
                 MediaBox_Data.Animators.brightnessHalf.Reverse();
                 MediaBox_Data.Animators.opacityHalf.Reverse();
-                
+
                 MediaBox_Data.Animators.brightnessHalf.Start();
                 MediaBox_Data.Animators.opacityHalf.Start();
             }
@@ -152,7 +152,7 @@ const MediaBox_Data = {
                 if (!MediaBox_Data.Animators.brightnessHalf.reversed) {
                     MediaBox_Data.Animators.brightnessHalf.Reverse();
                     MediaBox_Data.Animators.opacityHalf.Reverse();
-                    
+
                     MediaBox_Data.Animators.brightnessHalf.Start();
                     MediaBox_Data.Animators.opacityHalf.Start();
                 }
@@ -164,7 +164,7 @@ const MediaBox_Data = {
         },
         Eventify: (MediaBox: HTMLElement) => {
             MediaBox_Data.Functions.Target = MediaBox;
-            
+
             // Full strength animation events
             MediaBox_Data.Animators.brightness.on("progress", (progress) => {
                 MediaBox.style.setProperty("--ArtworkBrightness", `${progress}`);
@@ -172,7 +172,7 @@ const MediaBox_Data = {
             MediaBox_Data.Animators.opacity.on("progress", (progress) => {
                 MediaBox.style.setProperty("--ControlsOpacity", `${progress}`);
             });
-            
+
             // Half strength animation events
             MediaBox_Data.Animators.brightnessHalf.on("progress", (progress) => {
                 MediaBox.style.setProperty("--ArtworkBrightness", `${progress}`);
@@ -180,7 +180,7 @@ const MediaBox_Data = {
             MediaBox_Data.Animators.opacityHalf.on("progress", (progress) => {
                 MediaBox.style.setProperty("--ControlsOpacity", `${progress}`);
             });
-            
+
             MediaBox_Data.Eventified = true;
         },
         Target: null,
@@ -201,13 +201,13 @@ function CleanupMediaBox() {
 
     // Cleanup media box interactions (Styles and Timeout)
     const MediaBox = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox");
-    if (MediaBox) {        
+    if (MediaBox) {
         // Clear any existing timeout
         if (MediaBox_Data.hoverTimeoutId) {
             clearTimeout(MediaBox_Data.hoverTimeoutId);
             MediaBox_Data.hoverTimeoutId = null;
         }
-        
+
         // Reset styles
         MediaBox_Data.Functions.Reset(MediaBox);
     }
@@ -216,6 +216,7 @@ function CleanupMediaBox() {
 function Open(skipDocumentFullscreen: boolean = false) {
     const SpicyPage = document.querySelector<HTMLElement>(".Root__main-view #SpicyLyricsPage");
     const Root = document.body as HTMLElement;
+    const mainElement = document.querySelector<HTMLElement>("#main");
 
     if (SpicyPage) {
         // Set state first
@@ -225,6 +226,11 @@ function Open(skipDocumentFullscreen: boolean = false) {
         // Handle DOM changes
         TransferElement(SpicyPage, Root);
         SpicyPage.classList.add("Fullscreen");
+
+        // Hide the main element
+        if (mainElement) {
+            mainElement.style.display = "none";
+        }
 
         Tooltips.NowBarToggle?.destroy();
 
@@ -242,12 +248,13 @@ function Open(skipDocumentFullscreen: boolean = false) {
             try {
                 if (!skipDocumentFullscreen) {
                     if (!document.fullscreenElement) {
-                        await Root.querySelector("#SpicyLyricsPage").requestFullscreen();
+                        // Use the html element for fullscreen instead of SpicyLyricsPage
+                        await document.documentElement.requestFullscreen();
                     }
                 } else if (document.fullscreenElement) {
                     await document.exitFullscreen();
                 }
-                
+
                 // Update controls after fullscreen state is settled
                 PageView.AppendViewControls(true);
             } catch (err) {
@@ -270,7 +277,7 @@ function Open(skipDocumentFullscreen: boolean = false) {
             MediaBox_Data.Functions.Eventify(MediaBox);
             MediaBox.addEventListener("mouseenter", MediaBox_Data.Functions.MouseIn, { signal });
             MediaBox.addEventListener("mouseleave", (e) => MediaBox_Data.Functions.MouseOut(e), { signal });
-            
+
             // Add NowBar hover animation and movement tracking
             const NowBar = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar");
             if (NowBar) {
@@ -285,6 +292,7 @@ function Open(skipDocumentFullscreen: boolean = false) {
 
 function Close() {
     const SpicyPage = document.querySelector<HTMLElement>("#SpicyLyricsPage");
+    const mainElement = document.querySelector<HTMLElement>("#main");
 
     if (SpicyPage) {
         // Set state first
@@ -296,12 +304,17 @@ function Close() {
         TransferElement(SpicyPage, PageRoot);
         SpicyPage.classList.remove("Fullscreen");
 
+        // Show the main element again
+        if (mainElement) {
+            mainElement.style.removeProperty("display");
+        }
+
         // Handle fullscreen exit
         const handleFullscreenExit = async () => {
             if (document.fullscreenElement) {
                 await document.exitFullscreen();
             }
-            
+
             // Only update controls after fullscreen state is settled
             if (wasOpen) {
                 PageView.AppendViewControls(true);

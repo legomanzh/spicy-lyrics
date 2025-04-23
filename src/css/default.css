@@ -21,7 +21,6 @@
   z-index: 99;
   user-select: none;
   -webkit-user-drag: none;
-  background-color: #000000;
 }
 
 #SpicyLyricsPage.UseSpicyFont {
@@ -302,4 +301,8 @@ body:not(:has(.Root__main-view-overlay .BeautifulLyricsPage:is(.Fullscreen))) #B
   aspect-ratio: 1;
   height: calc(var(--ViewControlSize)* .35);
   width: auto;
+}
+
+.GenericModal__overlay {
+  z-index: 999;
 }

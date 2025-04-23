@@ -12,7 +12,7 @@ import { Session_NowBar_SetSide, Session_OpenNowBar, ToggleNowBar } from "../Uti
 import Fullscreen from "../Utils/Fullscreen";
 import TransferElement from "../Utils/TransferElement";
 import Session from "../Global/Session";
-import { ResetLastLine } from "../../utils/Scrolling/ScrollToActiveLine";
+import { InitializeScrollEvents, ResetLastLine, CleanupScrollEvents, QueueForceScroll } from "../../utils/Scrolling/ScrollToActiveLine";
 import Global from "../Global/Global";
 
 export const Tooltips = {
@@ -93,14 +93,14 @@ function OpenPage() {
     }
 
     PageRoot.appendChild(elem);
-    
+
     const lowQMode = storage.get("lowQMode");
     const lowQModeEnabled = lowQMode && lowQMode === "true";
 
     if (lowQModeEnabled) {
         elem.querySelector(".LyricsContainer .LyricsContent").classList.add("lowqmode")
     }
-    
+
 
     Defaults.LyricsContainerExists = true;
 
@@ -127,7 +127,6 @@ function OpenPage() {
 
     AppendViewControls();
     PageView.IsOpened = true;
-    // SocketStatusChange(isWsConnected);
 }
 
 function DestroyPage() {
@@ -135,6 +134,7 @@ function DestroyPage() {
     if (Fullscreen.IsOpen) Fullscreen.Close();
     if (!document.querySelector("#SpicyLyricsPage")) return
     ResetLastLine();
+    CleanupScrollEvents();
     document.querySelector("#SpicyLyricsPage")?.remove();
     Defaults.LyricsContainerExists = false;
     removeLinesEvListener();
@@ -144,10 +144,25 @@ function DestroyPage() {
     Global.Event.evoke("page:destroy", null);
 }
 
+export let LyricsApplied = false;
+
+Global.Event.listen("lyrics:not-apply", () => {
+    CleanupScrollEvents();
+    LyricsApplied = false;
+})
+
+Global.Event.listen("lyrics:apply", ({ Type }: { Type: string }) => {
+    CleanupScrollEvents();
+    if (!Type || Type === "Static") return;
+    InitializeScrollEvents(ScrollSimplebar);
+    QueueForceScroll(); // Queue a force scroll instead of directly calling with true
+    LyricsApplied = true;
+})
+
 function AppendViewControls(ReAppend: boolean = false) {
     const elem = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .ViewControls");
     if (!elem) return;
-    
+
     // Safely destroy existing tooltips first
     for (const key in Tooltips) {
         if (Tooltips[key]?.destroy && typeof Tooltips[key].destroy === 'function') {
