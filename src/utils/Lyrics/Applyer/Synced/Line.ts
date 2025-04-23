@@ -8,9 +8,11 @@ import { ApplyLyricsCredits } from "../Credits/ApplyLyricsCredits";
 import isRtl from "../../isRtl";
 import Animator from "../../../../utils/Animator";
 import { ClearLyricsPageContainer } from "../../fetchLyrics";
+import { EmitApply, EmitNotApplyed } from "../OnApply";
 
 export function ApplyLineLyrics(data) {
     if (!Defaults.LyricsContainerExists) return
+    EmitNotApplyed()
     const LyricsContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
 
     LyricsContainer.setAttribute("data-lyrics-type", "Line")
@@ -232,4 +234,6 @@ export function ApplyLineLyrics(data) {
     });
     fadeIn.Start();
   }
+
+  EmitApply(data.Type, data.Content)
 }

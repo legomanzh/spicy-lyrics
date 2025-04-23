@@ -7,9 +7,11 @@ import { ApplyLyricsCredits } from "./Credits/ApplyLyricsCredits";
 import isRtl from "../isRtl";
 import Animator from "../../../utils/Animator";
 import { ClearLyricsPageContainer } from "../fetchLyrics";
+import { EmitApply, EmitNotApplyed } from "./OnApply";
 
 export function ApplyStaticLyrics(data) {
     if (!Defaults.LyricsContainerExists) return
+    EmitNotApplyed()
     const LyricsContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
 
     LyricsContainer.setAttribute("data-lyrics-type", "Static")
@@ -87,4 +89,6 @@ export function ApplyStaticLyrics(data) {
         });
         fadeIn.Start();
     }
+
+    EmitApply(data.Type, data.Content)
 }
