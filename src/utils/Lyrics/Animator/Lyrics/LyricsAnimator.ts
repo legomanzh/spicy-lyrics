@@ -5,19 +5,25 @@ import Defaults from "../../../../components/Global/Defaults";
 import { LyricsObject } from "../../lyrics";
 import { BlurMultiplier, timeOffset } from "../Shared";
 
-// Methods
-export const GetSpline = (range) => {
-	const times = range.map((value) => value.Time)
-	const values = range.map((value) => value.Value)
+// Define types for animation ranges
+export interface AnimationPoint {
+  Time: number;
+  Value: number;
+}
 
-	return new Spline(times, values)
+// Methods
+export const GetSpline = (range: AnimationPoint[]) => {
+	const times = range.map((value) => value.Time);
+	const values = range.map((value) => value.Value);
+
+	return new Spline(times, values);
 }
 
 export const Clamp = (value: number, min: number, max: number): number => {
 	return Math.max(min, Math.min(value, max))
 }
 
-const LetterGlowMultiplier_Opacity = 85;
+const LetterGlowMultiplier_Opacity = 250;
 
 const ScaleRange = [
 	{ Time: 0, Value: 0.95 },
@@ -79,12 +85,76 @@ const DotAnimations = {
 	]
 };
 
+// DotGroup Animation Constants
+const DotGroupAnimations = {
+	YOffsetDamping: 0.4,
+	YOffsetFrequency: 1.25,
+	ScaleDamping: 0.7, // 0.6
+	ScaleFrequency: 5, // 4
+
+	ScaleRange: [
+		{
+			Time: 0,
+			Value: 0
+		},
+		{
+			Time: 0.2,
+			Value: 1.05
+		},
+		{
+			Time: -0.075,
+			Value: 1.15
+		},
+		{
+			Time: -0,
+			Value: 0
+		} // Rest
+	],
+	OpacityRange: [
+		{
+			Time: 0,
+			Value: 0
+		},
+		{
+			Time: 0.5,
+			Value: 1
+		},
+		{
+			Time: -0.075,
+			Value: 1
+		},
+		{
+			Time: -0,
+			Value: 0
+		} // Rest
+	],
+	YOffsetRange: [ // This is relative to the font-size
+		{
+			Time: 0,
+			Value: (1 / 100)
+		}, // Lowest
+		{
+			Time: 0.9,
+			Value: -(1 / 60)
+		}, // Highest
+		{
+			Time: 1,
+			Value: 0
+		} // Rest
+	]
+};
+
 
 
 const DotScaleSpline = GetSpline(DotAnimations.ScaleRange);
 const DotYOffsetSpline = GetSpline(DotAnimations.YOffsetRange);
 const DotGlowSpline = GetSpline(DotAnimations.GlowRange);
 const DotOpacitySpline = GetSpline(DotAnimations.OpacityRange);
+
+// DotGroup splines
+const DotGroupScaleSpline = GetSpline(DotGroupAnimations.ScaleRange);
+const DotGroupYOffsetSpline = GetSpline(DotGroupAnimations.YOffsetRange);
+const DotGroupOpacitySpline = GetSpline(DotGroupAnimations.OpacityRange);
 
 const SungLetterGlow = 0.2;
 
@@ -103,6 +173,16 @@ const createDotSprings = () => {
 		YOffset: new Spring(DotYOffsetSpline.at(0), DotAnimations.YOffsetFrequency, DotAnimations.YOffsetDamping),
 		Glow: new Spring(DotGlowSpline.at(0), DotAnimations.GlowFrequency, DotAnimations.GlowDamping),
     Opacity: new Spring(DotOpacitySpline.at(0), DotAnimations.OpacityFrequency, DotAnimations.OpacityDamping)
+	};
+};
+
+// DotGroup Springs Function - for animating the entire dotGroup element
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const createDotGroupSprings = () => {
+	return {
+		Scale: new Spring(DotGroupScaleSpline.at(0), DotGroupAnimations.ScaleFrequency, DotGroupAnimations.ScaleDamping),
+		YOffset: new Spring(DotGroupYOffsetSpline.at(0), DotGroupAnimations.YOffsetFrequency, DotGroupAnimations.YOffsetDamping),
+    Opacity: new Spring(DotGroupOpacitySpline.at(0), DotGroupAnimations.YOffsetFrequency, DotGroupAnimations.YOffsetDamping)
 	};
 };
 
@@ -126,11 +206,7 @@ const LineGlowRange = [
 		Value: 1
 	},
 	{
-		Time: 0.925,
-		Value: 1
-	},
-	{
-		Time: 0.985,
+		Time: 1,
 		Value: 0
 	}
 ]
@@ -145,13 +221,13 @@ const createLineSprings = () => {
 	};
 };
 
-export let Blurring_LastLine = null;
+export let Blurring_LastLine: number | null = null;
 //const SKIP_ANIMATING_ACTIVE_WORD_DURATION = 235;
 let lastFrameTime = performance.now();
 
 
 
-export function setBlurringLastLine(c) {
+export function setBlurringLastLine(c: number | null) {
   Blurring_LastLine = c;
 }
 
@@ -167,7 +243,7 @@ function getProgressPercentage(currentTime: number, startTime: number, endTime: 
   return (currentTime - startTime) / (endTime - startTime);
 }
 
-export function Animate(position) {
+export function Animate(position: number): void {
   const now = performance.now();
   const deltaTime = (now - lastFrameTime) / 1000;
   lastFrameTime = now;
@@ -179,11 +255,16 @@ export function Animate(position) {
 
   const Credits = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent .Credits") ?? undefined;
 
-  const applyBlur = (arr, activeIndex, BlurMultiplier) => {
+  // Define proper types for the arrays and indices
+  const applyBlur = (arr: Array<{HTMLElement: HTMLElement; StartTime: number; EndTime: number}>,
+                     activeIndex: number,
+                     blurMultiplierValue: number): void => {
+      if (!arr[activeIndex]) return;
+
       arr[activeIndex].HTMLElement.style.setProperty("--BlurAmount", "0px");
 
       for (let i = activeIndex + 1; i < arr.length; i++) {
-          const blurAmount = BlurMultiplier * (i - activeIndex);
+          const blurAmount = blurMultiplierValue * (i - activeIndex);
           if (getElementState(edtrackpos, arr[i].StartTime, arr[i].EndTime) === "Active") {
               arr[i].HTMLElement.style.setProperty("--BlurAmount", "0px");
           } else {
@@ -192,7 +273,7 @@ export function Animate(position) {
       }
 
       for (let i = activeIndex - 1; i >= 0; i--) {
-          const blurAmount = BlurMultiplier * (activeIndex - i);
+          const blurAmount = blurMultiplierValue * (activeIndex - i);
           if (getElementState(edtrackpos, arr[i].StartTime, arr[i].EndTime) === "Active") {
             arr[i].HTMLElement.style.setProperty("--BlurAmount", `0px`);
           } else {
@@ -201,6 +282,8 @@ export function Animate(position) {
       }
   };
 
+  // These utility functions are not used but kept for future reference
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const calculateOpacity = (percentage: number): number => {
     if (percentage <= 0.65) {
         return percentage * 100;
@@ -209,6 +292,7 @@ export function Animate(position) {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const calculateLineGlowOpacity = (percentage: number): number => {
     if (percentage <= 0.5) {
         return percentage * 200;
@@ -244,6 +328,12 @@ export function Animate(position) {
                   line.HTMLElement.classList.remove("Sung");
               }
 
+              // Check if Syllables exists and has Lead property
+              if (!line.Syllables?.Lead) {
+                  console.warn("Line has no Syllables.Lead array");
+                  continue;
+              }
+
               const words = line.Syllables.Lead;
               for (let wordIndex = 0; wordIndex < words.length; wordIndex++) {
                   const word = words[wordIndex];
@@ -266,7 +356,8 @@ export function Animate(position) {
                       let targetGlow: number;
                       let targetGradientPos: number;
 
-                      const totalDuration = word.EndTime - word.StartTime;
+                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                      const totalDuration = word.EndTime - word.StartTime; // Kept for future reference
 
                       if (wordState === "Active") {
                           targetScale = ScaleSpline.at(percentage);
@@ -349,7 +440,7 @@ export function Animate(position) {
                       word.HTMLElement.style.setProperty("--text-shadow-opacity", `${currentGlow * 90}%`); // Match inspiration
                   }
 
-                    if (isLetterGroup) {
+                    if (isLetterGroup && word.Letters) {
                     if (wordState === "Active") {
                       for (let k = 0; k < word.Letters.length; k++) {
                         const letter = word.Letters[k];
@@ -366,7 +457,7 @@ export function Animate(position) {
                         // Find active letter info (needed only for Active state calculation)
                         let activeLetterIndex = -1;
                         let activeLetterPercentage = 0;
-                        if (wordState === "Active") {
+                        if (wordState === "Active" && word.Letters) {
                           for (let i = 0; i < word.Letters.length; i++) {
                               if (getElementState(edtrackpos, word.Letters[i].StartTime, word.Letters[i].EndTime) === "Active") {
                                   activeLetterIndex = i;
@@ -377,35 +468,50 @@ export function Animate(position) {
                         }
 
                         // Determine initial targets based on word state
-                        // wordState is Active - Default to resting, then apply falloff
+                        // wordState is Active - Default to resting, then apply proximity-based animation
                         targetScale = ScaleSpline.at(0); // Default active state target is resting
                         targetYOffset = YOffsetSpline.at(0);
                         targetGlow = GlowSpline.at(0);
 
-                        // Apply falloff if an active letter is found
+                        // --- Handle individual letter states ---
+                        const letterState = getElementState(edtrackpos, letter.StartTime, letter.EndTime);
+
+                        // Apply proximity-based animation if an active letter is found
                         if (activeLetterIndex !== -1) {
+                          // Get the base animation values for the active letter
                           const baseScale = ScaleSpline.at(activeLetterPercentage);
                           const baseYOffset = YOffsetSpline.at(activeLetterPercentage);
                           const baseGlow = GlowSpline.at(activeLetterPercentage);
 
+                          // Get the resting values
                           const restingScale = ScaleSpline.at(0);
                           const restingYOffset = YOffsetSpline.at(0);
                           const restingGlow = GlowSpline.at(0);
 
+                          // Calculate distance from active letter and apply smooth falloff
                           const distance = Math.abs(k - activeLetterIndex);
-                          const falloff = Math.max(0, 1 - distance * 0.35);
+
+                          // Use a steeper falloff curve for proximity effect
+                          // This creates a more pronounced difference between the active letter and others
+                          const falloff = Math.max(0, 1 / (1 + distance * 0.8));
+
+                          // Apply the proximity-based animation values
                           targetScale = restingScale + (baseScale - restingScale) * falloff;
                           targetYOffset = restingYOffset + (baseYOffset - restingYOffset) * falloff;
                           targetGlow = restingGlow + (baseGlow - restingGlow) * falloff;
                         } // else - if no active letter, targets remain at resting state set above
 
-                        // --- Override targets if individual letter is NotSung ---
-                        const letterState = getElementState(edtrackpos, letter.StartTime, letter.EndTime);
+
+
+                        // Only override values for NotSung letters or for letters in a non-Active word
                         if (letterState === "NotSung") {
+                          // NotSung letters always use resting values
                           targetScale = ScaleSpline.at(0);
                           targetYOffset = YOffsetSpline.at(0);
                           targetGlow = GlowSpline.at(0);
-                        } else if (letterState === "Sung") {
+                        } else if (letterState === "Sung" && activeLetterIndex === -1) {
+                          // Only apply SungLetterGlow to letters in words that don't have an active letter
+                          // This preserves our proximity-based animation for active words
                           targetGlow = GlowSpline.at(SungLetterGlow);
                         }
 
@@ -433,10 +539,10 @@ export function Animate(position) {
                         letter.HTMLElement.style.setProperty("--gradient-position", `${targetGradient}%`);
                         letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset * 2}))`;
                         letter.HTMLElement.style.scale = `${currentScale}`;
-                        letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (8 * currentGlow)}px`);
+                        letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (12 * currentGlow)}px`);
                         letter.HTMLElement.style.setProperty("--text-shadow-opacity", `${currentGlow * LetterGlowMultiplier_Opacity}%`);
                     }
-                } else if (wordState === "NotSung") {
+                } else if (wordState === "NotSung" && word.Letters) {
                       for (let k = 0; k < word.Letters.length; k++) {
                         const letter = word.Letters[k];
 
@@ -458,10 +564,10 @@ export function Animate(position) {
                         letter.HTMLElement.style.setProperty("--gradient-position", `-20%`);
                         letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset * 2}))`;
                         letter.HTMLElement.style.scale = `${currentScale}`;
-                        letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (8 * currentGlow)}px`);
+                        letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (12 * currentGlow)}px`);
                         letter.HTMLElement.style.setProperty("--text-shadow-opacity", `${currentGlow * LetterGlowMultiplier_Opacity}%`);
                       }
-                } else if (wordState === "Sung") {
+                } else if (wordState === "Sung" && word.Letters) {
                       for (let k = 0; k < word.Letters.length; k++) {
                         const letter = word.Letters[k];
 
@@ -483,7 +589,7 @@ export function Animate(position) {
                         letter.HTMLElement.style.setProperty("--gradient-position", `100%`);
                         letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset * 2}))`;
                         letter.HTMLElement.style.scale = `${currentScale}`;
-                        letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (8 * currentGlow)}px`);
+                        letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (12 * currentGlow)}px`);
                         letter.HTMLElement.style.setProperty("--text-shadow-opacity", `${currentGlow * LetterGlowMultiplier_Opacity}%`);
                       }
                     }
@@ -557,6 +663,7 @@ export function Animate(position) {
           } else if (lineState === "Sung") {
               line.HTMLElement.classList.add("Sung");
               line.HTMLElement.classList.remove("Active", "NotSung");
+
               if (arr.length === index + 1) {
                 if (Credits && !Credits.classList.contains("Active")) {
                   Credits.classList.add("Active");
@@ -650,7 +757,7 @@ export function Animate(position) {
 
               const percentage = getProgressPercentage(edtrackpos, line.StartTime, line.EndTime);
 
-              if (line.DotLine) {
+              if (line.DotLine && line.Syllables?.Lead) {
                 const dotArray = line.Syllables.Lead; // Assuming Syllables.Lead holds the dots for DotLine
                 for (let i = 0; i < dotArray.length; i++) {
                   const dot = dotArray[i];
@@ -744,85 +851,11 @@ export function Animate(position) {
               if (line.HTMLElement.classList.contains("Active")) {
                 line.HTMLElement.classList.remove("Active");
               }
-
-              if (line.DotLine) {
-                 const dotArray = line.Syllables.Lead;
-                 for (const dot of dotArray) {
-                    if (dot.AnimatorStore) { // Handle dot reset
-                      dot.AnimatorStore.Scale.SetGoal(DotScaleSpline.at(0));
-                      dot.AnimatorStore.YOffset.SetGoal(DotYOffsetSpline.at(0));
-                      dot.AnimatorStore.Glow.SetGoal(DotGlowSpline.at(0));
-                      dot.AnimatorStore.Opacity.SetGoal(DotOpacitySpline.at(0));
-
-                      const currentScale = dot.AnimatorStore.Scale.Step(deltaTime);
-                      const currentYOffset = dot.AnimatorStore.YOffset.Step(deltaTime);
-                      const currentGlow = dot.AnimatorStore.Glow.Step(deltaTime);
-                      const currentOpacity = dot.AnimatorStore.Opacity.Step(deltaTime);
-
-                      dot.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset}))`;
-                      dot.HTMLElement.style.scale = `${currentScale}`;
-                      dot.HTMLElement.style.opacity = `${currentOpacity}`;
-                      dot.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (6 * currentGlow)}px`);
-                      dot.HTMLElement.style.setProperty("--text-shadow-opacity", `${currentGlow * 90}%`);
-                    }
-                 }
-              } else {
-                // Reset non-dot line animation state
-                if (line.AnimatorStore) {
-                  line.AnimatorStore.Glow.SetGoal(LineGlowSpline.at(0));
-                  const currentGlow = line.AnimatorStore.Glow.Step(deltaTime);
-                  line.HTMLElement.style.setProperty("--gradient-position", `0%`);
-                  line.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (8 * currentGlow)}px`);
-                  line.HTMLElement.style.setProperty("--text-shadow-opacity", `${currentGlow * 50}%`);
-                } else {
-                  // Fallback if store wasn't initialized somehow
-                  line.HTMLElement.style.setProperty("--gradient-position", `0%`);
-                  line.HTMLElement.style.setProperty("--text-shadow-blur-radius", `4px`);
-                  line.HTMLElement.style.setProperty("--text-shadow-opacity", `0%`);
-                }
-              }
           } else if (lineState === "Sung") {
               if (!line.HTMLElement.classList.contains("Sung")) {
                   line.HTMLElement.classList.add("Sung");
               }
               line.HTMLElement.classList.remove("Active", "NotSung");
-
-              if (line.DotLine) {
-                  const dotArray = line.Syllables.Lead;
-                  for (const dot of dotArray) {
-                     if (dot.AnimatorStore) { // Handle dot sung state
-                      dot.AnimatorStore.Scale.SetGoal(DotScaleSpline.at(1));
-                      dot.AnimatorStore.YOffset.SetGoal(DotYOffsetSpline.at(1));
-                      dot.AnimatorStore.Glow.SetGoal(DotGlowSpline.at(1));
-                      dot.AnimatorStore.Opacity.SetGoal(DotOpacitySpline.at(1));
-
-                      const currentScale = dot.AnimatorStore.Scale.Step(deltaTime);
-                      const currentYOffset = dot.AnimatorStore.YOffset.Step(deltaTime);
-                      const currentGlow = dot.AnimatorStore.Glow.Step(deltaTime);
-                      const currentOpacity = dot.AnimatorStore.Opacity.Step(deltaTime);
-
-                      dot.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset}))`;
-                      dot.HTMLElement.style.scale = `${currentScale}`;
-                      dot.HTMLElement.style.opacity = `${currentOpacity}`;
-                      dot.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (6 * currentGlow)}px`);
-                      dot.HTMLElement.style.setProperty("--text-shadow-opacity", `${currentGlow * 90}%`);
-                    }
-                  }
-              } else {
-                // Set non-dot line animation to Sung state
-                 if (line.AnimatorStore) {
-                  line.AnimatorStore.Glow.SetGoal(LineGlowSpline.at(1));
-                  const currentGlow = line.AnimatorStore.Glow.Step(deltaTime);
-                  line.HTMLElement.style.setProperty("--gradient-position", `100%`);
-                  line.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (8 * currentGlow)}px`);
-                  line.HTMLElement.style.setProperty("--text-shadow-opacity", `${currentGlow * 50}%`);
-                 } else {
-                   // Fallback if store wasn't initialized somehow
-                   line.HTMLElement.style.setProperty("--gradient-position", `100%`);
-                   line.HTMLElement.style.setProperty("--text-shadow-blur-radius", `4px`);
-                   line.HTMLElement.style.setProperty("--text-shadow-opacity", `0%`);
-                 }
-              }
 
               if (arr.length === index + 1) {
                 if (Credits && !Credits.classList.contains("Active")) {

@@ -1,7 +1,12 @@
 import Global from "../../components/Global/Global";
 import { SpotifyPlayer } from "../../components/Global/SpotifyPlayer";
 
-let syncedPosition;
+interface SyncedPosition {
+  StartedSyncAt: number;
+  Position: number;
+}
+
+let syncedPosition: SyncedPosition | null = null;
 const syncTimings = [0.05, 0.1, 0.15, 0.75];
 let canSyncNonLocalTimestamp = (Spicetify.Player.isPlaying() ? syncTimings.length : 0);
 
@@ -14,7 +19,7 @@ export const requestPositionSync = () => {
     const getLocalPosition = () => {
       return SpotifyPlatform.PlayerAPI._contextPlayer
         .getPositionState({})
-        .then(({ position }) => ({
+        .then(({ position }: { position: number }) => ({
           StartedSyncAt: startedAt,
           Position: Number(position),
         }));
@@ -38,7 +43,7 @@ export const requestPositionSync = () => {
     const sync = isLocallyPlaying ? getLocalPosition() : getNonLocalPosition();
 
     sync
-      .then((position) => {
+      .then((position: SyncedPosition) => {
         syncedPosition = position;
       })
       .then(() => {
@@ -47,20 +52,20 @@ export const requestPositionSync = () => {
           : canSyncNonLocalTimestamp === 0
           ? 1 / 60
           : syncTimings[syncTimings.length - canSyncNonLocalTimestamp];
-          
+
         setTimeout(requestPositionSync, delay * 1000);
       });
   } catch (error) {
     console.error("Sync Position: Fail, More Details:", error)
   }
 };
-  
+
 
 // Function to get the current progress
 export default function GetProgress() {
   if (!syncedPosition) {
     console.error("Synced Position: Unavailable");
-    if (SpotifyPlayer?._DEPRECATED_?.GetTrackPosition) {  
+    if (SpotifyPlayer?._DEPRECATED_?.GetTrackPosition) {
       // Also added this backup in case, if the "sycedPosition" is unavailable, but the "_DEPRECATED_" version is available
       console.warn("Synced Position: Skip, Using DEPRECATED Version");
       return SpotifyPlayer._DEPRECATED_.GetTrackPosition();
@@ -83,7 +88,7 @@ export default function GetProgress() {
 
   // Calculate and return the current track position
   const FinalPosition = (Position + deltaTime)
-  return isLocallyPlaying ? FinalPosition : (FinalPosition + Global.NonLocalTimeOffset) ; 
+  return isLocallyPlaying ? FinalPosition : (FinalPosition + Global.NonLocalTimeOffset) ;
 }
 
 

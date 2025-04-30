@@ -1,15 +1,16 @@
 import SpicyFetch from "../../../../utils/API/SpicyFetch";
+import Defaults from "../../../Global/Defaults";
+import { SpotifyPlayer } from "../../../Global/SpotifyPlayer";
 import ArtistVisuals from "../Main";
 import GetHeaderUrl from "./GetHeaderUrl";
 
 // Track ongoing fetches
 const isFetching = new Map();
 
-export default async function ApplyContent(CurrentSongArtist: string, CurrentSongUri: string) {
-    if (!CurrentSongArtist) throw new Error("Invalid Song Artist");
-    if (!CurrentSongUri) throw new Error("Invalid Song URI");
-    const TrackId = CurrentSongUri.split(":")[2];
-    const ArtistId = CurrentSongArtist.split(":")[2];
+export default async function ApplyContent(ArtistId: string, TrackId: string): Promise<string | undefined> {
+    if (!TrackId) throw new Error("Invalid Song Id");
+    if (Defaults.StaticBackgroundType === "Cover Art") return SpotifyPlayer.GetCover("xlarge") ?? undefined;
+    if (!ArtistId) throw new Error("Invalid Song Artist");
     if (!TrackId || !ArtistId) throw new Error("Invalid URIs");
     const Cached: any = await ArtistVisuals.Cache.get(ArtistId);
 
@@ -36,7 +37,7 @@ export default async function ApplyContent(CurrentSongArtist: string, CurrentSon
         // Create the fetch promise
         const fetchPromise = (async () => {
             try {
-                const [res, status] = await SpicyFetch(`artist/visuals?artist=${CurrentSongArtist}&track=${CurrentSongUri}`);
+                const [res, status] = await SpicyFetch(`artist/visuals?artist=spotify:artist:${ArtistId}&track=spotify:track:${TrackId}`);
                 if (status === 200) {
                     await ArtistVisuals.Cache.set(ArtistId, {
                         data: res ?? "",

@@ -1,16 +1,35 @@
 import Defaults from "../../../../components/Global/Defaults";
-import { LyricsObject } from "../../lyrics";
+import { LyricsObject, LyricsType } from "../../lyrics";
 import { timeOffset } from "../Shared";
 
-export function TimeSetter(PreCurrentPosition) {
+// Extend the LyricsType to include "None"
+type ExtendedLyricsType = LyricsType | "None";
+
+// Define a type for the word/syllable status
+type ElementStatus = "NotSung" | "Active" | "Sung";
+
+// Define interfaces for the objects we're working with
+interface SyllableLead {
+  HTMLElement: HTMLElement;
+  StartTime: number;
+  EndTime: number;
+  Status?: ElementStatus;
+  [key: string]: any;
+}
+
+export function TimeSetter(PreCurrentPosition: number): void {
   const CurrentPosition = PreCurrentPosition + timeOffset;
-  const CurrentLyricsType = Defaults.CurrentLyricsType;
-  if (CurrentLyricsType && CurrentLyricsType === "None") return;
-  const lines = LyricsObject.Types[CurrentLyricsType].Lines;
+  const CurrentLyricsType = Defaults.CurrentLyricsType as ExtendedLyricsType;
+
+  if (!CurrentLyricsType || CurrentLyricsType === "None") return;
+
+  // Type assertion to ensure we can index with CurrentLyricsType
+  const lines = LyricsObject.Types[CurrentLyricsType as LyricsType].Lines;
 
   if (CurrentLyricsType === "Syllable") {
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
+      // Type assertion for the line
+      const line = lines[i] as any;
 
       const lineTimes = {
         start: line.StartTime,
@@ -20,6 +39,9 @@ export function TimeSetter(PreCurrentPosition) {
 
       if (lineTimes.start <= CurrentPosition && CurrentPosition <= lineTimes.end) {
         line.Status = "Active";
+
+        // Check if Syllables exists
+        if (!line.Syllables?.Lead) continue;
 
         const words = line.Syllables.Lead;
         for (let j = 0; j < words.length; j++) {
@@ -50,6 +72,9 @@ export function TimeSetter(PreCurrentPosition) {
       } else if (lineTimes.start >= CurrentPosition) {
         line.Status = "NotSung";
 
+        // Check if Syllables exists
+        if (!line.Syllables?.Lead) continue;
+
         const words = line.Syllables.Lead;
         for (let j = 0; j < words.length; j++) {
           const word = words[j];
@@ -64,6 +89,9 @@ export function TimeSetter(PreCurrentPosition) {
         }
       } else if (lineTimes.end <= CurrentPosition) {
         line.Status = "Sung";
+
+        // Check if Syllables exists
+        if (!line.Syllables?.Lead) continue;
 
         const words = line.Syllables.Lead;
         for (let j = 0; j < words.length; j++) {
@@ -81,7 +109,8 @@ export function TimeSetter(PreCurrentPosition) {
     }
   } else if (CurrentLyricsType === "Line") {
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
+      // Type assertion for the line
+      const line = lines[i] as any;
 
       const lineTimes = {
         start: line.StartTime,

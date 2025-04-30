@@ -1,11 +1,11 @@
-function DeepFreeze(obj: Object): Readonly<Object> {
+function DeepFreeze<T extends Record<string, any>>(obj: T): Readonly<T> {
     if (obj === null || typeof obj !== "object") {
         // Base case: Return primitives as they are
-        return obj;
+        return obj as any;
     }
 
     // Create a copy of the object or array
-    const clone = Array.isArray(obj) ? [] : {};
+    const clone: Record<string, any> = Array.isArray(obj) ? [] : {};
 
     // Recursively copy and freeze properties
     Object.keys(obj).forEach(key => {
@@ -14,7 +14,7 @@ function DeepFreeze(obj: Object): Readonly<Object> {
     });
 
     // Freeze the cloned object
-    return Object.freeze(clone);
+    return Object.freeze(clone) as Readonly<T>;
 }
 
 function IsPlaying() {

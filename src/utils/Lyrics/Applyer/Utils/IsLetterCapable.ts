@@ -4,10 +4,11 @@ const Simple = (letterLength: number, totalDuration: number) => {
     }
 
     const minDuration = 750;
-    
+
     return totalDuration >= minDuration;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Complex = (letterLength: number, totalDuration: number) => {
     // Enforce a maximum letter length of 12
     if (letterLength > 12) {
@@ -16,7 +17,7 @@ const Complex = (letterLength: number, totalDuration: number) => {
 
     // Calculate the minimum duration based on the letter length
     const minDuration = 1000 + ((letterLength - 1) / 1) * 25; // Increases duration as letter length increases
-    
+
     // Return whether the letter length and duration meet the criteria
     return totalDuration >= minDuration;
 }

@@ -1,14 +1,15 @@
 import Defaults from "../../components/Global/Defaults";
 import { SpotifyPlayer } from "../../components/Global/SpotifyPlayer";
 import { LyricsApplied } from "../../components/Pages/PageView";
-import { LyricsObject } from "../Lyrics/lyrics";
+import { LyricsObject, LyricsType, LyricsSyllable, LyricsLine } from "../Lyrics/lyrics";
 import { ScrollIntoCenterViewCSS } from "../ScrollIntoView/Center";
 import SimpleBar from 'simplebar';
 
-let lastLine = null;
+// Define proper types for variables
+let lastLine: HTMLElement | null = null;
 let isUserScrolling = false;
 let lastUserScrollTime = 0;
-let lastPosition = null;
+let lastPosition: number | null = null;
 const USER_SCROLL_COOLDOWN = 750; // 0.75 second cooldown
 const POSITION_THRESHOLD = 250; // 250ms threshold for start/end detection
 
@@ -95,12 +96,13 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
     // Setup logic moved to InitializeScrollEvents
 
     //if (Spicetify.Platform.History.location.pathname === "/SpicyLyrics") {
-        const Lines = LyricsObject.Types[Defaults.CurrentLyricsType]?.Lines;
-        const Position = SpotifyPlayer.GetTrackPosition();
+        const currentType = Defaults.CurrentLyricsType as LyricsType;
+        const Lines = LyricsObject.Types[currentType]?.Lines;
+        const Position = SpotifyPlayer.GetPosition();
         const shouldForceScroll = (isForceScrollQueued || lastLine !== null);
         const PositionOffset = 250;
         const ProcessedPosition = Position + PositionOffset;
-        const TrackDuration = SpotifyPlayer.GetTrackDuration();
+        const TrackDuration = SpotifyPlayer.GetDuration();
 
         // Check if position changed while paused
         if (!SpotifyPlayer.IsPlaying && lastPosition !== null && lastPosition !== Position) {
@@ -181,14 +183,17 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
 
         for (let i = 0; i < Lines.length; i++) {
             const line = Lines[i];
-            if (line.StartTime <= ProcessedPosition && line.EndTime >= ProcessedPosition) {
-                const currentLine = line;
-                Continue(currentLine)
-                return;
+            // Check if line has StartTime and EndTime properties (not Static type)
+            if ('StartTime' in line && 'EndTime' in line) {
+                if (line.StartTime <= ProcessedPosition && line.EndTime >= ProcessedPosition) {
+                    const currentLine = line;
+                    Continue(currentLine);
+                    return;
+                }
             }
         }
 
-        function Continue(currentLine: any) {
+        function Continue(currentLine: LyricsSyllable | LyricsLine) {
             if (currentLine) {
                 const LineElem = currentLine.HTMLElement as HTMLElement;
                 const container = ScrollSimplebar?.getScrollElement() as HTMLElement;

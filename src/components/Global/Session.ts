@@ -14,7 +14,7 @@ type VersionParsedData = {
     Major: number;
     Minor: number;
     Patch: number;
-};
+} | undefined;
 
 let sessionHistory: Location[] = [];
 
@@ -50,14 +50,14 @@ const Session = {
     SpicyLyrics: {
         ParseVersion: (version: string): VersionParsedData => {
             const versionMatches = version.match(/(\d+)\.(\d+)\.(\d+)/)
-        
+
             if (versionMatches === null) {
                 return undefined
             }
-        
+
             return {
                 Text: versionMatches[0],
-        
+
                 Major: parseInt(versionMatches[1]),
                 Minor: parseInt(versionMatches[2]),
                 Patch: parseInt(versionMatches[3])
@@ -72,7 +72,7 @@ const Session = {
                 handler: "VERSION"
             }])
             const versionJob = res.get("VERSION");
-            if (versionJob.status !== 200 || versionJob.type !== "text") return undefined;
+            if (!versionJob || versionJob.status !== 200 || versionJob.type !== "text") return undefined;
             const data = versionJob.responseData;
             return Session.SpicyLyrics.ParseVersion(data);
         },

@@ -2,6 +2,7 @@
     Thanks to @surfbryce for the original shader code!
 */
 
+// @ts-ignore - Ignore missing type declarations for THREE
 import * as THREE from "three"
 
 // Shaders

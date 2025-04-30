@@ -44,10 +44,17 @@
   --webkit-mask-image: var(--ImageMask);
   mask-image: var(--ImageMask);
   container-type: size;
+  opacity: 1;
+  transition: opacity .25s;
+}
+
+#SpicyLyricsPage .LyricsContainer .LyricsContent.HiddenTransitioned {
+  opacity: 0;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .simplebar-content {
   container-type: size !important;
+  transition: padding-right .4s, padding-left .4s;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .BottomSpacer {
@@ -60,17 +67,4 @@
   display: block;
   height: 20vh;
   width: 100%;
-}
-
-
-#SpicyLyricsPage .ContentBox .NowBar:not(.Active) + .LyricsContainer .LyricsContent .simplebar-content-wrapper {
-  padding: 0 18cqw;
-}
-
-#SpicyLyricsPage .ContentBox .NowBar.Active:is(.LeftSide) + .LyricsContainer .LyricsContent .simplebar-content-wrapper .simplebar-content {
-  padding: 0 8cqw 0 2cqw !important;
-}
-
-#SpicyLyricsPage .ContentBox .NowBar.Active:is(.RightSide) + .LyricsContainer .LyricsContent .simplebar-content-wrapper .simplebar-content {
-  padding: 0 2cqw 0 8cqw !important;
 }

@@ -1,9 +1,22 @@
 import { socket as ws } from "./ws/main";
 
+// Define a type for socket objects that have a connect method
+interface SocketWithConnect {
+    connect: () => Promise<void> | any;
+}
+
+// Define the structure of the sockets object
+interface SocketsMap {
+    [key: string]: SocketWithConnect;
+}
+
+// Create a typed sockets object
+const socketMap: SocketsMap = {
+    ws
+};
+
 const Sockets = {
-    sockets: {
-        ws,
-    },
+    sockets: socketMap,
     all: {
         ConnectSockets,
     },
@@ -11,7 +24,7 @@ const Sockets = {
 
 async function ConnectSockets() {
     for (const key of Object.keys(Sockets?.sockets)) {
-        await Sockets?.sockets[key]?.connect();
+        await Sockets.sockets[key]?.connect();
     }
 }
 

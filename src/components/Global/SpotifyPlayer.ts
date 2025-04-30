@@ -1,11 +1,14 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import SpicyFetch from "../../utils/API/SpicyFetch";
 import GetProgress, { _DEPRECATED___GetProgress } from "../../utils/Gets/GetProgress";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type ArtworkSize = "s" | "l" | "xl" | "d";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const TrackData_Map = new Map();
 
-export const SpotifyPlayer = {
+/* const old_SpotifyPlayer = {
     IsPlaying: false,
     GetTrackPosition: GetProgress,
     GetTrackDuration: (): number => {
@@ -85,7 +88,7 @@ export const SpotifyPlayer = {
         return Spicetify.Player.data.item.uri?.split(":")[2] ?? null;
     },
     GetArtists: async (): Promise<string[]> => {
-        const data = await SpotifyPlayer.Track.GetTrackInfo();//await SpicyFetch(`https://api.spotify.com/v1/tracks/${SpotifyPlayer.GetSongId()}`, true, true, true)//await Spicetify.CosmosAsync.get(`https://api.spotify.com/v1/tracks/${SpotifyPlayer.GetSongId()}`);
+        const data = await SpotifyPlayer.Track.GetTrackInfo();
         return data?.artist?.map(a => a.name) ?? [];
     },
     JoinArtists: (artists: string[]): string => {
@@ -104,4 +107,78 @@ export const SpotifyPlayer = {
     },
     LoopType: "none",
     ShuffleType: "none",
+} */
+
+const GetContentType = (): string => Spicetify.Player.data.item?.type;
+
+export type CoverSizes = "standard" | "small" | "large" | "xlarge";
+export type Artist = {
+    type: "artist";
+    name: string;
+    uri: string;
 }
+
+export const SpotifyPlayer = {
+    IsPlaying: false,
+    _DEPRECATED_: {
+        GetTrackPosition: _DEPRECATED___GetProgress
+    },
+    GetPosition: GetProgress,
+    GetContentType: GetContentType,
+    GetDuration: (): number => {
+        if (Spicetify.Player.data.item?.duration?.milliseconds) {
+            return Spicetify.Player.data.item?.duration.milliseconds;
+        }
+        return 0;
+    },
+    Seek: (position: number): void => {
+        Spicetify.Player.origin.seekTo(position);
+    },
+    GetCover: (size: CoverSizes): string | undefined => {
+        const covers = Spicetify.Player.data.item?.images;
+        const cover = covers?.find(cover => cover.label === size) ?? undefined;
+        return cover?.url ?? "https://images.spikerko.org/SongPlaceholderFull.png";
+    },
+    GetName: () => {
+        return Spicetify.Player.data.item?.name;
+    },
+    GetAlbumName: (): string | undefined => {
+        return Spicetify.Player.data.item?.metadata.album_title ?? undefined;
+    },
+    GetId: (): string | undefined => {
+        return Spicetify.Player.data.item?.uri?.split(":")[2] ?? undefined;
+    },
+    GetArtists: (): Artist[] | undefined => {
+        return Spicetify.Player.data.item?.artists as Artist[] ?? undefined;
+    },
+    Pause: Spicetify.Player.pause,
+    Play: Spicetify.Player.play,
+    TogglePlayState: Spicetify.Player.togglePlay,
+    Skip: {
+        Next: Spicetify.Player.next,
+        Prev: Spicetify.Player.back
+    },
+    LoopType: "none",
+    ShuffleType: "none",
+    IsDJ: (): boolean => {
+        return (
+                Spicetify.Player.data?.item?.artists &&
+                Spicetify.Player.data?.item?.artists?.length > 0 &&
+                Spicetify.Player.data?.item?.artists[0].name.includes("DJ")
+               ) || (
+                Spicetify.Player.data?.restrictions?.disallowSeekingReasons &&
+                Spicetify.Player.data?.restrictions?.disallowSeekingReasons?.length > 0 &&
+                Spicetify.Player.data?.restrictions?.disallowSeekingReasons[0].includes("narration")
+               ) ||
+               (
+                Spicetify.Player.data?.item?.type &&
+                Spicetify.Player.data?.item?.type === "unknown"
+               ) ||
+               (
+                Spicetify.Player.data?.item?.provider &&
+                Spicetify.Player.data?.item?.provider?.startsWith("narration")
+               ) ? true : false;
+    },
+    IsLiked: () => Spicetify.Player.getHeart(),
+    ToggleLike: () => Spicetify.Player.toggleHeart(),
+};

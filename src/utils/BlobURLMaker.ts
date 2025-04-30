@@ -1,10 +1,10 @@
-export default async function BlobURLMaker(url: string): Promise<string> {
+export default async function BlobURLMaker(url: string): Promise<string | null> {
     try {
         const response = await fetch(url);
         if (!response.ok) {
             return null;
         }
-        
+
         const blob = await response.blob();
         return URL.createObjectURL(blob);
     } catch (error) {
