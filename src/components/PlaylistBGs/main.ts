@@ -1,27 +1,50 @@
 import BlobURLMaker from "../../utils/BlobURLMaker";
-import Whentil from "../../utils/Whentil";
+import Whentil from "@spikerko/tools/Whentil";
 import Global from "../Global/Global";
 import Session from "../Global/Session";
 
+// Define interface for navigation data
+interface NavigationData {
+    pathname: string;
+    [key: string]: any;
+}
+
 const ThisPageRoot = document.querySelector<HTMLElement>(".Root__main-view");
 
-Global.Event.listen("session:navigation", (data) => {
-    if (Session.GetPreviousLocation()?.pathname.startsWith("/playlist") && ThisPageRoot.classList.contains("spicy-playlist-bg")) {
-        const underMainView = ThisPageRoot.querySelector<HTMLElement>(".under-main-view");
-        underMainView.innerHTML = ``;
-        ThisPageRoot.classList.remove("spicy-playlist-bg");
-    }
-    if (data.pathname.startsWith("/playlist")) {
-        Whentil.When(() => ThisPageRoot.querySelector<HTMLElement>(".under-main-view") && ThisPageRoot.querySelector<HTMLElement>(".main-entityHeader-container"), async () => {
-            const bgColorEntity = ThisPageRoot.querySelector<HTMLElement>(".main-entityHeader-backgroundColor");
-            const bgColorOverlayEntity = ThisPageRoot.querySelector<HTMLElement>(".main-entityHeader-backgroundColor.main-entityHeader-overlay");
-            const divEntityContainer = ThisPageRoot.querySelector<HTMLElement>(".main-entityHeader-container");
+// Exit early if root element not found
+if (!ThisPageRoot) {
+    console.error("PlaylistBGs: Root__main-view element not found");
+} else {
+    Global.Event.listen("session:navigation", (data: NavigationData) => {
+        if (Session.GetPreviousLocation()?.pathname.startsWith("/playlist") && ThisPageRoot.classList.contains("spicy-playlist-bg")) {
             const underMainView = ThisPageRoot.querySelector<HTMLElement>(".under-main-view");
-            const playlistContentActionBar = ThisPageRoot.querySelector<HTMLElement>(".main-actionBarBackground-background");
-
-            if (underMainView.querySelector(".main-entityHeader-background")) {
-                return;
+            if (underMainView) {
+                underMainView.innerHTML = ``;
+                ThisPageRoot.classList.remove("spicy-playlist-bg");
             }
+        }
+
+        if (data.pathname.startsWith("/playlist")) {
+            Whentil.When(() => {
+                // Make sure both elements exist before proceeding
+                return ThisPageRoot.querySelector<HTMLElement>(".under-main-view") &&
+                       ThisPageRoot.querySelector<HTMLElement>(".main-entityHeader-container");
+            }, async () => {
+                const bgColorEntity = ThisPageRoot.querySelector<HTMLElement>(".main-entityHeader-backgroundColor");
+                const bgColorOverlayEntity = ThisPageRoot.querySelector<HTMLElement>(".main-entityHeader-backgroundColor.main-entityHeader-overlay");
+                const divEntityContainer = ThisPageRoot.querySelector<HTMLElement>(".main-entityHeader-container");
+                const underMainView = ThisPageRoot.querySelector<HTMLElement>(".under-main-view");
+                const playlistContentActionBar = ThisPageRoot.querySelector<HTMLElement>(".main-actionBarBackground-background");
+
+                // Safety check for required elements
+                if (!underMainView || !playlistContentActionBar) {
+                    console.warn("PlaylistBGs: Required elements not found");
+                    return;
+                }
+
+                if (underMainView.querySelector(".main-entityHeader-background")) {
+                    return;
+                }
 
             const currentPlaylistId = data.pathname.replace("/playlist/", "");
 
@@ -72,7 +95,7 @@ Global.Event.listen("session:navigation", (data) => {
                 const vibrantColor = (await ExtractColorsFromImage(ImageBlob))?.LightVibrant?.getHex()
                 playlistContentActionBar.style.backgroundColor = vibrantColor;
                 VibrantColor = vibrantColor;
-            })
+            });
 
 
             underMainView.innerHTML = `
@@ -80,17 +103,18 @@ Global.Event.listen("session:navigation", (data) => {
                     <div data-testid="background-image" class="main-entityHeader-background main-entityHeader-gradient" style="background-image: url('${ImageBlob}');background-position:center center;"></div>
                     <div class="main-entityHeader-background main-entityHeader-overlay" style="--bgColor: ${VibrantColor};"></div>
                 </div>
-            `
+            `;
 
             bgColorEntity?.remove();
             bgColorOverlayEntity?.remove();
 
             ThisPageRoot.classList.add("spicy-playlist-bg");
             // console.log("Custom Playlist BGs Loaded!")
-        })
+        });
     }
     // console.log("Navigated!", data)
-})
+});
+}
 
 /* async function ExtractColorFromImage(imageUrl: string) {
     const req = await fetch(`https://spicycolor.spikerko.org/extract?url=${imageUrl}`);
@@ -107,7 +131,7 @@ Global.Event.listen("session:navigation", (data) => {
 async function ExtractColorsFromImage(imageUrl: string) {
     const img = document.createElement("img");
     img.src = imageUrl;
-    img.crossOrigin = "anonymous"; 
+    img.crossOrigin = "anonymous";
     img.style.display = "none";
 
     document.body.appendChild(img);

@@ -4,7 +4,7 @@ import storage from "./utils/storage";
 import { setSettingsMenu } from "./utils/settings";
 import PageView from "./components/Pages/PageView";
 import { Icons } from "./components/Styling/Icons";
-import ApplyDynamicBackground, { GetBlurredCoverArt, LowQMode_SetDynamicBackground, updateContainerDimensions } from "./components/DynamicBG/dynamicBackground";
+import ApplyDynamicBackground, { DynamicBackgroundConfig, GetStaticBackground } from "./components/DynamicBG/dynamicBackground";
 import LoadFonts from "./components/Styling/Fonts";
 import { IntervalManager } from "./utils/IntervalManager";
 import { SpotifyPlayer } from "./components/Global/SpotifyPlayer";
@@ -26,24 +26,16 @@ import "./css/Lyrics/Mixed.css"
 import "./css/Loaders/LoaderContainer.css"
 import Global from "./components/Global/Global";
 import Platform from "./components/Global/Platform";
-import Whentil from "./utils/Whentil";
+import Whentil from "@spikerko/tools/Whentil";
 import Session from "./components/Global/Session";
 import Defaults from "./components/Global/Defaults";
 import { CheckForUpdates } from "./utils/version/CheckForUpdates";
-import sleep from "./utils/sleep";
+// Unused import removed: import sleep from "./utils/sleep";
 import Sockets from "./utils/Sockets/main";
-import * as THREE from "three"
-import { GetShaderUniforms, VertexShader, FragmentShader, ShaderUniforms } from "./components/DynamicBG/ThreeShaders";
 import Fullscreen from "./components/Utils/Fullscreen";
 import { Defer } from "@socali/modules/Scheduler";
-import Animator from "./utils/Animator";
-// Add custom type for our container element
-interface DynamicBGContainer extends HTMLElement {
-    renderer: THREE.WebGLRenderer;
-    scene: THREE.Scene;
-    uniforms: ShaderUniforms;
-    animationFrame?: number;
-}
+import { DynamicBackground } from "@spikerko/tools/DynamicBackground";
+
 
 async function main() {
   await Platform.OnSpotifyReady;
@@ -61,7 +53,24 @@ async function main() {
   }
 
   if (storage.get("prefers_reduced_motion")) {
-    Defaults.PrefersReducedMotion = storage.get("prefers_reduced_motion") === "true";
+    const prefersReducedMotion = storage.get("prefers_reduced_motion") === "true";
+    Defaults.PrefersReducedMotion = prefersReducedMotion;
+  }
+
+  if (!storage.get("staticBackgroundType")) {
+    storage.set("staticBackgroundType", "Auto");
+  }
+
+  if (storage.get("staticBackgroundType")) {
+    Defaults.StaticBackgroundType = storage.get("staticBackgroundType") as string;
+  }
+
+  if (!storage.get("staticBackground")) {
+    storage.set("staticBackground", "false");
+  }
+
+  if (storage.get("staticBackground")) {
+    Defaults.StaticBackground = storage.get("staticBackground") === "true";
   }
 
   /* if (storage.get("lyrics_spacing")) {
@@ -81,13 +90,6 @@ async function main() {
       document.querySelector("html").style.setProperty("--SpicyLyrics-LineSpacing", "2cqw 0");
     }
   } */
-
-  const lowQMode = storage.get("lowQMode");
-  const lowQModeEnabled = lowQMode && lowQMode === "true";
-
-  if (lowQModeEnabled) {
-    document.body.classList.add("SpicyLyrics_LowQMode")
-  }
 
   // Lets set out the Settings Menu
   setSettingsMenu();
@@ -146,8 +148,8 @@ async function main() {
 
   const skeletonStyle = document.createElement("style");
   skeletonStyle.innerHTML = `
-        <!-- This style is here to prevent the @keyframes removal in the CSS. I still don't know why that's happening. -->
-        <!-- This is a part of Spicy Lyrics -->
+        /* This style is here to prevent the @keyframes removal in the CSS. I still don't know why that's happening. */
+        /* This is a part of Spicy Lyrics */
         @keyframes skeleton {
             to {
                 background-position-x: 0
@@ -203,13 +205,13 @@ async function main() {
 
   // Add shift key tracking
   Global.Saves.shift_key_pressed = false;
-  
+
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Shift') {
       Global.Saves.shift_key_pressed = true;
     }
   });
-  
+
   window.addEventListener('keyup', (e) => {
     if (e.key === 'Shift') {
       Global.Saves.shift_key_pressed = false;
@@ -251,7 +253,7 @@ async function main() {
   const button = ButtonList[0];
 
   const Hometinue = async () => {
-    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "4.0.0";
+    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "4.0.6";
     await Sockets.all.ConnectSockets();
 
     Whentil.When(() => Spicetify.Platform.PlaybackAPI, () => {
@@ -278,137 +280,64 @@ async function main() {
     }
 
     // Lets set out Dynamic Background (spicy-dynamic-bg) to the now playing bar
-    let lastImgUrl;
+    let lastImgUrl: string | null;
+    // Store the DynamicBackground instance for reuse
+    let nowPlayingBarDynamicBg: DynamicBackground | null = null;
 
-    // Setup static THREE.js objects
-    const RenderCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
-    RenderCamera.position.z = 1;
-    const MeshGeometry = new THREE.PlaneGeometry(2, 2);
-
-    const cleanupDynamicBg = (container: DynamicBGContainer) => {
-      if (container.animationFrame) {
-        cancelAnimationFrame(container.animationFrame);
+    const CleanupNowBarDynamicBgLets = () => {
+      if (nowPlayingBarDynamicBg) {
+        nowPlayingBarDynamicBg.Destroy();
+        nowPlayingBarDynamicBg = null;
       }
-      if (container.renderer) {
-        if (container.uniforms?.BlurredCoverArt?.value) {
-          container.uniforms.BlurredCoverArt.value.dispose();
-        }
-        container.renderer.dispose();
-        container.renderer.forceContextLoss();
-        const gl = container.renderer.getContext();
-        if (gl) {
-          const loseContext = gl.getExtension('WEBGL_lose_context');
-          if (loseContext) loseContext.loseContext();
-        }
-      }
-      container.remove();
     }
 
-    function applyDynamicBackgroundToNowPlayingBar(coverUrl: string) {
-      if (lowQModeEnabled) return;
+    async function applyDynamicBackgroundToNowPlayingBar(coverUrl: string | undefined) {
+      if (Defaults.StaticBackground || !coverUrl) return;
       const nowPlayingBar = document.querySelector<HTMLElement>(".Root__right-sidebar aside.NowPlayingView");
-    
+
       try {
         if (nowPlayingBar == null) {
           lastImgUrl = null;
           return;
         };
         if (coverUrl === lastImgUrl) return;
-        
+
+        const existingElement = nowPlayingBar.querySelector<HTMLElement>(".spicy-dynamic-bg");
         nowPlayingBar.classList.add("spicy-dynamic-bg-in-this");
-        
-        let container = nowPlayingBar.querySelector<DynamicBGContainer>(".spicy-dynamic-bg");
-        const prevContainer = container;
-        
-        // If same song, do nothing
-        if (container && container.getAttribute("data-cover-id") === coverUrl) {
-          return;
-        }
 
-        // Create new container
-        const renderer = new THREE.WebGLRenderer({ alpha: true });
-        container = renderer.domElement as DynamicBGContainer;
-        container.classList.add("spicy-dynamic-bg");
-        container.style.opacity = "0"; // Start hidden for animation
+        // Process the cover URL
+        const processedCover = coverUrl;
 
-        // Setup THREE.js scene
-        const renderScene = new THREE.Scene();
-        const materialUniforms = GetShaderUniforms();
-        const meshMaterial = new THREE.ShaderMaterial({
-          uniforms: materialUniforms,
-          vertexShader: VertexShader,
-          fragmentShader: FragmentShader,
-        });
-        const sceneMesh = new THREE.Mesh(MeshGeometry, meshMaterial);
-        renderScene.add(sceneMesh);
+        // Check if we already have a DynamicBackground instance
+        if (nowPlayingBarDynamicBg && existingElement) {
+          // Update the data-cover-id attribute
+          existingElement.setAttribute("data-cover-id", coverUrl);
 
-        // Store references
-        container.renderer = renderer;
-        container.scene = renderScene;
-        container.uniforms = materialUniforms;
-
-        // Add to DOM
-        nowPlayingBar.appendChild(container);
-
-        // Update attributes and set initial size
-        container.setAttribute("data-cover-id", coverUrl);
-        const width = Math.max(nowPlayingBar.clientWidth, 500);
-        const height = Math.max(nowPlayingBar.clientHeight, 500);
-        
-        // Set size and update uniforms
-        updateContainerDimensions(container, width, height);
-
-        // Setup animation
-        if (Defaults.PrefersReducedMotion) {
-          container.style.opacity = "1";
-          if (prevContainer) {
-            cleanupDynamicBg(prevContainer);
-          }
+          // Update with the current image
+          await nowPlayingBarDynamicBg.Update({
+            image: processedCover
+          });
         } else {
-          const fadeIn = new Animator(0, 1, 0.6);
-          const fadeOut = new Animator(1, 0, 0.6);
+          // Create new DynamicBackground instance
+          nowPlayingBarDynamicBg = new DynamicBackground(DynamicBackgroundConfig);
 
-          fadeIn.on("progress", (progress) => {
-            container.style.opacity = progress.toString();
+          // Get the canvas element
+          const container = nowPlayingBarDynamicBg.GetCanvasElement();
+
+          // Add the spicy-dynamic-bg class
+          container.classList.add("spicy-dynamic-bg");
+
+          // Set the data-cover-id attribute
+          container.setAttribute("data-cover-id", coverUrl);
+
+          // Apply the background to the element
+          nowPlayingBarDynamicBg.AppendToElement(nowPlayingBar);
+
+          // Update with the current image
+          await nowPlayingBarDynamicBg.Update({
+            image: processedCover
           });
-
-          fadeOut.on("progress", (progress) => {
-            if (prevContainer) {
-              prevContainer.style.opacity = progress.toString();
-            }
-          });
-
-          fadeIn.on("finish", () => {
-            container.style.opacity = "1";
-            fadeIn.Destroy();
-          });
-
-          fadeOut.on("finish", () => {
-            if (prevContainer) {
-              cleanupDynamicBg(prevContainer);
-            }
-            fadeOut.Destroy();
-          });
-
-          fadeOut.Start();
-          fadeIn.Start();
         }
-
-        // Update texture and start animation loop
-        GetBlurredCoverArt().then(blurredCover => {
-          const texture = new THREE.CanvasTexture(blurredCover);
-          texture.minFilter = THREE.NearestFilter;
-          texture.magFilter = THREE.NearestFilter;
-          container.uniforms.BlurredCoverArt.value = texture;
-          container.uniforms.RotationSpeed.value = 1.0;
-
-          const animate = () => {
-            container.uniforms.Time.value = performance.now() / 3500;
-            container.renderer.render(container.scene, RenderCamera);
-            container.animationFrame = requestAnimationFrame(animate);
-          };
-          animate();
-        });
 
         lastImgUrl = coverUrl;
       } catch (error) {
@@ -416,46 +345,12 @@ async function main() {
       }
     }
 
-    new IntervalManager(1, () => {
-      applyDynamicBackgroundToNowPlayingBar(Spicetify.Player.data?.item.metadata.image_url);
+    new IntervalManager(1, async () => {
+      await applyDynamicBackgroundToNowPlayingBar(SpotifyPlayer.GetCover("xlarge"));
     }).Start();
 
-    Spicetify.Player.addEventListener("songchange", onSongChange);
-    Spicetify.Player.addEventListener("songchange", async (event) => {
-      fetchLyrics(event?.data?.item?.uri).then(ApplyLyrics);
-      // Artist Header Image Prefetch (For a Faster Experience)
-      {
-        const lowQMode = storage.get("lowQMode");
-        const lowQModeEnabled = lowQMode && lowQMode === "true";
-        if (lowQModeEnabled) {
-          const CurrentSongArtist = event.data?.item.artists[0].uri;
-          const CurrentSongUri = event.data?.item.uri;
-            try {
-                await LowQMode_SetDynamicBackground(CurrentSongArtist, CurrentSongUri);
-            } catch (error) {
-                console.error("Error happened while trying to prefetch the Low Quality Mode Dynamic Background", error)
-            }
-        }
-      }
-    })
-
-    let songChangeLoopRan = 0;
-    const songChangeLoopMax = 5;
-    async function onSongChange(event) {
-      let currentUri = event?.data?.item?.uri;
-      if (!currentUri) {
-        currentUri = Spicetify.Player.data?.item?.uri;
-        if (!currentUri) {
-          if (songChangeLoopRan >= songChangeLoopMax) {
-            return;
-          }
-          onSongChange(event);
-          songChangeLoopRan++;
-          return;
-        }
-      };
-
-      const IsSomethingElseThanTrack = Spicetify.Player.data.item.type !== "track";
+    async function onSongChange(event: any) {
+      const IsSomethingElseThanTrack = SpotifyPlayer.GetContentType() !== "track";
 
       if (IsSomethingElseThanTrack) {
         button.Button.deregister();
@@ -468,37 +363,42 @@ async function main() {
       }
 
       if (!IsSomethingElseThanTrack) {
-        // Prefetch Track Data
-        await SpotifyPlayer.Track.GetTrackInfo();
         if (document.querySelector("#SpicyLyricsPage .ContentBox .NowBar")) {
           Fullscreen.IsOpen ? UpdateNowBar(true) : UpdateNowBar();
         }
       }
 
+      fetchLyrics(event?.data?.item?.uri).then(ApplyLyrics);
 
-      applyDynamicBackgroundToNowPlayingBar(Spicetify.Player.data?.item.metadata.image_url)
-      songChangeLoopRan = 0;
+      
+      if (Defaults.StaticBackground) {
+        const Artists = SpotifyPlayer.GetArtists();
+        const Artist = Artists?.map(artist => artist.uri?.replace("spotify:artist:", ""))[0] ?? undefined;
+        try {
+          await GetStaticBackground(Artist, SpotifyPlayer.GetId());
+        } catch (error) {
+          console.error("Unable to prefetch Static Background");
+        }
+      }
 
+      await applyDynamicBackgroundToNowPlayingBar(SpotifyPlayer.GetCover("xlarge"));
 
-      if (!document.querySelector("#SpicyLyricsPage .LyricsContainer")) return;
-      ApplyDynamicBackground(document.querySelector("#SpicyLyricsPage .ContentBox"))
+      const contentBox = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox");
+      if (!contentBox) return;
+      ApplyDynamicBackground(contentBox);
     }
+    Global.Event.listen("playback:songchange", onSongChange);
 
     {
-      fetchLyrics(Spicetify.Player.data.item.uri).then(ApplyLyrics);
-    
-      // Artist Header Image Prefetch (For a Faster Experience)
-      {
-        const lowQMode = storage.get("lowQMode");
-        const lowQModeEnabled = lowQMode && lowQMode === "true";
-        if (lowQModeEnabled) {
-          const CurrentSongArtist = Spicetify.Player.data?.item.artists[0].uri;
-          const CurrentSongUri = Spicetify.Player.data?.item.uri;
-            try {
-                await LowQMode_SetDynamicBackground(CurrentSongArtist, CurrentSongUri);
-            } catch (error) {
-                console.error("Error happened while trying to prefetch the Low Quality Mode Dynamic Background", error)
-            }
+      fetchLyrics(Spicetify.Player.data?.item?.uri).then(ApplyLyrics);
+
+      if (Defaults.StaticBackground) {
+        const Artists = SpotifyPlayer.GetArtists();
+        const Artist = Artists?.map(artist => artist.uri?.replace("spotify:artist:", ""))[0] ?? undefined;
+        try {
+          await GetStaticBackground(Artist, SpotifyPlayer.GetId());
+        } catch (error) {
+          console.error("Unable to prefetch Static Background");
         }
       }
     }
@@ -508,20 +408,30 @@ async function main() {
 
       storage.set("lastFetchedUri", null);
 
-      fetchLyrics(Spicetify.Player.data?.item.uri).then(ApplyLyrics);
+      fetchLyrics(Spicetify.Player.data?.item?.uri).then(ApplyLyrics);
     });
 
-    new IntervalManager(ScrollingIntervalTime, () => ScrollToActiveLine(ScrollSimplebar)).Start();
+    new IntervalManager(ScrollingIntervalTime, () => {
+      if (ScrollSimplebar) {
+        ScrollToActiveLine(ScrollSimplebar);
+      }
+    }).Start();
 
 
-    let lastLocation = null;
+    interface Location {
+      pathname: string;
+      [key: string]: any;
+    }
 
-    function loadPage(location) {
+    let lastLocation: Location | null = null;
+
+    function loadPage(location: Location) {
       if (location.pathname === "/SpicyLyrics") {
         PageView.Open();
         button.Button.active = true;
       } else {
         if (lastLocation?.pathname === "/SpicyLyrics") {
+          CleanupNowBarDynamicBgLets();
           PageView.Destroy();
           button.Button.active = false;
         }
@@ -529,9 +439,9 @@ async function main() {
       lastLocation = location;
     }
 
-    Spicetify.Platform.History.listen(loadPage)
+    Global.Event.listen("platform:history", loadPage);
 
-    
+
     if (Spicetify.Platform.History.location.pathname === "/SpicyLyrics") {
       Global.Event.listen("pagecontainer:available", () => {
         loadPage(Spicetify.Platform.History.location);
@@ -543,10 +453,14 @@ async function main() {
 
 
     {
-      let lastLoopType = null;
-      const LoopInt = new IntervalManager(Infinity, () => {
+      type LoopType = "context" | "track" | "none";
+      let lastLoopType: LoopType | null = null;
+      // These interval managers are intentionally not stored in variables that are used elsewhere
+      // They are self-running background processes that continue to run throughout the app lifecycle
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      new IntervalManager(Infinity, () => {
         const LoopState = Spicetify.Player.getRepeat();
-        const LoopType = LoopState === 1 ? "context" : LoopState === 2 ? "track" : "none";
+        const LoopType: LoopType = LoopState === 1 ? "context" : LoopState === 2 ? "track" : "none";
         SpotifyPlayer.LoopType = LoopType;
         if (lastLoopType !== LoopType) {
           Global.Event.evoke("playback:loop", LoopType);
@@ -556,9 +470,11 @@ async function main() {
     }
 
     {
-      let lastShuffleType = null;
-      const ShuffleInt = new IntervalManager(Infinity, () => {
-        const ShuffleType = (Spicetify.Player.origin._state.smartShuffle ? "smart" : (Spicetify.Player.origin._state.shuffle ? "normal" : "none"));
+      type ShuffleType = "smart" | "normal" | "none";
+      let lastShuffleType: ShuffleType | null = null;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      new IntervalManager(Infinity, () => {
+        const ShuffleType: ShuffleType = (Spicetify.Player.origin._state.smartShuffle ? "smart" : (Spicetify.Player.origin._state.shuffle ? "normal" : "none"));
         SpotifyPlayer.ShuffleType = ShuffleType;
         if (lastShuffleType !== ShuffleType) {
           Global.Event.evoke("playback:shuffle", ShuffleType);
@@ -566,11 +482,12 @@ async function main() {
         lastShuffleType = ShuffleType;
       }).Start();
     }
-    
+
     {
       let lastPosition = 0;
-      const PositionInt = new IntervalManager(0.5, () => {
-        const pos = SpotifyPlayer.GetTrackPosition();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      new IntervalManager(0.5, () => {
+        const pos = SpotifyPlayer.GetPosition();
         if (pos !== lastPosition) {
           Global.Event.evoke("playback:position", pos);
         }
@@ -593,10 +510,13 @@ async function main() {
         Global.Event.evoke("pagecontainer:available", document.querySelector<HTMLElement>(".Root__main-view .main-view-container div[data-overlayscrollbars-viewport]"))
       })
 
+      Spicetify.Platform.History.listen((e: Location) => {
+        Global.Event.evoke("platform:history", e);
+      });
       Spicetify.Platform.History.listen(Session.RecordNavigation);
       Session.RecordNavigation(Spicetify.Platform.History.location);
 
-      Global.Event.listen("session:navigation", (data) => {
+      Global.Event.listen("session:navigation", (data: Location) => {
         if (data.pathname === "/SpicyLyrics/Update") {
           storage.set("previous-version", Defaults.SpicyLyricsVersion);
           window._spicy_lyrics_metadata = {}
@@ -613,8 +533,8 @@ async function main() {
     }
   }
 
-  Whentil.When(() => Spicetify.Player.data.item.type, () => {
-    const IsSomethingElseThanTrack = Spicetify.Player.data.item.type !== "track";
+  Whentil.When(() => SpotifyPlayer.GetContentType(), () => {
+    const IsSomethingElseThanTrack = SpotifyPlayer.GetContentType() !== "track";
 
     if (IsSomethingElseThanTrack) {
       button.Button.deregister();

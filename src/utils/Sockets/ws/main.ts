@@ -8,7 +8,7 @@ export const socket = io("https://ws.spicylyrics.org", {
     reconnectionAttempts: 1,
 });
 
-let disconnectionInt;
+let disconnectionInt: ReturnType<typeof setInterval> | null = null;
 
 socket.on("connect", () => {
     if (disconnectionInt) {
@@ -21,7 +21,7 @@ socket.on("disconnect", () => {
     if (!disconnectionInt) {
         disconnectionInt = setInterval(() => {
             socket.connect();
-        }, 2000)
+        }, 2000);
         socket.connect();
     }
 });
@@ -30,7 +30,7 @@ socket.on("connect_error", () => {
     if (!disconnectionInt) {
         disconnectionInt = setInterval(() => {
             socket.connect();
-        }, 2000)
+        }, 2000);
         socket.connect();
     }
 });

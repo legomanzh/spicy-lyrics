@@ -56,10 +56,18 @@
 }
 
 /* Low quality mode styles - kept unchanged as requested */
-#SpicyLyricsPage .spicy-dynamic-bg:is(.lowqmode) {
-  object-fit: cover;
-  filter: brightness(.65) blur(5px) saturate(1.18);
-  scale: 1.1;
+#SpicyLyricsPage .spicy-dynamic-bg.StaticBackground {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(.5) saturate(1.25);
+  scale: 1;
+  opacity: 1;
+  transition: opacity .3s;
+}
+
+#SpicyLyricsPage .spicy-dynamic-bg.StaticBackground.Hidden {
+  opacity: 0;
 }
 
 /* Hide sidebar background when in fullscreen lyrics mode */

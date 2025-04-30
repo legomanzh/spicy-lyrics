@@ -8,15 +8,24 @@ const Substractions = {
     EndTime: 0
 }
 
+interface LetterData {
+    HTMLElement: HTMLElement;
+    StartTime: number;
+    EndTime: number;
+    TotalTime: number;
+    Emphasis: boolean;
+    BGLetter?: boolean;
+}
+
 export default function Emphasize(letters: Array<string>, applyTo: HTMLElement, lead: any, isBgWord: boolean = false) {
     const StartTime = ConvertTime(lead.StartTime) - Substractions.StartTime;
     const EndTime = ConvertTime(lead.EndTime) - Substractions.EndTime;
     const totalDuration = EndTime - StartTime;
     const letterDuration = totalDuration / letters.length; // Duration per letter
     const word = applyTo;
-    let Letters = [];
+    const Letters: LetterData[] = [];
 
-    letters.forEach((letter, index, lA) => {
+    letters.forEach((letter, index) => {
         const letterElem = document.createElement("span");
         letterElem.textContent = letter;
         letterElem.classList.add("letter");
@@ -64,16 +73,24 @@ export default function Emphasize(letters: Array<string>, applyTo: HTMLElement, 
     const mcont = isBgWord ? {
         BGWord: true
     } : {};
-    
-    LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
-        HTMLElement: word,
-        StartTime: StartTime,
-        EndTime: EndTime,
-        TotalTime: totalDuration,
-        LetterGroup: true,
-        Letters,
-        ...mcont
-    })
 
-    Letters = []
+    // Make sure CurrentLineLyricsObject is valid and Syllables.Lead exists
+    if (CurrentLineLyricsObject >= 0 &&
+        LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject] &&
+        LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables) {
+
+        LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables!.Lead.push({
+            HTMLElement: word,
+            StartTime: StartTime,
+            EndTime: EndTime,
+            TotalTime: totalDuration,
+            LetterGroup: true,
+            Letters,
+            ...mcont
+        });
+    } else {
+        console.warn("Cannot add letter group: CurrentLineLyricsObject is invalid or Syllables.Lead doesn't exist");
+    }
+
+    // No need to reset Letters as it's a local constant
 }

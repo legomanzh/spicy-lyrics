@@ -19,14 +19,27 @@ export type JobResult = {
     type: string
 }
 
-export async function SendJob(jobs: Job[], headers: any = {}): Promise<{ get(handler: string): JobResult; }> {
+/**
+ * Interface for the job result getter
+ */
+export interface JobResultGetter {
+    get(handler: string): JobResult | undefined;
+}
+
+/**
+ * Send a batch of jobs to the API
+ * @param jobs - Array of jobs to send
+ * @param headers - Optional headers to include in the request
+ * @returns Object with a get method to retrieve job results
+ */
+export async function SendJob(jobs: Job[], headers: Record<string, string> = {}): Promise<JobResultGetter> {
     const res = await fetch(`${API_URL}/batch`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...headers },
         body: JSON.stringify({ jobs }),
     });
 
-    if (!res.ok) throw new Error("Request failed");
+    if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
 
     const data = await res.json();
     const results: Map<string, JobResult> = new Map();
@@ -36,7 +49,7 @@ export async function SendJob(jobs: Job[], headers: any = {}): Promise<{ get(han
     }
 
     return {
-        get(handler: string): JobResult {
+        get(handler: string): JobResult | undefined {
             return results.get(handler);
         },
     };

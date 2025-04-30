@@ -52,9 +52,17 @@ function devSettings() {
 function generalSettings() {
     const settings = new SettingsSection("Spicy Lyrics", "spicy-lyrics-settings");
 
-    settings.addToggle("low-q-mode", "Low Quality Mode", Defaults.lowQualityMode, () => {
-        storage.set("lowQMode", settings.getFieldValue("low-q-mode") as string)
+    settings.addToggle("static-background", "Static Background", Defaults.StaticBackground_Preset, () => {
+        storage.set("staticBackground", settings.getFieldValue("static-background") as string);
     });
+
+    settings.addDropDown("static-background-type", "Static Background Type (Only works when Static Background is Enabled)", ["Auto", "Artist Header Visual", "Cover Art"], Defaults.StaticBackgroundType_Preset, () => {
+        storage.set("staticBackgroundType", settings.getFieldValue("static-background-type") as string);
+    });
+
+    /* settings.addToggle("low-q-mode", "Low Quality Mode (Leaving Soon)", Defaults.lowQualityMode, () => {
+        storage.set("lowQMode", settings.getFieldValue("low-q-mode") as string)
+    }); */
 
     settings.addToggle("skip-spicy-font", "Skip Spicy Font**", Defaults.SkipSpicyFont, () => {
         storage.set("skip-spicy-font", settings.getFieldValue("skip-spicy-font") as string)
@@ -64,9 +72,9 @@ function generalSettings() {
         storage.set("old-style-font", settings.getFieldValue("old-style-font") as string)
     });
 
-    settings.addToggle("force-cover-bg_in-lowqmode", "Force Image Cover (as the background) in Low Quality Mode", Defaults.ForceCoverImage_InLowQualityMode, () => {
+    /* settings.addToggle("force-cover-bg_in-lowqmode", "Force Image Cover (as the background) in Low Quality Mode (Leaving Soon)", Defaults.ForceCoverImage_InLowQualityMode, () => {
         storage.set("force-cover-bg_in-lowqmode", settings.getFieldValue("force-cover-bg_in-lowqmode") as string)
-    });
+    }); */
 
     settings.addToggle("show_topbar_notifications", "Show Topbar Notifications", Defaults.show_topbar_notifications, () => {
         storage.set("show_topbar_notifications", settings.getFieldValue("show_topbar_notifications") as string)

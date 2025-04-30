@@ -9,25 +9,63 @@ import { IsLetterCapable } from "../Utils/IsLetterCapable";
 import Emphasize from "../Utils/Emphasize";
 import { IdleEmphasisLyricsScale, IdleLyricsScale } from "../../Animator/Shared";
 import isRtl from '../../isRtl';
-import Animator from "../../../../utils/Animator";
 import { ClearLyricsPageContainer } from '../../fetchLyrics';
 import { EmitApply, EmitNotApplyed } from '../OnApply';
 
-export function ApplySyllableLyrics(data) {
+// Define the data structure for syllable lyrics
+interface SyllableData {
+  Text: string;
+  StartTime: number;
+  EndTime: number;
+  IsPartOfWord?: boolean;
+}
+
+interface LeadData {
+  StartTime: number;
+  EndTime: number;
+  Syllables: SyllableData[];
+}
+
+interface BackgroundData {
+  StartTime: number;
+  EndTime: number;
+  Syllables: SyllableData[];
+}
+
+interface LineData {
+  Lead: LeadData;
+  Background?: BackgroundData[];
+  OppositeAligned?: boolean;
+}
+
+interface LyricsData {
+  Type: string;
+  Content: LineData[];
+  StartTime: number;
+  SongWriters?: string[];
+  classes?: string;
+  styles?: Record<string, string>;
+}
+
+export function ApplySyllableLyrics(data: LyricsData): void {
   if (!Defaults.LyricsContainerExists) return;
-  EmitNotApplyed()
+  EmitNotApplyed();
   const LyricsContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
 
-  LyricsContainer.setAttribute("data-lyrics-type", "Syllable")
+  // Check if LyricsContainer exists
+  if (!LyricsContainer) {
+    console.error("LyricsContainer not found");
+    return;
+  }
+
+  LyricsContainer.setAttribute("data-lyrics-type", "Syllable");
 
   ClearLyricsContentArrays();
   ClearScrollSimplebar();
-  
-  // Reset opacity to 0 at the beginning
-  LyricsContainer.style.opacity = "0";
-  ClearLyricsPageContainer()
-  
-  TOP_ApplyLyricsSpacer(LyricsContainer)
+
+  ClearLyricsPageContainer();
+
+  TOP_ApplyLyricsSpacer(LyricsContainer);
   if (data.StartTime >= lyricsBetweenShow) {
     const musicalLine = document.createElement("div")
     musicalLine.classList.add("line")
@@ -54,43 +92,58 @@ export function ApplySyllableLyrics(data) {
     const musicalDots3 = document.createElement("span");
 
     const totalTime = ConvertTime(data.StartTime);
-    const dotTime = totalTime / 3; 
+    const dotTime = totalTime / 3;
 
     musicalDots1.classList.add("word");
     musicalDots1.classList.add("dot");
     musicalDots1.textContent = "•";
 
-    LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
-      HTMLElement: musicalDots1,
-      StartTime: 0,
-      EndTime: dotTime,
-      TotalTime: dotTime,
-      Dot: true
-    })
+    // Check if Syllables.Lead exists
+    if (LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject]?.Syllables?.Lead) {
+      LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
+        HTMLElement: musicalDots1,
+        StartTime: 0,
+        EndTime: dotTime,
+        TotalTime: dotTime,
+        Dot: true
+      });
+    } else {
+      console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
+    }
 
     musicalDots2.classList.add("word");
     musicalDots2.classList.add("dot");
     musicalDots2.textContent = "•";
 
-    LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
-      HTMLElement: musicalDots2,
-      StartTime: dotTime,
-      EndTime: dotTime * 2,
-      TotalTime: dotTime,
-      Dot: true
-    })
+    // Check if Syllables.Lead exists
+    if (LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject]?.Syllables?.Lead) {
+      LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
+        HTMLElement: musicalDots2,
+        StartTime: dotTime,
+        EndTime: dotTime * 2,
+        TotalTime: dotTime,
+        Dot: true
+      });
+    } else {
+      console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
+    }
 
     musicalDots3.classList.add("word");
     musicalDots3.classList.add("dot");
     musicalDots3.textContent = "•";
 
-    LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
-      HTMLElement: musicalDots3,
-      StartTime: dotTime * 2,
-      EndTime: ConvertTime(data.StartTime) - 400,
-      TotalTime: dotTime,
-      Dot: true
-    })
+    // Check if Syllables.Lead exists
+    if (LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject]?.Syllables?.Lead) {
+      LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
+        HTMLElement: musicalDots3,
+        StartTime: dotTime * 2,
+        EndTime: ConvertTime(data.StartTime) - 400,
+        TotalTime: dotTime,
+        Dot: true
+      });
+    } else {
+      console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
+    }
 
     dotGroup.appendChild(musicalDots1);
     dotGroup.appendChild(musicalDots2);
@@ -111,18 +164,18 @@ export function ApplySyllableLyrics(data) {
       });
 
       SetWordArrayInCurentLine();
-  
+
       if (line.OppositeAligned) {
         lineElem.classList.add("OppositeAligned")
       }
 
-      
+
       LyricsContainer.appendChild(lineElem)
-      
+
 
       line.Lead.Syllables.forEach((lead, iL, aL) => {
         let word = document.createElement("span")
-        
+
         if (isRtl(lead.Text) && !lineElem.classList.contains("rtl")) {
           lineElem.classList.add("rtl")
         }
@@ -134,10 +187,10 @@ export function ApplySyllableLyrics(data) {
         const IfLetterCapable = IsLetterCapable(letterLength, totalDuration);
 
         if (IfLetterCapable) {
-          
+
           word = document.createElement("div")
           const letters = lead.Text.split(""); // Split word into individual letters
-          
+
           Emphasize(letters, word, lead)
 
           iL === aL.length - 1 ? word.classList.add("LastWordInLine") : lead.IsPartOfWord ? word.classList.add("PartOfWord") : null;
@@ -151,7 +204,7 @@ export function ApplySyllableLyrics(data) {
           //word.style.setProperty("--content-duration", `${contentDuration}ms`);
 
           lineElem.appendChild(word);
-          
+
         } else {
           word.textContent = lead.Text;
 
@@ -165,28 +218,33 @@ export function ApplySyllableLyrics(data) {
           if (ArabicPersianRegex.test(lead.Text)) {
             word.setAttribute("font", "Vazirmatn")
           }
-  
+
           word.classList.add("word");
 
           iL === aL.length - 1 ? word.classList.add("LastWordInLine") : lead.IsPartOfWord ? word.classList.add("PartOfWord") : null;
-  
+
           lineElem.appendChild(word);
 
-          LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
-            HTMLElement: word,
-            StartTime: ConvertTime(lead.StartTime),
-            EndTime: ConvertTime(lead.EndTime),
-            TotalTime: totalDuration
-          })
+          // Check if Syllables.Lead exists
+          if (LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject]?.Syllables?.Lead) {
+            LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
+              HTMLElement: word,
+              StartTime: ConvertTime(lead.StartTime),
+              EndTime: ConvertTime(lead.EndTime),
+              TotalTime: totalDuration
+            });
+          } else {
+            console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
+          }
         }
-        
+
       })
 
       if (line.Background) {
         line.Background.forEach((bg) => {
           const lineE = document.createElement("div");
           lineE.classList.add("line", "bg-line")
-    
+
           LyricsObject.Types.Syllable.Lines.push({
             HTMLElement: lineE,
             StartTime: ConvertTime(bg.StartTime),
@@ -210,14 +268,14 @@ export function ApplySyllableLyrics(data) {
             const totalDuration = ConvertTime(bw.EndTime) - ConvertTime(bw.StartTime);
 
             const letterLength = bw.Text.split("").length;
-    
+
             const IfLetterCapable = IsLetterCapable(letterLength, totalDuration);
-    
+
             if (IfLetterCapable) {
-              
+
               bwE = document.createElement("div")
               const letters = bw.Text.split(""); // Split word into individual letters
-              
+
               Emphasize(letters, bwE, bw, true)
 
               bI === bA.length - 1 ? bwE.classList.add("LastWordInLine") : bw.IsPartOfWord ? bwE.classList.add("PartOfWord") : null;
@@ -245,13 +303,18 @@ export function ApplySyllableLyrics(data) {
                 bwE.setAttribute("font", "Vazirmatn")
               }
 
-              LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
-                HTMLElement: bwE,
-                StartTime: ConvertTime(bw.StartTime),
-                EndTime: ConvertTime(bw.EndTime),
-                TotalTime: ConvertTime(bw.EndTime) - ConvertTime(bw.StartTime),
-                BGWord: true
-              })
+              // Check if Syllables.Lead exists
+              if (LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject]?.Syllables?.Lead) {
+                LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
+                  HTMLElement: bwE,
+                  StartTime: ConvertTime(bw.StartTime),
+                  EndTime: ConvertTime(bw.EndTime),
+                  TotalTime: ConvertTime(bw.EndTime) - ConvertTime(bw.StartTime),
+                  BGWord: true
+                });
+              } else {
+                console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
+              }
 
               bwE.classList.add("bg-word")
               bwE.classList.add("word")
@@ -281,57 +344,72 @@ export function ApplySyllableLyrics(data) {
           if (arr[index + 1].OppositeAligned) {
             musicalLine.classList.add("OppositeAligned")
           }
-      
+
           const dotGroup = document.createElement("div");
           dotGroup.classList.add("dotGroup");
-      
+
           const musicalDots1 = document.createElement("span");
           const musicalDots2 = document.createElement("span");
           const musicalDots3 = document.createElement("span");
-      
+
           const totalTime = ConvertTime(arr[index + 1].Lead.StartTime) - ConvertTime(line.Lead.EndTime);
-          const dotTime = totalTime / 3; 
-      
+          const dotTime = totalTime / 3;
+
           musicalDots1.classList.add("word");
           musicalDots1.classList.add("dot");
           musicalDots1.textContent = "•";
 
-          LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
-            HTMLElement: musicalDots1,
-            StartTime: ConvertTime(line.Lead.EndTime),
-            EndTime: ConvertTime(line.Lead.EndTime) + dotTime,
-            TotalTime: dotTime,
-            Dot: true
-          })
-      
+          // Check if Syllables.Lead exists
+          if (LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject]?.Syllables?.Lead) {
+            LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
+              HTMLElement: musicalDots1,
+              StartTime: ConvertTime(line.Lead.EndTime),
+              EndTime: ConvertTime(line.Lead.EndTime) + dotTime,
+              TotalTime: dotTime,
+              Dot: true
+            });
+          } else {
+            console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
+          }
+
           musicalDots2.classList.add("word");
           musicalDots2.classList.add("dot");
           musicalDots2.textContent = "•";
 
-          LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
-            HTMLElement: musicalDots2,
-            StartTime: ConvertTime(line.Lead.EndTime) + dotTime,
-            EndTime: ConvertTime(line.Lead.EndTime) + (dotTime * 2),
-            TotalTime: dotTime,
-            Dot: true
-          })
-      
+          // Check if Syllables.Lead exists
+          if (LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject]?.Syllables?.Lead) {
+            LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
+              HTMLElement: musicalDots2,
+              StartTime: ConvertTime(line.Lead.EndTime) + dotTime,
+              EndTime: ConvertTime(line.Lead.EndTime) + (dotTime * 2),
+              TotalTime: dotTime,
+              Dot: true
+            });
+          } else {
+            console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
+          }
+
           musicalDots3.classList.add("word");
           musicalDots3.classList.add("dot");
           musicalDots3.textContent = "•";
 
-          LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables.Lead.push({
-            HTMLElement: musicalDots3,
-            StartTime: ConvertTime(line.Lead.EndTime) + (dotTime * 2),
-            EndTime: ConvertTime(arr[index + 1].Lead.StartTime) - 400,
-            TotalTime: dotTime,
-            Dot: true
-          })
-      
+          // Check if Syllables.Lead exists
+          if (LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject]?.Syllables?.Lead) {
+            LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
+              HTMLElement: musicalDots3,
+              StartTime: ConvertTime(line.Lead.EndTime) + (dotTime * 2),
+              EndTime: ConvertTime(arr[index + 1].Lead.StartTime) - 400,
+              TotalTime: dotTime,
+              Dot: true
+            });
+          } else {
+            console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
+          }
+
           dotGroup.appendChild(musicalDots1);
           dotGroup.appendChild(musicalDots2);
           dotGroup.appendChild(musicalDots3);
-      
+
           musicalLine.appendChild(dotGroup);
           LyricsContainer.appendChild(musicalLine)
         }
@@ -345,29 +423,20 @@ export function ApplySyllableLyrics(data) {
     else MountScrollSimplebar();
 
   const LyricsStylingContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent .simplebar-content");
-  removeAllStyles(LyricsStylingContainer)
 
-  if (data.classes) {
-    LyricsStylingContainer.className = data.classes;
-  }
+  // Check if LyricsStylingContainer exists
+  if (LyricsStylingContainer) {
+    removeAllStyles(LyricsStylingContainer);
 
-  if (data.styles) {
-    applyStyles(LyricsStylingContainer, data.styles);
-  }
-  
-  // Add fade-in animation at the end
-  if (Defaults.PrefersReducedMotion) {
-    LyricsContainer.style.opacity = "1";
+    if (data.classes) {
+      LyricsStylingContainer.className = data.classes;
+    }
+
+    if (data.styles) {
+      applyStyles(LyricsStylingContainer, data.styles);
+    }
   } else {
-    const fadeIn = new Animator(0, 1, 0.6);
-    fadeIn.on("progress", (progress) => {
-        LyricsContainer.style.opacity = progress.toString();
-    });
-    fadeIn.on("finish", () => {
-        LyricsContainer.style.opacity = "1";
-        fadeIn.Destroy();
-    });
-    fadeIn.Start();
+    console.warn("LyricsStylingContainer not found");
   }
 
   EmitApply(data.Type, data.Content)

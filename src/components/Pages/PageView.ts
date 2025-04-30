@@ -2,24 +2,36 @@ import fetchLyrics from "../../utils/Lyrics/fetchLyrics";
 import storage from "../../utils/storage";
 import "../../css/Loaders/DotLoader.css"
 import { addLinesEvListener, removeLinesEvListener } from "../../utils/Lyrics/lyrics";
-import ApplyDynamicBackground from "../DynamicBG/dynamicBackground";
+import ApplyDynamicBackground, { CleanupDynamicBGLets } from "../DynamicBG/dynamicBackground";
 import Defaults from "../Global/Defaults";
 import { Icons } from "../Styling/Icons";
 import { ScrollSimplebar } from "../../utils/Scrolling/Simplebar/ScrollSimplebar";
 import ApplyLyrics from "../../utils/Lyrics/Global/Applyer";
 import { SpotifyPlayer } from "../Global/SpotifyPlayer";
-import { Session_NowBar_SetSide, Session_OpenNowBar, ToggleNowBar } from "../Utils/NowBar";
+import { NowBar_SwapSides, NowBarObj, Session_NowBar_SetSide, Session_OpenNowBar, ToggleNowBar } from "../Utils/NowBar";
 import Fullscreen from "../Utils/Fullscreen";
 import TransferElement from "../Utils/TransferElement";
 import Session from "../Global/Session";
 import { InitializeScrollEvents, ResetLastLine, CleanupScrollEvents, QueueForceScroll } from "../../utils/Scrolling/ScrollToActiveLine";
 import Global from "../Global/Global";
 
-export const Tooltips = {
+interface TippyInstance {
+    destroy: () => void;
+    [key: string]: any;
+}
+
+export const Tooltips: {
+    Close: TippyInstance | null;
+    NowBarToggle: TippyInstance | null;
+    FullscreenToggle: TippyInstance | null;
+    CinemaView: TippyInstance | null;
+    NowBarSideToggle: TippyInstance | null;
+} = {
     Close: null,
     NowBarToggle: null,
     FullscreenToggle: null,
-    CinemaView: null
+    CinemaView: null,
+    NowBarSideToggle: null
 }
 
 const PageView = {
@@ -29,7 +41,7 @@ const PageView = {
     IsOpened: false,
 };
 
-export const PageRoot = document.querySelector<HTMLElement>('.Root__main-view .main-view-container div[data-overlayscrollbars-viewport]');
+export const PageRoot = document.querySelector<HTMLElement>('.Root__main-view .main-view-container div[data-overlayscrollbars-viewport]') || document.body;
 /* let isWsConnected = true;
 
 Global.Event.listen("sockets:ws:connection-status-change", (e) => {
@@ -55,14 +67,12 @@ function OpenPage() {
                 <div class="CenteredView">
                     <div class="Header">
                         <div class="MediaBox">
-                            <div class="MediaContent" draggable="true"></div>
-                            <img class="MediaImage" src="${SpotifyPlayer.Artwork.Get("xl")}" draggable="true" />
+                            <div class="MediaContent"></div>
+                            <div class="MediaImage"></div>
                         </div>
                         <div class="Metadata">
                             <div class="SongName">
-                                <span>
-                                    ${SpotifyPlayer.GetSongName()}
-                                </span>
+                                <span></span>
                             </div>
                             <div class="Artists">
                                 <span></span>
@@ -78,12 +88,6 @@ function OpenPage() {
                 <div class="LyricsContent ScrollbarScrollable"></div>
             </div>
             <div class="ViewControls"></div>
-            <div class="DropZone LeftSide">
-                <span>Switch Sides</span>
-            </div>
-            <div class="DropZone RightSide">
-                <span>Switch Sides</span>
-            </div>
         </div>
     `
 
@@ -94,17 +98,12 @@ function OpenPage() {
 
     PageRoot.appendChild(elem);
 
-    const lowQMode = storage.get("lowQMode");
-    const lowQModeEnabled = lowQMode && lowQMode === "true";
-
-    if (lowQModeEnabled) {
-        elem.querySelector(".LyricsContainer .LyricsContent").classList.add("lowqmode")
-    }
-
-
     Defaults.LyricsContainerExists = true;
 
-    ApplyDynamicBackground(document.querySelector("#SpicyLyricsPage .ContentBox"))
+    const contentBox = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox");
+    if (contentBox) {
+        ApplyDynamicBackground(contentBox);
+    }
 
     addLinesEvListener();
 
@@ -133,14 +132,15 @@ function DestroyPage() {
     if (!PageView.IsOpened) return;
     if (Fullscreen.IsOpen) Fullscreen.Close();
     if (!document.querySelector("#SpicyLyricsPage")) return
+    CleanupDynamicBGLets();
     ResetLastLine();
     CleanupScrollEvents();
+    PageView.IsOpened = false;
     document.querySelector("#SpicyLyricsPage")?.remove();
     Defaults.LyricsContainerExists = false;
     removeLinesEvListener();
     Object.values(Tooltips).forEach(a => a?.destroy());
     ScrollSimplebar?.unMount();
-    PageView.IsOpened = false;
     Global.Event.evoke("page:destroy", null);
 }
 
@@ -154,9 +154,11 @@ Global.Event.listen("lyrics:not-apply", () => {
 Global.Event.listen("lyrics:apply", ({ Type }: { Type: string }) => {
     CleanupScrollEvents();
     if (!Type || Type === "Static") return;
-    InitializeScrollEvents(ScrollSimplebar);
-    QueueForceScroll(); // Queue a force scroll instead of directly calling with true
-    LyricsApplied = true;
+    if (ScrollSimplebar) {
+        InitializeScrollEvents(ScrollSimplebar);
+        QueueForceScroll(); // Queue a force scroll instead of directly calling with true
+        LyricsApplied = true;
+    }
 })
 
 function AppendViewControls(ReAppend: boolean = false) {
@@ -164,32 +166,38 @@ function AppendViewControls(ReAppend: boolean = false) {
     if (!elem) return;
 
     // Safely destroy existing tooltips first
-    for (const key in Tooltips) {
-        if (Tooltips[key]?.destroy && typeof Tooltips[key].destroy === 'function') {
-            Tooltips[key].destroy();
-            Tooltips[key] = null;
+    Object.keys(Tooltips).forEach(key => {
+        const tippy = Tooltips[key as keyof typeof Tooltips];
+        if (tippy?.destroy && typeof tippy.destroy === 'function') {
+            tippy.destroy();
+            Tooltips[key as keyof typeof Tooltips] = null;
         }
-    }
+    });
 
     if (ReAppend) elem.innerHTML = "";
-    const isNoLyrics = storage.get("currentLyricsData")?.toString() === `NO_LYRICS:${SpotifyPlayer.GetSongId()}`;
+    const isNoLyrics = storage.get("currentLyricsData")?.toString() === `NO_LYRICS:${SpotifyPlayer.GetId()}`;
     elem.innerHTML = `
         ${Fullscreen.IsOpen ? "" : `<button id="CinemaView" class="ViewControl">${Icons.CinemaView}</button>`}
-        ${!isNoLyrics && !Fullscreen.IsOpen ? `<button id="NowBarToggle" class="ViewControl">${Icons.NowBar}</button>` : ""}
-        <button id="Close" class="ViewControl">${Icons.Close}</button>
+        ${!isNoLyrics && (!Fullscreen.IsOpen && !Fullscreen.CinemaViewOpen) ? `<button id="NowBarToggle" class="ViewControl">${Icons.NowBar}</button>` : ""}
+        ${!isNoLyrics && NowBarObj.Open ? `<button id="NowBarSideToggle" class="ViewControl">${Icons.Fullscreen}</button>` : ""}
         ${Fullscreen.IsOpen ? `<button id="FullscreenToggle" class="ViewControl">${Fullscreen.CinemaViewOpen ? Icons.Fullscreen : Icons.CloseFullscreen}</button>` : ""}
+        <button id="Close" class="ViewControl">${Icons.Close}</button>
     `
 
-    let targetElem = elem;
+    let targetElem: HTMLElement | null = elem;
     if (Fullscreen.IsOpen) {
         const mediaContent = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaContent");
         if (mediaContent) {
             TransferElement(elem, mediaContent);
-            targetElem = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaContent .ViewControls");
+            const viewControls = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaContent .ViewControls");
+            if (viewControls) {
+                targetElem = viewControls;
+            }
         }
     } else {
-        if (document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .ViewControls")) {
-            TransferElement(elem, document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox"));
+        const contentBox = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox");
+        if (document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .ViewControls") && contentBox) {
+            TransferElement(elem, contentBox);
         }
     }
 
@@ -222,7 +230,7 @@ function AppendViewControls(ReAppend: boolean = false) {
             }
         }
 
-        if (!isNoLyrics && !Fullscreen.IsOpen) {
+        if (!isNoLyrics && !Fullscreen.IsOpen && !Fullscreen.CinemaViewOpen) {
             const nowBarButton = elem.querySelector("#NowBarToggle");
             if (nowBarButton) {
                 try {
@@ -279,6 +287,22 @@ function AppendViewControls(ReAppend: boolean = false) {
                 cinemaViewBtn.addEventListener("click", () => Fullscreen.Open(true));
             } catch (err) {
                 console.warn("Failed to setup CinemaView tooltip:", err);
+            }
+        }
+
+        const nowBarSideToggleBtn = elem.querySelector("#NowBarSideToggle");
+        if (nowBarSideToggleBtn && !isNoLyrics && NowBarObj.Open) {
+            try {
+                Tooltips.NowBarSideToggle = Spicetify.Tippy(
+                    nowBarSideToggleBtn,
+                    {
+                        ...Spicetify.TippyProps,
+                        content: `Swap NowBar Side`
+                    }
+                );
+                nowBarSideToggleBtn.addEventListener("click", () => NowBar_SwapSides());
+            } catch (err) {
+                console.warn("Failed to setup NowBarSideToggle tooltip:", err);
             }
         }
     }

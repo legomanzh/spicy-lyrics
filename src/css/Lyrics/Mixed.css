@@ -2,7 +2,6 @@
   --SpicyLyrics-LineSpacing: 2cqw 0;
 }
 
-#SpicyLyricsPage .lyricsParent .LyricsContent.lowqmode .line,
 #SpicyLyricsPage .LyricsContainer .LyricsContent.HideLineBlur .line {
     --BlurAmount: 0px !important;
 }
@@ -11,7 +10,7 @@
   --font-size: var(--DefaultLyricsSize);
   display: flex;
   flex-wrap: wrap;
-  transition: opacity .1s cubic-bezier(0.61, 1, 0.88, 1) !important;
+  transition: opacity .2s cubic-bezier(0.61, 1, 0.88, 1) !important;
   font-size: var(--font-size);
 }
 

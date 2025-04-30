@@ -15,7 +15,7 @@ export async function CheckForUpdates(force: boolean = false) {
             Your Spicy Lyrics version is outdated.
             To update, click on the "Update" button.
             <br>
-            Version: From: ${currentVersion.Text} -> To: ${latestVersion.Text}
+            Version: From: ${currentVersion?.Text || 'Unknown'} -> To: ${latestVersion?.Text || 'Unknown'}
             <br><br>
             <button onclick="window._spicy_lyrics_session.Navigate({ pathname: '/SpicyLyrics/Update' })" class="Button-sc-y0gtbx-0 Button-buttonSecondary-small-useBrowserDefaultFocusStyle encore-text-body-small-bold" data-encore-id="buttonSecondary">
               Update

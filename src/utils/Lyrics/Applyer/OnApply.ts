@@ -7,6 +7,7 @@ const EmitNotApplyed = () => {
 }
 
 const EmitApply = (Type: string, Content: any) => {
+    document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent")?.classList.remove("HiddenTransitioned");
     Global.Event.evoke(`${EventPrefix}apply`, { Type, Content });
 };
 

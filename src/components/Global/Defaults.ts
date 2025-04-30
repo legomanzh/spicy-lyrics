@@ -4,15 +4,17 @@ const Defaults = {
             url: "https://api.spicylyrics.org",
         }
     },
-    lowQualityMode: false,
     CurrentLyricsType: "None",
     LyricsContainerExists: false,
     SkipSpicyFont: false,
     OldStyleFont: false,
     SpicyLyricsVersion: "0.0.0",
-    ForceCoverImage_InLowQualityMode: false,
     show_topbar_notifications: true,
-    PrefersReducedMotion: undefined,
+    PrefersReducedMotion: false,
+    StaticBackground_Preset: false,
+    StaticBackground: false,
+    StaticBackgroundType_Preset: 0,
+    StaticBackgroundType: "Auto",
 }
 
 export default Defaults;

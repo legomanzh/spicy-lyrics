@@ -1,4 +1,4 @@
-import Whentil from "../../utils/Whentil";
+import Whentil from "@spikerko/tools/Whentil";
 import Global from "../Global/Global";
 import { SpotifyPlayer } from "../Global/SpotifyPlayer";
 

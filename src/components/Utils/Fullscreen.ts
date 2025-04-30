@@ -1,4 +1,4 @@
-import Animator from "../../utils/Animator";
+import Animator from "@spikerko/tools/Animator";
 import { ResetLastLine } from "../../utils/Scrolling/ScrollToActiveLine";
 import storage from "../../utils/storage";
 import Defaults from "../Global/Defaults";
@@ -39,7 +39,7 @@ const Fullscreen = {
 
 const MediaBox_Data = {
     Eventified: false,
-    hoverTimeoutId: null,
+    hoverTimeoutId: null as number | null,
     abortController: null as AbortController | null,
     Functions: {
         MouseIn: () => {
@@ -49,7 +49,7 @@ const MediaBox_Data = {
                 MediaBox_Data.hoverTimeoutId = null;
             }
 
-            if (Defaults.PrefersReducedMotion) {
+            if (Defaults.PrefersReducedMotion && MediaBox_Data.Functions.Target) {
                 MediaBox_Data.Functions.Target.style.setProperty("--ArtworkBrightness", `${ArtworkBrightness.End}`);
                 MediaBox_Data.Functions.Target.style.setProperty("--ControlsOpacity", `${ControlsOpacity.End}`);
                 return;
@@ -67,7 +67,7 @@ const MediaBox_Data = {
                 MediaBox_Data.hoverTimeoutId = null;
             }
 
-            if (Defaults.PrefersReducedMotion) {
+            if (Defaults.PrefersReducedMotion && MediaBox_Data.Functions.Target) {
                 MediaBox_Data.Functions.Target.style.setProperty("--ArtworkBrightness", `${ArtworkBrightness.ParentHover.End}`);
                 MediaBox_Data.Functions.Target.style.setProperty("--ControlsOpacity", `${ControlsOpacity.ParentHover.End}`);
                 return;
@@ -86,7 +86,7 @@ const MediaBox_Data = {
                 MediaBox_Data.hoverTimeoutId = null;
             }
 
-            if (Defaults.PrefersReducedMotion) {
+            if (Defaults.PrefersReducedMotion && MediaBox_Data.Functions.Target) {
                 MediaBox_Data.Functions.Target.style.setProperty("--ArtworkBrightness", `${ArtworkBrightness.Start}`);
                 MediaBox_Data.Functions.Target.style.setProperty("--ControlsOpacity", `${ControlsOpacity.Start}`);
                 return;
@@ -125,10 +125,11 @@ const MediaBox_Data = {
         },
         handleNowBarMove: (event: MouseEvent) => {
             const MediaBox = MediaBox_Data.Functions.Target;
-            const NowBar = event.currentTarget as HTMLElement;
+            // We're not using NowBar variable, so we can remove it to avoid the unused variable warning
+            // const NowBar = event.currentTarget as HTMLElement;
 
             // Don't handle moves if mouse is over MediaBox
-            if (MediaBox && event.target && MediaBox.contains(event.target as Node)) {
+            if (MediaBox && event.target && MediaBox instanceof HTMLElement && MediaBox.contains(event.target as Node)) {
                 return;
             }
 
@@ -183,7 +184,7 @@ const MediaBox_Data = {
 
             MediaBox_Data.Eventified = true;
         },
-        Target: null,
+        Target: null as HTMLElement | null,
     },
     Animators: {
         brightness: new Animator(ArtworkBrightness.Start, ArtworkBrightness.End, ArtworkBrightness.Duration),
@@ -232,7 +233,11 @@ function Open(skipDocumentFullscreen: boolean = false) {
             mainElement.style.display = "none";
         }
 
-        Tooltips.NowBarToggle?.destroy();
+        // Safely destroy tooltip if it exists
+        const nowBarToggle = Tooltips.NowBarToggle as any;
+        if (nowBarToggle && typeof nowBarToggle.destroy === 'function') {
+            nowBarToggle.destroy();
+        }
 
         const NowBarToggle = document.querySelector<HTMLElement>("#SpicyLyricsPage .ViewControls #NowBarToggle");
         if (NowBarToggle) {
@@ -257,8 +262,9 @@ function Open(skipDocumentFullscreen: boolean = false) {
 
                 // Update controls after fullscreen state is settled
                 PageView.AppendViewControls(true);
-            } catch (err) {
-                console.error(`Fullscreen error: ${err.message}`);
+            } catch (err: unknown) {
+                const errorMessage = err instanceof Error ? err.message : String(err);
+                console.error(`Fullscreen error: ${errorMessage}`);
             }
         };
 

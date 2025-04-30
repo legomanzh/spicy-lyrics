@@ -1,94 +1,108 @@
 import { ArabicPersianRegex, BOTTOM_ApplyLyricsSpacer, TOP_ApplyLyricsSpacer } from "../../Addons";
 import Defaults from "../../../components/Global/Defaults";
-import { applyStyles, removeAllStyles } from "../../CSS/Styles";
+import { applyStyles, removeAllStyles, StyleProperties } from "../../CSS/Styles";
 import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../Scrolling/Simplebar/ScrollSimplebar";
-import { ClearLyricsContentArrays, LyricsObject } from "../lyrics";
+import { ClearLyricsContentArrays, LyricsObject, LyricsStatic } from "../lyrics";
 import { ApplyLyricsCredits } from "./Credits/ApplyLyricsCredits";
 import isRtl from "../isRtl";
-import Animator from "../../../utils/Animator";
 import { ClearLyricsPageContainer } from "../fetchLyrics";
 import { EmitApply, EmitNotApplyed } from "./OnApply";
 
-export function ApplyStaticLyrics(data) {
-    if (!Defaults.LyricsContainerExists) return
-    EmitNotApplyed()
+/**
+ * Interface for static lyrics data
+ */
+export interface StaticLyricsData {
+    Type: string;
+    Content?: any;
+    Lines: Array<{
+        Text: string;
+    }>;
+    offline?: boolean;
+    classes?: string;
+    styles?: StyleProperties;
+}
+
+/**
+ * Apply static lyrics to the lyrics container
+ * @param data - Static lyrics data
+ */
+export function ApplyStaticLyrics(data: StaticLyricsData): void {
+    if (!Defaults.LyricsContainerExists) return;
+
+    EmitNotApplyed();
     const LyricsContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
 
-    LyricsContainer.setAttribute("data-lyrics-type", "Static")
+    if (!LyricsContainer) {
+        console.error("Cannot apply static lyrics: LyricsContainer not found");
+        return;
+    }
+
+    LyricsContainer.setAttribute("data-lyrics-type", "Static");
 
     ClearLyricsContentArrays();
     ClearScrollSimplebar();
+    ClearLyricsPageContainer();
 
-    // Reset opacity to 0 at the beginning
-    LyricsContainer.style.opacity = "0";
-    ClearLyricsPageContainer()
-
-    TOP_ApplyLyricsSpacer(LyricsContainer)
+    TOP_ApplyLyricsSpacer(LyricsContainer);
 
     data.Lines.forEach(line => {
-      const lineElem = document.createElement("div")
-      
-      if (line.Text.includes("[DEF=font_size:small]")) {
-        lineElem.style.fontSize = "35px"
-        lineElem.textContent = line.Text.replace("[DEF=font_size:small]", "")
-      } else {
-        lineElem.textContent = line.Text
-      }
+        const lineElem = document.createElement("div");
 
-      if (isRtl(line.Text) && !lineElem.classList.contains("rtl")) {
-        lineElem.classList.add("rtl")
-      }
-      
-      lineElem.classList.add("line")
-      lineElem.classList.add("static")
+        if (line.Text.includes("[DEF=font_size:small]")) {
+            lineElem.style.fontSize = "35px";
+            lineElem.textContent = line.Text.replace("[DEF=font_size:small]", "");
+        } else {
+            lineElem.textContent = line.Text;
+        }
 
-      if (ArabicPersianRegex.test(line.Text)) {
-        lineElem.setAttribute("font", "Vazirmatn")
-      }
+        if (isRtl(line.Text) && !lineElem.classList.contains("rtl")) {
+            lineElem.classList.add("rtl");
+        }
 
-      LyricsObject.Types.Static.Lines.push({
-        HTMLElement: lineElem,
-      })
-      
-      LyricsContainer.appendChild(lineElem)
-    })
+        lineElem.classList.add("line");
+        lineElem.classList.add("static");
+
+        if (ArabicPersianRegex.test(line.Text)) {
+            lineElem.setAttribute("font", "Vazirmatn");
+        }
+
+        // Add the line element to the lyrics object
+        const staticLine: LyricsStatic = {
+            HTMLElement: lineElem
+        };
+
+        LyricsObject.Types.Static.Lines.push(staticLine);
+        LyricsContainer.appendChild(lineElem);
+    });
+
     ApplyLyricsCredits(data);
+    BOTTOM_ApplyLyricsSpacer(LyricsContainer);
 
-    BOTTOM_ApplyLyricsSpacer(LyricsContainer)
+    // Handle scrollbar
+    if (ScrollSimplebar) {
+        RecalculateScrollSimplebar();
+    } else {
+        MountScrollSimplebar();
+    }
 
-    if (ScrollSimplebar) RecalculateScrollSimplebar();
-      else MountScrollSimplebar();
-
+    // Apply styling to the content container
     const LyricsStylingContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent .simplebar-content");
 
-    if (data.offline) {
-      LyricsStylingContainer.classList.add("offline");
+    if (LyricsStylingContainer) {
+        if (data.offline) {
+            LyricsStylingContainer.classList.add("offline");
+        }
+
+        removeAllStyles(LyricsStylingContainer);
+
+        if (data.classes) {
+            LyricsStylingContainer.className = data.classes;
+        }
+
+        if (data.styles) {
+            applyStyles(LyricsStylingContainer, data.styles);
+        }
     }
 
-    removeAllStyles(LyricsStylingContainer)
-
-    if (data.classes) {
-      LyricsStylingContainer.className = data.classes;
-    }
-
-    if (data.styles) {
-      applyStyles(LyricsStylingContainer, data.styles);
-    }
-    
-    // Add fade-in animation at the end
-    if (Defaults.PrefersReducedMotion) {
-        LyricsContainer.style.opacity = "1";
-    } else {
-        const fadeIn = new Animator(0, 1, 0.6);
-        fadeIn.on("progress", (progress) => {
-            LyricsContainer.style.opacity = progress.toString();
-        });
-        fadeIn.on("finish", () => {
-            LyricsContainer.style.opacity = "1";
-            fadeIn.Destroy();
-        });
-        fadeIn.Start();
-    }
-
-    EmitApply(data.Type, data.Content)
+    EmitApply(data.Type, data.Content);
 }

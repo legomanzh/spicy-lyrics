@@ -1,20 +1,28 @@
-// eventManager.js
+// eventManager.ts
 
-const eventRegistry = new Map();
+// Define types for the event system
+type EventCallback = (...args: any[]) => void;
+type EventId = number;
+type EventListeners = Map<EventId, EventCallback>;
+
+const eventRegistry = new Map<string, EventListeners>();
 
 let nextId = 1;
 
-const listen = (eventName, callback) => {
+const listen = (eventName: string, callback: EventCallback): EventId => {
   if (!eventRegistry.has(eventName)) {
     eventRegistry.set(eventName, new Map());
   }
 
   const id = nextId++;
-  eventRegistry.get(eventName).set(id, callback);
+  const listeners = eventRegistry.get(eventName);
+  if (listeners) {
+    listeners.set(id, callback);
+  }
   return id;
 };
 
-const unListen = (id) => {
+const unListen = (id: EventId): boolean => {
   for (const [eventName, listeners] of eventRegistry) {
     if (listeners.has(id)) {
       listeners.delete(id);
@@ -27,7 +35,7 @@ const unListen = (id) => {
   return false; // Listener not found
 };
 
-const evoke = (eventName, ...args) => {
+const evoke = (eventName: string, ...args: any[]): void => {
   const listeners = eventRegistry.get(eventName);
   if (listeners) {
     for (const callback of listeners.values()) {
@@ -35,7 +43,6 @@ const evoke = (eventName, ...args) => {
     }
   }
 };
-
 
 const Event = {
     listen,
