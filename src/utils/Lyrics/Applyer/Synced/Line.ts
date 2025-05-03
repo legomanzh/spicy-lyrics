@@ -1,4 +1,4 @@
-import { ArabicPersianRegex, BOTTOM_ApplyLyricsSpacer, TOP_ApplyLyricsSpacer } from "../../../Addons";
+import { BOTTOM_ApplyLyricsSpacer, TOP_ApplyLyricsSpacer } from "../../../Addons";
 import Defaults from "../../../../components/Global/Defaults";
 import { applyStyles, removeAllStyles } from "../../../CSS/Styles";
 import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../../Scrolling/Simplebar/ScrollSimplebar";
@@ -145,9 +145,6 @@ export function ApplyLineLyrics(data: LyricsData): void {
         lineElem.classList.add("rtl")
       }
 
-      if (ArabicPersianRegex.test(line.Text)) {
-        lineElem.setAttribute("font", "Vazirmatn")
-      }
 
       LyricsObject.Types.Line.Lines.push({
         HTMLElement: lineElem,

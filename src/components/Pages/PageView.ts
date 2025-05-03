@@ -41,14 +41,10 @@ const PageView = {
     IsOpened: false,
 };
 
-export const PageRoot = document.querySelector<HTMLElement>('.Root__main-view .main-view-container div[data-overlayscrollbars-viewport]') || document.body;
-/* let isWsConnected = true;
-
-Global.Event.listen("sockets:ws:connection-status-change", (e) => {
-    isWsConnected = e.connected;
-    SocketStatusChange(e.connected);
-})
- */
+export const GetPageRoot = () => (
+    document.querySelector<HTMLElement>('.Root__main-view .main-view-container div[data-overlayscrollbars-viewport]') ??
+    document.querySelector<HTMLElement>('.Root__main-view .main-view-container .uGZUPBPcDpzSYqKcQT8r > div')
+)
 function OpenPage() {
     if (PageView.IsOpened) return;
     const elem = document.createElement("div");
@@ -96,7 +92,7 @@ function OpenPage() {
         elem.classList.add("UseSpicyFont");
     }
 
-    PageRoot.appendChild(elem);
+    GetPageRoot().appendChild(elem);
 
     Defaults.LyricsContainerExists = true;
 
@@ -136,8 +132,8 @@ function DestroyPage() {
     ResetLastLine();
     CleanupScrollEvents();
     PageView.IsOpened = false;
-    document.querySelector("#SpicyLyricsPage")?.remove();
     Defaults.LyricsContainerExists = false;
+    document.querySelector("#SpicyLyricsPage")?.remove();
     removeLinesEvListener();
     Object.values(Tooltips).forEach(a => a?.destroy());
     ScrollSimplebar?.unMount();

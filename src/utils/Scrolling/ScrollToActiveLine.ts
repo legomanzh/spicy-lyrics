@@ -100,7 +100,7 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
         const Lines = LyricsObject.Types[currentType]?.Lines;
         const Position = SpotifyPlayer.GetPosition();
         const shouldForceScroll = (isForceScrollQueued || lastLine !== null);
-        const PositionOffset = 250;
+        const PositionOffset = 0;
         const ProcessedPosition = Position + PositionOffset;
         const TrackDuration = SpotifyPlayer.GetDuration();
 

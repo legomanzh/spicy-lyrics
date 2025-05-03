@@ -23,12 +23,9 @@
   -webkit-user-drag: none;
 }
 
-#SpicyLyricsPage.UseSpicyFont {
-  font-family: SpicyLyrics;
-}
-
-[font="Vazirmatn"] {
-  font-family: "VazirmatnRegular", sans-serif;
+#SpicyLyricsPage.UseSpicyFont,
+.SpicyLyricsFontPixel {
+  font-family: SpicyLyrics, "Noto Sans Georgian", "VazirmatnRegular";
 }
 
 body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child,
