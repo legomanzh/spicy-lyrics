@@ -19,7 +19,7 @@ export default async function fetchLyrics(uri: string) {
         LyricsContent.classList.remove("offline");
     }
 
-    if (!Fullscreen.IsOpen) PageView.AppendViewControls(true);
+    //if (!Fullscreen.IsOpen) PageView.AppendViewControls(true);
 
     if (
         SpotifyPlayer.IsDJ()   
@@ -65,6 +65,7 @@ export default async function fetchLyrics(uri: string) {
                     Defaults.CurrentLyricsType = lyricsData.Type;
                     document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox")?.classList.remove("LyricsHidden");
                     document.querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer")?.classList.remove("Hidden");
+                    PageView.AppendViewControls(true);
                     return lyricsData;
                 }
             }
@@ -92,6 +93,7 @@ export default async function fetchLyrics(uri: string) {
                     Defaults.CurrentLyricsType = lyricsFromCache.Type;
                     document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox")?.classList.remove("LyricsHidden");
                     document.querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer")?.classList.remove("Hidden");
+                    PageView.AppendViewControls(true);
                     return { ...lyricsFromCache, fromCache: true };
                 }
             }
@@ -187,6 +189,7 @@ export default async function fetchLyrics(uri: string) {
         Defaults.CurrentLyricsType = lyricsJson.Type;
         document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox")?.classList.remove("LyricsHidden");
         document.querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer")?.classList.remove("Hidden");
+        PageView.AppendViewControls(true);
         return { ...lyricsJson, fromCache: false };
     } catch (error) {
         console.error("Error fetching lyrics:", error);
@@ -306,7 +309,7 @@ async function noLyricsMessage(Cache = true, LocalStorage = true) {
     DeregisterNowBarBtn();
 
     ClearLyricsPageContainer()
-
+    PageView.AppendViewControls(true);
     return "1";
 }
 
@@ -338,7 +341,7 @@ function urOfflineMessage() {
     /* if (storage.get("IsNowBarOpen")) {
         document.querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer").classList.add("Hidden");
     } */
-
+    PageView.AppendViewControls(true);
     return Message;
 }
 
@@ -370,7 +373,7 @@ function DJMessage() {
     ClearLyricsPageContainer()
 
     Defaults.CurrentLyricsType = Message.Type;
-
+    PageView.AppendViewControls(true);
     return Message;
 }
 
@@ -398,7 +401,7 @@ function NotTrackMessage() {
     // CloseNowBar()
 
     Defaults.CurrentLyricsType = Message.Type;
-
+    PageView.AppendViewControls(true);
     return Message;
 }
 

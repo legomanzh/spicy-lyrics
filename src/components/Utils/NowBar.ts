@@ -9,6 +9,7 @@ import Fullscreen, { CleanupMediaBox } from "./Fullscreen";
 import { QueueForceScroll, ResetLastLine } from '../../utils/Scrolling/ScrollToActiveLine';
 import { Maid } from '@socali/modules/Maid';
 import { Interval } from '@socali/modules/Scheduler';
+import BlobURLMaker from "../../utils/BlobURLMaker";
 
 // Define interfaces for our control instances
 interface PlaybackControlsInstance {
@@ -109,12 +110,6 @@ function OpenNowBar(skipSaving: boolean = false) {
         );
 
         if (!MediaBox) return;
-
-        // Clear any existing controls before adding new ones
-        const existingAlbumData = MediaBox.querySelector(".AlbumData");
-        if (existingAlbumData) {
-            MediaBox.removeChild(existingAlbumData);
-        }
 
         const existingPlaybackControls = MediaBox.querySelector(".PlaybackControls");
         if (existingPlaybackControls) {
@@ -862,6 +857,7 @@ function Session_OpenNowBar() {
     }
 }
 
+
 function UpdateNowBar(force = false) {
     const NowBar = document.querySelector("#SpicyLyricsPage .ContentBox .NowBar");
     if (!NowBar) return;
@@ -870,16 +866,22 @@ function UpdateNowBar(force = false) {
     const ArtistsSpan = NowBar.querySelector(".Header .Metadata .Artists span");
     const MediaImage = NowBar.querySelector<HTMLDivElement>(".Header .MediaBox .MediaImage");
     const SongNameSpan = NowBar.querySelector(".Header .Metadata .SongName span");
-    /* const MediaBox = NowBar.querySelector(".Header .MediaBox");
-    const SongName = NowBar.querySelector(".Header .Metadata .SongName"); */
+    //const MediaBox = NowBar.querySelector(".Header .MediaBox");
+    //const SongName = NowBar.querySelector(".Header .Metadata .SongName");
 
     const IsNowBarOpen = storage.get("IsNowBarOpen");
     if (IsNowBarOpen === "false" && !force) return;
 
     const coverArt = SpotifyPlayer.GetCover("xlarge");
     if (MediaImage && coverArt && MediaImage.getAttribute("last-image") !== coverArt) {
-        MediaImage.style.backgroundImage = `url("${coverArt ?? ""}")`;
-        MediaImage.setAttribute("last-image", coverArt ?? "");
+        MediaImage.style.backgroundImage = null;
+        MediaImage.classList.add("Skeletoned");
+        BlobURLMaker(`https://i.scdn.co/image/${coverArt.replace("spotify:image:", "")}`)
+        .then(coverArtUrl => {
+            MediaImage.classList.remove("Skeletoned")
+            MediaImage.style.backgroundImage = `url("${coverArtUrl ?? ""}")`;
+            MediaImage.setAttribute("last-image", coverArt ?? "");
+        })
     }
 
     const songName = SpotifyPlayer.GetName();

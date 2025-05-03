@@ -3,7 +3,7 @@ import { ResetLastLine } from "../../utils/Scrolling/ScrollToActiveLine";
 import storage from "../../utils/storage";
 import Defaults from "../Global/Defaults";
 import Global from "../Global/Global";
-import PageView, { PageRoot, Tooltips } from "../Pages/PageView";
+import PageView, { GetPageRoot, Tooltips } from "../Pages/PageView";
 import { CleanUpNowBarComponents, CloseNowBar, DeregisterNowBarBtn, OpenNowBar } from "./NowBar";
 import TransferElement from "./TransferElement";
 
@@ -307,7 +307,7 @@ function Close() {
         Fullscreen.CinemaViewOpen = false;
 
         // Handle DOM changes
-        TransferElement(SpicyPage, PageRoot);
+        TransferElement(SpicyPage, GetPageRoot());
         SpicyPage.classList.remove("Fullscreen");
 
         // Show the main element again

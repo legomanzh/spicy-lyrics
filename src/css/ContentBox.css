@@ -12,8 +12,8 @@
     backdrop-filter: blur(10px);
     background: linear-gradient(-45deg, var(--ColorStop1) var(--ValueStop1), var(--ColorStop2) var(--ValueStop2), var(--ColorStop3) var(--ValueStop3));
     background-position-x: 100%;
-    background-size: 500%;
-    border-radius: var(--BorderRadius);
+    background-size: 500% !important;
+    border-radius: var(--BorderRadius) !important;
 }
 
 .Skeletoned * {
@@ -105,6 +105,7 @@
 
 #SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaImage {
     border-radius: 2cqh;
+    --BorderRadius: 2cqh;
     width: 100cqw;
     height: 100cqh;
     box-shadow: 0 9px 20px 0 rgba(0, 0, 0, .271);
@@ -201,11 +202,8 @@
     background: linear-gradient(270deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 20%);
 }
 
-#SpicyLyricsPage .ContentBox.LyricsHidden .NowBar {
-    display: flex;
-    justify-content: center;
-    left: unset !important;
-    right: unset !important;
+#SpicyLyricsPage:has(.ContentBox.LyricsHidden) {
+    --NowBarLeftSpacing: calc(50cqw - var(--NowBarWidth) * 0.5) !important;
 }
 
 #SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox.Skeletoned {

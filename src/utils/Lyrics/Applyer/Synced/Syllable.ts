@@ -1,4 +1,4 @@
-import { ArabicPersianRegex, BOTTOM_ApplyLyricsSpacer, TOP_ApplyLyricsSpacer } from "../../../Addons";
+import { BOTTOM_ApplyLyricsSpacer, TOP_ApplyLyricsSpacer } from "../../../Addons";
 import Defaults from "../../../../components/Global/Defaults";
 import { applyStyles, removeAllStyles } from "../../../CSS/Styles";
 import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../../Scrolling/Simplebar/ScrollSimplebar";
@@ -159,8 +159,8 @@ export function ApplySyllableLyrics(data: LyricsData): void {
       LyricsObject.Types.Syllable.Lines.push({
         HTMLElement: lineElem,
         StartTime: ConvertTime(line.Lead.StartTime),
-        EndTime: ConvertTime(line.Lead.EndTime + 0.25),
-        TotalTime: ConvertTime(line.Lead.EndTime + 0.25) - ConvertTime(line.Lead.StartTime)
+        EndTime: ConvertTime(line.Lead.EndTime),
+        TotalTime: ConvertTime(line.Lead.EndTime) - ConvertTime(line.Lead.StartTime)
       });
 
       SetWordArrayInCurentLine();
@@ -215,10 +215,6 @@ export function ApplySyllableLyrics(data: LyricsData): void {
           word.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0.01))`;
 
 
-          if (ArabicPersianRegex.test(lead.Text)) {
-            word.setAttribute("font", "Vazirmatn")
-          }
-
           word.classList.add("word");
 
           iL === aL.length - 1 ? word.classList.add("LastWordInLine") : lead.IsPartOfWord ? word.classList.add("PartOfWord") : null;
@@ -248,8 +244,8 @@ export function ApplySyllableLyrics(data: LyricsData): void {
           LyricsObject.Types.Syllable.Lines.push({
             HTMLElement: lineE,
             StartTime: ConvertTime(bg.StartTime),
-            EndTime: ConvertTime(bg.EndTime + 0.25),
-            TotalTime: ConvertTime(bg.EndTime + 0.25) - ConvertTime(bg.StartTime),
+            EndTime: ConvertTime(bg.EndTime),
+            TotalTime: ConvertTime(bg.EndTime) - ConvertTime(bg.StartTime),
             BGLine: true
           })
           SetWordArrayInCurentLine();
@@ -298,10 +294,6 @@ export function ApplySyllableLyrics(data: LyricsData): void {
               bwE.style.setProperty("--text-shadow-blur-radius", `4px`);
               bwE.style.scale = IdleLyricsScale.toString();
               bwE.style.transform = `translateY(calc(var(--font-size) * 0.01))`;
-
-              if (ArabicPersianRegex.test(bw.Text)) {
-                bwE.setAttribute("font", "Vazirmatn")
-              }
 
               // Check if Syllables.Lead exists
               if (LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject]?.Syllables?.Lead) {

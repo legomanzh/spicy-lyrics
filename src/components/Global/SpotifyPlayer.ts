@@ -3,10 +3,10 @@ import SpicyFetch from "../../utils/API/SpicyFetch";
 import GetProgress, { _DEPRECATED___GetProgress } from "../../utils/Gets/GetProgress";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-type ArtworkSize = "s" | "l" | "xl" | "d";
+//type ArtworkSize = "s" | "l" | "xl" | "d";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const TrackData_Map = new Map();
+//const TrackData_Map = new Map();
 
 /* const old_SpotifyPlayer = {
     IsPlaying: false,
@@ -162,6 +162,10 @@ export const SpotifyPlayer = {
     ShuffleType: "none",
     IsDJ: (): boolean => {
         return (
+                Spicetify.Player.data?.item?.provider &&
+                Spicetify.Player.data?.item?.provider?.startsWith("narration")
+               ) ||
+               (
                 Spicetify.Player.data?.item?.artists &&
                 Spicetify.Player.data?.item?.artists?.length > 0 &&
                 Spicetify.Player.data?.item?.artists[0].name.includes("DJ")
@@ -173,10 +177,6 @@ export const SpotifyPlayer = {
                (
                 Spicetify.Player.data?.item?.type &&
                 Spicetify.Player.data?.item?.type === "unknown"
-               ) ||
-               (
-                Spicetify.Player.data?.item?.provider &&
-                Spicetify.Player.data?.item?.provider?.startsWith("narration")
                ) ? true : false;
     },
     IsLiked: () => Spicetify.Player.getHeart(),

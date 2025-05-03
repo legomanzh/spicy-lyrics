@@ -1,5 +1,5 @@
+import { SpotifyPlayer } from "./../../components/Global/SpotifyPlayer";
 import Global from "../../components/Global/Global";
-import { SpotifyPlayer } from "../../components/Global/SpotifyPlayer";
 
 interface SyncedPosition {
   StartedSyncAt: number;
@@ -8,7 +8,7 @@ interface SyncedPosition {
 
 let syncedPosition: SyncedPosition | null = null;
 const syncTimings = [0.05, 0.1, 0.15, 0.75];
-let canSyncNonLocalTimestamp = (Spicetify.Player.isPlaying() ? syncTimings.length : 0);
+let canSyncNonLocalTimestamp = (SpotifyPlayer?.IsPlaying ? syncTimings.length : 0);
 
 export const requestPositionSync = () => {
   try {

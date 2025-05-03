@@ -2,10 +2,10 @@ import fetchLyrics from "./utils/Lyrics/fetchLyrics";
 import { ScrollingIntervalTime } from "./utils/Lyrics/lyrics";
 import storage from "./utils/storage";
 import { setSettingsMenu } from "./utils/settings";
-import PageView from "./components/Pages/PageView";
+import PageView, { GetPageRoot } from "./components/Pages/PageView";
 import { Icons } from "./components/Styling/Icons";
 import ApplyDynamicBackground, { DynamicBackgroundConfig, GetStaticBackground } from "./components/DynamicBG/dynamicBackground";
-import LoadFonts from "./components/Styling/Fonts";
+import LoadFonts, { ApplyFontPixel } from "./components/Styling/Fonts";
 import { IntervalManager } from "./utils/IntervalManager";
 import { SpotifyPlayer } from "./components/Global/SpotifyPlayer";
 import { IsPlaying } from "./utils/Addons";
@@ -97,6 +97,7 @@ async function main() {
   const OldStyleFont = storage.get("old-style-font");
   if (OldStyleFont != "true") {
     LoadFonts();
+    ApplyFontPixel();
   }
 
   // Lets import the required Scripts from our CDN
@@ -253,7 +254,7 @@ async function main() {
   const button = ButtonList[0];
 
   const Hometinue = async () => {
-    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "4.0.6";
+    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "4.10.0";
     await Sockets.all.ConnectSockets();
 
     Whentil.When(() => Spicetify.Platform.PlaybackAPI, () => {
@@ -370,7 +371,7 @@ async function main() {
 
       fetchLyrics(event?.data?.item?.uri).then(ApplyLyrics);
 
-      
+
       if (Defaults.StaticBackground) {
         const Artists = SpotifyPlayer.GetArtists();
         const Artist = Artists?.map(artist => artist.uri?.replace("spotify:artist:", ""))[0] ?? undefined;
@@ -506,8 +507,8 @@ async function main() {
       Spicetify.Player.addEventListener("onprogress", (e) => Global.Event.evoke("playback:progress", e));
       Spicetify.Player.addEventListener("songchange", (e) => Global.Event.evoke("playback:songchange", e));
 
-      Whentil.When(() => document.querySelector<HTMLElement>(".Root__main-view .main-view-container div[data-overlayscrollbars-viewport]"), () => {
-        Global.Event.evoke("pagecontainer:available", document.querySelector<HTMLElement>(".Root__main-view .main-view-container div[data-overlayscrollbars-viewport]"))
+      Whentil.When(GetPageRoot, () => {
+        Global.Event.evoke("pagecontainer:available", GetPageRoot())
       })
 
       Spicetify.Platform.History.listen((e: Location) => {

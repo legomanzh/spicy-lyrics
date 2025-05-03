@@ -3,7 +3,7 @@ const Simple = (letterLength: number, totalDuration: number) => {
         return false;
     }
 
-    const minDuration = 750;
+    const minDuration = 1000;
 
     return totalDuration >= minDuration;
 }

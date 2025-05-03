@@ -5,7 +5,7 @@ import { CurrentLineLyricsObject, LyricsObject } from "../../lyrics";
 
 const Substractions = {
     StartTime: 0,
-    EndTime: 0
+    EndTime: 250
 }
 
 interface LetterData {
@@ -33,7 +33,7 @@ export default function Emphasize(letters: Array<string>, applyTo: HTMLElement, 
         const isLastLetter = index === letters.length - 1;
         // Calculate start and end time for each letter
         const letterStartTime = StartTime + index * letterDuration;
-        const letterEndTime = (isLastLetter ? ((letterStartTime + letterDuration) + 0) : (letterStartTime + letterDuration));
+        const letterEndTime = (letterStartTime + letterDuration);
 
         //const contentDuration = letterDuration > 150 ? letterDuration : 150;
         //letterElem.style.setProperty("--content-duration", `${contentDuration}ms`);

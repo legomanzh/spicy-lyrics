@@ -1,4 +1,4 @@
-import { ArabicPersianRegex, BOTTOM_ApplyLyricsSpacer, TOP_ApplyLyricsSpacer } from "../../Addons";
+import { BOTTOM_ApplyLyricsSpacer, TOP_ApplyLyricsSpacer } from "../../Addons";
 import Defaults from "../../../components/Global/Defaults";
 import { applyStyles, removeAllStyles, StyleProperties } from "../../CSS/Styles";
 import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../Scrolling/Simplebar/ScrollSimplebar";
@@ -61,10 +61,6 @@ export function ApplyStaticLyrics(data: StaticLyricsData): void {
 
         lineElem.classList.add("line");
         lineElem.classList.add("static");
-
-        if (ArabicPersianRegex.test(line.Text)) {
-            lineElem.setAttribute("font", "Vazirmatn");
-        }
 
         // Add the line element to the lyrics object
         const staticLine: LyricsStatic = {
