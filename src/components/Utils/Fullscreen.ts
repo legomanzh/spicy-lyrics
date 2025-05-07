@@ -307,7 +307,7 @@ function Close() {
         Fullscreen.CinemaViewOpen = false;
 
         // Handle DOM changes
-        TransferElement(SpicyPage, GetPageRoot());
+        TransferElement(SpicyPage, GetPageRoot() as HTMLElement);
         SpicyPage.classList.remove("Fullscreen");
 
         // Show the main element again

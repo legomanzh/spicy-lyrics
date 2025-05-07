@@ -701,7 +701,8 @@ export function Animate(position: number): void {
               }
 
               const checkNextLine = () => {
-                const words = line.Syllables.Lead;
+                const words = line.Syllables?.Lead;
+                if (!words) return;
                 for (const word of words) {
                     if (word.AnimatorStore && !word.Dot) {
                         word.AnimatorStore.Scale.SetGoal(ScaleSpline.at(1));
@@ -733,7 +734,7 @@ export function Animate(position: number): void {
                         word.HTMLElement.style.opacity = `${currentOpacity}`;
                         word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (6 * currentGlow)}px`);
                         word.HTMLElement.style.setProperty("--text-shadow-opacity", `${currentGlow * 90}%`);
-                    } else if (word.LetterGroup) {
+                    } else if (word.LetterGroup && word.Letters) {
                         for (let k = 0; k < word.Letters.length; k++) {
                           const letter = word.Letters[k];
 

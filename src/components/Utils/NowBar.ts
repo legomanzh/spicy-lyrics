@@ -145,7 +145,6 @@ function OpenNowBar(skipSaving: boolean = false) {
                 }
 
                 const onclick = async () => {
-                    console.log("Heart Clicked");
                     SpotifyPlayer.ToggleLike();
                     setTimeout(() => {
                         const IsLiked = SpotifyPlayer.IsLiked();
@@ -154,7 +153,7 @@ function OpenNowBar(skipSaving: boolean = false) {
                         } else {
                             HeartElement.classList.remove("Filled");
                         }
-                    }, 10)
+                    }, 85)
                 };
 
                 HeartElement.addEventListener("click", onclick);
@@ -776,6 +775,7 @@ function OpenNowBar(skipSaving: boolean = false) {
     } */
     NowBarObj.Open = true;
     PageView.AppendViewControls(true);
+    QueueForceScroll();
 }
 
 function CleanUpActiveComponents() {
@@ -837,6 +837,7 @@ function CloseNowBar() {
     }
 
     PageView.AppendViewControls(true);
+    QueueForceScroll();
 }
 
 function ToggleNowBar() {
@@ -874,7 +875,7 @@ function UpdateNowBar(force = false) {
 
     const coverArt = SpotifyPlayer.GetCover("xlarge");
     if (MediaImage && coverArt && MediaImage.getAttribute("last-image") !== coverArt) {
-        MediaImage.style.backgroundImage = null;
+        MediaImage.style.backgroundImage = "";
         MediaImage.classList.add("Skeletoned");
         BlobURLMaker(`https://i.scdn.co/image/${coverArt.replace("spotify:image:", "")}`)
         .then(coverArtUrl => {
