@@ -109,7 +109,18 @@ import GetProgress, { _DEPRECATED___GetProgress } from "../../utils/Gets/GetProg
     ShuffleType: "none",
 } */
 
-const GetContentType = (): string => Spicetify.Player.data.item?.type;
+const GetContentType = (): string => {
+    if (
+        Spicetify &&
+        Spicetify.Player &&
+        Spicetify.Player.data &&
+        Spicetify.Player.data.item &&
+        Spicetify.Player.data.item.type
+    ) {
+        return Spicetify.Player.data.item?.type
+    }
+    return "unknown";
+};
 
 export type CoverSizes = "standard" | "small" | "large" | "xlarge";
 export type Artist = {

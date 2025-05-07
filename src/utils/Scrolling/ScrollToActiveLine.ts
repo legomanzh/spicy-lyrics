@@ -127,19 +127,19 @@ let scrolledToFirstLine = false;
 export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
     if (Defaults.CurrentLyricsType === "Static" || Defaults.CurrentLyricsType === "None") return;
     if (!Defaults.LyricsContainerExists) return;
-    if (!LyricsApplied) return;
+
+    const currentType = Defaults.CurrentLyricsType as LyricsType;
+    const Lines = LyricsObject.Types[currentType]?.Lines as LyricsLine[] | LyricsSyllable[];
+    if (!Lines) return;
 
     // Check if a force scroll was queued
     let isForceScrollQueued = forceScrollQueued;
     let isSmoothForceScrollQueued = smoothForceScrollQueued;
 
     //if (Spicetify.Platform.History.location.pathname === "/SpicyLyrics") {
-        const currentType = Defaults.CurrentLyricsType as LyricsType;
-        const Lines = LyricsObject.Types[currentType]?.Lines as LyricsLine[] | LyricsSyllable[];
         const Position = SpotifyPlayer.GetPosition();
         const PositionOffset = 0;
         const ProcessedPosition = Position + PositionOffset;
-        const TrackDuration = SpotifyPlayer.GetDuration();
         const currentLine = GetScrollLine(Lines, ProcessedPosition) as EnhancedLyricsItem | null;
 
 
