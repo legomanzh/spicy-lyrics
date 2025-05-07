@@ -95,7 +95,6 @@ function OpenPage() {
 
     GetPageRoot()?.appendChild(elem);
 
-    Defaults.LyricsContainerExists = true;
 
     const contentBox = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox");
     if (contentBox) {
@@ -122,6 +121,7 @@ function OpenPage() {
     Session_NowBar_SetSide();
 
     AppendViewControls();
+    Defaults.LyricsContainerExists = true;
     PageView.IsOpened = true;
 }
 
