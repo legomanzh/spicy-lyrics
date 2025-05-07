@@ -126,8 +126,14 @@ export const SpotifyPlayer = {
     GetPosition: GetProgress,
     GetContentType: GetContentType,
     GetDuration: (): number => {
-        if (Spicetify.Player.data.item?.duration?.milliseconds) {
-            return Spicetify.Player.data.item?.duration.milliseconds;
+        if (
+            Spicetify.Player.data &&
+            Spicetify.Player.data.item &&
+            Spicetify.Player.data.item.duration &&
+            Spicetify.Player.data.item.duration.milliseconds
+        
+        ) {
+            return Spicetify.Player.data.item.duration.milliseconds;
         }
         return 0;
     },
@@ -135,12 +141,19 @@ export const SpotifyPlayer = {
         Spicetify.Player.origin.seekTo(position);
     },
     GetCover: (size: CoverSizes): string | undefined => {
-        const covers = Spicetify.Player.data.item?.images;
-        const cover = covers?.find(cover => cover.label === size) ?? undefined;
-        return cover?.url ?? "https://images.spikerko.org/SongPlaceholderFull.png";
+        if (
+            Spicetify.Player.data &&
+            Spicetify.Player.data.item &&
+            Spicetify.Player.data.item.images
+        ) {
+            const covers = Spicetify.Player.data.item?.images;
+            const cover = covers?.find(cover => cover.label === size) ?? undefined;
+            return cover?.url ?? "https://images.spikerko.org/SongPlaceholderFull.png";
+        }
+        return "https://images.spikerko.org/SongPlaceholderFull.png";
     },
     GetName: () => {
-        return Spicetify.Player.data.item?.name;
+        return Spicetify.Player.data.item?.name ?? undefined;
     },
     GetAlbumName: (): string | undefined => {
         return Spicetify.Player.data.item?.metadata.album_title ?? undefined;

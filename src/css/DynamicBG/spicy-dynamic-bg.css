@@ -11,7 +11,7 @@
   filter: brightness(0.65) saturate(2.5);
 }
 
-#SpicyLyricsPage:not(.Fullscreen) .spicy-dynamic-bg {
+.spicy-dynamic-bg {
   border-radius: var(--section-border-radius, 8px);
 }
 

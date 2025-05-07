@@ -239,10 +239,8 @@
 
 #SpicyLyricsPage [data-simplebar]:not(.simplebar-dragging) .simplebar-content-wrapper {
 	scroll-behavior: smooth !important;
-	/* Enhanced smooth scrolling with better performance */
-	transition-timing-function: cubic-bezier(0.1, 0.7, 0.1, 1.0) !important;
 }
 
 #SpicyLyricsPage [data-simplebar]:not(.simplebar-dragging) .simplebar-content-wrapper.InstantScroll {
-	scroll-behavior: auto;
+	scroll-behavior: auto !important;
 }

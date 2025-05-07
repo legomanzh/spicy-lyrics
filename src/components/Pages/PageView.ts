@@ -43,7 +43,8 @@ const PageView = {
 
 export const GetPageRoot = () => (
     document.querySelector<HTMLElement>('.Root__main-view .main-view-container div[data-overlayscrollbars-viewport]') ??
-    document.querySelector<HTMLElement>('.Root__main-view .main-view-container .uGZUPBPcDpzSYqKcQT8r > div')
+    document.querySelector<HTMLElement>('.Root__main-view .main-view-container .uGZUPBPcDpzSYqKcQT8r > div') ??
+    document.querySelector<HTMLElement>('.Root__main-view .main-view-container .os-host')
 )
 function OpenPage() {
     if (PageView.IsOpened) return;
@@ -92,7 +93,7 @@ function OpenPage() {
         elem.classList.add("UseSpicyFont");
     }
 
-    GetPageRoot().appendChild(elem);
+    GetPageRoot()?.appendChild(elem);
 
     Defaults.LyricsContainerExists = true;
 
