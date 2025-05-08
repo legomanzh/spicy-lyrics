@@ -275,6 +275,12 @@ async function main() {
           <p>
             What's new: <a href="https://github.com/Spikerko/spicy-lyrics/releases/tag/${Defaults.SpicyLyricsVersion}" target="_blank" style="text-decoration: underline;">Open on Github -></a>
           </p>
+          <br>
+          <p style="font-size: 1.2rem; font-weight: bold;">
+            Check out our NEW Discord Server!
+            <br>
+            <a href="https://discord.gg/uqgXU5wh8j" target="_blank" style="font-size: 1.5rem; text-decoration: underline;">Join Discord -></a>
+          </p>
         </div>`,
       })
       storage.set("previous-version", Defaults.SpicyLyricsVersion);
