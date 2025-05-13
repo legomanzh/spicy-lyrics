@@ -3,7 +3,7 @@ import { ResetLastLine } from "../../utils/Scrolling/ScrollToActiveLine";
 import storage from "../../utils/storage";
 import Defaults from "../Global/Defaults";
 import Global from "../Global/Global";
-import PageView, { GetPageRoot, Tooltips } from "../Pages/PageView";
+import PageView, { Compactify, GetPageRoot, Tooltips } from "../Pages/PageView";
 import { CleanUpNowBarComponents, CloseNowBar, DeregisterNowBarBtn, OpenNowBar } from "./NowBar";
 import TransferElement from "./TransferElement";
 
@@ -195,6 +195,32 @@ const MediaBox_Data = {
 };
 
 
+
+export const ExitFullscreenElement = async () => {
+    if (document.fullscreenElement) {
+        await document.exitFullscreen();
+    }
+    setTimeout(Compactify, 1000)
+}
+
+export const EnterSpicyLyricsFullscreen = async () => {
+    const mainElement = document.querySelector<HTMLElement>("#main");
+    if (mainElement) {
+        mainElement.style.display = "none";
+    }
+
+    try {
+        if (!document.fullscreenElement) {
+            // Use the html element for fullscreen instead of SpicyLyricsPage
+            await document.documentElement.requestFullscreen();
+        }
+    } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        console.error(`Fullscreen error: ${errorMessage}`);
+    }
+    setTimeout(Compactify, 1000)
+}
+
 function CleanupMediaBox() {
     // Abort the controller to remove listeners
     MediaBox_Data.abortController?.abort();
@@ -252,16 +278,9 @@ function Open(skipDocumentFullscreen: boolean = false) {
         const handleFullscreen = async () => {
             try {
                 if (!skipDocumentFullscreen) {
-                    if (!document.fullscreenElement) {
-                        // Use the html element for fullscreen instead of SpicyLyricsPage
-                        await document.documentElement.requestFullscreen();
-                    }
-                } else if (document.fullscreenElement) {
-                    await document.exitFullscreen();
+                    await EnterSpicyLyricsFullscreen();
                 }
-
-                // Update controls after fullscreen state is settled
-                PageView.AppendViewControls(true);
+                setTimeout(() => PageView.AppendViewControls(true), 50);
             } catch (err: unknown) {
                 const errorMessage = err instanceof Error ? err.message : String(err);
                 console.error(`Fullscreen error: ${errorMessage}`);
@@ -294,6 +313,7 @@ function Open(skipDocumentFullscreen: boolean = false) {
 
         Global.Event.evoke("fullscreen:open", null);
     }
+    setTimeout(Compactify, 1000)
 }
 
 function Close() {
@@ -317,14 +337,10 @@ function Close() {
 
         // Handle fullscreen exit
         const handleFullscreenExit = async () => {
-            if (document.fullscreenElement) {
-                await document.exitFullscreen();
-            }
+            await ExitFullscreenElement();
 
             // Only update controls after fullscreen state is settled
-            if (wasOpen) {
-                PageView.AppendViewControls(true);
-            }
+            setTimeout(() => PageView.AppendViewControls(true), 50);
         };
 
         handleFullscreenExit();
@@ -347,6 +363,7 @@ function Close() {
 
         Global.Event.evoke("fullscreen:exit", null);
     }
+    setTimeout(Compactify, 1000)
 }
 
 function Toggle(skipDocumentFullscreen: boolean = false) {
@@ -360,6 +377,7 @@ function Toggle(skipDocumentFullscreen: boolean = false) {
         }
     }
 }
+
 
 export { CleanupMediaBox };
 export default Fullscreen;

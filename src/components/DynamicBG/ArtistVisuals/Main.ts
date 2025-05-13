@@ -1,8 +1,8 @@
-import Cache from "./Cache";
+import CacheStore from "./Cache";
 import ApplyContent from "./HeaderImage/Main";
 
 const ArtistVisuals = {
-    Cache,
+    CacheStore,
     ApplyContent
 }
 

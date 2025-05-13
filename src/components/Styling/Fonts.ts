@@ -34,7 +34,7 @@ const GetInlineStyles = (properties: Record<string, string>): string => {
 }
 
 let isFontPixelApplied = false;
-export const ApplyFontPixel = (): HTMLSpanElement => {
+export const ApplyFontPixel = (): HTMLSpanElement | undefined => {
     if (isFontPixelApplied) return;
     const fontPixel = document.createElement("span");
     const styleProperties = {
@@ -62,7 +62,7 @@ export const ApplyFontPixel = (): HTMLSpanElement => {
         <span style="font-weight: 300; ${inlineStyles}">${fontPixelString}</span>
         <span style="font-weight: 200; ${inlineStyles}">${fontPixelString}</span>
         <span style="font-weight: 100; ${inlineStyles}">${fontPixelString}</span>
-    `
+    `.trim();
     document.body.appendChild(fontPixel);
     isFontPixelApplied = true;
     return fontPixel;

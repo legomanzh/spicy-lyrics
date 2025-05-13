@@ -406,19 +406,19 @@
 } */
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent:has(.OppositeAligned) .line.OppositeAligned:not(.rtl) {
-  padding-left: 30cqw;
+  padding-left: 25cqw;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent:has(.OppositeAligned) .line:not(.OppositeAligned, .rtl) {
-  padding-right: 30cqw;
+  padding-right: 25cqw;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line.OppositeAligned {
-  padding-right: 30cqw;
+  padding-right: 25cqw;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line:not(.OppositeAligned) {
-  padding-left: 30cqw;
+  padding-left: 25cqw;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent:not(:has(.OppositeAligned)) .line {

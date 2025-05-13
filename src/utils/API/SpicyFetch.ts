@@ -3,10 +3,17 @@ import Defaults from "../../components/Global/Defaults";
 import Platform from "../../components/Global/Platform";
 import Session from "../../components/Global/Session";
 import { CheckForUpdates } from "../version/CheckForUpdates";
+import { GetExpireStore } from "@spikerko/tools/Cache";
 
-export let SpicyFetchCache = new SpikyCache({
-    name: "SpicyFetch__Cache"
-});
+
+export const SpicyFetchStore = GetExpireStore<any>(
+    "SpicyLyrics_FetchStore",
+    1,
+    {
+        Unit: "Days",
+        Duration: 3
+    }
+)
 
 export default async function SpicyFetch(path: string, IsExternal: boolean = false, cache: boolean = false, cosmos: boolean = false): Promise<Response | any> {
     return new Promise(async (resolve, reject) => {
@@ -17,14 +24,10 @@ export default async function SpicyFetch(path: string, IsExternal: boolean = fal
         const url = IsExternal ? path :
             `${lyricsApi}/${path}${path.includes('?') ? '&' : '?'}origin_version=${CurrentVersion?.Text || 'unknown'}`;
 
-        const CachedContent = await GetCachedContent(url);
-        if (CachedContent) {
-            // Here for backwards compatibility
-            if (Array.isArray(CachedContent)) {
-                resolve(CachedContent);
-                return;
-            }
-            resolve([CachedContent, 200]);
+        const processedUrl = SpicyHasher.md5(url);
+        const CachedContent = await SpicyFetchStore.GetItem(processedUrl);
+        if (CachedContent && CachedContent.Result) {
+            resolve([CachedContent.Result, 200]);
             return;
         }
 
@@ -37,7 +40,9 @@ export default async function SpicyFetch(path: string, IsExternal: boolean = fal
                     const sentData = [data, res.status];
                     resolve(sentData)
                     if (cache) {
-                        await CacheContent(url, sentData, 604800000);
+                        await SpicyFetchStore.SetItem(processedUrl, {
+                            Result: sentData
+                        });
                     }
                 }).catch(err => {
                     console.log("CosmosAsync Error:", err)
@@ -78,7 +83,9 @@ export default async function SpicyFetch(path: string, IsExternal: boolean = fal
                 const sentData = [data, res.status];
                 resolve(sentData)
                 if (cache) {
-                    await CacheContent(url, sentData, 604800000);
+                    await SpicyFetchStore.SetItem(processedUrl, {
+                        Result: sentData
+                    });
                 }
             }).catch(err => {
                 console.log("Fetch Error:", err)
@@ -88,92 +95,6 @@ export default async function SpicyFetch(path: string, IsExternal: boolean = fal
     });
 }
 
-/**
- * Cache content with a specified expiration time
- * @param key - Cache key
- * @param data - Data to cache (object or string)
- * @param expirationTtl - Time to live in milliseconds (default: 7 days)
- */
-async function CacheContent(key: string, data: any, expirationTtl: number = 604800000): Promise<void> {
-    try {
-        const expiresIn = Date.now() + expirationTtl;
-        const processedKey = SpicyHasher.md5(key);
-
-        const processedData = typeof data === "object" ? JSON.stringify(data) : data;
-
-        // Use the correct options for pako.deflate
-        const compressedData = pako.deflate(processedData, {
-            level: 1 as 1  // Explicitly type as literal 1
-        });
-        const compressedString = String.fromCharCode(...new Uint8Array(compressedData)); // Encode to base64
-
-        await SpicyFetchCache.set(processedKey, {
-            Content: compressedString,
-            expiresIn
-        });
-    } catch (error) {
-        console.error("ERR CC", error);
-        await SpicyFetchCache.destroy();
-    }
-}
-
-/**
- * Retrieve cached content by key
- * @param key - Cache key
- * @returns Cached content or null if not found/expired
- */
-async function GetCachedContent(key: string): Promise<object | string | null> {
-    try {
-        const processedKey = SpicyHasher.md5(key);
-        const content = await SpicyFetchCache.get(processedKey);
-
-        if (content) {
-            if (content.expiresIn > Date.now()) {
-                // Here for backwards compatibility
-                if (typeof content.Content !== "string") {
-                    await SpicyFetchCache.remove(processedKey);
-                    return content.Content;
-                }
-
-                // Convert string to Uint8Array of character codes
-                const compressedData = Uint8Array.from([...content.Content].map(c => c.charCodeAt(0)));
-
-                // Use the correct options for pako.inflate
-                const decompressedData = pako.inflate(compressedData, {
-                    to: 'string' as 'string'  // Explicitly type as literal 'string'
-                });
-
-                // Try to parse as JSON if it looks like JSON
-                if (typeof decompressedData === "string" &&
-                    (decompressedData.startsWith("{") ||
-                     decompressedData.startsWith(`{"`) ||
-                     decompressedData.startsWith("[") ||
-                     decompressedData.startsWith(`["`))) {
-                    try {
-                        return JSON.parse(decompressedData);
-                    } catch (e) {
-                        // If parsing fails, return as string
-                        return decompressedData;
-                    }
-                }
-
-                return decompressedData;
-            } else {
-                await SpicyFetchCache.remove(processedKey);
-                return null;
-            }
-        }
-        return null;
-    } catch (error) {
-        console.error("ERR CC", error);
-        return null; // Ensure we always return a value
-    }
-}
-
-export const _FETCH_CACHE = {
-    GetCachedContent,
-    CacheContent,
-}
 
 let ENDPOINT_DISABLEMENT_Shown = false;
 

@@ -254,7 +254,7 @@ async function main() {
   const button = ButtonList[0];
 
   const Hometinue = async () => {
-    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "4.12.0";
+    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "4.12.2";
     await Sockets.all.ConnectSockets();
 
     Whentil.When(() => Spicetify.Platform.PlaybackAPI, () => {
@@ -277,7 +277,7 @@ async function main() {
           </p>
           <br>
           <p style="font-size: 1.2rem; font-weight: bold;">
-            Check out our NEW Discord Server!
+            Check out our Discord Server!
             <br>
             <a href="https://discord.gg/uqgXU5wh8j" target="_blank" style="font-size: 1.5rem; text-decoration: underline;">Join Discord -></a>
           </p>
@@ -353,7 +353,7 @@ async function main() {
     }
 
     new IntervalManager(1, async () => {
-      await applyDynamicBackgroundToNowPlayingBar(SpotifyPlayer.GetCover("xlarge"));
+      await applyDynamicBackgroundToNowPlayingBar(SpotifyPlayer.GetCover("large"));
     }).Start();
 
     async function onSongChange(event: any) {
@@ -388,7 +388,7 @@ async function main() {
         }
       }
 
-      await applyDynamicBackgroundToNowPlayingBar(SpotifyPlayer.GetCover("xlarge"));
+      await applyDynamicBackgroundToNowPlayingBar(SpotifyPlayer.GetCover("large"));
 
       const contentBox = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox");
       if (!contentBox) return;
@@ -500,6 +500,25 @@ async function main() {
         }
         lastPosition = pos;
       }).Start();
+    }
+
+    {
+      let lastTimeout: any;
+      Global.Event.listen("lyrics:apply", () => {
+        if (lastTimeout !== undefined) {
+          clearTimeout(lastTimeout);
+          lastTimeout = undefined;
+        }
+        lastTimeout = setTimeout(() => {
+          const currentSongLyrics = storage.get("currentLyricsData");
+          if (currentSongLyrics && currentSongLyrics.toString() !== `NO_LYRICS:${SpotifyPlayer.GetId()}`) {
+            const parsedLyrics = JSON.parse(currentSongLyrics.toString());
+            if (parsedLyrics && parsedLyrics.id && parsedLyrics.id !== SpotifyPlayer.GetId()) {
+              fetchLyrics(SpotifyPlayer.GetId() ?? "").then(ApplyLyrics);
+            }
+          }
+        }, 1000)
+      })
     }
 
     SpotifyPlayer.IsPlaying = IsPlaying();

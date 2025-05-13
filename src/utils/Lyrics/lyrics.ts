@@ -166,18 +166,20 @@ let LinesEvListenerExists: boolean = false;
 // Define proper type for event parameter
 function LinesEvListener(e: MouseEvent) {
   const target = e.target as HTMLElement;
-
   if (target.classList.contains("line")) {
     let startTime: number | undefined;
 
     LyricsObject.Types.Line.Lines.forEach((line) => {
       if (line.HTMLElement === target) {
         startTime = line.StartTime;
+        if (line.Syllables?.Lead && line.Syllables.Lead.length > 0) {
+          startTime = line.Syllables.Lead[0].StartTime;
+        }
       }
     })
 
-    if (startTime) {
-      Spicetify.Player.seek(startTime);
+    if (startTime !== undefined) {
+      SpotifyPlayer.Seek(startTime);
       Global.Event.evoke("song:seek", startTime);
     }
   } else if (target.classList.contains("word")) {
@@ -185,16 +187,19 @@ function LinesEvListener(e: MouseEvent) {
 
     LyricsObject.Types.Syllable.Lines.forEach((line) => {
       if (line.Syllables?.Lead) {
-        line.Syllables.Lead.forEach((word) => {
+        line.Syllables.Lead.forEach((word, _, array) => {
           if (word.HTMLElement === target) {
             startTime = line.StartTime;
+            if (array.length > 0) {
+              startTime = array[0].StartTime;
+            }
           }
         });
       }
     });
 
-    if (startTime) {
-      Spicetify.Player.seek(startTime);
+    if (startTime !== undefined) {
+      SpotifyPlayer.Seek(startTime);
       Global.Event.evoke("song:seek", startTime);
     }
   } else if (target.classList.contains("Emphasis")) {
@@ -202,7 +207,7 @@ function LinesEvListener(e: MouseEvent) {
 
     LyricsObject.Types.Syllable.Lines.forEach((line) => {
       if (line.Syllables?.Lead) {
-        line.Syllables.Lead.forEach((word) => {
+        line.Syllables.Lead.forEach((word, _, array) => {
           if (word?.Letters) {
             word.Letters.forEach((letter) => {
               if (letter.HTMLElement === target) {
@@ -210,12 +215,15 @@ function LinesEvListener(e: MouseEvent) {
               }
             });
           }
+          if (array.length > 0) {
+            startTime = array[0].StartTime;
+          }
         });
       }
     });
 
-    if (startTime) {
-      Spicetify.Player.seek(startTime);
+    if (startTime !== undefined) {
+      SpotifyPlayer.Seek(startTime);
       Global.Event.evoke("song:seek", startTime);
     }
   }

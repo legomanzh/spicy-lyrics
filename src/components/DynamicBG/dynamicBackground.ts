@@ -29,7 +29,7 @@ export const CleanupDynamicBGLets = () => {
 
 export default async function ApplyDynamicBackground(element: HTMLElement) {
     if (!element) return;
-    const currentImgCover = SpotifyPlayer.GetCover("xlarge") ?? "";
+    const currentImgCover = SpotifyPlayer.GetCover("large") ?? "";
     const IsEpisode = SpotifyPlayer.GetContentType() === "episode";
 
     const artists = SpotifyPlayer.GetArtists() ?? [];

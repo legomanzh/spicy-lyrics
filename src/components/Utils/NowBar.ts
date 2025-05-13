@@ -877,10 +877,11 @@ function UpdateNowBar(force = false) {
     if (MediaImage && coverArt && MediaImage.getAttribute("last-image") !== coverArt) {
         MediaImage.style.backgroundImage = "";
         MediaImage.classList.add("Skeletoned");
-        BlobURLMaker(`https://i.scdn.co/image/${coverArt.replace("spotify:image:", "")}`)
+        const finalUrl = `https://i.scdn.co/image/${coverArt.replace("spotify:image:", "")}`;
+        BlobURLMaker(finalUrl)
         .then(coverArtUrl => {
             MediaImage.classList.remove("Skeletoned")
-            MediaImage.style.backgroundImage = `url("${coverArtUrl ?? ""}")`;
+            MediaImage.style.backgroundImage = `url("${coverArtUrl ?? finalUrl}")`;
             MediaImage.setAttribute("last-image", coverArt ?? "");
         })
     }
@@ -888,22 +889,36 @@ function UpdateNowBar(force = false) {
     const songName = SpotifyPlayer.GetName();
     if (SongNameSpan) {
         SongNameSpan.textContent = songName ?? "";
+
+        /* // Check width and apply/remove MarqueeContainer class
+        const songNameContainer = SongNameSpan.parentElement as HTMLElement;
+        if (songNameContainer) {
+            const containerWidth = songNameContainer.offsetWidth;
+            const thresholdWidth = containerWidth * 0.85;
+            if ((SongNameSpan as HTMLElement).offsetWidth > thresholdWidth) {
+                SongNameSpan.classList.add("MarqueeContainer");
+            } else {
+                SongNameSpan.classList.remove("MarqueeContainer");
+            }
+        } */
     }
 
     const artists = SpotifyPlayer.GetArtists();
     if (artists && ArtistsSpan) {
         const processedArtists = artists.map(artist => artist.name)?.join(", ");
         ArtistsSpan.textContent = processedArtists ?? "";
-    }
 
-    if (Fullscreen.IsOpen) {
-        const NowBarAlbum = NowBar.querySelector<HTMLDivElement>(".Header .MediaBox .AlbumData");
-        if (NowBarAlbum) {
-            const AlbumSpan = NowBarAlbum.querySelector("span");
-            if (AlbumSpan) {
-                AlbumSpan.textContent = SpotifyPlayer.GetAlbumName() ?? "";
+        /* // Check width and apply/remove MarqueeContainer class
+        const artistsSpanContainer = ArtistsSpan.parentElement as HTMLElement;
+        if (artistsSpanContainer) {
+            const containerWidth = artistsSpanContainer.offsetWidth;
+            const thresholdWidth = containerWidth * 0.80; // 80% of container width
+            if ((ArtistsSpan as HTMLElement).offsetWidth > thresholdWidth) {
+                ArtistsSpan.classList.add("MarqueeContainer");
+            } else {
+                ArtistsSpan.classList.remove("MarqueeContainer");
             }
-        }
+        } */
     }
 }
 

@@ -9,11 +9,13 @@ import { ScrollSimplebar } from "../../utils/Scrolling/Simplebar/ScrollSimplebar
 import ApplyLyrics from "../../utils/Lyrics/Global/Applyer";
 import { SpotifyPlayer } from "../Global/SpotifyPlayer";
 import { NowBar_SwapSides, NowBarObj, Session_NowBar_SetSide, Session_OpenNowBar, ToggleNowBar } from "../Utils/NowBar";
-import Fullscreen from "../Utils/Fullscreen";
+import Fullscreen, { EnterSpicyLyricsFullscreen, ExitFullscreenElement } from "../Utils/Fullscreen";
 import TransferElement from "../Utils/TransferElement";
 import Session from "../Global/Session";
 import { InitializeScrollEvents, ResetLastLine, CleanupScrollEvents, QueueForceScroll } from "../../utils/Scrolling/ScrollToActiveLine";
 import Global from "../Global/Global";
+import { EnableCompactMode } from "../Utils/CompactMode";
+import { DisableCompactMode } from "../Utils/CompactMode";
 
 interface TippyInstance {
     destroy: () => void;
@@ -46,6 +48,9 @@ export const GetPageRoot = () => (
     document.querySelector<HTMLElement>('.Root__main-view .main-view-container .uGZUPBPcDpzSYqKcQT8r > div') ??
     document.querySelector<HTMLElement>('.Root__main-view .main-view-container .os-host')
 )
+
+let PageResizeListener: ResizeObserver | null = null;
+
 function OpenPage() {
     if (PageView.IsOpened) return;
     const elem = document.createElement("div");
@@ -121,8 +126,39 @@ function OpenPage() {
     Session_NowBar_SetSide();
 
     AppendViewControls();
+
+    DisableCompactMode();
+
+    PageResizeListener = new ResizeObserver(() => {
+        if (!Fullscreen.IsOpen || !Fullscreen.CinemaViewOpen) return;
+        Compactify(elem);
+    });
+
+    PageResizeListener.observe(elem);
+
     Defaults.LyricsContainerExists = true;
     PageView.IsOpened = true;
+}
+
+export function Compactify(Element: HTMLElement | undefined = undefined) {
+    if (!Fullscreen.IsOpen) return;
+    const elem = Element ?? document.querySelector<HTMLElement>("#SpicyLyricsPage");
+    if (!elem) return;
+    const isNoLyrics = storage.get("currentLyricsData")?.toString() === `NO_LYRICS:${SpotifyPlayer.GetId()}`;
+    if (window.matchMedia("(max-width: 70.812rem)").matches) {
+        if (isNoLyrics && (Fullscreen.IsOpen || Fullscreen.CinemaViewOpen)) {
+            elem.querySelector<HTMLElement>(".ContentBox .LyricsContainer")?.classList.remove("Hidden");
+            elem.querySelector<HTMLElement>(".ContentBox")?.classList.remove("LyricsHidden");
+        }
+        EnableCompactMode();
+
+    } else {
+        if (isNoLyrics && (Fullscreen.IsOpen || Fullscreen.CinemaViewOpen)) {
+            elem.querySelector<HTMLElement>(".ContentBox .LyricsContainer")?.classList.add("Hidden");
+            elem.querySelector<HTMLElement>(".ContentBox")?.classList.add("LyricsHidden");
+        }
+        DisableCompactMode();
+    }
 }
 
 function DestroyPage() {
@@ -132,6 +168,7 @@ function DestroyPage() {
     CleanupDynamicBGLets();
     ResetLastLine();
     CleanupScrollEvents();
+    PageResizeListener?.disconnect(); // Disconnect the observer
     PageView.IsOpened = false;
     Defaults.LyricsContainerExists = false;
     document.querySelector("#SpicyLyricsPage")?.remove();
@@ -175,8 +212,8 @@ function AppendViewControls(ReAppend: boolean = false) {
     const isNoLyrics = storage.get("currentLyricsData")?.toString() === `NO_LYRICS:${SpotifyPlayer.GetId()}`;
     elem.innerHTML = `
         ${Fullscreen.IsOpen ? "" : `<button id="CinemaView" class="ViewControl">${Icons.CinemaView}</button>`}
-        ${!isNoLyrics && (!Fullscreen.IsOpen && !Fullscreen.CinemaViewOpen) ? `<button id="NowBarToggle" class="ViewControl">${Icons.NowBar}</button>` : ""}
-        ${!isNoLyrics && NowBarObj.Open ? `<button id="NowBarSideToggle" class="ViewControl">${Icons.Fullscreen}</button>` : ""}
+        ${(!Fullscreen.IsOpen && !Fullscreen.CinemaViewOpen) ? `<button id="NowBarToggle" class="ViewControl">${Icons.NowBar}</button>` : ""}
+        ${NowBarObj.Open && !(isNoLyrics && (Fullscreen.IsOpen || Fullscreen.CinemaViewOpen)) ? `<button id="NowBarSideToggle" class="ViewControl">${Icons.Fullscreen}</button>` : ""}
         ${Fullscreen.IsOpen ? `<button id="FullscreenToggle" class="ViewControl">${Fullscreen.CinemaViewOpen ? Icons.Fullscreen : Icons.CloseFullscreen}</button>` : ""}
         <button id="Close" class="ViewControl">${Icons.Close}</button>
     `
@@ -227,7 +264,7 @@ function AppendViewControls(ReAppend: boolean = false) {
             }
         }
 
-        if (!isNoLyrics && !Fullscreen.IsOpen && !Fullscreen.CinemaViewOpen) {
+        if (!Fullscreen.IsOpen && !Fullscreen.CinemaViewOpen) {
             const nowBarButton = elem.querySelector("#NowBarToggle");
             if (nowBarButton) {
                 try {
@@ -252,19 +289,21 @@ function AppendViewControls(ReAppend: boolean = false) {
                     fullscreenBtn,
                     {
                         ...Spicetify.TippyProps,
-                        content: `Toggle Fullscreen Mode`
+                        content: `${Fullscreen.CinemaViewOpen ? "Fullscreen" : "Cinema View"}`
                     }
                 );
-                fullscreenBtn.addEventListener("click", () => {
+                fullscreenBtn.addEventListener("click", async () => {
                     // If we're in cinema view, go to full fullscreen
                     if (Fullscreen.CinemaViewOpen) {
-                        Fullscreen.Close(); // First close current fullscreen state
-                        setTimeout(() => Fullscreen.Open(false), 50); // Then open in full fullscreen
+                        Fullscreen.CinemaViewOpen = false;
+                        await EnterSpicyLyricsFullscreen();
+                        PageView.AppendViewControls(true);
                     } else {
-                        // If we're in full fullscreen, go to cinema view
-                        Fullscreen.Close(); // First close current fullscreen state
-                        setTimeout(() => Fullscreen.Open(true), 50); // Then open in cinema view
+                        Fullscreen.CinemaViewOpen = true;
+                        await ExitFullscreenElement();
+                        PageView.AppendViewControls(true);
                     }
+                    setTimeout(Compactify, 250)
                 });
             } catch (err) {
                 console.warn("Failed to setup Fullscreen tooltip:", err);
@@ -288,7 +327,7 @@ function AppendViewControls(ReAppend: boolean = false) {
         }
 
         const nowBarSideToggleBtn = elem.querySelector("#NowBarSideToggle");
-        if (nowBarSideToggleBtn && !isNoLyrics && NowBarObj.Open) {
+        if (nowBarSideToggleBtn && NowBarObj.Open && !(isNoLyrics && (Fullscreen.IsOpen || Fullscreen.CinemaViewOpen))) {
             try {
                 Tooltips.NowBarSideToggle = Spicetify.Tippy(
                     nowBarSideToggleBtn,

@@ -1,7 +1,7 @@
 import { SettingsSection } from "../edited_packages/spcr-settings/settingsSection";
 import storage from "./storage";
-import { lyricsCache } from "./Lyrics/fetchLyrics";
 import Defaults from "../components/Global/Defaults";
+import { LyricsStore } from "./Lyrics/fetchLyrics";
 
 export function setSettingsMenu() {
     generalSettings();
@@ -35,7 +35,7 @@ function devSettings() {
     }); */
 
     settings.addButton("remove-cached-lyrics", "Remove Cached Lyrics (Lyrics Stay in Cache for 7 days*)", "Remove Cached Lyrics", () => {
-        lyricsCache.destroy();
+        LyricsStore.Destroy();
         Spicetify.showNotification("Cache Destroyed Successfully!", false, 5000);
     });
 

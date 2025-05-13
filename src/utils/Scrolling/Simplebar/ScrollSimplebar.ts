@@ -1,5 +1,4 @@
 import SimpleBar from "simplebar";
-import { GetElementHeight } from "../../Gets/GetElementHeight";
 import { IntervalManager } from "../../IntervalManager";
 import { IsMouseInLyricsPage, LyricsPageMouseEnter, LyricsPageMouseLeave, SetIsMouseInLyricsPage } from "../Page/IsHovering";
 
