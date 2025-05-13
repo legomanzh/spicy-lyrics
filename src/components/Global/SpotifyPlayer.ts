@@ -175,6 +175,9 @@ export const SpotifyPlayer = {
     GetArtists: (): Artist[] | undefined => {
         return Spicetify.Player.data.item?.artists as Artist[] ?? undefined;
     },
+    GetUri: (): string | undefined => {
+        return Spicetify.Player.data.item?.uri ?? undefined;
+    },
     Pause: Spicetify.Player.pause,
     Play: Spicetify.Player.play,
     TogglePlayState: Spicetify.Player.togglePlay,

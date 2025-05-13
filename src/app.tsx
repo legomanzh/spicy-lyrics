@@ -514,7 +514,7 @@ async function main() {
           if (currentSongLyrics && currentSongLyrics.toString() !== `NO_LYRICS:${SpotifyPlayer.GetId()}`) {
             const parsedLyrics = JSON.parse(currentSongLyrics.toString());
             if (parsedLyrics && parsedLyrics.id && parsedLyrics.id !== SpotifyPlayer.GetId()) {
-              fetchLyrics(SpotifyPlayer.GetId() ?? "").then(ApplyLyrics);
+              fetchLyrics(SpotifyPlayer.GetUri() ?? "").then(ApplyLyrics);
             }
           }
         }, 1000)
