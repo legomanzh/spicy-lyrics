@@ -4,6 +4,8 @@ import { LyricsApplied } from "../../components/Pages/PageView";
 import { LyricsObject, LyricsType, LyricsSyllable, LyricsLine } from "../Lyrics/lyrics";
 import { ScrollIntoCenterViewCSS } from "../ScrollIntoView/Center";
 import SimpleBar from 'simplebar';
+import { ScrollIntoTopViewCSS } from "../ScrollIntoView/Top";
+import { IsCompactMode } from "../../components/Utils/CompactMode";
 
 // Define intersection types that include _LineIndex
 type LyricsLineWithIndex = LyricsLine & { _LineIndex: number };
@@ -27,6 +29,12 @@ let currentSimpleBarInstance: SimpleBar | null = null;
 let wheelHandler: (() => void) | null = null;
 let touchMoveHandler: (() => void) | null = null;
 // --- END NEW ---
+
+const wasDrasticPositionChange = (lastPosition: number, newPosition: number) => {
+    const positionChange = Math.abs(newPosition - lastPosition);
+    return positionChange > 1000;
+}
+
 
 // Add focus event listener to reset state when window is focused
 window.addEventListener('focus', ResetLastLine);
@@ -121,8 +129,21 @@ const GetScrollLine = (Lines:  LyricsLine[] | LyricsSyllable[], ProcessedPositio
   return activeLines[activeLines.length - 1];
 };
 
+
+const ScrollTo = (container: HTMLElement, element: HTMLElement, instantScroll: boolean = false, type: "Center" | "Top" = "Center") => {
+    if (type === "Center") {
+        ScrollIntoCenterViewCSS(container, element, -50, instantScroll);
+    } else if (type === "Top") {
+        ScrollIntoTopViewCSS(container, element, 85, instantScroll);
+    }
+}
+
 let scrolledToLastLine = false;
 let scrolledToFirstLine = false;
+
+const GetScrollType = (): "Center" | "Top" => {
+    return IsCompactMode() ? "Top" : "Center";
+}
 
 export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
     if (Defaults.CurrentLyricsType === "Static" || Defaults.CurrentLyricsType === "None") return;
@@ -150,14 +171,14 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
         const allLinesSung = Lines.every((line: any) => line.Status === "Sung");
         const shouldForceScroll = (isForceScrollQueued || lastLine == null);
 
-        if (((shouldForceScroll) || (!SpotifyPlayer.IsPlaying && lastPosition !== Position))) {
+        if (((shouldForceScroll) || (!SpotifyPlayer.IsPlaying && lastPosition !== Position) || (wasDrasticPositionChange(lastPosition ?? 0, Position)))) {
             const container = ScrollSimplebar?.getScrollElement() as HTMLElement;
             if (!container) return;
             isUserScrolling = false;
             const scrollToLine = allLinesSung ? Lines[Lines.length - 1]?.HTMLElement : currentLine?.HTMLElement;
             if (!scrollToLine) return
             lastLine = scrollToLine;
-            ScrollIntoCenterViewCSS(container, scrollToLine, -50, true);
+            ScrollTo(container, scrollToLine, true, GetScrollType());
             if (forceScrollQueued) {
                 forceScrollQueued = false; // Reset the queue after using it
             }
@@ -174,7 +195,7 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
             const scrollToLine = allLinesSung ? Lines[Lines.length - 1]?.HTMLElement : currentLine?.HTMLElement;
             if (!scrollToLine) return
             lastLine = scrollToLine;
-            ScrollIntoCenterViewCSS(container, scrollToLine, -50, false);
+            ScrollTo(container, scrollToLine, false, GetScrollType());
             if (smoothForceScrollQueued) {
                 smoothForceScrollQueued = false; // Reset the queue after using it
             }
@@ -226,7 +247,7 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
                     }
                     // Get the last line element to scroll to
                     const lastLineElement = Lines[Lines.length - 1].HTMLElement as HTMLElement;
-                    ScrollIntoCenterViewCSS(container, lastLineElement, -50, true);
+                    ScrollIntoCenterViewCSS(container, lastLineElement, true);
                 }
                 return;
             } */
@@ -280,7 +301,7 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
                 /* if (!shouldForceScroll) {
                     isUserScrolling = false;
                     lastLine = LineElem;
-                    ScrollIntoCenterViewCSS(container, LineElem, -50, true);
+                    ScrollIntoCenterViewCSS(container, LineElem, true);
                     return;
                 } */
 
@@ -304,12 +325,12 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
                     if (!isSameLine) {
                         lastLine = LineElem;
                         const Scroll = () => {
-                            ScrollIntoCenterViewCSS(container, LineElem, -50);
+                            ScrollTo(container, LineElem, false, GetScrollType());
                             scrolledToLastLine = false;
                             scrolledToFirstLine = false;
                         }
                         if (Lines[currentLine._LineIndex - 1] && Lines[currentLine._LineIndex - 1].DotLine === true) {
-                            setTimeout(Scroll, 125);
+                            setTimeout(Scroll, 175);
                         } else {
                             Scroll();
                         }
@@ -374,3 +395,4 @@ export function CleanupScrollEvents() {
     //console.log("SpicyLyrics scroll events cleaned up."); // Optional log
 }
 // --- END NEW ---
+

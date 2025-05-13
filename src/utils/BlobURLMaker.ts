@@ -1,4 +1,4 @@
-const BlobURLCache = new Map<string, string>();
+const BlobURLCache = new Map<string, { blobUrl: string, expiresAt: number }>();
 
 export default async function BlobURLMaker(url: string): Promise<string | null> {
     if (!url) throw new Error("SpicyLyrics: BlobURLMaker: url Missing");
@@ -7,7 +7,6 @@ export default async function BlobURLMaker(url: string): Promise<string | null> 
         const expiresAt = existingBlobURL.expiresAt;
         if (expiresAt < Date.now()) {
             BlobURLCache.delete(url);
-            return null;
         }
         return existingBlobURL.blobUrl;
     }

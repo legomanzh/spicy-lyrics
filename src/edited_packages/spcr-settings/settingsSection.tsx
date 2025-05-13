@@ -74,8 +74,6 @@ class SettingsSection {
       pluginSettingsContainer.id = this.settingsId;
 
       allSettingsContainer.appendChild(pluginSettingsContainer);
-    } else {
-      console.log(pluginSettingsContainer);
     }
 
     ReactDOM.render(<this.FieldsContainer />, pluginSettingsContainer);

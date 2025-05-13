@@ -1,16 +1,22 @@
+import { GetExpireStore } from "@spikerko/tools/Cache";
 import { SpikyCache } from "@spikerko/web-modules/SpikyCache";
 import storage from "../storage";
 import Defaults from "../../components/Global/Defaults";
-import { CloseNowBar, DeregisterNowBarBtn, OpenNowBar } from "../../components/Utils/NowBar";
 import PageView from "../../components/Pages/PageView";
-import Fullscreen from "../../components/Utils/Fullscreen";
 import { SendJob } from "../API/SendJob";
 import Platform from "../../components/Global/Platform";
 import { SpotifyPlayer } from "../../components/Global/SpotifyPlayer";
+import { IsCompactMode } from "../../components/Utils/CompactMode";
+import Fullscreen from "../../components/Utils/Fullscreen";
 
-export const lyricsCache = new SpikyCache({
-    name: "SpikyCache_Spicy_Lyrics"
-})
+export const LyricsStore = GetExpireStore<any>(
+    "SpicyLyrics_LyricsStore",
+    1,
+    {
+        Unit: "Days",
+        Duration: 3
+    }
+)
 
 export default async function fetchLyrics(uri: string) {
     //if (!document.querySelector("#SpicyLyricsPage")) return;
@@ -77,25 +83,21 @@ export default async function fetchLyrics(uri: string) {
     }
 
 
-    if (lyricsCache) {
+    if (LyricsStore) {
         try {
-            const lyricsFromCache = await lyricsCache.get(trackId);
+            const lyricsFromCache = await LyricsStore.GetItem(trackId);
             if (lyricsFromCache) {
-                if (navigator.onLine && lyricsFromCache?.expiresAt < new Date().getTime()) {
-                    await lyricsCache.remove(trackId);
-                } else {
-                    if (lyricsFromCache?.status === "NO_LYRICS") {
-                        return await noLyricsMessage(false, true);
-                    }
-                    storage.set("currentLyricsData", JSON.stringify(lyricsFromCache));
-                    storage.set("currentlyFetching", "false");
-                    HideLoaderContainer()
-                    Defaults.CurrentLyricsType = lyricsFromCache.Type;
-                    document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox")?.classList.remove("LyricsHidden");
-                    document.querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer")?.classList.remove("Hidden");
-                    PageView.AppendViewControls(true);
-                    return { ...lyricsFromCache, fromCache: true };
+                if (lyricsFromCache === "NO_LYRICS") {
+                    return await noLyricsMessage(false, true);
                 }
+                storage.set("currentLyricsData", JSON.stringify(lyricsFromCache));
+                storage.set("currentlyFetching", "false");
+                HideLoaderContainer()
+                Defaults.CurrentLyricsType = lyricsFromCache.Type;
+                document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox")?.classList.remove("LyricsHidden");
+                document.querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer")?.classList.remove("Hidden");
+                PageView.AppendViewControls(true);
+                return { ...lyricsFromCache, fromCache: true };
             }
         } catch (error) {
             console.log("Error parsing saved lyrics data:", error);
@@ -173,14 +175,11 @@ export default async function fetchLyrics(uri: string) {
 
 
 
-        if (lyricsCache) {
+        if (LyricsStore) {
             const expiresAt = new Date().getTime() + 1000 * 60 * 60 * 24 * 7; // Expire after 7 days
 
             try {
-                await lyricsCache.set(trackId, {
-                    ...lyricsJson,
-                    expiresAt
-                });
+                await LyricsStore.SetItem(trackId, lyricsJson);
             } catch (error) {
                 console.error("Error saving lyrics to cache:", error);
             }
@@ -275,20 +274,17 @@ async function noLyricsMessage(Cache = true, LocalStorage = true) {
     } */
 
 
-    const trackId = SpotifyPlayer.GetId() || '';
+    const trackId = SpotifyPlayer.GetId() ?? '';
 
     if (LocalStorage) {
         storage.set("currentLyricsData", `NO_LYRICS:${trackId}`);
     }
 
-    if (lyricsCache && Cache && trackId) {
+    if (LyricsStore && Cache && trackId) {
         const expiresAt = new Date().getTime() + 1000 * 60 * 60 * 24 * 7; // Expire after 7 days
 
         try {
-            await lyricsCache.set(trackId, {
-                status: `NO_LYRICS`,
-                expiresAt
-            });
+            await LyricsStore.SetItem(trackId, "NO_LYRICS");
         } catch (error) {
             console.error("Error saving lyrics to cache:", error);
         }
@@ -298,19 +294,33 @@ async function noLyricsMessage(Cache = true, LocalStorage = true) {
 
     HideLoaderContainer()
 
-    Defaults.CurrentLyricsType = "None";
+    Defaults.CurrentLyricsType = "Static";
 
 
-    document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .LyricsContainer")?.classList.add("Hidden");
-    document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox")?.classList.add("LyricsHidden");
+    if (!(IsCompactMode()) && (Fullscreen.IsOpen || Fullscreen.CinemaViewOpen)) {
+        document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .LyricsContainer")?.classList.add("Hidden");
+        document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox")?.classList.add("LyricsHidden");
+    }
 
-    OpenNowBar();
-
-    DeregisterNowBarBtn();
 
     ClearLyricsPageContainer()
     PageView.AppendViewControls(true);
-    return "1";
+
+    return {
+        Type: "Static",
+        id: SpotifyPlayer.GetId() ?? '',
+        styles: {
+            display: "flex",
+            "align-items": "center",
+            "justify-content": "center",
+            "flex-direction": "column"
+        },
+        Lines: [
+            {
+                Text: "No Lyrics Found"
+            }
+        ]
+    };
 }
 
 function urOfflineMessage() {

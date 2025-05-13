@@ -13,7 +13,7 @@ let canSyncNonLocalTimestamp = (SpotifyPlayer?.IsPlaying ? syncTimings.length : 
 export const requestPositionSync = () => {
   try {
     const SpotifyPlatform = Spicetify.Platform;
-    const startedAt = performance.now();
+    const startedAt = Date.now();
     const isLocallyPlaying = SpotifyPlatform.PlaybackAPI._isLocal;
 
     const getLocalPosition = () => {
@@ -60,7 +60,6 @@ export const requestPositionSync = () => {
   }
 };
 
-
 // Function to get the current progress
 export default function GetProgress() {
   if (!syncedPosition) {
@@ -78,7 +77,7 @@ export default function GetProgress() {
   const isLocallyPlaying = SpotifyPlatform.PlaybackAPI._isLocal;
 
   const { StartedSyncAt, Position } = syncedPosition;
-  const now = performance.now();
+  const now = Date.now();
   const deltaTime = now - StartedSyncAt;
 
   // Calculate and return the current track position
@@ -90,8 +89,6 @@ export default function GetProgress() {
   const FinalPosition = (Position + deltaTime)
   return isLocallyPlaying ? FinalPosition : (FinalPosition + Global.NonLocalTimeOffset) ;
 }
-
-
 
 
 // DEPRECATED

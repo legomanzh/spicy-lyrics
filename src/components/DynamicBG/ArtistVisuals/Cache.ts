@@ -1,7 +1,11 @@
-import { SpikyCache } from "@spikerko/web-modules/SpikyCache";
+import { GetExpireStore } from "@spikerko/tools/Cache";
 
-const Cache = new SpikyCache({
-    name: "SpicyLyrics-ArtistVisualsCache"
-})
-
-export default Cache;
+const CacheStore = GetExpireStore(
+    "SpicyLyrics_ArtistVisuals",
+    1,
+    {
+        Unit: "Days",
+        Duration: 3
+    }
+)
+export default CacheStore;
