@@ -34,6 +34,17 @@ function BOTTOM_ApplyLyricsSpacer(Container: HTMLElement) {
     Container.appendChild(div);
 }
 
+
+function GetContainerHeight(Container: HTMLElement) {
+    Container.style.height = "0px";
+    return Container.scrollHeight;
+    /* const style = globalThis.getComputedStyle(Container)
+    const marginTop = parseFloat(style.marginTop)
+    const marginBottom = parseFloat(style.marginBottom)
+
+    return (Container.scrollHeight + marginTop + marginBottom) */
+}
+
 export const ArabicPersianRegex = /[\u0600-\u06FF]/;
 
-export { DeepFreeze, IsPlaying, TOP_ApplyLyricsSpacer, BOTTOM_ApplyLyricsSpacer }
+export { DeepFreeze, IsPlaying, TOP_ApplyLyricsSpacer, BOTTOM_ApplyLyricsSpacer, GetContainerHeight }

@@ -132,11 +132,11 @@ const GetScrollLine = (Lines:  LyricsLine[] | LyricsSyllable[], ProcessedPositio
 
 const ScrollTo = (container: HTMLElement, element: HTMLElement, instantScroll: boolean = false, type: "Center" | "Top" = "Center") => {
     if (type === "Center") {
-        ScrollIntoCenterViewCSS(container, element, -50, instantScroll);
+        ScrollIntoCenterViewCSS(container, element, -30, instantScroll);
     } else if (type === "Top") {
         ScrollIntoTopViewCSS(container, element, 85, instantScroll);
     }
-}
+};
 
 let scrolledToLastLine = false;
 let scrolledToFirstLine = false;
@@ -178,7 +178,7 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
             const scrollToLine = allLinesSung ? Lines[Lines.length - 1]?.HTMLElement : currentLine?.HTMLElement;
             if (!scrollToLine) return
             lastLine = scrollToLine;
-            ScrollTo(container, scrollToLine, true, GetScrollType());
+            ScrollTo(container, scrollToLine, (wasDrasticPositionChange(lastPosition ?? 0, Position) ? false : true), GetScrollType());
             if (forceScrollQueued) {
                 forceScrollQueued = false; // Reset the queue after using it
             }

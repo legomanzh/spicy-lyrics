@@ -52,11 +52,17 @@
   opacity: 0;
 }
 
-#SpicyLyricsPage .LyricsContainer .LyricsContent .simplebar-content {
+#SpicyLyricsPage .LyricsContainer .LyricsContent .SpicyLyricsScrollContainer {
   container-type: size !important;
+  width: 100cqw;
   transition: padding-right .4s, padding-left .4s;
+  display: flex;
+  flex-direction: column;
+  
+  margin-bottom: 45cqh;
+  margin-top: 25cqh;
 }
-
+/* 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .BottomSpacer {
   display: block;
   height: 45vh;
@@ -68,3 +74,4 @@
   height: 20vh;
   width: 100%;
 }
+ */

@@ -36,7 +36,6 @@ import Fullscreen from "./components/Utils/Fullscreen";
 import { Defer } from "@socali/modules/Scheduler";
 import { DynamicBackground } from "@spikerko/tools/DynamicBackground";
 
-
 async function main() {
   await Platform.OnSpotifyReady;
 
@@ -300,7 +299,8 @@ async function main() {
 			} else {
 				for (const element of controlsContainer.children) {
 					if (
-						(element.attributes.getNamedItem("data-testid")?.value === "fullscreen-mode-button")
+						(element.attributes.getNamedItem("data-testid")?.value === "fullscreen-mode-button" ||
+             element.attributes.getNamedItem("aria-label")?.value === "Full screen")
 						&& (element.id !== "SpicyLyrics_FullscreenButton")
 					) {
 						(element as HTMLElement).style.display = "none"
@@ -314,7 +314,7 @@ async function main() {
   const button = ButtonList[0];
 
   const Hometinue = async () => {
-    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "4.12.2";
+    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.0.2";
     await Sockets.all.ConnectSockets();
 
     Whentil.When(() => Spicetify.Platform.PlaybackAPI, () => {
@@ -352,19 +352,24 @@ async function main() {
     let nowPlayingBarDynamicBg: DynamicBackground | null = null;
 
     const CleanupNowBarDynamicBgLets = () => {
-      if (nowPlayingBarDynamicBg) {
+      if (nowPlayingBarDynamicBg != null) {
         nowPlayingBarDynamicBg.Destroy();
         nowPlayingBarDynamicBg = null;
       }
     }
 
     async function applyDynamicBackgroundToNowPlayingBar(coverUrl: string | undefined) {
-      if (Defaults.StaticBackground || !coverUrl) return;
-      const nowPlayingBar = document.querySelector<HTMLElement>(".Root__right-sidebar aside.NowPlayingView");
+      if (SpotifyPlayer.GetContentType() === "unknown" || SpotifyPlayer.IsDJ()) return;
+      if (Defaults.StaticBackground || coverUrl === undefined) return;
+      const nowPlayingBar =
+        document.querySelector<HTMLElement>(".Root__right-sidebar aside.NowPlayingView") ??
+        document.querySelector<HTMLElement>(`.Root__right-sidebar aside#Desktop_PanelContainer_Id:is([aria-label="Now playing view"])`) ??
+        document.querySelector<HTMLElement>(`.Root__right-sidebar aside#Desktop_PanelContainer_Id:is([aria-label="Now Playing View"])`);
 
       try {
-        if (nowPlayingBar == null) {
+        if (!nowPlayingBar) {
           lastImgUrl = null;
+          CleanupNowBarDynamicBgLets();
           return;
         };
         if (coverUrl === lastImgUrl) return;
@@ -419,7 +424,7 @@ async function main() {
     async function onSongChange(event: any) {
       const IsSomethingElseThanTrack = SpotifyPlayer.GetContentType() !== "track";
 
-      if (IsSomethingElseThanTrack) {
+      if (IsSomethingElseThanTrack || SpotifyPlayer.IsDJ()) {
         button.Button.deregister();
         button.Registered = false;
       } else {
@@ -429,7 +434,7 @@ async function main() {
         }
       }
 
-      if (!IsSomethingElseThanTrack) {
+      if (!IsSomethingElseThanTrack && !SpotifyPlayer.IsDJ()) {
         if (document.querySelector("#SpicyLyricsPage .ContentBox .NowBar")) {
           Fullscreen.IsOpen ? UpdateNowBar(true) : UpdateNowBar();
         }
@@ -438,7 +443,7 @@ async function main() {
       fetchLyrics(event?.data?.item?.uri).then(ApplyLyrics);
 
 
-      if (Defaults.StaticBackground) {
+      if (Defaults.StaticBackground && !SpotifyPlayer.IsDJ()) {
         const Artists = SpotifyPlayer.GetArtists();
         const Artist = Artists?.map(artist => artist.uri?.replace("spotify:artist:", ""))[0] ?? undefined;
         try {
@@ -498,7 +503,6 @@ async function main() {
         button.Button.active = true;
       } else {
         if (lastLocation?.pathname === "/SpicyLyrics") {
-          CleanupNowBarDynamicBgLets();
           PageView.Destroy();
           button.Button.active = false;
         }
@@ -516,7 +520,82 @@ async function main() {
       })
     }
 
-    button.Button.tippy.setContent("Spicy Lyrics");
+
+    button.Button.tippy.setContent("Spicy Lyrics")
+
+    /*
+    // This probably won't be added
+
+    let wasPageViewTippyShown = false;
+    button.Button.tippy.setProps({
+      ...Spicetify.TippyProps,
+      content: `Spicy Lyrics`,
+      allowHTML: true,
+      onShow(instance: any) {
+        // Spotify's Code
+        instance.popper.firstChild.classList.add("main-contextMenu-tippyEnter");
+      },
+      onMount(instance: any) {
+          // Spotify's Code
+          requestAnimationFrame(() => {
+            instance.popper.firstChild.classList.remove("main-contextMenu-tippyEnter");
+            instance.popper.firstChild.classList.add("main-contextMenu-tippyEnterActive");
+          });
+
+          const TippyElement = instance.popper;
+
+          //TippyElement.style.removeProperty("pointer-events");
+
+          const TippyElementContent = TippyElement.querySelector(".main-contextMenu-tippy");
+          
+
+          if (!PageView.IsTippyCapable) {
+            TippyElementContent.style.width = "";
+            TippyElementContent.style.height = "";
+            TippyElementContent.style.maxWidth = "";
+            TippyElementContent.style.maxHeight = "";
+
+            TippyElement.style.setProperty("--section-border-radius", "");
+            TippyElement.style.borderRadius = "";
+            TippyElementContent.style.borderRadius = "";
+
+            TippyElementContent.innerHTML = ""
+            instance.setContent("Spicy Lyrics");
+
+            return;
+          };
+
+          TippyElementContent.innerHTML = "";
+          TippyElementContent.style.width = "470px";
+          TippyElementContent.style.height = "540px";
+          TippyElementContent.style.maxWidth = "none";
+          TippyElementContent.style.maxHeight = "none";
+
+          TippyElement.style.setProperty("--section-border-radius", "8px");
+          TippyElement.style.borderRadius = "var(--section-border-radius, 8px)";
+          TippyElementContent.style.borderRadius = "var(--section-border-radius, 8px)";
+
+          if (!wasPageViewTippyShown) {
+            PageView.Destroy();
+            instance.unmount();
+            wasPageViewTippyShown = true;
+            setTimeout(() => instance.show(), 75);
+            return;
+          }
+
+          PageView.Open(TippyElementContent, true);
+      },
+      onHide(instance: any) {
+          if (PageView.IsTippyCapable) {
+            PageView.Destroy();
+          };
+          // Spotify's Code
+          requestAnimationFrame(() => {
+              instance.popper.firstChild.classList.remove("main-contextMenu-tippyEnterActive");
+              instance.unmount();
+          });
+      },
+    }); */
 
 
     {

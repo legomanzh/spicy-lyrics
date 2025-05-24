@@ -176,7 +176,7 @@ export default async function fetchLyrics(uri: string) {
 
 
         if (LyricsStore) {
-            const expiresAt = new Date().getTime() + 1000 * 60 * 60 * 24 * 7; // Expire after 7 days
+            //const expiresAt = new Date().getTime() + 1000 * 60 * 60 * 24 * 7; // Expire after 7 days
 
             try {
                 await LyricsStore.SetItem(trackId, lyricsJson);
@@ -281,7 +281,7 @@ async function noLyricsMessage(Cache = true, LocalStorage = true) {
     }
 
     if (LyricsStore && Cache && trackId) {
-        const expiresAt = new Date().getTime() + 1000 * 60 * 60 * 24 * 7; // Expire after 7 days
+        //const expiresAt = new Date().getTime() + 1000 * 60 * 60 * 24 * 7; // Expire after 7 days
 
         try {
             await LyricsStore.SetItem(trackId, "NO_LYRICS");
@@ -309,12 +309,6 @@ async function noLyricsMessage(Cache = true, LocalStorage = true) {
     return {
         Type: "Static",
         id: SpotifyPlayer.GetId() ?? '',
-        styles: {
-            display: "flex",
-            "align-items": "center",
-            "justify-content": "center",
-            "flex-direction": "column"
-        },
         Lines: [
             {
                 Text: "No Lyrics Found"

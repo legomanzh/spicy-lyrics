@@ -8,7 +8,7 @@
   top: 0;
   width: 100%;
   transform-origin: center center;
-  filter: brightness(0.65) saturate(2.5);
+  filter: brightness(0.55) saturate(2.65);
 }
 
 .spicy-dynamic-bg {
@@ -22,17 +22,17 @@
 }
 
 /* Special styling for side panel */
-.spicy-dynamic-bg-in-this:is(aside) .spicy-dynamic-bg {
+aside .spicy-dynamic-bg {
   max-height: 100%;
   max-width: 100%;
 }
 
-.spicy-dynamic-bg-in-this:is(aside) .spicy-dynamic-bg {
-  filter: brightness(0.8) saturate(1.5);
+aside .spicy-dynamic-bg {
+  filter: brightness(0.6) saturate(2.65);
 }
 
 /* Video element styling */
-.spicy-dynamic-bg-in-this:is(aside) video {
+aside:has(.spicy-dynamic-bg) video {
   filter: opacity(0.8) brightness(.85);
   -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%);
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%);
@@ -50,8 +50,8 @@
   display: none;
 }
 
-.spicy-dynamic-bg-in-this:is(aside) .AAdBM1nhG73supMfnYX7 {
-  z-index: 10;
+aside:has(.spicy-dynamic-bg) .AAdBM1nhG73supMfnYX7 {
+  z-index: 1;
   position: relative;
 }
 
@@ -73,4 +73,9 @@
 /* Hide sidebar background when in fullscreen lyrics mode */
 body:has(#SpicyLyricsPage.Fullscreen) .Root__right-sidebar aside:is(.NowPlayingView, .spicy-dynamic-bg-in-this) .spicy-dynamic-bg {
   display: none;
+}
+
+
+.Root__right-sidebar aside#Desktop_PanelContainer_Id:has(.spicy-dynamic-bg) .main-buddyFeed-scrollBarContainer {
+  z-index: 1;
 }
