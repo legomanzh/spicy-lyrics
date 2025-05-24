@@ -6,8 +6,7 @@ interface LyricsData {
     styles?: Record<string, string>;
 }
 
-export function ApplyLyricsCredits(data: LyricsData): void {
-    const LyricsContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
+export function ApplyLyricsCredits(data: LyricsData, LyricsContainer: HTMLElement): void {
     if (!data?.SongWriters || !LyricsContainer) return;
 
     const CreditsElement = document.createElement("div");

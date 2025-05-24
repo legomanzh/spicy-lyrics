@@ -6,6 +6,7 @@ import Global from "../Global/Global";
 import PageView, { Compactify, GetPageRoot, Tooltips } from "../Pages/PageView";
 import { CleanUpNowBarComponents, CloseNowBar, DeregisterNowBarBtn, OpenNowBar } from "./NowBar";
 import TransferElement from "./TransferElement";
+import { GetCurrentLyricsContainerInstance } from "../../utils/Lyrics/Applyer/CreateLyricsContainer";
 
 const ArtworkBrightness = {
     Start: 0.72,
@@ -60,7 +61,7 @@ const MediaBox_Data = {
             MediaBox_Data.Animators.brightness.Start();
             MediaBox_Data.Animators.opacity.Start();
         },
-        NowBarMouseIn: () => {
+        PageMouseIn: () => {
             // Clear any existing timeout when entering NowBar
             if (MediaBox_Data.hoverTimeoutId) {
                 clearTimeout(MediaBox_Data.hoverTimeoutId);
@@ -79,8 +80,8 @@ const MediaBox_Data = {
             MediaBox_Data.Animators.brightnessHalf.Start();
             MediaBox_Data.Animators.opacityHalf.Start();
         },
-        MouseOut: (event?: MouseEvent) => {
-            // Clear any existing timeout when leaving
+        MouseOut: () => {
+            // Clear any existing timeout (though this timeout is primarily for half-strength, good to clear)
             if (MediaBox_Data.hoverTimeoutId) {
                 clearTimeout(MediaBox_Data.hoverTimeoutId);
                 MediaBox_Data.hoverTimeoutId = null;
@@ -92,38 +93,16 @@ const MediaBox_Data = {
                 return;
             }
 
-            // Check if we're moving to the NowBar
-            const NowBar = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar");
-            if (event && NowBar && NowBar.contains(event.relatedTarget as Node)) {
-                // Only reverse full-strength animators when moving to NowBar
-                if (!MediaBox_Data.Animators.brightness.reversed) MediaBox_Data.Animators.brightness.Reverse();
-                if (!MediaBox_Data.Animators.opacity.reversed) MediaBox_Data.Animators.opacity.Reverse();
+            // Reverse MediaBox's full-strength animations as the mouse is leaving MediaBox
+            if (!MediaBox_Data.Animators.brightness.reversed) MediaBox_Data.Animators.brightness.Reverse();
+            if (!MediaBox_Data.Animators.opacity.reversed) MediaBox_Data.Animators.opacity.Reverse();
+            MediaBox_Data.Animators.brightness.Start();
+            MediaBox_Data.Animators.opacity.Start();
 
-                MediaBox_Data.Animators.brightness.Start();
-                MediaBox_Data.Animators.opacity.Start();
-            } else {
-                // If any half-strength animator is still not reversed, set timeout to reverse them
-                if (!MediaBox_Data.Animators.brightnessHalf.reversed ||
-                    !MediaBox_Data.Animators.opacityHalf.reversed) {
-
-                    MediaBox_Data.hoverTimeoutId = setTimeout(() => {
-                        MediaBox_Data.Animators.brightnessHalf.Reverse();
-                        MediaBox_Data.Animators.opacityHalf.Reverse();
-
-                        MediaBox_Data.Animators.brightnessHalf.Start();
-                        MediaBox_Data.Animators.opacityHalf.Start();
-                    }, 750);
-                }
-
-                // Reverse all animators when leaving completely
-                if (!MediaBox_Data.Animators.brightness.reversed) MediaBox_Data.Animators.brightness.Reverse();
-                if (!MediaBox_Data.Animators.opacity.reversed) MediaBox_Data.Animators.opacity.Reverse();
-
-                MediaBox_Data.Animators.brightness.Start();
-                MediaBox_Data.Animators.opacity.Start();
-            }
+            // The logic for handling mouse leaving SpicyLyricsPage and managing half-strength
+            // animations is now handled by PageMouseOut, PageMouseIn, and PageMouseMoveHandler.
         },
-        handleNowBarMove: (event: MouseEvent) => {
+        PageMouseMoveHandler: (event: MouseEvent) => {
             const MediaBox = MediaBox_Data.Functions.Target;
             // We're not using NowBar variable, so we can remove it to avoid the unused variable warning
             // const NowBar = event.currentTarget as HTMLElement;
@@ -158,6 +137,32 @@ const MediaBox_Data = {
                     MediaBox_Data.Animators.opacityHalf.Start();
                 }
             }, 750);
+        },
+        PageMouseOut: () => {
+            // This function is called when the mouse leaves SpicyLyricsPage.
+            // Clear any timeout set by PageMouseMoveHandler
+            if (MediaBox_Data.hoverTimeoutId) {
+                clearTimeout(MediaBox_Data.hoverTimeoutId);
+                MediaBox_Data.hoverTimeoutId = null;
+            }
+
+            const target = MediaBox_Data.Functions.Target;
+            if (Defaults.PrefersReducedMotion && target) {
+                // Revert to the "non-page-hovered" state for reduced motion
+                target.style.setProperty("--ArtworkBrightness", `${ArtworkBrightness.ParentHover.Start}`);
+                target.style.setProperty("--ControlsOpacity", `${ControlsOpacity.ParentHover.Start}`);
+                return;
+            }
+
+            // If half-strength animators are active (not reversed), reverse them and play them.
+            if (!MediaBox_Data.Animators.brightnessHalf.reversed) {
+                MediaBox_Data.Animators.brightnessHalf.Reverse();
+                if (!MediaBox_Data.Animators.opacityHalf.reversed) { // Keep opacity in sync
+                    MediaBox_Data.Animators.opacityHalf.Reverse();
+                }
+                MediaBox_Data.Animators.brightnessHalf.Start();
+                MediaBox_Data.Animators.opacityHalf.Start();
+            }
         },
         Reset: (MediaBox: HTMLElement) => {
             MediaBox.style.removeProperty("--ArtworkBrightness");
@@ -301,19 +306,21 @@ function Open(skipDocumentFullscreen: boolean = false) {
 
             MediaBox_Data.Functions.Eventify(MediaBox);
             MediaBox.addEventListener("mouseenter", MediaBox_Data.Functions.MouseIn, { signal });
-            MediaBox.addEventListener("mouseleave", (e) => MediaBox_Data.Functions.MouseOut(e), { signal });
+            MediaBox.addEventListener("mouseleave", MediaBox_Data.Functions.MouseOut, { signal });
 
             // Add NowBar hover animation and movement tracking
-            const NowBar = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar");
-            if (NowBar) {
-                NowBar.addEventListener("mouseenter", MediaBox_Data.Functions.NowBarMouseIn, { signal });
-                NowBar.addEventListener("mousemove", MediaBox_Data.Functions.handleNowBarMove, { signal });
+            //const NowBar = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar");
+            if (SpicyPage) {
+                SpicyPage.addEventListener("mouseenter", MediaBox_Data.Functions.PageMouseIn, { signal });
+                SpicyPage.addEventListener("mousemove", MediaBox_Data.Functions.PageMouseMoveHandler, { signal });
+                SpicyPage.addEventListener("mouseleave", MediaBox_Data.Functions.PageMouseOut, { signal });
             }
         }
 
         Global.Event.evoke("fullscreen:open", null);
     }
     setTimeout(Compactify, 1000)
+    GetCurrentLyricsContainerInstance()?.Resize();
 }
 
 function Close() {
@@ -322,7 +329,7 @@ function Close() {
 
     if (SpicyPage) {
         // Set state first
-        const wasOpen = Fullscreen.IsOpen;
+        //const wasOpen = Fullscreen.IsOpen;
         Fullscreen.IsOpen = false;
         Fullscreen.CinemaViewOpen = false;
 
@@ -364,6 +371,7 @@ function Close() {
         Global.Event.evoke("fullscreen:exit", null);
     }
     setTimeout(Compactify, 1000)
+    GetCurrentLyricsContainerInstance()?.Resize();
 }
 
 function Toggle(skipDocumentFullscreen: boolean = false) {
@@ -377,7 +385,6 @@ function Toggle(skipDocumentFullscreen: boolean = false) {
         }
     }
 }
-
 
 export { CleanupMediaBox };
 export default Fullscreen;

@@ -1,4 +1,3 @@
-import { BOTTOM_ApplyLyricsSpacer, TOP_ApplyLyricsSpacer } from "../../Addons";
 import Defaults from "../../../components/Global/Defaults";
 import { applyStyles, removeAllStyles, StyleProperties } from "../../CSS/Styles";
 import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../Scrolling/Simplebar/ScrollSimplebar";
@@ -7,6 +6,7 @@ import { ApplyLyricsCredits } from "./Credits/ApplyLyricsCredits";
 import isRtl from "../isRtl";
 import { ClearLyricsPageContainer } from "../fetchLyrics";
 import { EmitApply, EmitNotApplyed } from "./OnApply";
+import { CreateLyricsContainer, DestroyAllLyricsContainers } from "./CreateLyricsContainer";
 
 /**
  * Interface for static lyrics data
@@ -30,7 +30,12 @@ export function ApplyStaticLyrics(data: StaticLyricsData): void {
     if (!Defaults.LyricsContainerExists) return;
 
     EmitNotApplyed();
-    const LyricsContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
+
+    DestroyAllLyricsContainers();
+
+    const LyricsContainerParent = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
+    const LyricsContainerInstance = CreateLyricsContainer();
+    const LyricsContainer = LyricsContainerInstance.Container;
 
     if (!LyricsContainer) {
         console.error("Cannot apply static lyrics: LyricsContainer not found");
@@ -42,8 +47,6 @@ export function ApplyStaticLyrics(data: StaticLyricsData): void {
     ClearLyricsContentArrays();
     ClearScrollSimplebar();
     ClearLyricsPageContainer();
-
-    TOP_ApplyLyricsSpacer(LyricsContainer);
 
     data.Lines.forEach(line => {
         const lineElem = document.createElement("div");
@@ -71,8 +74,11 @@ export function ApplyStaticLyrics(data: StaticLyricsData): void {
         LyricsContainer.appendChild(lineElem);
     });
 
-    ApplyLyricsCredits(data);
-    BOTTOM_ApplyLyricsSpacer(LyricsContainer);
+    ApplyLyricsCredits(data, LyricsContainer);
+
+    if (LyricsContainerParent) {
+        LyricsContainerInstance.Append(LyricsContainerParent);
+    }
 
     // Handle scrollbar
     if (ScrollSimplebar) {
@@ -99,6 +105,8 @@ export function ApplyStaticLyrics(data: StaticLyricsData): void {
             applyStyles(LyricsStylingContainer, data.styles);
         }
     }
+
+
 
     EmitApply(data.Type, data.Content);
 }

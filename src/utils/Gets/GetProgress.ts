@@ -87,7 +87,7 @@ export default function GetProgress() {
 
   // Calculate and return the current track position
   const FinalPosition = (Position + deltaTime)
-  return isLocallyPlaying ? FinalPosition : (FinalPosition + Global.NonLocalTimeOffset) ;
+  return FinalPosition + 85;
 }
 
 

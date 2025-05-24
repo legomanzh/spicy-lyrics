@@ -212,11 +212,11 @@ function LinesEvListener(e: MouseEvent) {
             word.Letters.forEach((letter) => {
               if (letter.HTMLElement === target) {
                 startTime = line.StartTime;
+                if (array.length > 0) {
+                  startTime = array[0].StartTime;
+                }
               }
             });
-          }
-          if (array.length > 0) {
-            startTime = array[0].StartTime;
           }
         });
       }

@@ -10,6 +10,7 @@ import { QueueForceScroll, ResetLastLine } from '../../utils/Scrolling/ScrollToA
 import { Maid } from '@socali/modules/Maid';
 import { Interval } from '@socali/modules/Scheduler';
 import BlobURLMaker from "../../utils/BlobURLMaker";
+import { GetCurrentLyricsContainerInstance } from '../../utils/Lyrics/Applyer/CreateLyricsContainer';
 
 // Define interfaces for our control instances
 interface PlaybackControlsInstance {
@@ -775,6 +776,7 @@ function OpenNowBar(skipSaving: boolean = false) {
     } */
     NowBarObj.Open = true;
     PageView.AppendViewControls(true);
+    GetCurrentLyricsContainerInstance()?.Resize();
     QueueForceScroll();
 }
 
@@ -837,6 +839,7 @@ function CloseNowBar() {
     }
 
     PageView.AppendViewControls(true);
+    GetCurrentLyricsContainerInstance()?.Resize();
     QueueForceScroll();
 }
 

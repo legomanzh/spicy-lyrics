@@ -12,10 +12,11 @@ import { NowBar_SwapSides, NowBarObj, Session_NowBar_SetSide, Session_OpenNowBar
 import Fullscreen, { EnterSpicyLyricsFullscreen, ExitFullscreenElement } from "../Utils/Fullscreen";
 import TransferElement from "../Utils/TransferElement";
 import Session from "../Global/Session";
-import { InitializeScrollEvents, ResetLastLine, CleanupScrollEvents, QueueForceScroll } from "../../utils/Scrolling/ScrollToActiveLine";
+import { InitializeScrollEvents, ResetLastLine, CleanupScrollEvents } from "../../utils/Scrolling/ScrollToActiveLine";
 import Global from "../Global/Global";
 import { EnableCompactMode } from "../Utils/CompactMode";
 import { DisableCompactMode } from "../Utils/CompactMode";
+import { DestroyAllLyricsContainers } from "../../utils/Lyrics/Applyer/CreateLyricsContainer";
 
 interface TippyInstance {
     destroy: () => void;
@@ -41,6 +42,7 @@ const PageView = {
     Destroy: DestroyPage,
     AppendViewControls,
     IsOpened: false,
+    IsTippyCapable: true
 };
 
 export const GetPageRoot = () => (
@@ -51,10 +53,16 @@ export const GetPageRoot = () => (
 
 let PageResizeListener: ResizeObserver | null = null;
 
-function OpenPage() {
+function OpenPage(AppendTo: HTMLElement | undefined = undefined, HoverMode: boolean = false) {
     if (PageView.IsOpened) return;
+    if (!HoverMode) {
+        PageView.IsTippyCapable = false;
+    }
     const elem = document.createElement("div");
     elem.id = "SpicyLyricsPage";
+    if (HoverMode) {
+        elem.classList.add("TippyMode");
+    }
     elem.innerHTML = `
         <div class="NotificationContainer">
             <div class="NotificationIcon"></div>
@@ -98,7 +106,11 @@ function OpenPage() {
         elem.classList.add("UseSpicyFont");
     }
 
-    GetPageRoot()?.appendChild(elem);
+    if (AppendTo !== undefined) {
+        AppendTo?.appendChild(elem);
+    } else {
+        GetPageRoot()?.appendChild(elem);
+    }
 
 
     const contentBox = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox");
@@ -115,7 +127,7 @@ function OpenPage() {
         fetchLyrics(currentUri).then(ApplyLyrics);
     }
 
-    Session_OpenNowBar();
+    !HoverMode ? Session_OpenNowBar() : null
 
     /* const ArtworkButton = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .Artwork");
 
@@ -125,16 +137,25 @@ function OpenPage() {
 
     Session_NowBar_SetSide();
 
-    AppendViewControls();
+    !HoverMode ? AppendViewControls() : false
 
     DisableCompactMode();
 
-    PageResizeListener = new ResizeObserver(() => {
-        if (!Fullscreen.IsOpen || !Fullscreen.CinemaViewOpen) return;
-        Compactify(elem);
-    });
+    if (!HoverMode) {
+        PageResizeListener = new ResizeObserver(() => {
+            if (!Fullscreen.IsOpen || !Fullscreen.CinemaViewOpen) return;
+            Compactify(elem);
+        });
+    
+        PageResizeListener.observe(elem);
+    }
 
-    PageResizeListener.observe(elem);
+    {
+        const legacyPage = document.querySelector<HTMLElement>('.Root__main-view .main-view-container .os-host');
+        if (legacyPage) {
+            legacyPage.style.containerType = "inline-size";
+        }
+    }
 
     Defaults.LyricsContainerExists = true;
     PageView.IsOpened = true;
@@ -151,7 +172,6 @@ export function Compactify(Element: HTMLElement | undefined = undefined) {
             elem.querySelector<HTMLElement>(".ContentBox")?.classList.remove("LyricsHidden");
         }
         EnableCompactMode();
-
     } else {
         if (isNoLyrics && (Fullscreen.IsOpen || Fullscreen.CinemaViewOpen)) {
             elem.querySelector<HTMLElement>(".ContentBox .LyricsContainer")?.classList.add("Hidden");
@@ -171,11 +191,19 @@ function DestroyPage() {
     PageResizeListener?.disconnect(); // Disconnect the observer
     PageView.IsOpened = false;
     Defaults.LyricsContainerExists = false;
+    DestroyAllLyricsContainers();
+
+    const legacyPage = document.querySelector<HTMLElement>('.Root__main-view .main-view-container .os-host');
+    if (legacyPage) {
+        legacyPage.style.containerType = "";
+    }
+
     document.querySelector("#SpicyLyricsPage")?.remove();
     removeLinesEvListener();
     Object.values(Tooltips).forEach(a => a?.destroy());
     ScrollSimplebar?.unMount();
     Global.Event.evoke("page:destroy", null);
+    PageView.IsTippyCapable = true;
 }
 
 export let LyricsApplied = false;
@@ -190,7 +218,7 @@ Global.Event.listen("lyrics:apply", ({ Type }: { Type: string }) => {
     if (!Type || Type === "Static") return;
     if (ScrollSimplebar) {
         InitializeScrollEvents(ScrollSimplebar);
-        QueueForceScroll(); // Queue a force scroll instead of directly calling with true
+        //QueueForceScroll(); // Queue a force scroll instead of directly calling with true
         LyricsApplied = true;
     }
 })

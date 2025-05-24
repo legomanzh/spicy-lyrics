@@ -1,7 +1,3 @@
-import Animator from "@spikerko/tools/Animator";
-import BlobURLMaker from "../../utils/BlobURLMaker";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import storage from "../../utils/storage";
 import Defaults from "../Global/Defaults";
 import ArtistVisuals from "./ArtistVisuals/Main";
 import { type CoverArtCache, DynamicBackground, DynamicBackgroundOptions } from "@spikerko/tools/DynamicBackground"
@@ -12,7 +8,7 @@ const CoverArtCacheMap: CoverArtCache = new Map();
 
 export const DynamicBackgroundConfig: DynamicBackgroundOptions = {
     transition: Defaults.PrefersReducedMotion ? 0 : 0.25,
-    blur: 40,
+    blur: 65,
     speed: 0.2,
     coverArtCache: CoverArtCacheMap
 }
@@ -102,7 +98,7 @@ export default async function ApplyDynamicBackground(element: HTMLElement) {
         container.classList.add("spicy-dynamic-bg");
 
         // Set the data-cover-id attribute to match the existing code
-        container.setAttribute("data-cover-id", currentImgCover || "");
+        container.setAttribute("data-cover-id", currentImgCover ?? "");
 
         // Apply the background to the element
         currentBgInstance.AppendToElement(element);

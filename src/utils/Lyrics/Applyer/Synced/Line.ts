@@ -1,4 +1,3 @@
-import { BOTTOM_ApplyLyricsSpacer, TOP_ApplyLyricsSpacer } from "../../../Addons";
 import Defaults from "../../../../components/Global/Defaults";
 import { applyStyles, removeAllStyles } from "../../../CSS/Styles";
 import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../../Scrolling/Simplebar/ScrollSimplebar";
@@ -8,6 +7,7 @@ import { ApplyLyricsCredits } from "../Credits/ApplyLyricsCredits";
 import isRtl from "../../isRtl";
 import { ClearLyricsPageContainer } from "../../fetchLyrics";
 import { EmitApply, EmitNotApplyed } from "../OnApply";
+import { CreateLyricsContainer, DestroyAllLyricsContainers } from "../CreateLyricsContainer";
 
 // Define the data structure for lyrics
 interface LyricsLineData {
@@ -26,10 +26,16 @@ interface LyricsData {
   styles?: Record<string, string>;
 }
 
+
 export function ApplyLineLyrics(data: LyricsData): void {
     if (!Defaults.LyricsContainerExists) return;
     EmitNotApplyed();
-    const LyricsContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
+
+    DestroyAllLyricsContainers();
+
+    const LyricsContainerParent = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
+    const LyricsContainerInstance = CreateLyricsContainer();
+    const LyricsContainer = LyricsContainerInstance.Container;
 
     // Check if LyricsContainer exists
     if (!LyricsContainer) {
@@ -45,7 +51,6 @@ export function ApplyLineLyrics(data: LyricsData): void {
 
     ClearLyricsPageContainer();
 
-    TOP_ApplyLyricsSpacer(LyricsContainer);
 
     if (data.StartTime >= lyricsBetweenShow) {
         const musicalLine = document.createElement("div")
@@ -239,9 +244,12 @@ export function ApplyLineLyrics(data: LyricsData): void {
         }
     })
 
-   ApplyLyricsCredits(data);
+   ApplyLyricsCredits(data, LyricsContainer);
 
-   BOTTOM_ApplyLyricsSpacer(LyricsContainer)
+   
+  if (LyricsContainerParent) {
+    LyricsContainerInstance.Append(LyricsContainerParent);
+  }
 
    if (ScrollSimplebar) RecalculateScrollSimplebar();
     else MountScrollSimplebar();
@@ -262,6 +270,7 @@ export function ApplyLineLyrics(data: LyricsData): void {
   } else {
     console.warn("LyricsStylingContainer not found");
   }
+
 
   EmitApply(data.Type, data.Content)
 }

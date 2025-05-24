@@ -149,7 +149,7 @@ export const SpotifyPlayer = {
         return 0;
     },
     Seek: (position: number): void => {
-        Spicetify.Player.origin.seekTo(position);
+        Spicetify?.Player?.origin?.seekTo(position);
     },
     GetCover: (size: CoverSizes): string | undefined => {
         if (
@@ -158,32 +158,34 @@ export const SpotifyPlayer = {
             Spicetify.Player.data.item.images
         ) {
             const covers = Spicetify.Player.data.item?.images;
-            const cover = covers?.find(cover => cover.label === size) ?? undefined;
-            return cover?.url ?? "https://images.spikerko.org/SongPlaceholderFull.png";
+            if (covers.length > 0) {
+                const cover = covers?.find(cover => cover.label === size) ?? undefined;
+                return cover?.url ?? "https://images.spikerko.org/SongPlaceholderFull.png";
+            }
         }
         return "https://images.spikerko.org/SongPlaceholderFull.png";
     },
-    GetName: () => {
-        return Spicetify.Player.data.item?.name ?? undefined;
+    GetName: (): string | undefined => {
+        return Spicetify?.Player?.data?.item?.name ?? undefined;
     },
     GetAlbumName: (): string | undefined => {
-        return Spicetify.Player.data.item?.metadata.album_title ?? undefined;
+        return Spicetify?.Player?.data?.item?.metadata?.album_title ?? undefined;
     },
     GetId: (): string | undefined => {
-        return Spicetify.Player.data.item?.uri?.split(":")[2] ?? undefined;
+        return Spicetify?.Player?.data?.item?.uri?.split(":")[2] ?? undefined;
     },
     GetArtists: (): Artist[] | undefined => {
-        return Spicetify.Player.data.item?.artists as Artist[] ?? undefined;
+        return Spicetify?.Player?.data?.item?.artists as Artist[] ?? undefined;
     },
     GetUri: (): string | undefined => {
-        return Spicetify.Player.data.item?.uri ?? undefined;
+        return Spicetify?.Player?.data?.item?.uri ?? undefined;
     },
-    Pause: Spicetify.Player.pause,
-    Play: Spicetify.Player.play,
-    TogglePlayState: Spicetify.Player.togglePlay,
+    Pause: Spicetify?.Player?.pause,
+    Play: Spicetify?.Player?.play,
+    TogglePlayState: Spicetify?.Player?.togglePlay,
     Skip: {
-        Next: Spicetify.Player.next,
-        Prev: Spicetify.Player.back
+        Next: Spicetify?.Player?.next,
+        Prev: Spicetify?.Player?.back
     },
     LoopType: "none",
     ShuffleType: "none",
@@ -191,11 +193,6 @@ export const SpotifyPlayer = {
         return (
                 Spicetify.Player.data?.item?.provider &&
                 Spicetify.Player.data?.item?.provider?.startsWith("narration")
-               ) ||
-               (
-                Spicetify.Player.data?.item?.artists &&
-                Spicetify.Player.data?.item?.artists?.length > 0 &&
-                Spicetify.Player.data?.item?.artists[0].name.includes("DJ")
                ) || (
                 Spicetify.Player.data?.restrictions?.disallowSeekingReasons &&
                 Spicetify.Player.data?.restrictions?.disallowSeekingReasons?.length > 0 &&
@@ -206,6 +203,6 @@ export const SpotifyPlayer = {
                 Spicetify.Player.data?.item?.type === "unknown"
                ) ? true : false;
     },
-    IsLiked: () => Spicetify.Player.getHeart(),
-    ToggleLike: () => Spicetify.Player.toggleHeart(),
+    IsLiked: () => Spicetify?.Player?.getHeart(),
+    ToggleLike: () => Spicetify?.Player?.toggleHeart(),
 };

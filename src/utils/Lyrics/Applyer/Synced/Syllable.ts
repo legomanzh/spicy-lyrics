@@ -1,4 +1,3 @@
-import { BOTTOM_ApplyLyricsSpacer, TOP_ApplyLyricsSpacer } from "../../../Addons";
 import Defaults from "../../../../components/Global/Defaults";
 import { applyStyles, removeAllStyles } from "../../../CSS/Styles";
 import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../../Scrolling/Simplebar/ScrollSimplebar";
@@ -11,6 +10,7 @@ import { IdleEmphasisLyricsScale, IdleLyricsScale } from "../../Animator/Shared"
 import isRtl from '../../isRtl';
 import { ClearLyricsPageContainer } from '../../fetchLyrics';
 import { EmitApply, EmitNotApplyed } from '../OnApply';
+import { CreateLyricsContainer, DestroyAllLyricsContainers } from "../CreateLyricsContainer";
 
 // Define the data structure for syllable lyrics
 interface SyllableData {
@@ -50,7 +50,11 @@ interface LyricsData {
 export function ApplySyllableLyrics(data: LyricsData): void {
   if (!Defaults.LyricsContainerExists) return;
   EmitNotApplyed();
-  const LyricsContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
+
+  DestroyAllLyricsContainers();
+  const LyricsContainerParent = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
+  const LyricsContainerInstance = CreateLyricsContainer();
+  const LyricsContainer = LyricsContainerInstance.Container;
 
   // Check if LyricsContainer exists
   if (!LyricsContainer) {
@@ -64,8 +68,7 @@ export function ApplySyllableLyrics(data: LyricsData): void {
   ClearScrollSimplebar();
 
   ClearLyricsPageContainer();
-
-  TOP_ApplyLyricsSpacer(LyricsContainer);
+  
   if (data.StartTime >= lyricsBetweenShow) {
     const musicalLine = document.createElement("div")
     musicalLine.classList.add("line")
@@ -407,9 +410,11 @@ export function ApplySyllableLyrics(data: LyricsData): void {
         }
   });
 
-  ApplyLyricsCredits(data);
-
-  BOTTOM_ApplyLyricsSpacer(LyricsContainer)
+  ApplyLyricsCredits(data, LyricsContainer);
+  
+  if (LyricsContainerParent) {
+    LyricsContainerInstance.Append(LyricsContainerParent);
+  }
 
   if (ScrollSimplebar) RecalculateScrollSimplebar();
     else MountScrollSimplebar();

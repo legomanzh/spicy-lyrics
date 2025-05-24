@@ -18,7 +18,6 @@
   top: 0;
   width: 100%;
   font-weight: 700;
-  z-index: 99;
   user-select: none;
   -webkit-user-drag: none;
 }
@@ -28,10 +27,10 @@
   font-family: SpicyLyrics, "Noto Sans Georgian", "VazirmatnRegular";
 }
 
-body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child,
-body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer,
-body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child,
-body:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer {
+.Root__main-view:has(#SpicyLyricsPage) .main-view-container__scroll-node-child,
+.Root__main-view:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer,
+.Root__main-view:has(#SpicyLyricsPage) .main-view-container__scroll-node-child,
+.Root__main-view:has(#SpicyLyricsPage) .main-view-container__scroll-node-child-spacer {
   display: none;
 }
 

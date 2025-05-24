@@ -651,13 +651,13 @@
     width: calc(30cqh * .25);
 }
 
-#SpicyLyricsPage .ContentBox .NowBar.Active:is(.LeftSide) + .LyricsContainer .LyricsContent .simplebar-content-wrapper .simplebar-content,
-#SpicyLyricsPage .ContentBox .NowBar:not(.Active) + .LyricsContainer .LyricsContent .simplebar-content-wrapper .simplebar-content {
+#SpicyLyricsPage .ContentBox .NowBar.Active:is(.LeftSide) + .LyricsContainer .LyricsContent .simplebar-content-wrapper .SpicyLyricsScrollContainer,
+#SpicyLyricsPage .ContentBox .NowBar:not(.Active) + .LyricsContainer .LyricsContent .simplebar-content-wrapper .SpicyLyricsScrollContainer {
     padding-left: var(--LyricsLeftSidePadding) !important;
     padding-right: var(--LyricsRightSidePadding) !important;
 }
 
-#SpicyLyricsPage .ContentBox .NowBar.Active:is(.RightSide) + .LyricsContainer .LyricsContent .simplebar-content-wrapper .simplebar-content {
+#SpicyLyricsPage .ContentBox .NowBar.Active:is(.RightSide) + .LyricsContainer .LyricsContent .simplebar-content-wrapper .SpicyLyricsScrollContainer {
     padding-right: var(--LyricsLeftSidePadding) !important;
     padding-left: calc(var(--LyricsRightSidePadding) * 1.45) !important;
 }
@@ -757,11 +757,12 @@
 }
 
 #SpicyLyricsPage.Fullscreen.CompactMode .ContentBox .LyricsContainer {
-    padding-top: 21cqh;
-    transition: padding-top .4s;
+    position: relative;
+    top: 21cqh;
+    transition: top .4s;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent .simplebar-content-wrapper .simplebar-content {
+#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent .simplebar-content-wrapper .SpicyLyricsScrollContainer {
     padding-top: 5cqh !important;
 }
 
@@ -782,24 +783,25 @@
     display: none !important;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent .TopSpacer {
-    height: 0 !important;
+#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent .SpicyLyricsScrollContainer {
+    margin-top: 0 !important;
+    margin-bottom: 64cqh !important;
 }
 
 #SpicyLyricsPage.Fullscreen.CompactMode .ContentBox .NowBar:has(.CenteredView .Header .MediaBox:hover) {
     height: calc(var(--Compact_NowBarHeight) + 40cqw);
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent .BottomSpacer {
-    height: 64vh !important;
-}
-
 #SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent {
     --DefaultLyricsSize: clamp(3rem, calc(1cqw* 7), 4rem);
 }
 
+#SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent {
+    --DefaultLyricsSize: clamp(2.5rem, calc(1cqw* 7), 3.5rem);
+}
+
 #SpicyLyricsPage.Fullscreen.CompactMode:has(.MediaBox:hover) .ContentBox .LyricsContainer {
-    padding-top: calc(var(--Compact_NowBarHeight) + 50cqw);
+    top: calc(var(--Compact_NowBarHeight) + 50cqw);
 }
 
 #SpicyLyricsPage.Fullscreen.CompactMode .ContentBox .NowBar .CenteredView .Header:has(.MediaBox:hover) .Metadata {
@@ -811,26 +813,41 @@
     padding: 0 0 10cqh !important;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent:has(.OppositeAligned) .line.OppositeAligned:not(.rtl) {
+#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent:has(.OppositeAligned) .line.OppositeAligned:not(.rtl),
+#SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent:has(.OppositeAligned) .line.OppositeAligned:not(.rtl) {
   padding-left: 10cqw;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent:has(.OppositeAligned) .line:not(.OppositeAligned, .rtl) {
+#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent:has(.OppositeAligned) .line:not(.OppositeAligned, .rtl),
+#SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent:has(.OppositeAligned) .line:not(.OppositeAligned, .rtl) {
   padding-right: 10cqw;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line.OppositeAligned {
+#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line.OppositeAligned,
+#SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line.OppositeAligned {
   padding-right: 10cqw;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line:not(.OppositeAligned) {
+#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line:not(.OppositeAligned),
+#SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line:not(.OppositeAligned) {
   padding-left: 10cqw;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent:not(:has(.OppositeAligned)) .line {
+#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent:not(:has(.OppositeAligned)) .line,
+#SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent:not(:has(.OppositeAligned)) .line {
   padding-right: 2cqw;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent:not(:has(.OppositeAligned)) .line.rtl {
+#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent:not(:has(.OppositeAligned)) .line.rtl,
+#SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent:not(:has(.OppositeAligned)) .line.rtl {
   padding-left: 2cqw;
+}
+
+#SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent {
+    --LyricsLeftSidePadding: 13.5cqw;
+    --LyricsRightSidePadding: 11.5cqw;
+}
+
+#SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent .TopSpacer {
+    height: 9.5vh !important;
 }

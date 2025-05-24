@@ -1,3 +1,4 @@
+import { GetCurrentLyricsContainerInstance } from "../../utils/Lyrics/Applyer/CreateLyricsContainer";
 import Fullscreen from "./Fullscreen";
 import { Session_NowBar_SetSide } from "./NowBar";
 
@@ -14,6 +15,7 @@ export const EnableCompactMode = () => {
     NowBar.classList.add("LeftSide");
     NowBar.classList.remove("RightSide");
     CompactMode = true;
+    GetCurrentLyricsContainerInstance()?.Resize();
 }
 
 export const DisableCompactMode = () => {
@@ -22,6 +24,7 @@ export const DisableCompactMode = () => {
     SpicyLyricsPage.classList.remove("CompactMode");
     Session_NowBar_SetSide();
     CompactMode = false;
+    GetCurrentLyricsContainerInstance()?.Resize();
 }
 
 export const IsCompactMode = () => {
