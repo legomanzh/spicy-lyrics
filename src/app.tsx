@@ -299,8 +299,10 @@ async function main() {
 			} else {
 				for (const element of controlsContainer.children) {
 					if (
-						(element.attributes.getNamedItem("data-testid")?.value === "fullscreen-mode-button" ||
-             element.attributes.getNamedItem("aria-label")?.value === "Full screen")
+						(
+              element.attributes.getNamedItem("data-testid")?.value === "fullscreen-mode-button" ||
+              (element.classList.contains("control-button") && !element.classList.contains("volume-bar__icon-button") && !element.classList.contains("main-devicePicker-controlButton"))
+            )
 						&& (element.id !== "SpicyLyrics_FullscreenButton")
 					) {
 						(element as HTMLElement).style.display = "none"
@@ -363,8 +365,7 @@ async function main() {
       if (Defaults.StaticBackground || coverUrl === undefined) return;
       const nowPlayingBar =
         document.querySelector<HTMLElement>(".Root__right-sidebar aside.NowPlayingView") ??
-        document.querySelector<HTMLElement>(`.Root__right-sidebar aside#Desktop_PanelContainer_Id:is([aria-label="Now playing view"])`) ??
-        document.querySelector<HTMLElement>(`.Root__right-sidebar aside#Desktop_PanelContainer_Id:is([aria-label="Now Playing View"])`);
+        document.querySelector<HTMLElement>(`.Root__right-sidebar aside#Desktop_PanelContainer_Id:has(.main-nowPlayingView-coverArtContainer)`);
 
       try {
         if (!nowPlayingBar) {
