@@ -1,3 +1,4 @@
+import "./components/Utils/GlobalExecute";
 import fetchLyrics from "./utils/Lyrics/fetchLyrics";
 import { ScrollingIntervalTime } from "./utils/Lyrics/lyrics";
 import storage from "./utils/storage";
@@ -20,6 +21,7 @@ import "./components/PlaylistBGs/main";
 import "./css/default.css";
 import "./css/Simplebar.css";
 import "./css/ContentBox.css";
+// import "./css/SongMoreInfo.css";
 import "./css/DynamicBG/spicy-dynamic-bg.css"
 import "./css/Lyrics/main.css"
 import "./css/Lyrics/Mixed.css"
@@ -35,6 +37,7 @@ import Sockets from "./utils/Sockets/main";
 import Fullscreen from "./components/Utils/Fullscreen";
 import { Defer } from "@socali/modules/Scheduler";
 import { DynamicBackground } from "@spikerko/tools/DynamicBackground";
+// In development: import "./components/Utils/Annotations";
 
 async function main() {
   await Platform.OnSpotifyReady;
@@ -171,6 +174,21 @@ async function main() {
           }
         }
 
+        @keyframes Marquee_SongName_SongMoreInfo {
+          0% {
+            transform: translateX(calc(0px + min(-100% + 98cqw, 0px) * 0));
+          }
+          10% {
+            transform: translateX(calc(0px + min(-100% + 98cqw, 0px) * 0));
+          }
+          90% {
+            transform: translateX(calc(0px + min(-100% + 98cqw, 0px) * 1));
+          }
+          100% {
+            transform: translateX(calc(0px + min(-100% + 98cqw, 0px) * 1));
+          }
+        }
+
         @keyframes Marquee_Artists {
           0% {
             transform: translateX(calc(0px + min(-100% + 81cqw, 0px) * 0));
@@ -183,6 +201,21 @@ async function main() {
           }
           100% {
             transform: translateX(calc(0px + min(-100% + 81cqw, 0px) * 1));
+          }
+        }
+
+        @keyframes Marquee_Artists_SongMoreInfo {
+          0% {
+            transform: translateX(calc(0px + min(-100% + 98cqw, 0px) * 0));
+          }
+          10% {
+            transform: translateX(calc(0px + min(-100% + 98cqw, 0px) * 0));
+          }
+          90% {
+            transform: translateX(calc(0px + min(-100% + 98cqw, 0px) * 1));
+          }
+          100% {
+            transform: translateX(calc(0px + min(-100% + 98cqw, 0px) * 1));
           }
         }
 
@@ -316,7 +349,7 @@ async function main() {
   const button = ButtonList[0];
 
   const Hometinue = async () => {
-    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.0.2";
+    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.1.6";
     await Sockets.all.ConnectSockets();
 
     Whentil.When(() => Spicetify.Platform.PlaybackAPI, () => {

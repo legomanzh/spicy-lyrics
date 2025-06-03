@@ -15,6 +15,7 @@ const Defaults = {
     StaticBackground: false,
     StaticBackgroundType_Preset: 0,
     StaticBackgroundType: "Auto",
+    DevMode: false,
 }
 
 export default Defaults;

@@ -104,6 +104,13 @@ function OpenNowBar(skipSaving: boolean = false) {
 
     if (!skipSaving) storage.set("IsNowBarOpen", "true");
 
+    setTimeout(() => {
+        // console.log("Resizing Lyrics Container");
+        GetCurrentLyricsContainerInstance()?.Resize();
+        // console.log("Forcing Scroll");
+        QueueForceScroll();
+    }, 10);
+
 
     if (Fullscreen.IsOpen) {
         const MediaBox = document.querySelector(
@@ -776,8 +783,6 @@ function OpenNowBar(skipSaving: boolean = false) {
     } */
     NowBarObj.Open = true;
     PageView.AppendViewControls(true);
-    GetCurrentLyricsContainerInstance()?.Resize();
-    QueueForceScroll();
 }
 
 function CleanUpActiveComponents() {
@@ -838,9 +843,14 @@ function CloseNowBar() {
         spicyLyricsPage.classList.add("NowBarStatus__Closed");
     }
 
+    setTimeout(() => {
+        // console.log("Resizing Lyrics Container");
+        GetCurrentLyricsContainerInstance()?.Resize();
+        // console.log("Forcing Scroll");
+        QueueForceScroll();
+    }, 10);
+
     PageView.AppendViewControls(true);
-    GetCurrentLyricsContainerInstance()?.Resize();
-    QueueForceScroll();
 }
 
 function ToggleNowBar() {

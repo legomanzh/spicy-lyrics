@@ -17,6 +17,7 @@ import Global from "../Global/Global";
 import { EnableCompactMode } from "../Utils/CompactMode";
 import { DisableCompactMode } from "../Utils/CompactMode";
 import { DestroyAllLyricsContainers } from "../../utils/Lyrics/Applyer/CreateLyricsContainer";
+// import { UpdateSongMoreInfo } from "../Utils/Annotations";
 
 interface TippyInstance {
     destroy: () => void;
@@ -29,12 +30,14 @@ export const Tooltips: {
     FullscreenToggle: TippyInstance | null;
     CinemaView: TippyInstance | null;
     NowBarSideToggle: TippyInstance | null;
+    DevTools: TippyInstance | null;
 } = {
     Close: null,
     NowBarToggle: null,
     FullscreenToggle: null,
     CinemaView: null,
-    NowBarSideToggle: null
+    NowBarSideToggle: null,
+    DevTools: null
 }
 
 const PageView = {
@@ -100,6 +103,30 @@ function OpenPage(AppendTo: HTMLElement | undefined = undefined, HoverMode: bool
             <div class="ViewControls"></div>
         </div>
     `
+    /* 
+        <div class="SongMoreInfo">
+            <div class="Content">
+                <div class="SongMetadata">
+                    <img src="" class="SongArtwork">
+                    <div class="SongMetadataTextContent">
+                        <p class="SongName">
+                            <span></span>
+                        </p>
+                        <p class="ArtistsNames">
+                            <span></span>
+                        </p>
+                    </div>
+                </div>
+                <div class="SongAnnotation">
+                    <div class="BackgroundVisualizer">    
+                        <p class="Annotation">
+                            <span></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    */
 
     const SkipSpicyFont = storage.get("skip-spicy-font");
     if (SkipSpicyFont != "true") {
@@ -157,9 +184,16 @@ function OpenPage(AppendTo: HTMLElement | undefined = undefined, HoverMode: bool
         }
     }
 
+    // UpdateSongMoreInfo()
+
     Defaults.LyricsContainerExists = true;
     PageView.IsOpened = true;
 }
+
+/* Global.Event.listen("playback:songchange", () => {
+    if (!PageView.IsOpened) return;
+    UpdateSongMoreInfo();
+}) */
 
 export function Compactify(Element: HTMLElement | undefined = undefined) {
     if (!Fullscreen.IsOpen) return;
@@ -238,11 +272,13 @@ function AppendViewControls(ReAppend: boolean = false) {
 
     if (ReAppend) elem.innerHTML = "";
     const isNoLyrics = storage.get("currentLyricsData")?.toString() === `NO_LYRICS:${SpotifyPlayer.GetId()}`;
+    const isDevMode = storage.get("devMode") === "true";
     elem.innerHTML = `
         ${Fullscreen.IsOpen ? "" : `<button id="CinemaView" class="ViewControl">${Icons.CinemaView}</button>`}
         ${(!Fullscreen.IsOpen && !Fullscreen.CinemaViewOpen) ? `<button id="NowBarToggle" class="ViewControl">${Icons.NowBar}</button>` : ""}
         ${NowBarObj.Open && !(isNoLyrics && (Fullscreen.IsOpen || Fullscreen.CinemaViewOpen)) ? `<button id="NowBarSideToggle" class="ViewControl">${Icons.Fullscreen}</button>` : ""}
         ${Fullscreen.IsOpen ? `<button id="FullscreenToggle" class="ViewControl">${Fullscreen.CinemaViewOpen ? Icons.Fullscreen : Icons.CloseFullscreen}</button>` : ""}
+        ${isDevMode ? `<button id="DevTools" class="ViewControl">${Icons.DevTools}</button>` : ""}
         <button id="Close" class="ViewControl">${Icons.Close}</button>
     `
 
@@ -367,6 +403,43 @@ function AppendViewControls(ReAppend: boolean = false) {
                 nowBarSideToggleBtn.addEventListener("click", () => NowBar_SwapSides());
             } catch (err) {
                 console.warn("Failed to setup NowBarSideToggle tooltip:", err);
+            }
+        }
+
+        const devToolsButton = elem.querySelector("#DevTools");
+        if (devToolsButton && isDevMode) {
+            try {
+                Tooltips.DevTools = Spicetify.Tippy(
+                    devToolsButton,
+                    {
+                        ...Spicetify.TippyProps,
+                        content: `DevTools`
+                    }
+                );
+                devToolsButton.addEventListener("click", () => {
+                    Spicetify.PopupModal.display({
+                        title: "Spicy Lyrics DevTools",
+                        isLarge: true,
+                        content: `
+                            <div class="SpicyLyricsDevToolsContainer">
+                                <div class="Setting">
+                                    <div class="SettingName"><span>Upload TTML (for the current song)</span></div>
+                                    <div class="SettingValue">
+                                        <button onclick="window._spicy_lyrics.execute('upload-ttml')">Upload</button>
+                                    </div>
+                                </div>
+                                <div class="Setting">
+                                    <div class="SettingName"><span>Reset TTML (for the current song)</span></div>
+                                    <div class="SettingValue">
+                                        <button onclick="window._spicy_lyrics.execute('reset-ttml')">Reset</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    })
+                });
+            } catch (err) {
+                console.warn("Failed to setup DevTools tooltip:", err);
             }
         }
     }
@@ -500,4 +573,24 @@ export function SpicyLyrics_Notification({
 
 SocketStatusChange(isWsConnected); */
 
+type NotificationVariant = "info" | "success" | "warning" | "error";
+
+export const ShowNotification = (content: string, variant: NotificationVariant = "info", autoHideDuration: number = 5000) => {
+    const AnySpicetify = Spicetify as any;
+	AnySpicetify.Snackbar.enqueueSnackbar(
+		Spicetify.React.createElement(
+			"div",
+			{
+				dangerouslySetInnerHTML: {
+					__html: content
+				}
+			}
+		), {
+			variant,
+			autoHideDuration
+		}
+	)
+}
+
 export default PageView;
+
