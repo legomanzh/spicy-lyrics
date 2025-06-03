@@ -163,7 +163,7 @@
   -webkit-box-pack: center
 }
 
-#SpicyLyricsPage .ViewControls .ViewControl svg {
+#SpicyLyricsPage .ViewControls .ViewControl svg:not(.NoFill) {
   fill: currentColor;
 }
 
@@ -298,4 +298,44 @@ body:not(:has(.Root__main-view-overlay .BeautifulLyricsPage:is(.Fullscreen))) #B
 
 .GenericModal__overlay {
   z-index: 999;
+}
+
+.SpicyLyricsDevToolsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1cqh;
+}
+
+.SpicyLyricsDevToolsContainer .Setting {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.SpicyLyricsDevToolsContainer .Setting .SettingName {
+  font-size: .95rem;
+  font-weight: 400;
+}
+
+.SpicyLyricsDevToolsContainer .Setting .SettingValue {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.SpicyLyricsDevToolsContainer .Setting .SettingValue button {
+  background-color: white;
+  color: black;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: .9rem;
+  font-weight: 400;
+}
+
+.SpicyLyricsDevToolsContainer .Setting .SettingValue button:hover {
+  background-color:rgb(206, 206, 206);
 }

@@ -56,6 +56,8 @@
   overflow: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  will-change: transform;
+  transform: translate3d(0px, 0px, 0px);
 }
 
 #SpicyLyricsPage .simplebar-content-wrapper::-webkit-scrollbar,

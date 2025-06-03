@@ -45,6 +45,12 @@ function devSettings() {
     });
 
 
+    settings.addToggle("dev-mode", "Dev Mode", Defaults.DevMode, () => {
+        storage.set("devMode", settings.getFieldValue("dev-mode") as string)
+        window.location.reload();
+    });
+
+
     settings.pushSettings();
 }
 
