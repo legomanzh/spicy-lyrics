@@ -113,6 +113,7 @@
     filter: brightness(var(--ArtworkBrightness));
     background-size: cover;
     background-repeat: no-repeat;
+    will-change: filter;
 }
 
 /* #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .Header .MediaBox .MediaContent .AlbumData {
@@ -315,6 +316,7 @@
     align-items: center;
     flex-direction: column;
     opacity: var(--ControlsOpacity);
+    will-change: opacity;
 }
 
 /* #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .Header .MediaBox:hover .MediaContent {

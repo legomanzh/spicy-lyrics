@@ -1,4 +1,5 @@
-import { SendJob } from "../../utils/API/SendJob";
+// @ts-expect-error
+import { SendJob } from "../../packages/sljob.dist.mjs";
 import fetchLyrics from "../../utils/Lyrics/fetchLyrics";
 import ApplyLyrics from "../../utils/Lyrics/Global/Applyer";
 import storage from "../../utils/storage";
@@ -22,11 +23,12 @@ Global.SetScope("execute", (command: string) => {
                         // console.log("TTML file loaded:", ttml);
                         ShowNotification("Found TTML, Parsing...", "info", 5000);
                         ParseTTML(ttml)
-                            .then((result) => {
-                                storage.set("currentLyricsData", JSON.stringify({
+                            .then(async (result) => {
+                                const dataToSave = JSON.stringify({
                                     ...result?.Result,
                                     id: SpotifyPlayer.GetId()
-                                }));
+                                })
+                                storage.set("currentLyricsData", dataToSave);
                                 setTimeout(() => {
                                     fetchLyrics(SpotifyPlayer.GetUri() ?? "").then((lyrics) => {
                                         ApplyLyrics(lyrics);

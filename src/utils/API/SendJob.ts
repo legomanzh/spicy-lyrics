@@ -1,3 +1,6 @@
+/*
+// DEPRECATED
+
 import Defaults from "../../components/Global/Defaults";
 
 const API_URL = Defaults.lyrics.api.url;
@@ -21,7 +24,7 @@ export type JobResult = {
 
 /**
  * Interface for the job result getter
- */
+ *
 export interface JobResultGetter {
     get(handler: string): JobResult | undefined;
 }
@@ -31,7 +34,7 @@ export interface JobResultGetter {
  * @param jobs - Array of jobs to send
  * @param headers - Optional headers to include in the request
  * @returns Object with a get method to retrieve job results
- */
+ *
 export async function SendJob(jobs: Job[], headers: Record<string, string> = {}): Promise<JobResultGetter> {
     const res = await fetch(`${API_URL}/batch`, {
         method: "POST",
@@ -54,3 +57,4 @@ export async function SendJob(jobs: Job[], headers: Record<string, string> = {})
         },
     };
 }
+ */

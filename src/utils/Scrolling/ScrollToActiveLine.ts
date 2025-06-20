@@ -6,6 +6,7 @@ import { ScrollIntoCenterViewCSS } from "../ScrollIntoView/Center";
 import SimpleBar from 'simplebar';
 import { ScrollIntoTopViewCSS } from "../ScrollIntoView/Top";
 import { IsCompactMode } from "../../components/Utils/CompactMode";
+import Global from "../../components/Global/Global";
 
 // Define intersection types that include _LineIndex
 type LyricsLineWithIndex = LyricsLine & { _LineIndex: number };
@@ -16,7 +17,7 @@ type EnhancedLyricsItem = LyricsLineWithIndex | LyricsSyllableWithIndex;
 let lastLine: HTMLElement | null = null;
 let isUserScrolling = false;
 let lastUserScrollTime = 0;
-let lastPosition: number | null = null;
+let lastPosition: number = 0;
 const USER_SCROLL_COOLDOWN = 750; // 0.75 second cooldown
 const POSITION_THRESHOLD = 500; // 500ms threshold for start/end detection
 
@@ -145,7 +146,29 @@ const GetScrollType = (): "Center" | "Top" => {
     return IsCompactMode() ? "Top" : "Center";
 }
 
+const policyEventPreset = "policy:"
+
+let allowForceScrolling = true;
+let waitingForHeight = true;
+
+export const SetForceScrollingPolicy = (value: boolean) => {
+    allowForceScrolling = value; // true = allow force scrolling, false = disallow force scrolling
+    Global.Event.evoke(`${policyEventPreset}force-scrolling`, value);
+}
+export const GetForceScrollingPolicy = () => {
+    return allowForceScrolling;
+}
+
+export const SetWaitingForHeight = (value: boolean) => {
+    waitingForHeight = value;
+    Global.Event.evoke(`${policyEventPreset}waiting-for-height`, value);
+}
+export const IsWaitingForHeight = () => {
+    return waitingForHeight;
+}
+
 export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
+    if (waitingForHeight) return;
     if (Defaults.CurrentLyricsType === "Static" || Defaults.CurrentLyricsType === "None") return;
     if (!Defaults.LyricsContainerExists) return;
 
@@ -171,14 +194,15 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
         const allLinesSung = Lines.every((line: any) => line.Status === "Sung");
         const shouldForceScroll = (isForceScrollQueued || lastLine == null);
 
-        if (((shouldForceScroll) || (!SpotifyPlayer.IsPlaying && lastPosition !== Position) || (wasDrasticPositionChange(lastPosition ?? 0, Position)))) {
+        if (((shouldForceScroll) || (!SpotifyPlayer.IsPlaying && lastPosition !== Position) || (lastPosition !== 0 && wasDrasticPositionChange(lastPosition ?? 0, Position)))) {
+            if (!allowForceScrolling) return;
             const container = ScrollSimplebar?.getScrollElement() as HTMLElement;
             if (!container) return;
             isUserScrolling = false;
             const scrollToLine = allLinesSung ? Lines[Lines.length - 1]?.HTMLElement : currentLine?.HTMLElement;
             if (!scrollToLine) return
             lastLine = scrollToLine;
-            ScrollTo(container, scrollToLine, (wasDrasticPositionChange(lastPosition ?? 0, Position) ? false : true), GetScrollType());
+            ScrollTo(container, scrollToLine, (lastPosition !== 0 && wasDrasticPositionChange(lastPosition ?? 0, Position) ? false : true), GetScrollType());
             if (forceScrollQueued) {
                 forceScrollQueued = false; // Reset the queue after using it
             }
@@ -189,6 +213,7 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
         lastPosition = Position;
 
         if ((isSmoothForceScrollQueued)) {
+            if (!allowForceScrolling) return;
             const container = ScrollSimplebar?.getScrollElement() as HTMLElement;
             if (!container) return;
             isUserScrolling = false;
@@ -330,7 +355,7 @@ export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
                             scrolledToFirstLine = false;
                         }
                         if (Lines[currentLine._LineIndex - 1] && Lines[currentLine._LineIndex - 1].DotLine === true) {
-                            setTimeout(Scroll, 175);
+                            setTimeout(Scroll, 240);
                         } else {
                             Scroll();
                         }
@@ -355,7 +380,7 @@ export function ResetLastLine() {
     lastLine = null;
     isUserScrolling = false;
     lastUserScrollTime = 0;
-    lastPosition = null;
+    lastPosition = 0;
     forceScrollQueued = false;
     smoothForceScrollQueued = false;
     scrolledToLastLine = false;

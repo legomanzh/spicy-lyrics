@@ -892,9 +892,10 @@ function UpdateNowBar(force = false) {
         MediaImage.classList.add("Skeletoned");
         const finalUrl = `https://i.scdn.co/image/${coverArt.replace("spotify:image:", "")}`;
         BlobURLMaker(finalUrl)
+        .catch(() => null)
         .then(coverArtUrl => {
             MediaImage.classList.remove("Skeletoned")
-            MediaImage.style.backgroundImage = `url("${coverArtUrl ?? finalUrl}")`;
+            MediaImage.style.backgroundImage = `url("${coverArtUrl ?? coverArt}")`;
             MediaImage.setAttribute("last-image", coverArt ?? "");
         })
     }
@@ -962,6 +963,13 @@ function NowBar_SwapSides() {
         spicyLyricsPage.classList.remove("NowBarSide__Left");
         spicyLyricsPage.classList.add("NowBarSide__Right");
     }
+
+    setTimeout(() => {
+        // console.log("Resizing Lyrics Container");
+        GetCurrentLyricsContainerInstance()?.Resize();
+        // console.log("Forcing Scroll");
+        QueueForceScroll();
+    }, 10);
 }
 
 function Session_NowBar_SetSide() {
@@ -991,6 +999,12 @@ function Session_NowBar_SetSide() {
         spicyLyricsPage.classList.remove("NowBarSide__Right");
         spicyLyricsPage.classList.add("NowBarSide__Left");
     }
+    setTimeout(() => {
+        // console.log("Resizing Lyrics Container");
+        GetCurrentLyricsContainerInstance()?.Resize();
+        // console.log("Forcing Scroll");
+        QueueForceScroll();
+    }, 10);
 }
 
 function DeregisterNowBarBtn() {

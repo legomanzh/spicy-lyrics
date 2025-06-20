@@ -34,15 +34,18 @@ function BOTTOM_ApplyLyricsSpacer(Container: HTMLElement) {
     Container.appendChild(div);
 }
 
-
 function GetContainerHeight(Container: HTMLElement) {
-    Container.style.height = "0px";
-    return Container.scrollHeight;
-    /* const style = globalThis.getComputedStyle(Container)
-    const marginTop = parseFloat(style.marginTop)
-    const marginBottom = parseFloat(style.marginBottom)
+    //const style = globalThis.getComputedStyle(Container);
+    let height = 0;//parseFloat(style.marginTop) + parseFloat(style.marginBottom);
 
-    return (Container.scrollHeight + marginTop + marginBottom) */
+    for (const child of Array.from(Container.children)) {
+        if (child instanceof HTMLElement) {
+            const childStyle = globalThis.getComputedStyle(child);
+            height += child.offsetHeight + parseFloat(childStyle.marginTop) + parseFloat(childStyle.marginBottom);
+        }
+    }
+
+    return height;
 }
 
 export const ArabicPersianRegex = /[\u0600-\u06FF]/;

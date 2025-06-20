@@ -15,8 +15,6 @@ import { ScrollSimplebar } from "./utils/Scrolling/Simplebar/ScrollSimplebar";
 import ApplyLyrics from "./utils/Lyrics/Global/Applyer";
 import { UpdateNowBar } from "./components/Utils/NowBar";
 import { requestPositionSync } from "./utils/Gets/GetProgress";
-import "./components/PlaylistBGs/main";
-
 // CSS Imports
 import "./css/default.css";
 import "./css/Simplebar.css";
@@ -39,71 +37,14 @@ import { Defer } from "@socali/modules/Scheduler";
 import { DynamicBackground } from "@spikerko/tools/DynamicBackground";
 // In development: import "./components/Utils/Annotations";
 
+// @ts-expect-error
+import { SetupJobPackage } from "./packages/sljob.dist.mjs";
+
 async function main() {
   await Platform.OnSpotifyReady;
 
-  if (!storage.get("show_topbar_notifications")) {
-    storage.set("show_topbar_notifications", "true")
-  }
-
- /*  if (!storage.get("lyrics_spacing")) {
-    storage.set("lyrics_spacing", "Medium");
-  } */
-
-  if (!storage.get("prefers_reduced_motion")) {
-    storage.set("prefers_reduced_motion", "false");
-  }
-
-  if (storage.get("prefers_reduced_motion")) {
-    const prefersReducedMotion = storage.get("prefers_reduced_motion") === "true";
-    Defaults.PrefersReducedMotion = prefersReducedMotion;
-  }
-
-  if (!storage.get("staticBackgroundType")) {
-    storage.set("staticBackgroundType", "Auto");
-  }
-
-  if (storage.get("staticBackgroundType")) {
-    Defaults.StaticBackgroundType = storage.get("staticBackgroundType") as string;
-  }
-
-  if (!storage.get("staticBackground")) {
-    storage.set("staticBackground", "false");
-  }
-
-  if (storage.get("staticBackground")) {
-    Defaults.StaticBackground = storage.get("staticBackground") === "true";
-  }
-
-  /* if (storage.get("lyrics_spacing")) {
-    if (storage.get("lyrics_spacing") === "None") {
-      document.querySelector("html").style.setProperty("--SpicyLyrics-LineSpacing", "0");
-    }
-    if (storage.get("lyrics_spacing") === "Small") {
-      document.querySelector("html").style.setProperty("--SpicyLyrics-LineSpacing", "0.5cqw 0");
-    }
-    if (storage.get("lyrics_spacing") === "Medium") {
-      document.querySelector("html").style.setProperty("--SpicyLyrics-LineSpacing", "1cqw 0");
-    }
-    if (storage.get("lyrics_spacing") === "Large") {
-      document.querySelector("html").style.setProperty("--SpicyLyrics-LineSpacing", "1.5cqw 0");
-    }
-    if (storage.get("lyrics_spacing") === "Extra Large") {
-      document.querySelector("html").style.setProperty("--SpicyLyrics-LineSpacing", "2cqw 0");
-    }
-  } */
-
-  // Lets set out the Settings Menu
-  setSettingsMenu();
-
-  const OldStyleFont = storage.get("old-style-font");
-  if (OldStyleFont != "true") {
-    LoadFonts();
-    ApplyFontPixel();
-  }
-
-  // Lets import the required Scripts from our CDN
-  {
+   // Lets import the required Scripts from our CDN
+   {
     const scripts: HTMLScriptElement[] = [];
     const GetFullUrl = (target: string) => `https://public.storage.spicylyrics.org/tools/${target}`;
 
@@ -148,6 +89,89 @@ async function main() {
     Global.SetScope("func_main._deappend_scripts", DeappendScripts) */
     AppendScripts();
   }
+  
+  await new Promise<void>(
+    resolve => {
+      const interval = setInterval(
+        () => {
+          if (((window as any).pako) !== undefined) {
+            clearInterval(interval)
+            resolve()
+          }
+        },
+        10
+      )
+    }
+  )
+
+  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.2.0";
+
+  await SetupJobPackage({
+    api_url: Defaults.lyrics.api.url,
+    version: Defaults.SpicyLyricsVersion
+  });
+
+  if (!storage.get("show_topbar_notifications")) {
+    storage.set("show_topbar_notifications", "true")
+  }
+
+ /*  if (!storage.get("lyrics_spacing")) {
+    storage.set("lyrics_spacing", "Medium");
+  } */
+
+  /* if (!storage.get("prefers_reduced_motion")) {
+    storage.set("prefers_reduced_motion", "false");
+  } */
+
+  /* if (storage.get("prefers_reduced_motion")) {
+    const prefersReducedMotion = storage.get("prefers_reduced_motion") === "true";
+    Defaults.PrefersReducedMotion = prefersReducedMotion;
+  } */
+
+  if (!storage.get("staticBackgroundType")) {
+    storage.set("staticBackgroundType", "Auto");
+  }
+
+  if (storage.get("staticBackgroundType")) {
+    Defaults.StaticBackgroundType = storage.get("staticBackgroundType") as string;
+  }
+
+  if (!storage.get("staticBackground")) {
+    storage.set("staticBackground", "false");
+  }
+
+  if (storage.get("staticBackground")) {
+    Defaults.StaticBackground = storage.get("staticBackground") === "true";
+  }
+
+  /* if (storage.get("lyrics_spacing")) {
+    if (storage.get("lyrics_spacing") === "None") {
+      document.querySelector("html").style.setProperty("--SpicyLyrics-LineSpacing", "0");
+    }
+    if (storage.get("lyrics_spacing") === "Small") {
+      document.querySelector("html").style.setProperty("--SpicyLyrics-LineSpacing", "0.5cqw 0");
+    }
+    if (storage.get("lyrics_spacing") === "Medium") {
+      document.querySelector("html").style.setProperty("--SpicyLyrics-LineSpacing", "1cqw 0");
+    }
+    if (storage.get("lyrics_spacing") === "Large") {
+      document.querySelector("html").style.setProperty("--SpicyLyrics-LineSpacing", "1.5cqw 0");
+    }
+    if (storage.get("lyrics_spacing") === "Extra Large") {
+      document.querySelector("html").style.setProperty("--SpicyLyrics-LineSpacing", "2cqw 0");
+    }
+  } */
+
+  // Lets set out the Settings Menu
+  setSettingsMenu();
+
+  const OldStyleFont = storage.get("old-style-font");
+  if (OldStyleFont != "true") {
+    LoadFonts();
+    ApplyFontPixel();
+  }
+
+ 
 
   const skeletonStyle = document.createElement("style");
   skeletonStyle.innerHTML = `
@@ -251,51 +275,65 @@ async function main() {
   `
   document.head.appendChild(skeletonStyle);
 
-  const ButtonList = [
-    {
-      Registered: false,
-      Button: new Spicetify.Playbar.Button(
-        "Spicy Lyrics",
-        Icons.LyricsPage,
-        (self) => {
-            if (!self.active) {
-              Session.Navigate({ pathname: "/SpicyLyrics" });
-              if (Global.Saves.shift_key_pressed) {
-                const pageWhentil = Whentil.When(() => document.querySelector<HTMLElement>(".Root__main-view #SpicyLyricsPage"), () => {
-                  Fullscreen.Open(true);
-                  pageWhentil?.Cancel();
-                });
+  let ButtonList: any = undefined;
+  if (Spicetify.Playbar && Spicetify.Playbar.Button) {
+    ButtonList = [
+      {
+        Registered: false,
+        Button: new Spicetify.Playbar.Button(
+          "Spicy Lyrics",
+          Icons.LyricsPage,
+          (self) => {
+              if (!self.active) {
+                /* const isNewFullscreen = document.querySelector<HTMLElement>(".QdB2YtfEq0ks5O4QbtwX .WRGTOibB8qNEkgPNtMxq");
+                if (isNewFullscreen) {
+                  PageView.Open();
+                  self.active = true;
+                } else { */
+                  Session.Navigate({ pathname: "/SpicyLyrics" });
+                  if (Global.Saves.shift_key_pressed) {
+                    const pageWhentil = Whentil.When(() => document.querySelector<HTMLElement>(".Root__main-view #SpicyLyricsPage"), () => {
+                      Fullscreen.Open(true);
+                      pageWhentil?.Cancel();
+                    });
+                  } 
+                //}
+              } else {
+                /* const isNewFullscreen = document.querySelector<HTMLElement>(".QdB2YtfEq0ks5O4QbtwX .WRGTOibB8qNEkgPNtMxq");
+                if (isNewFullscreen) {
+                  PageView.Destroy();
+                  self.active = false;
+                } else { */
+                  Session.GoBack();
+                //}
               }
-            } else {
-              Session.GoBack();
-            }
-        },
-        false,
-        false,
-      )
-    },
-    {
-      Registered: false,
-      Button: new Spicetify.Playbar.Button(
-        "Enter Fullscreen",
-        Icons.Fullscreen,
-        (self) => {
-            if (!self.active) {
-              Session.Navigate({ pathname: "/SpicyLyrics" });
-              const pageWhentil = Whentil.When(() => document.querySelector<HTMLElement>(".Root__main-view #SpicyLyricsPage"), () => {
-                Fullscreen.Open(Global.Saves.shift_key_pressed ?? false);
-                pageWhentil?.Cancel();
-              })
-            } else {
-              Session.GoBack();
-            }
-        },
-        false,
-        false,
-      )
-    }
-  ]
-
+          },
+          false,
+          false,
+        )
+      },
+      {
+        Registered: false,
+        Button: new Spicetify.Playbar.Button(
+          "Enter Fullscreen",
+          Icons.Fullscreen,
+          (self) => {
+              if (!self.active) {
+                Session.Navigate({ pathname: "/SpicyLyrics" });
+                const pageWhentil = Whentil.When(() => document.querySelector<HTMLElement>(".Root__main-view #SpicyLyricsPage"), () => {
+                  Fullscreen.Open(Global.Saves.shift_key_pressed ?? false);
+                  pageWhentil?.Cancel();
+                })
+              } else {
+                Session.GoBack();
+              }
+          },
+          false,
+          false,
+        )
+      }
+    ]
+  }
   // Add shift key tracking
   Global.Saves.shift_key_pressed = false;
 
@@ -312,6 +350,7 @@ async function main() {
   });
 
   Global.Event.listen("pagecontainer:available", () => {
+    if (!ButtonList) return;
     for (const button of ButtonList) {
       if (!button.Registered) {
         button.Button.register();
@@ -321,6 +360,7 @@ async function main() {
   })
 
   {
+    if (!ButtonList) return;
     const fullscreenButton = ButtonList[1].Button;
     fullscreenButton.element.style.order = "100000"
 		fullscreenButton.element.id = "SpicyLyrics_FullscreenButton"
@@ -346,15 +386,17 @@ async function main() {
 		SearchDOMForFullscreenButtons()
   }
 
-  const button = ButtonList[0];
+  let button: any = undefined;
+  if (ButtonList) {
+    button = ButtonList[0];
+  }
 
   const Hometinue = async () => {
-    Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.1.6";
     await Sockets.all.ConnectSockets();
 
     Whentil.When(() => Spicetify.Platform.PlaybackAPI, () => {
       requestPositionSync();
-    })
+    });
 
     const previousVersion = storage.get("previous-version");
     if (previousVersion && previousVersion !== Defaults.SpicyLyricsVersion) {
@@ -371,12 +413,13 @@ async function main() {
             What's new: <a href="https://github.com/Spikerko/spicy-lyrics/releases/tag/${Defaults.SpicyLyricsVersion}" target="_blank" style="text-decoration: underline;">Open on Github -></a>
           </p>
           <br>
-          <p style="font-size: 1.2rem; font-weight: bold;">
+          <p style="font-size: 1.85rem; font-weight: bold; text-align: center;">
             Check out our Discord Server!
             <br>
-            <a href="https://discord.gg/uqgXU5wh8j" target="_blank" style="font-size: 1.5rem; text-decoration: underline;">Join Discord -></a>
+            <a href="https://discord.com/invite/uqgXU5wh8j" target="_blank" style="font-size: 2.25rem; text-decoration: underline; color: #7a86ff;">Join Discord -></a>
           </p>
         </div>`,
+        isLarge: true
       })
       storage.set("previous-version", Defaults.SpicyLyricsVersion);
     }
@@ -459,9 +502,11 @@ async function main() {
       const IsSomethingElseThanTrack = SpotifyPlayer.GetContentType() !== "track";
 
       if (IsSomethingElseThanTrack || SpotifyPlayer.IsDJ()) {
+        if (!button) return;
         button.Button.deregister();
         button.Registered = false;
       } else {
+        if (!button) return;
         if (!button.Registered) {
           button.Button.register();
           button.Registered = true;
@@ -477,7 +522,7 @@ async function main() {
       fetchLyrics(event?.data?.item?.uri).then(ApplyLyrics);
 
 
-      if (Defaults.StaticBackground && !SpotifyPlayer.IsDJ()) {
+      if (Defaults.StaticBackground && !SpotifyPlayer.IsDJ() && (Defaults.StaticBackgroundType === "Auto" || Defaults.StaticBackgroundType === "Artist Header Visual")) {
         const Artists = SpotifyPlayer.GetArtists();
         const Artist = Artists?.map(artist => artist.uri?.replace("spotify:artist:", ""))[0] ?? undefined;
         try {
@@ -496,9 +541,9 @@ async function main() {
     Global.Event.listen("playback:songchange", onSongChange);
 
     {
-      fetchLyrics(Spicetify.Player.data?.item?.uri).then(ApplyLyrics);
+      fetchLyrics(SpotifyPlayer.GetUri() ?? "").then(ApplyLyrics);
 
-      if (Defaults.StaticBackground) {
+      if (Defaults.StaticBackground && !SpotifyPlayer.IsDJ() && (Defaults.StaticBackgroundType === "Auto" || Defaults.StaticBackgroundType === "Artist Header Visual")) {
         const Artists = SpotifyPlayer.GetArtists();
         const Artist = Artists?.map(artist => artist.uri?.replace("spotify:artist:", ""))[0] ?? undefined;
         try {
@@ -534,10 +579,12 @@ async function main() {
     function loadPage(location: Location) {
       if (location.pathname === "/SpicyLyrics") {
         PageView.Open();
+        if (!button) return;
         button.Button.active = true;
       } else {
         if (lastLocation?.pathname === "/SpicyLyrics") {
           PageView.Destroy();
+          if (!button) return;
           button.Button.active = false;
         }
       }
@@ -550,12 +597,15 @@ async function main() {
     if (Spicetify.Platform.History.location.pathname === "/SpicyLyrics") {
       Global.Event.listen("pagecontainer:available", () => {
         loadPage(Spicetify.Platform.History.location);
+        if (!button) return;
         button.Button.active = true;
       })
     }
 
 
-    button.Button.tippy.setContent("Spicy Lyrics")
+    if (button) {
+      button.Button.tippy.setContent("Spicy Lyrics")
+    }
 
     /*
     // This probably won't be added
@@ -682,7 +732,7 @@ async function main() {
           clearTimeout(lastTimeout);
           lastTimeout = undefined;
         }
-        lastTimeout = setTimeout(() => {
+        lastTimeout = setTimeout(async () => {
           const currentSongLyrics = storage.get("currentLyricsData");
           if (currentSongLyrics && currentSongLyrics.toString() !== `NO_LYRICS:${SpotifyPlayer.GetId()}`) {
             const parsedLyrics = JSON.parse(currentSongLyrics.toString());
@@ -736,9 +786,11 @@ async function main() {
     const IsSomethingElseThanTrack = SpotifyPlayer.GetContentType() !== "track";
 
     if (IsSomethingElseThanTrack) {
+      if (!button) return;
       button.Button.deregister();
       button.Registered = false;
     } else {
+      if (!button) return;
       if (!button.Registered) {
         button.Button.register();
         button.Registered = true;

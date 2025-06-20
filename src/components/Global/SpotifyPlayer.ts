@@ -178,7 +178,8 @@ export const SpotifyPlayer = {
         return Spicetify?.Player?.data?.item?.artists as Artist[] ?? undefined;
     },
     GetUri: (): string | undefined => {
-        return Spicetify?.Player?.data?.item?.uri ?? undefined;
+        // @ts-expect-error
+        return Spicetify?.Player?.data?.item?.uri ?? Spicetify.Player.data?.track?.uri;
     },
     Pause: Spicetify?.Player?.pause,
     Play: Spicetify?.Player?.play,

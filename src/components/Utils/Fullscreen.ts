@@ -9,24 +9,24 @@ import TransferElement from "./TransferElement";
 import { GetCurrentLyricsContainerInstance } from "../../utils/Lyrics/Applyer/CreateLyricsContainer";
 
 const ArtworkBrightness = {
-    Start: 0.72,
+    Start: 0.78,
     End: 0.55,
-    Duration: 0.3,
+    Duration: 0.35,
     ParentHover: {
         Start: 1,
-        End: 0.72,
-        Duration: 0.3
+        End: 0.78,
+        Duration: 0.4
     }
 };
 
 const ControlsOpacity = {
-    Start: 0.55,
+    Start: 0.5,
     End: 1,
-    Duration: 0.3,
+    Duration: 0.35,
     ParentHover: {
         Start: 0,
-        End: 0.55,
-        Duration: 0.3
+        End: 0.5,
+        Duration: 0.4
     }
 };
 

@@ -62,7 +62,7 @@ function generalSettings() {
         storage.set("staticBackground", settings.getFieldValue("static-background") as string);
     });
 
-    settings.addDropDown("static-background-type", "Static Background Type (Only works when Static Background is Enabled)", ["Auto", "Artist Header Visual", "Cover Art"], Defaults.StaticBackgroundType_Preset, () => {
+    settings.addDropDown("static-background-type", "Static Background Type (Only works when Static Background is Enabled)", ["Auto", "Artist Header Visual", "Cover Art", "Color"], Defaults.StaticBackgroundType_Preset, () => {
         storage.set("staticBackgroundType", settings.getFieldValue("static-background-type") as string);
     });
 
@@ -90,9 +90,9 @@ function generalSettings() {
         storage.set("lyrics_spacing", settings.getFieldValue("lyrics_spacing") as string);
     }); */
 
-    settings.addToggle("prefers_reduced_motion", "Prefers Reduced Motion", false, () => {
+    /* settings.addToggle("prefers_reduced_motion", "Prefers Reduced Motion", false, () => {
         storage.set("prefers_reduced_motion", settings.getFieldValue("prefers_reduced_motion") as string);
-    });
+    }); */
 
     settings.addButton("save-n-reload", "Save your current settings and reload.", "Save & Reload", () => {
         window.location.reload();

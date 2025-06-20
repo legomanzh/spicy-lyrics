@@ -8,7 +8,11 @@
   top: 0;
   width: 100%;
   transform-origin: center center;
-  filter: brightness(0.55) saturate(2.65);
+  filter: saturate(2.5) brightness(.65);
+}
+
+body:has(.starrynight-bg-container) #main .spicy-dynamic-bg {
+  display: none !important;
 }
 
 aside .spicy-dynamic-bg {
@@ -78,4 +82,44 @@ body:has(#SpicyLyricsPage.Fullscreen) .Root__right-sidebar aside:is(.NowPlayingV
 
 .Root__right-sidebar aside#Desktop_PanelContainer_Id:has(.spicy-dynamic-bg) .main-buddyFeed-scrollBarContainer {
   z-index: 1;
+}
+
+#SpicyLyricsPage .spicy-dynamic-bg.ColorBackground {
+  --VibrantColor: #000000;
+  --DarkVibrantColor: #000000;
+  --DesaturatedColor: #000000;
+  --BaseColor: #000000;
+  --LyricsBaseColor: #000000;
+  /* background-color: rgba(0, 0, 0, 0.25); */
+  /* background: linear-gradient(var(--ColorBackgroundRotation), var(--DesaturatedColor), var(--VibrantColor), var(--DarkVibrantColor), var(--BaseColor), var(--DesaturatedColor)); */
+  background-color: var(--LyricsBaseColor);
+  /* animation: ColorBackgroundBackgroundRotation 20s linear infinite; */
+  transition: background-color 1.25s;
+  filter: none;
+}
+
+/* @property --ColorBackgroundRotation {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+} */
+
+#SpicyLyricsPage .spicy-dynamic-bg.ColorBackground::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1), transparent, rgba(255, 255, 255, 0.1));
+  z-index: 1;
+}
+
+#SpicyLyricsPage .spicy-dynamic-bg.ColorBackground::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 2;
 }

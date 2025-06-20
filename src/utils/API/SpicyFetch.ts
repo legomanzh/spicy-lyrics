@@ -45,7 +45,7 @@ export default async function SpicyFetch(path: string, IsExternal: boolean = fal
                         });
                     }
                 }).catch(err => {
-                    console.log("CosmosAsync Error:", err)
+                    console.error("CosmosAsync Error:", err)
                     reject(err)
                 });
         } else {
@@ -88,7 +88,7 @@ export default async function SpicyFetch(path: string, IsExternal: boolean = fal
                     });
                 }
             }).catch(err => {
-                console.log("Fetch Error:", err)
+                console.error("Fetch Error:", err)
                 reject(err)
             });
         }

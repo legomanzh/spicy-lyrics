@@ -243,10 +243,18 @@ function getProgressPercentage(currentTime: number, startTime: number, endTime: 
   return (currentTime - startTime) / (endTime - startTime);
 }
 
+const LIMIT_FRAMES = false;
+const FRAME_INTERVAL = 1000 / 30; // 30 fps = 33.33ms per frame
+let lastAnimateFrameTime = 0;
+
 export function Animate(position: number): void {
   const now = Date.now();
+  if (LIMIT_FRAMES && now - lastAnimateFrameTime < FRAME_INTERVAL) {
+    return; // Skip this frame to limit to 30fps
+  }
   const deltaTime = (now - lastFrameTime) / 1000;
   lastFrameTime = now;
+  lastAnimateFrameTime = now;
 
   const CurrentLyricsType = Defaults.CurrentLyricsType;
   const ProcessedPosition = position + timeOffset;
