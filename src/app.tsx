@@ -776,9 +776,9 @@ async function main() {
 
       async function CheckForUpdates_Intervaled() {
         await CheckForUpdates();
-        setTimeout(CheckForUpdates_Intervaled, 60000);
+        setTimeout(CheckForUpdates_Intervaled, 300 * 1000);
       }
-      setTimeout(async () => await CheckForUpdates_Intervaled(), 10000);
+      setTimeout(async () => await CheckForUpdates_Intervaled(), 300 * 1000);
     }
   }
 
