@@ -20,6 +20,12 @@
   font-weight: 700;
   user-select: none;
   -webkit-user-drag: none;
+  opacity: 1;
+  transition: opacity .2s;
+}
+
+#SpicyLyricsPage.WaitingForHeight {
+  opacity: 0;
 }
 
 #SpicyLyricsPage.UseSpicyFont,
@@ -165,6 +171,10 @@
 
 #SpicyLyricsPage .ViewControls .ViewControl svg:not(.NoFill) {
   fill: currentColor;
+}
+
+#SpicyLyricsPage .ViewControls .ViewControl svg.NoFill {
+  fill: none !important;
 }
 
 /* #SpicyLyricsPage:not(.Fullscreen, .NowBarSide__Right) .ViewControls:hover {
@@ -339,3 +349,8 @@ body:not(:has(.Root__main-view-overlay .BeautifulLyricsPage:is(.Fullscreen))) #B
 .SpicyLyricsDevToolsContainer .Setting .SettingValue button:hover {
   background-color:rgb(206, 206, 206);
 }
+
+/* .QdB2YtfEq0ks5O4QbtwX .WRGTOibB8qNEkgPNtMxq:has(#SpicyLyricsPage) *:not(#SpicyLyricsPage),
+.QdB2YtfEq0ks5O4QbtwX:has(#SpicyLyricsPage) .DJcMUKFwkFECf5ksmSfU {
+  display: none !important;
+} */

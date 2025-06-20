@@ -1,5 +1,5 @@
 import { GetContainerHeight } from "../../Addons";
-import { QueueForceScroll } from "../../Scrolling/ScrollToActiveLine";
+import { QueueForceScroll, SetWaitingForHeight } from "../../Scrolling/ScrollToActiveLine";
 import { ScrollSimplebar } from "../../Scrolling/Simplebar/ScrollSimplebar";
 
 type LyricsContainerReturnObject = {
@@ -25,7 +25,7 @@ const CreateLyricsContainer = (): LyricsContainerReturnObject => {
 
     const Resize = () => {
         (async () => {
-            Container.style.height = `0px`;
+            /* Container.style.height = `0px`;
 
             await delay(150);
             let Height = GetContainerHeight(Container);
@@ -48,7 +48,16 @@ const CreateLyricsContainer = (): LyricsContainerReturnObject => {
 
             // Effective at T=310ms + 100ms = 410ms from Resize call
             await delay(100);
+            ScrollSimplebar?.recalculate(); */
+
+            await delay(95);
+            let Height = GetContainerHeight(Container);
+            Container.style.height = `${Height}px`;
             ScrollSimplebar?.recalculate();
+            await delay(10);
+            QueueForceScroll();
+            await delay(5);
+            SetWaitingForHeight(false);
         })();
     }
 

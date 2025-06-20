@@ -1,4 +1,4 @@
-import BlobURLMaker from "../../utils/BlobURLMaker";
+/* import BlobURLMaker from "../../utils/BlobURLMaker";
 import Whentil from "@spikerko/tools/Whentil";
 import Global from "../Global/Global";
 import Session from "../Global/Session";
@@ -9,7 +9,7 @@ interface NavigationData {
     [key: string]: any;
 }
 
-const ThisPageRoot = document.querySelector<HTMLElement>(".Root__main-view");
+const ThisPageRoot = document.querySelector<HTMLElement>(".Root__main-view") ?? undefined;
 
 // Exit early if root element not found
 if (!ThisPageRoot) {
@@ -125,7 +125,7 @@ if (!ThisPageRoot) {
 
     const data = await req.json();
     return data;
-} */
+} *
 
 
 async function ExtractColorsFromImage(imageUrl: string) {
@@ -141,4 +141,4 @@ async function ExtractColorsFromImage(imageUrl: string) {
     img.remove();
 
     return pallete;
-}
+} */

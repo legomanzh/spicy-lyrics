@@ -49,6 +49,7 @@ const PageView = {
 };
 
 export const GetPageRoot = () => (
+    /* document.querySelector<HTMLElement>(".QdB2YtfEq0ks5O4QbtwX .WRGTOibB8qNEkgPNtMxq") ?? */
     document.querySelector<HTMLElement>('.Root__main-view .main-view-container div[data-overlayscrollbars-viewport]') ??
     document.querySelector<HTMLElement>('.Root__main-view .main-view-container .uGZUPBPcDpzSYqKcQT8r > div') ??
     document.querySelector<HTMLElement>('.Root__main-view .main-view-container .os-host')
@@ -66,6 +67,7 @@ function OpenPage(AppendTo: HTMLElement | undefined = undefined, HoverMode: bool
     if (HoverMode) {
         elem.classList.add("TippyMode");
     }
+    elem.classList.add("WaitingForHeight");
     elem.innerHTML = `
         <div class="NotificationContainer">
             <div class="NotificationIcon"></div>
@@ -103,6 +105,13 @@ function OpenPage(AppendTo: HTMLElement | undefined = undefined, HoverMode: bool
             <div class="ViewControls"></div>
         </div>
     `
+
+    const waitingForHeightEvent = Global.Event.listen(`policy:waiting-for-height`, (value: boolean) => {
+        if (value === false) {
+            elem.classList.remove("WaitingForHeight");
+            Global.Event.unListen(waitingForHeightEvent);
+        }
+    })
     /* 
         <div class="SongMoreInfo">
             <div class="Content">

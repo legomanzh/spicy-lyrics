@@ -1,22 +1,35 @@
 import { GetExpireStore } from "@spikerko/tools/Cache";
-import { SpikyCache } from "@spikerko/web-modules/SpikyCache";
 import storage from "../storage";
 import Defaults from "../../components/Global/Defaults";
 import PageView from "../../components/Pages/PageView";
-import { SendJob } from "../API/SendJob";
+// @ts-expect-error
+import { SendJob } from "../../packages/sljob.dist.mjs";
 import Platform from "../../components/Global/Platform";
 import { SpotifyPlayer } from "../../components/Global/SpotifyPlayer";
 import { IsCompactMode } from "../../components/Utils/CompactMode";
 import Fullscreen from "../../components/Utils/Fullscreen";
+import { SetWaitingForHeight } from "../Scrolling/ScrollToActiveLine";
 
 export const LyricsStore = GetExpireStore<any>(
     "SpicyLyrics_LyricsStore",
-    1,
+    3,
     {
         Unit: "Days",
         Duration: 3
     }
 )
+
+function compressString(string: string) {
+    const compressedData = (pako as any).deflate(string, { to: 'string', level: 1 }); // Max compression level
+    const compressedString = String.fromCharCode(...new Uint8Array(compressedData)); // Encode to base64
+    return compressedString;
+}
+
+function decompressString(string: string) {
+    const compressedData = Uint8Array.from(string, c => c.charCodeAt(0));
+    const decompressedString = pako.inflate(compressedData, { to: 'string' });
+    return decompressedString;
+}
 
 export default async function fetchLyrics(uri: string) {
     //if (!document.querySelector("#SpicyLyricsPage")) return;
@@ -85,11 +98,12 @@ export default async function fetchLyrics(uri: string) {
 
     if (LyricsStore) {
         try {
-            const lyricsFromCache = await LyricsStore.GetItem(trackId);
-            if (lyricsFromCache) {
-                if (lyricsFromCache === "NO_LYRICS") {
+            const lyricsFromCacheRes = await LyricsStore.GetItem(trackId);
+            if (lyricsFromCacheRes && lyricsFromCacheRes.Value) {
+                if (lyricsFromCacheRes.Value === "NO_LYRICS") {
                     return await noLyricsMessage(false, true);
                 }
+                const lyricsFromCache = JSON.parse(decompressString(lyricsFromCacheRes.Value) ?? `{}`) ?? {};
                 storage.set("currentLyricsData", JSON.stringify(lyricsFromCache));
                 storage.set("currentlyFetching", "false");
                 HideLoaderContainer()
@@ -100,10 +114,12 @@ export default async function fetchLyrics(uri: string) {
                 return { ...lyricsFromCache, fromCache: true };
             }
         } catch (error) {
-            console.log("Error parsing saved lyrics data:", error);
+            console.error("Error parsing saved lyrics data:", error);
             return await noLyricsMessage(false, true);
         }
     }
+
+    SetWaitingForHeight(false);
 
     if (!navigator.onLine) return urOfflineMessage();
 
@@ -165,9 +181,10 @@ export default async function fetchLyrics(uri: string) {
         if (lyricsText === "") return await noLyricsMessage(false, true);
 
         const lyricsJson = JSON.parse(lyricsText);
+        const lyricsContent = JSON.stringify(lyricsJson);
 
         // Store the new lyrics in localStorage
-        storage.set("currentLyricsData", JSON.stringify(lyricsJson));
+        storage.set("currentLyricsData", lyricsText);
 
         storage.set("currentlyFetching", "false");
 
@@ -179,7 +196,7 @@ export default async function fetchLyrics(uri: string) {
             //const expiresAt = new Date().getTime() + 1000 * 60 * 60 * 24 * 7; // Expire after 7 days
 
             try {
-                await LyricsStore.SetItem(trackId, lyricsJson);
+                await LyricsStore.SetItem(trackId, { Value: compressString(lyricsContent) });
             } catch (error) {
                 console.error("Error saving lyrics to cache:", error);
             }
@@ -273,7 +290,7 @@ async function noLyricsMessage(Cache = true, LocalStorage = true) {
         ]
     } */
 
-
+    SetWaitingForHeight(false);
     const trackId = SpotifyPlayer.GetId() ?? '';
 
     if (LocalStorage) {
@@ -284,7 +301,7 @@ async function noLyricsMessage(Cache = true, LocalStorage = true) {
         //const expiresAt = new Date().getTime() + 1000 * 60 * 60 * 24 * 7; // Expire after 7 days
 
         try {
-            await LyricsStore.SetItem(trackId, "NO_LYRICS");
+            await LyricsStore.SetItem(trackId, { Value: "NO_LYRICS" });
         } catch (error) {
             console.error("Error saving lyrics to cache:", error);
         }
@@ -320,7 +337,6 @@ async function noLyricsMessage(Cache = true, LocalStorage = true) {
 function urOfflineMessage() {
     const Message = {
         Type: "Static",
-        alternative_api: false,
         offline: true,
         Lines: [
             {
@@ -332,6 +348,7 @@ function urOfflineMessage() {
         ]
     };
 
+    SetWaitingForHeight(false);
 
     storage.set("currentlyFetching", "false");
 
@@ -352,13 +369,6 @@ function urOfflineMessage() {
 function DJMessage() {
     const Message = {
         Type: "Static",
-        alternative_api: false,
-        styles: {
-            display: "flex",
-            "align-items": "center",
-            "justify-content": "center",
-            "flex-direction": "column"
-        },
         Lines: [
             {
                 Text: "DJ Mode is On"
@@ -369,6 +379,8 @@ function DJMessage() {
         ]
     };
 
+
+    SetWaitingForHeight(false);
 
     storage.set("currentlyFetching", "false");
 
@@ -384,18 +396,14 @@ function DJMessage() {
 function NotTrackMessage() {
     const Message = {
         Type: "Static",
-        styles: {
-            display: "flex",
-            "align-items": "center",
-            "justify-content": "center",
-            "flex-direction": "column"
-        },
         Lines: [
             {
                 Text: "[DEF=font_size:small]You're playing an unsupported Content Type"
             }
         ]
     }
+
+    SetWaitingForHeight(false);
 
     storage.set("currentlyFetching", "false");
 
@@ -419,7 +427,7 @@ function ShowLoaderContainer(): void {
     if (loaderContainer) {
         ContainerShowLoaderTimeout = setTimeout(() => {
             loaderContainer.classList.add("active");
-        }, 1000);
+        }, 2000);
     }
 }
 

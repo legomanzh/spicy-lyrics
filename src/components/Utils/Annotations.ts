@@ -1,5 +1,6 @@
 import { GetExpireStore } from "@spikerko/tools/Cache";
-import { SendJob } from "../../utils/API/SendJob"
+// @ts-expect-error
+import { SendJob } from "../../packages/sljob.dist.mjs";
 import Platform from "../Global/Platform";
 import Global from "../Global/Global";
 import { SpotifyPlayer } from "../Global/SpotifyPlayer";

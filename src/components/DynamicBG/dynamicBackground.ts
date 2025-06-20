@@ -8,8 +8,8 @@ const CoverArtCacheMap: CoverArtCache = new Map();
 
 export const DynamicBackgroundConfig: DynamicBackgroundOptions = {
     transition: Defaults.PrefersReducedMotion ? 0 : 0.25,
-    blur: 65,
-    speed: 0.2,
+    blur: 40,
+    speed: 0.35,
     coverArtCache: CoverArtCacheMap
 }
 
@@ -21,6 +21,19 @@ export const CleanupDynamicBGLets = () => {
         currentBgInstance.Destroy();
         currentBgInstance = null;
     }
+}
+
+function intToHexColor(colorInt: number): string {
+  // Convert to unsigned 32-bit integer
+  const uint = colorInt >>> 0;
+
+  // Extract RGB (ignore alpha)
+  const r = (uint >> 16) & 0xff;
+  const g = (uint >> 8) & 0xff;
+  const b = uint & 0xff;
+
+  // Format as hex
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
 
 export default async function ApplyDynamicBackground(element: HTMLElement) {
@@ -36,6 +49,37 @@ export default async function ApplyDynamicBackground(element: HTMLElement) {
     const TrackId = SpotifyPlayer.GetId() ?? undefined;
 
     if (Defaults.StaticBackground) {
+        if (Defaults.StaticBackgroundType === "Color") {
+
+            const colorFetch = await Spicetify.CosmosAsync.get(`https://spclient.wg.spotify.com/color-lyrics/v2/track/${SpotifyPlayer.GetId()}/image/${SpotifyPlayer.GetCover("standard") ?? ""}?format=json&vocalRemoval=false&market=from_token`)
+
+            if (!colorFetch) return;
+
+            const color = intToHexColor(colorFetch?.colors?.background ?? -3192050);
+
+            const extractedColor = ((await Spicetify.colorExtractor(SpotifyPlayer.GetUri() ?? "spotify:track:31CsSZ9KlQmEu0JvWSkM3j")) as any) ?? { VIBRANT: "#999999" };
+            //const color2 = (extractedColor?.["undefined"] !== "#undefined" ? extractedColor?.["undefined"] : (extractedColor?.DESATURATED ?? extractedColor?.DARK_VIBRANT ?? extractedColor?.VIBRANT)) ?? "#999999";
+            const prevBg = element.querySelector<HTMLElement>(".spicy-dynamic-bg.ColorBackground");
+
+            if (prevBg) {
+                if (extractedColor?.VIBRANT) prevBg.style.setProperty("--VibrantColor", extractedColor?.VIBRANT);
+                if (extractedColor?.DARK_VIBRANT) prevBg.style.setProperty("--DarkVibrantColor", extractedColor?.DARK_VIBRANT);
+                if (extractedColor?.DESATURATED) prevBg.style.setProperty("--DesaturatedColor", extractedColor?.DESATURATED);
+                if (extractedColor?.["undefined"]) prevBg.style.setProperty("--BaseColor", extractedColor?.["undefined"]);
+                if (color) prevBg.style.setProperty("--LyricsBaseColor", color);
+                return;
+            }
+
+            const dynamicBg = document.createElement("div");
+            dynamicBg.classList.add("spicy-dynamic-bg", "ColorBackground");
+            if (extractedColor?.VIBRANT) dynamicBg.style.setProperty("--VibrantColor", extractedColor?.VIBRANT);
+            if (extractedColor?.DARK_VIBRANT) dynamicBg.style.setProperty("--DarkVibrantColor", extractedColor?.DARK_VIBRANT);
+            if (extractedColor?.DESATURATED) dynamicBg.style.setProperty("--DesaturatedColor", extractedColor?.DESATURATED);
+            if (extractedColor?.["undefined"]) dynamicBg.style.setProperty("--BaseColor", extractedColor?.["undefined"]);
+            if (color) dynamicBg.style.setProperty("--LyricsBaseColor", color);
+            element.appendChild(dynamicBg);
+            return;
+        }
         const currentImgCover = await GetStaticBackground(TrackArtist, TrackId);
 
         if (IsEpisode || !currentImgCover) return;
