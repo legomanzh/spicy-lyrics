@@ -12,7 +12,7 @@ import { SetWaitingForHeight } from "../Scrolling/ScrollToActiveLine";
 
 export const LyricsStore = GetExpireStore<any>(
     "SpicyLyrics_LyricsStore",
-    3,
+    4,
     {
         Unit: "Days",
         Duration: 3
@@ -20,15 +20,25 @@ export const LyricsStore = GetExpireStore<any>(
 )
 
 function compressString(string: string) {
-    const compressedData = (pako as any).deflate(string, { to: 'string', level: 1 }); // Max compression level
-    const compressedString = String.fromCharCode(...new Uint8Array(compressedData)); // Encode to base64
-    return compressedString;
+  const compressedData = pako.deflate(string, { level: 1 });
+  
+  const CHUNK_SIZE = 0x8000;
+  const chunks = [];
+  for (let i = 0; i < compressedData.length; i += CHUNK_SIZE) {
+    chunks.push(String.fromCharCode.apply(null, (compressedData as any).subarray(i, i + CHUNK_SIZE)));
+  }
+  
+  return btoa(chunks.join(''));
 }
 
 function decompressString(string: string) {
-    const compressedData = Uint8Array.from(string, c => c.charCodeAt(0));
-    const decompressedString = pako.inflate(compressedData, { to: 'string' });
-    return decompressedString;
+  const binaryString = atob(string);
+  const compressedData = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    compressedData[i] = binaryString.charCodeAt(i);
+  }
+  const decompressedString = pako.inflate(compressedData, { to: 'string' });
+  return decompressedString;
 }
 
 export default async function fetchLyrics(uri: string) {
