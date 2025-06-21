@@ -1,7 +1,7 @@
 const Defaults = {
     lyrics: {
         api: {
-            url: "http://localhost:3001",
+            url: "https://api.spicylyrics.org",
         }
     },
     CurrentLyricsType: "None",
