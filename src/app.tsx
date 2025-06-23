@@ -39,6 +39,7 @@ import { DynamicBackground } from "@spikerko/tools/DynamicBackground";
 
 // @ts-expect-error
 import { SetupJobPackage } from "./packages/sljob.dist.mjs";
+import App from "./ready";
 
 async function main() {
   await Platform.OnSpotifyReady;
@@ -89,27 +90,6 @@ async function main() {
     Global.SetScope("func_main._deappend_scripts", DeappendScripts) */
     AppendScripts();
   }
-  
-  await new Promise<void>(
-    resolve => {
-      const interval = setInterval(
-        () => {
-          if (((window as any).pako) !== undefined) {
-            clearInterval(interval)
-            resolve()
-          }
-        },
-        10
-      )
-    }
-  )
-
-  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.4.2";
-
-  await SetupJobPackage({
-    api_url: Defaults.lyrics.api.url,
-    version: Defaults.SpicyLyricsVersion
-  });
 
   if (!storage.get("show_topbar_notifications")) {
     storage.set("show_topbar_notifications", "true")
@@ -143,6 +123,37 @@ async function main() {
   if (storage.get("staticBackground")) {
     Defaults.StaticBackground = storage.get("staticBackground") === "true";
   }
+
+  if (!storage.get("simpleLyricsMode")) {
+    storage.set("simpleLyricsMode", "false");
+  }
+  
+  if (storage.get("simpleLyricsMode")) {
+    Defaults.SimpleLyricsMode = storage.get("simpleLyricsMode") === "true";
+  }
+  
+  await new Promise<void>(
+    resolve => {
+      const interval = setInterval(
+        () => {
+          if (((window as any).pako) !== undefined) {
+            clearInterval(interval)
+            resolve()
+          }
+        },
+        10
+      )
+    }
+  )
+
+  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.4.4";
+
+  await SetupJobPackage({
+    api_url: Defaults.lyrics.api.url,
+    version: Defaults.SpicyLyricsVersion
+  });
+
+  
 
   /* if (storage.get("lyrics_spacing")) {
     if (storage.get("lyrics_spacing") === "None") {
@@ -274,6 +285,8 @@ async function main() {
         }
   `
   document.head.appendChild(skeletonStyle);
+
+  App.SetReady();
 
   let ButtonList: any = undefined;
   if (Spicetify.Playbar && Spicetify.Playbar.Button) {

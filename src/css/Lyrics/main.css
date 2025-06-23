@@ -24,7 +24,7 @@
 
   overflow-x: hidden !important;
   overflow-y: auto !important;
-  height: 100cqh;
+  height: 100%;
   width: 100%;
   font-size: var(--DefaultLyricsSize);
   font-weight: 700;

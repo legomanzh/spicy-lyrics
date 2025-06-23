@@ -7,6 +7,7 @@ import isRtl from "../isRtl";
 import { ClearLyricsPageContainer } from "../fetchLyrics";
 import { EmitApply, EmitNotApplyed } from "./OnApply";
 import { CreateLyricsContainer, DestroyAllLyricsContainers } from "./CreateLyricsContainer";
+import { ApplyIsByCommunity } from "./Credits/ApplyIsByCommunity";
 
 /**
  * Interface for static lyrics data
@@ -20,6 +21,7 @@ export interface StaticLyricsData {
     offline?: boolean;
     classes?: string;
     styles?: StyleProperties;
+    source?: "spt" | "spl" | "aml";
 }
 
 /**
@@ -75,7 +77,7 @@ export function ApplyStaticLyrics(data: StaticLyricsData): void {
     });
 
     ApplyLyricsCredits(data, LyricsContainer);
-
+    ApplyIsByCommunity(data.source, LyricsContainer);
     if (LyricsContainerParent) {
         LyricsContainerInstance.Append(LyricsContainerParent);
     }

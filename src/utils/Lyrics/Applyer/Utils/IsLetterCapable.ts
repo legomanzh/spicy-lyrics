@@ -1,3 +1,5 @@
+import Defaults from "../../../../components/Global/Defaults";
+
 const Simple = (letterLength: number, totalDuration: number) => {
     if (letterLength > 12) {
         return false;
@@ -6,6 +8,17 @@ const Simple = (letterLength: number, totalDuration: number) => {
     const minDuration = 1000;
 
     return totalDuration >= minDuration;
+}
+
+const SimpleLyricsModeCapable = (letterLength: number, totalDuration: number) => {
+    if (letterLength > 12) {
+        return false;
+    }
+
+    const minDuration = 1340;
+    const maxDuration = 7250;
+
+    return totalDuration >= minDuration && totalDuration <= maxDuration;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -23,5 +36,5 @@ const Complex = (letterLength: number, totalDuration: number) => {
 }
 
 export function IsLetterCapable(letterLength: number, totalDuration: number) {
-    return Simple(letterLength, totalDuration);
+    return Defaults.SimpleLyricsMode ? SimpleLyricsModeCapable(letterLength, totalDuration) : Simple(letterLength, totalDuration);
 }

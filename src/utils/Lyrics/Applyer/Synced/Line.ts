@@ -2,12 +2,13 @@ import Defaults from "../../../../components/Global/Defaults";
 import { applyStyles, removeAllStyles } from "../../../CSS/Styles";
 import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../../Scrolling/Simplebar/ScrollSimplebar";
 import { ConvertTime } from "../../ConvertTime";
-import { ClearLyricsContentArrays, LINE_SYNCED_CurrentLineLyricsObject, lyricsBetweenShow, LyricsObject, SetWordArrayInCurentLine_LINE_SYNCED } from "../../lyrics";
+import { ClearLyricsContentArrays, LINE_SYNCED_CurrentLineLyricsObject, lyricsBetweenShow, LyricsObject, SetWordArrayInCurentLine_LINE_SYNCED, SimpleLyricsMode_InterludeAddonTime } from "../../lyrics";
 import { ApplyLyricsCredits } from "../Credits/ApplyLyricsCredits";
 import isRtl from "../../isRtl";
 import { ClearLyricsPageContainer } from "../../fetchLyrics";
 import { EmitApply, EmitNotApplyed } from "../OnApply";
 import { CreateLyricsContainer, DestroyAllLyricsContainers } from "../CreateLyricsContainer";
+import { ApplyIsByCommunity } from "../Credits/ApplyIsByCommunity";
 
 // Define the data structure for lyrics
 interface LyricsLineData {
@@ -22,6 +23,7 @@ interface LyricsData {
   Content: LyricsLineData[];
   StartTime: number;
   SongWriters?: string[];
+  source?: "spt" | "spl" | "aml";
   classes?: string;
   styles?: Record<string, string>;
 }
@@ -124,7 +126,7 @@ export function ApplyLineLyrics(data: LyricsData): void {
           LyricsObject.Types.Line.Lines[LINE_SYNCED_CurrentLineLyricsObject].Syllables?.Lead.push({
             HTMLElement: musicalDots3,
             StartTime: dotTime * 2,
-            EndTime: ConvertTime(data.StartTime) - 400,
+            EndTime: ConvertTime(data.StartTime) + (Defaults.SimpleLyricsMode ? SimpleLyricsMode_InterludeAddonTime : -400),
             TotalTime: dotTime,
             Dot: true
           });
@@ -230,7 +232,7 @@ export function ApplyLineLyrics(data: LyricsData): void {
             LyricsObject.Types.Line.Lines[LINE_SYNCED_CurrentLineLyricsObject].Syllables?.Lead.push({
               HTMLElement: musicalDots3,
               StartTime: ConvertTime(line.EndTime) + (dotTime * 2),
-              EndTime: ConvertTime(arr[index + 1].StartTime) - 400,
+              EndTime: ConvertTime(arr[index + 1].StartTime) + (Defaults.SimpleLyricsMode ? SimpleLyricsMode_InterludeAddonTime : -400),
               TotalTime: dotTime,
               Dot: true
             })
@@ -245,7 +247,7 @@ export function ApplyLineLyrics(data: LyricsData): void {
     })
 
    ApplyLyricsCredits(data, LyricsContainer);
-
+   ApplyIsByCommunity(data.source, LyricsContainer);
    
   if (LyricsContainerParent) {
     LyricsContainerInstance.Append(LyricsContainerParent);

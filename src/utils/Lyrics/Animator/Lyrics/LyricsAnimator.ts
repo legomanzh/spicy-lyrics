@@ -1,9 +1,10 @@
 import { easeSinOut } from "d3-ease";
-import Spring from '../../../../../node_modules/@socali/modules/Spring';
+import Spring from '@socali/modules/Spring';
 import Spline from 'cubic-spline';
 import Defaults from "../../../../components/Global/Defaults";
 import { LyricsObject } from "../../lyrics";
 import { BlurMultiplier, timeOffset } from "../Shared";
+import storage from "../../../storage";
 
 // Define types for animation ranges
 export interface AnimationPoint {
@@ -41,8 +42,17 @@ const GlowRange = [
 	{ Time: 0.6, Value: 1 },
 	{ Time: 1, Value: 0 }
 ];
+
+const SimpleYOffsetRange = [
+  { Time: 0, Value: (1 / 100) },
+	{ Time: 1, Value: -0.04 }
+]
+
 const ScaleSpline = GetSpline(ScaleRange);
-const YOffsetSpline = GetSpline(YOffsetRange);
+const YOffsetSpline = GetSpline(storage.get("simpleLyricsMode") === "true" ? SimpleYOffsetRange : YOffsetRange);
+
+const LetterYOffsetSpline = GetSpline(YOffsetRange);
+
 const GlowSpline = GetSpline(GlowRange);
 
 const YOffsetDamping = 0.4;
@@ -79,7 +89,7 @@ const DotAnimations = {
 		{ Time: 1, Value: 1 } // End (Sung) - Note: Inspiration code ends at 1, might need adjustment based on visual needs
 	],
 	OpacityRange: [ // Controls element opacity
-		{ Time: 0, Value: 0.35 }, // Resting (NotSung)
+		{ Time: 0, Value: storage.get("simpleLyricsMode") === "true" ? 0.27 : 0.35 }, // Resting (NotSung)
 		{ Time: 0.6, Value: 1 }, // Peak animation
 		{ Time: 1, Value: 1 } // End (Sung)
 	]
@@ -159,6 +169,19 @@ const DotGroupOpacitySpline = GetSpline(DotGroupAnimations.OpacityRange);
 const SungLetterGlow = 0.2;
 
 const createWordSprings = () => {
+  if (Defaults.SimpleLyricsMode) {
+    return {
+      Scale: {
+        Step: () => {},
+        SetGoal: () => {},
+      },
+      YOffset: new Spring(YOffsetSpline.at(0), YOffsetFrequency, YOffsetDamping),
+      Glow: {
+        Step: () => {},
+        SetGoal: () => {},
+      },
+    }
+  }
 	return {
 		Scale: new Spring(ScaleSpline.at(0), ScaleFrequency, ScaleDamping),
 		YOffset: new Spring(YOffsetSpline.at(0), YOffsetFrequency, YOffsetDamping),
@@ -168,6 +191,23 @@ const createWordSprings = () => {
 
 // NEW Dot Springs Function
 const createDotSprings = () => {
+  if (Defaults.SimpleLyricsMode) {
+    return {
+      Scale: {
+        Step: () => {},
+        SetGoal: () => {},
+      },
+      YOffset: {
+        Step: () => {},
+        SetGoal: () => {},
+      },
+      Glow: {
+        Step: () => {},
+        SetGoal: () => {},
+      },
+      Opacity: new Spring(DotOpacitySpline.at(0), DotAnimations.OpacityFrequency, DotAnimations.OpacityDamping)
+    }
+  }
 	return {
 		Scale: new Spring(DotScaleSpline.at(0), DotAnimations.ScaleFrequency, DotAnimations.ScaleDamping),
 		YOffset: new Spring(DotYOffsetSpline.at(0), DotAnimations.YOffsetFrequency, DotAnimations.YOffsetDamping),
@@ -179,6 +219,22 @@ const createDotSprings = () => {
 // DotGroup Springs Function - for animating the entire dotGroup element
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const createDotGroupSprings = () => {
+  if (Defaults.SimpleLyricsMode) {
+    return {
+      Scale: {
+        Step: () => {},
+        SetGoal: () => {},
+      },
+      YOffset: {
+        Step: () => {},
+        SetGoal: () => {},
+      },
+      Opacity: {
+        Step: () => {},
+        SetGoal: () => {},
+      },
+    }
+  }
 	return {
 		Scale: new Spring(DotGroupScaleSpline.at(0), DotGroupAnimations.ScaleFrequency, DotGroupAnimations.ScaleDamping),
 		YOffset: new Spring(DotGroupYOffsetSpline.at(0), DotGroupAnimations.YOffsetFrequency, DotGroupAnimations.YOffsetDamping),
@@ -189,7 +245,7 @@ const createDotGroupSprings = () => {
 const createLetterSprings = () => {
 	return {
 		Scale: new Spring(ScaleSpline.at(0), ScaleFrequency, ScaleDamping),
-		YOffset: new Spring(YOffsetSpline.at(0), YOffsetFrequency, YOffsetDamping),
+		YOffset: new Spring(LetterYOffsetSpline.at(0), YOffsetFrequency, YOffsetDamping),
 		Glow: new Spring(GlowSpline.at(0), GlowFrequency, GlowDamping)
 	};
 };
@@ -216,6 +272,14 @@ const LineGlowDamping = 0.5
 const LineGlowFrequency = 1
 
 const createLineSprings = () => {
+  if (Defaults.SimpleLyricsMode) {
+    return {
+      Glow: {
+        Step: () => {},
+        SetGoal: () => {},
+      },
+    }
+  }
 	return {
 		Glow: new Spring(LineGlowSpline.at(0), LineGlowFrequency, LineGlowDamping)
 	};
@@ -244,7 +308,7 @@ function getProgressPercentage(currentTime: number, startTime: number, endTime: 
 }
 
 const LIMIT_FRAMES = false;
-const FRAME_INTERVAL = 1000 / 30; // 30 fps = 33.33ms per frame
+const FRAME_INTERVAL = 1000 / 45;
 let lastAnimateFrameTime = 0;
 
 export function Animate(position: number): void {
@@ -469,7 +533,7 @@ export function Animate(position: number): void {
                         if (!letter.AnimatorStore) {
                           letter.AnimatorStore = createLetterSprings();
                           letter.AnimatorStore.Scale.SetGoal(ScaleSpline.at(0), true);
-                          letter.AnimatorStore.YOffset.SetGoal(YOffsetSpline.at(0), true);
+                          letter.AnimatorStore.YOffset.SetGoal(LetterYOffsetSpline.at(0), true);
                           letter.AnimatorStore.Glow.SetGoal(GlowSpline.at(0), true);
                         }
 
@@ -491,7 +555,7 @@ export function Animate(position: number): void {
                         // Determine initial targets based on word state
                         // wordState is Active - Default to resting, then apply proximity-based animation
                         targetScale = ScaleSpline.at(0); // Default active state target is resting
-                        targetYOffset = YOffsetSpline.at(0);
+                        targetYOffset = LetterYOffsetSpline.at(0);
                         targetGlow = GlowSpline.at(0);
 
                         // --- Handle individual letter states ---
@@ -500,13 +564,18 @@ export function Animate(position: number): void {
                         // Apply proximity-based animation if an active letter is found
                         if (activeLetterIndex !== -1) {
                           // Get the base animation values for the active letter
-                          const baseScale = ScaleSpline.at(activeLetterPercentage);
-                          const baseYOffset = YOffsetSpline.at(activeLetterPercentage);
-                          const baseGlow = GlowSpline.at(activeLetterPercentage);
+                          const percentageCount =
+                            (Defaults.SimpleLyricsMode ?
+                              getProgressPercentage(ProcessedPosition, word.StartTime, word.EndTime)
+                            : activeLetterPercentage);
+
+                          const baseScale = ScaleSpline.at(percentageCount) * (Defaults.SimpleLyricsMode ? 1.115 : 1);
+                          const baseYOffset = LetterYOffsetSpline.at(percentageCount) * (Defaults.SimpleLyricsMode ? 1.5 : 1);
+                          const baseGlow = GlowSpline.at(percentageCount) * (Defaults.SimpleLyricsMode ? 0.42 : 1);
 
                           // Get the resting values
                           const restingScale = ScaleSpline.at(0);
-                          const restingYOffset = YOffsetSpline.at(0);
+                          const restingYOffset = LetterYOffsetSpline.at(0);
                           const restingGlow = GlowSpline.at(0);
 
                           // Calculate distance from active letter and apply smooth falloff
@@ -525,10 +594,10 @@ export function Animate(position: number): void {
 
 
                         // Only override values for NotSung letters or for letters in a non-Active word
-                        if (letterState === "NotSung") {
+                        if (letterState === "NotSung" && !Defaults.SimpleLyricsMode) {
                           // NotSung letters always use resting values
                           targetScale = ScaleSpline.at(0);
-                          targetYOffset = YOffsetSpline.at(0);
+                          targetYOffset = LetterYOffsetSpline.at(0);
                           targetGlow = GlowSpline.at(0);
                         } else if (letterState === "Sung" && activeLetterIndex === -1) {
                           // Only apply SungLetterGlow to letters in words that don't have an active letter
@@ -570,12 +639,12 @@ export function Animate(position: number): void {
                         if (!letter.AnimatorStore) {
                           letter.AnimatorStore = createLetterSprings();
                           letter.AnimatorStore.Scale.SetGoal(ScaleSpline.at(0), true);
-                          letter.AnimatorStore.YOffset.SetGoal(YOffsetSpline.at(0), true);
+                          letter.AnimatorStore.YOffset.SetGoal(LetterYOffsetSpline.at(0), true);
                           letter.AnimatorStore.Glow.SetGoal(GlowSpline.at(0), true);
                         }
 
                         letter.AnimatorStore.Scale.SetGoal(ScaleSpline.at(0));
-                        letter.AnimatorStore.YOffset.SetGoal(YOffsetSpline.at(0));
+                        letter.AnimatorStore.YOffset.SetGoal(LetterYOffsetSpline.at(0));
                         letter.AnimatorStore.Glow.SetGoal(GlowSpline.at(0));
 
                         const currentScale = letter.AnimatorStore.Scale.Step(deltaTime);
@@ -595,12 +664,12 @@ export function Animate(position: number): void {
                         if (!letter.AnimatorStore) {
                           letter.AnimatorStore = createLetterSprings();
                           letter.AnimatorStore.Scale.SetGoal(ScaleSpline.at(0), true);
-                          letter.AnimatorStore.YOffset.SetGoal(YOffsetSpline.at(0), true);
+                          letter.AnimatorStore.YOffset.SetGoal(LetterYOffsetSpline.at(0), true);
                           letter.AnimatorStore.Glow.SetGoal(GlowSpline.at(0), true);
                         }
 
                         letter.AnimatorStore.Scale.SetGoal(ScaleSpline.at(1));
-                        letter.AnimatorStore.YOffset.SetGoal(YOffsetSpline.at(1));
+                        letter.AnimatorStore.YOffset.SetGoal(LetterYOffsetSpline.at(1));
                         letter.AnimatorStore.Glow.SetGoal(GlowSpline.at(1));
 
                         const currentScale = letter.AnimatorStore.Scale.Step(deltaTime);
@@ -751,12 +820,12 @@ export function Animate(position: number): void {
                           if (!letter.AnimatorStore) {
                             letter.AnimatorStore = createLetterSprings();
                             letter.AnimatorStore.Scale.SetGoal(ScaleSpline.at(0), true);
-                            letter.AnimatorStore.YOffset.SetGoal(YOffsetSpline.at(0), true);
+                            letter.AnimatorStore.YOffset.SetGoal(LetterYOffsetSpline.at(0), true);
                             letter.AnimatorStore.Glow.SetGoal(GlowSpline.at(0), true);
                           }
 
                           letter.AnimatorStore.Scale.SetGoal(ScaleSpline.at(1));
-                          letter.AnimatorStore.YOffset.SetGoal(YOffsetSpline.at(1));
+                          letter.AnimatorStore.YOffset.SetGoal(LetterYOffsetSpline.at(1));
                           letter.AnimatorStore.Glow.SetGoal(GlowSpline.at(1));
 
                           const currentScale = letter.AnimatorStore.Scale.Step(deltaTime);

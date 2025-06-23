@@ -760,8 +760,8 @@
 
 #SpicyLyricsPage.Fullscreen.CompactMode .ContentBox .LyricsContainer {
     position: relative;
-    top: 21cqh;
-    transition: top .4s;
+    margin-top: 21cqh;
+    transition: margin-top .4s;
 }
 
 #SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent .simplebar-content-wrapper .SpicyLyricsScrollContainer {
@@ -803,7 +803,7 @@
 }
 
 #SpicyLyricsPage.Fullscreen.CompactMode:has(.MediaBox:hover) .ContentBox .LyricsContainer {
-    top: calc(var(--Compact_NowBarHeight) + 50cqw);
+    margin-top: calc(var(--Compact_NowBarHeight) + 50cqw);
 }
 
 #SpicyLyricsPage.Fullscreen.CompactMode .ContentBox .NowBar .CenteredView .Header:has(.MediaBox:hover) .Metadata {
