@@ -261,3 +261,5 @@ export function removeLinesEvListener() {
     LinesEvListenerMaid = null;
   }
 }
+
+export const SimpleLyricsMode_InterludeAddonTime = 2000;

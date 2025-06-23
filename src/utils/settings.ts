@@ -66,6 +66,10 @@ function generalSettings() {
         storage.set("staticBackgroundType", settings.getFieldValue("static-background-type") as string);
     });
 
+    settings.addToggle("simple-lyrics-mode", "Simple Lyrics Mode", Defaults.SimpleLyricsMode, () => {
+        storage.set("simpleLyricsMode", settings.getFieldValue("simple-lyrics-mode") as string);
+    });
+
     /* settings.addToggle("low-q-mode", "Low Quality Mode (Leaving Soon)", Defaults.lowQualityMode, () => {
         storage.set("lowQMode", settings.getFieldValue("low-q-mode") as string)
     }); */

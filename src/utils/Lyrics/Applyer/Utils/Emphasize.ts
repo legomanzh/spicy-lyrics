@@ -1,11 +1,12 @@
 import { ArabicPersianRegex } from "../../../Addons";
+import storage from "../../../storage";
 import { IdleEmphasisLyricsScale } from "../../Animator/Shared";
 import { ConvertTime } from "../../ConvertTime";
 import { CurrentLineLyricsObject, LyricsObject } from "../../lyrics";
 
 const Substractions = {
-    StartTime: 0,
-    EndTime: 250
+    StartTime: (storage.get("simpleLyricsMode") === "true" ? -21 : 0),
+    EndTime: (storage.get("simpleLyricsMode") === "true" ? -40 : 250)
 }
 
 interface LetterData {

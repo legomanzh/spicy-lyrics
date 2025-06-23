@@ -142,6 +142,10 @@ function OpenPage(AppendTo: HTMLElement | undefined = undefined, HoverMode: bool
         elem.classList.add("UseSpicyFont");
     }
 
+    if (Defaults.SimpleLyricsMode) {
+        elem.classList.add("SimpleLyricsMode");
+    }
+
     if (AppendTo !== undefined) {
         AppendTo?.appendChild(elem);
     } else {

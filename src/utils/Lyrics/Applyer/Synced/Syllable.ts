@@ -2,7 +2,7 @@ import Defaults from "../../../../components/Global/Defaults";
 import { applyStyles, removeAllStyles } from "../../../CSS/Styles";
 import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../../Scrolling/Simplebar/ScrollSimplebar";
 import { ConvertTime } from "../../ConvertTime";
-import { ClearLyricsContentArrays, CurrentLineLyricsObject, lyricsBetweenShow, LyricsObject, SetWordArrayInCurentLine } from "../../lyrics";
+import { ClearLyricsContentArrays, CurrentLineLyricsObject, lyricsBetweenShow, LyricsObject, SetWordArrayInCurentLine, SimpleLyricsMode_InterludeAddonTime } from "../../lyrics";
 import { ApplyLyricsCredits } from "../Credits/ApplyLyricsCredits";
 import { IsLetterCapable } from "../Utils/IsLetterCapable";
 import Emphasize from "../Utils/Emphasize";
@@ -11,6 +11,7 @@ import isRtl from '../../isRtl';
 import { ClearLyricsPageContainer } from '../../fetchLyrics';
 import { EmitApply, EmitNotApplyed } from '../OnApply';
 import { CreateLyricsContainer, DestroyAllLyricsContainers } from "../CreateLyricsContainer";
+import { ApplyIsByCommunity } from "../Credits/ApplyIsByCommunity";
 
 // Define the data structure for syllable lyrics
 interface SyllableData {
@@ -43,9 +44,11 @@ interface LyricsData {
   Content: LineData[];
   StartTime: number;
   SongWriters?: string[];
+  source?: "spt" | "spl" | "aml";
   classes?: string;
   styles?: Record<string, string>;
 }
+
 
 export function ApplySyllableLyrics(data: LyricsData): void {
   if (!Defaults.LyricsContainerExists) return;
@@ -140,7 +143,7 @@ export function ApplySyllableLyrics(data: LyricsData): void {
       LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
         HTMLElement: musicalDots3,
         StartTime: dotTime * 2,
-        EndTime: ConvertTime(data.StartTime) - 400,
+        EndTime: ConvertTime(data.StartTime) + (Defaults.SimpleLyricsMode ? SimpleLyricsMode_InterludeAddonTime : -400),
         TotalTime: dotTime,
         Dot: true
       });
@@ -198,10 +201,12 @@ export function ApplySyllableLyrics(data: LyricsData): void {
 
           iL === aL.length - 1 ? word.classList.add("LastWordInLine") : lead.IsPartOfWord ? word.classList.add("PartOfWord") : null;
 
-          word.style.setProperty("--text-shadow-opacity", `0%`);
-          word.style.setProperty("--text-shadow-blur-radius", `4px`);
-          word.style.scale = IdleEmphasisLyricsScale.toString();
-          word.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0.02))`;
+          if (!Defaults.SimpleLyricsMode) {
+            word.style.setProperty("--text-shadow-opacity", `0%`);
+            word.style.setProperty("--text-shadow-blur-radius", `4px`);
+            word.style.scale = IdleEmphasisLyricsScale.toString();
+            word.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0.02))`;
+          }
 
           //const contentDuration = totalDuration > 200 ? totalDuration : 200;
           //word.style.setProperty("--content-duration", `${contentDuration}ms`);
@@ -212,10 +217,12 @@ export function ApplySyllableLyrics(data: LyricsData): void {
           word.textContent = lead.Text;
 
           word.style.setProperty("--gradient-position", `-20%`);
-          word.style.setProperty("--text-shadow-opacity", `0%`);
-          word.style.setProperty("--text-shadow-blur-radius", `4px`);
-          word.style.scale = IdleLyricsScale.toString();
-          word.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0.01))`;
+          if (!Defaults.SimpleLyricsMode) {
+            word.style.setProperty("--text-shadow-opacity", `0%`);
+            word.style.setProperty("--text-shadow-blur-radius", `4px`);
+            word.style.scale = IdleLyricsScale.toString();
+            word.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0.01))`;
+          }
 
 
           word.classList.add("word");
@@ -279,10 +286,12 @@ export function ApplySyllableLyrics(data: LyricsData): void {
 
               bI === bA.length - 1 ? bwE.classList.add("LastWordInLine") : bw.IsPartOfWord ? bwE.classList.add("PartOfWord") : null;
 
-              bwE.style.setProperty("--text-shadow-opacity", `0%`);
-              bwE.style.setProperty("--text-shadow-blur-radius", `4px`);
-              bwE.style.scale = IdleEmphasisLyricsScale.toString();
-              bwE.style.transform = `translateY(calc(var(--font-size) * 0.02))`;
+              if (!Defaults.SimpleLyricsMode) {
+                bwE.style.setProperty("--text-shadow-opacity", `0%`);
+                bwE.style.setProperty("--text-shadow-blur-radius", `4px`);
+                bwE.style.scale = IdleEmphasisLyricsScale.toString();
+                bwE.style.transform = `translateY(calc(var(--font-size) * 0.02))`;
+              }
 
               //const contentDuration = totalDuration > 200 ? totalDuration : 200;
               //bwE.style.setProperty("--content-duration", `${contentDuration}ms`);
@@ -293,10 +302,12 @@ export function ApplySyllableLyrics(data: LyricsData): void {
               bwE.textContent = bw.Text
 
               bwE.style.setProperty("--gradient-position", `0%`);
-              bwE.style.setProperty("--text-shadow-opacity", `0%`);
-              bwE.style.setProperty("--text-shadow-blur-radius", `4px`);
-              bwE.style.scale = IdleLyricsScale.toString();
-              bwE.style.transform = `translateY(calc(var(--font-size) * 0.01))`;
+              if (!Defaults.SimpleLyricsMode) {
+                bwE.style.setProperty("--text-shadow-opacity", `0%`);
+                bwE.style.setProperty("--text-shadow-blur-radius", `4px`);
+                bwE.style.scale = IdleLyricsScale.toString();
+                bwE.style.transform = `translateY(calc(var(--font-size) * 0.01))`;
+              }
 
               // Check if Syllables.Lead exists
               if (LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject]?.Syllables?.Lead) {
@@ -393,7 +404,7 @@ export function ApplySyllableLyrics(data: LyricsData): void {
             LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
               HTMLElement: musicalDots3,
               StartTime: ConvertTime(line.Lead.EndTime) + (dotTime * 2),
-              EndTime: ConvertTime(arr[index + 1].Lead.StartTime) - 400,
+              EndTime: ConvertTime(arr[index + 1].Lead.StartTime) + (Defaults.SimpleLyricsMode ? SimpleLyricsMode_InterludeAddonTime : -400),
               TotalTime: dotTime,
               Dot: true
             });
@@ -411,6 +422,7 @@ export function ApplySyllableLyrics(data: LyricsData): void {
   });
 
   ApplyLyricsCredits(data, LyricsContainer);
+  ApplyIsByCommunity(data.source, LyricsContainer);
   
   if (LyricsContainerParent) {
     LyricsContainerInstance.Append(LyricsContainerParent);
