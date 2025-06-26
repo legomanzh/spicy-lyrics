@@ -216,8 +216,8 @@ export function ApplySyllableLyrics(data: LyricsData): void {
         } else {
           word.textContent = lead.Text;
 
-          word.style.setProperty("--gradient-position", `-20%`);
           if (!Defaults.SimpleLyricsMode) {
+            word.style.setProperty("--gradient-position", `-20%`);
             word.style.setProperty("--text-shadow-opacity", `0%`);
             word.style.setProperty("--text-shadow-blur-radius", `4px`);
             word.style.scale = IdleLyricsScale.toString();
@@ -237,7 +237,8 @@ export function ApplySyllableLyrics(data: LyricsData): void {
               HTMLElement: word,
               StartTime: ConvertTime(lead.StartTime),
               EndTime: ConvertTime(lead.EndTime),
-              TotalTime: totalDuration
+              TotalTime: totalDuration,
+              
             });
           } else {
             console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
@@ -301,8 +302,8 @@ export function ApplySyllableLyrics(data: LyricsData): void {
             } else {
               bwE.textContent = bw.Text
 
-              bwE.style.setProperty("--gradient-position", `0%`);
               if (!Defaults.SimpleLyricsMode) {
+                bwE.style.setProperty("--gradient-position", `0%`);
                 bwE.style.setProperty("--text-shadow-opacity", `0%`);
                 bwE.style.setProperty("--text-shadow-blur-radius", `4px`);
                 bwE.style.scale = IdleLyricsScale.toString();
@@ -422,7 +423,7 @@ export function ApplySyllableLyrics(data: LyricsData): void {
   });
 
   ApplyLyricsCredits(data, LyricsContainer);
-  ApplyIsByCommunity(data.source, LyricsContainer);
+  ApplyIsByCommunity(data, LyricsContainer);
   
   if (LyricsContainerParent) {
     LyricsContainerInstance.Append(LyricsContainerParent);

@@ -1,3 +1,4 @@
+import Defaults from "../../../../components/Global/Defaults";
 import { ArabicPersianRegex } from "../../../Addons";
 import storage from "../../../storage";
 import { IdleEmphasisLyricsScale } from "../../Animator/Shared";
@@ -60,7 +61,9 @@ export default function Emphasize(letters: Array<string>, applyTo: HTMLElement, 
             ...mcont
         })
 
-        letterElem.style.setProperty("--gradient-position", `-20%`);
+        if (!Defaults.SimpleLyricsMode) {
+            letterElem.style.setProperty("--gradient-position", `-20%`);
+        }
         letterElem.style.setProperty("--text-shadow-opacity", `0%`);
         letterElem.style.setProperty("--text-shadow-blur-radius", `4px`);
         letterElem.style.scale = IdleEmphasisLyricsScale.toString();

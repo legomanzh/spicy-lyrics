@@ -45,12 +45,25 @@
   --gradient-offset: 0%;
 }
 
+@property --SLM_GradientPosition {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: -50%;
+}
+
 
 #SpicyLyricsPage.SimpleLyricsMode .LyricsContainer .LyricsContent .line,
 #SpicyLyricsPage.SimpleLyricsMode .LyricsContainer .LyricsContent .line .word,
 #SpicyLyricsPage.SimpleLyricsMode .LyricsContainer .LyricsContent .line .letter {
   --gradient-alpha: 1;
   --gradient-alpha-end: 0.3;
+}
+
+#SpicyLyricsPage.SimpleLyricsMode .LyricsContainer .LyricsContent .line .word:not(.dot),
+#SpicyLyricsPage.SimpleLyricsMode .LyricsContainer .LyricsContent .line .letter {
+  --SLM_GradientPosition: -50%;
+  --gradient-position: var(--SLM_GradientPosition, -50%) !important;
+  --gradient-offset: 30% !important;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.Active,
@@ -375,13 +388,41 @@
   transition: color 0.5s ease-in-out !important;
 }
 
-#SpicyLyricsPage .LyricsContainer .LyricsContent .IsByCommunity {
+#SpicyLyricsPage .LyricsContainer .LyricsContent .SongInfo {
   --font-size: calc(var(--DefaultLyricsSize)* 0.35);
   font-size: var(--font-size);
-  font-weight: 400;
-  opacity: 0.6;
+  font-weight: 600;
+  opacity: 0.5;
   margin: 2cqw 0 0 !important;
   color: white;
+  scale: 1;
+  display: flex;
+  flex-direction: column;
+  gap: .45cqw;
+  transform-origin: left center;
+  transition: opacity .5s, scale .25s;
+}
+
+#SpicyLyricsPage .LyricsContainer .LyricsContent:has(.Credits.Active) .SongInfo {
+  opacity: 1;
+  scale: 1.02;
+}
+
+#SpicyLyricsPage .LyricsContainer .LyricsContent .SongInfo .Uploader,
+#SpicyLyricsPage .LyricsContainer .LyricsContent .SongInfo .Maker {
+  --font-size: calc(var(--DefaultLyricsSize)* 0.33);
+  font-size: var(--font-size);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: .65cqw;
+}
+
+#SpicyLyricsPage .LyricsContainer .LyricsContent .SongInfo .Uploader img,
+#SpicyLyricsPage .LyricsContainer .LyricsContent .SongInfo .Maker img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .Credits.Active {

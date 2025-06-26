@@ -77,7 +77,7 @@ export function ApplyStaticLyrics(data: StaticLyricsData): void {
     });
 
     ApplyLyricsCredits(data, LyricsContainer);
-    ApplyIsByCommunity(data.source, LyricsContainer);
+    ApplyIsByCommunity(data, LyricsContainer);
     if (LyricsContainerParent) {
         LyricsContainerInstance.Append(LyricsContainerParent);
     }

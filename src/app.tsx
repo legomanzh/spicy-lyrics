@@ -146,7 +146,7 @@ async function main() {
     }
   )
 
-  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.4.4";
+  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.5.0";
 
   await SetupJobPackage({
     api_url: Defaults.lyrics.api.url,
@@ -281,6 +281,24 @@ async function main() {
           }
           100% {
             transform: translateX(calc(0px + min(-100% + 100cqw, 0px) * 1));
+          }
+        }
+
+        @keyframes SLM_GradientAnimation {
+          0% {
+            --SLM_GradientPosition: -50%;
+          }
+          100% {
+            --SLM_GradientPosition: 100%;
+          }
+        }
+
+        @keyframes Pre_SLM_GradientAnimation {
+          0% {
+            --SLM_GradientPosition: -50%;
+          }
+          100% {
+            --SLM_GradientPosition: 0%;
           }
         }
   `
