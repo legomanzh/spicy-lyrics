@@ -7,9 +7,9 @@ import { Timeout } from "@socali/modules/Scheduler";
 const CoverArtCacheMap: CoverArtCache = new Map();
 
 export const DynamicBackgroundConfig: DynamicBackgroundOptions = {
-    transition: Defaults.PrefersReducedMotion ? 0 : 0.25,
-    blur: 40,
-    speed: 0.35,
+    transition: Defaults.PrefersReducedMotion ? 0 : 0.15,
+    blur: 55,
+    speed: 0.4,
     coverArtCache: CoverArtCacheMap
 }
 

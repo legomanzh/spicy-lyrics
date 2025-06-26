@@ -6,6 +6,15 @@ import { LyricsObject } from "../../lyrics";
 import { BlurMultiplier, timeOffset } from "../Shared";
 import storage from "../../../storage";
 
+
+const getSLMAnimation = (duration: number) => {
+  return `SLM_GradientAnimation ${duration}ms linear forwards`
+}
+
+const getPreSLMAnimation = (duration: number) => {
+  return `Pre_SLM_GradientAnimation ${duration}ms linear forwards`
+}
+
 // Define types for animation ranges
 export interface AnimationPoint {
   Time: number;
@@ -472,7 +481,41 @@ export function Animate(position: number): void {
                       word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset}))`;
                       word.HTMLElement.style.scale = `${currentScale}`;
                       if (!isLetterGroup) {
-                        word.HTMLElement.style.setProperty("--gradient-position", `${targetGradientPos}%`);
+                        if (Defaults.SimpleLyricsMode) {
+                          if (wordState === "Active" && !word.SLMAnimated) {
+                            word.HTMLElement.style.removeProperty("--SLM_GradientPosition");
+                            word.HTMLElement.style.animation = getSLMAnimation(totalDuration);
+                            word.SLMAnimated = true;
+                            /* word.PreSLMAnimated = false; */
+                            /* const nextWord = words[wordIndex + 1];
+                            if (nextWord) {
+                              if (!nextWord.PreSLMAnimated) {
+                                nextWord.PreSLMAnimated = true;
+                                nextWord.HTMLElement.style.removeProperty("--SLM_GradientPosition");
+                                setTimeout(() => {
+                                  nextWord.HTMLElement.style.animation = getPreSLMAnimation(130);
+                                }, Number(totalDuration - 500) ?? totalDuration);
+                              }
+                            } */
+                          }
+                          if (wordState === "NotSung") {
+                            //if (!word.PreSLMAnimated) {
+                              word.HTMLElement.style.animation = "none";
+                              word.HTMLElement.style.setProperty("--SLM_GradientPosition", "-50%");
+                            //}
+                            word.SLMAnimated = false;
+                            /* word.PreSLMAnimated = false; */
+                          }
+                          if (wordState === "Sung") {
+                            word.HTMLElement.style.animation = "none";
+                            word.HTMLElement.style.setProperty("--SLM_GradientPosition", "100%")
+                            //word.HTMLElement.style.animation = getSLMAnimation(0);
+                            word.SLMAnimated = false;
+                            /* word.PreSLMAnimated = false; */
+                          }
+                        } else {
+                          word.HTMLElement.style.setProperty("--gradient-position", `${targetGradientPos}%`);
+                        }
                         word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (2 * currentGlow * 1)}px`);
                         word.HTMLElement.style.setProperty("--text-shadow-opacity", `${Math.min(currentGlow * 35, 100)}%`);
                       }
@@ -625,8 +668,30 @@ export function Animate(position: number): void {
                         const currentYOffset = letter.AnimatorStore.YOffset.Step(deltaTime);
                         const currentGlow = letter.AnimatorStore.Glow.Step(deltaTime);
 
+                        const totalDuration = letter.EndTime - letter.StartTime;
                         // Apply styles from springs and calculated gradient
-                        letter.HTMLElement.style.setProperty("--gradient-position", `${targetGradient}%`);
+                        if (Defaults.SimpleLyricsMode) {
+                          if (letterState === "Active" && !letter.SLMAnimated) {
+                            letter.HTMLElement.style.removeProperty("--SLM_GradientPosition");
+                            letter.HTMLElement.style.animation = getSLMAnimation(totalDuration);
+                            letter.SLMAnimated = true;
+                          }
+                          if (letterState === "NotSung") {
+                            if (!letter.PreSLMAnimated) {
+                              letter.HTMLElement.style.animation = "none";
+                              letter.HTMLElement.style.setProperty("--SLM_GradientPosition", "-50%");
+                            }
+                            letter.SLMAnimated = false;
+                          }
+                          if (letterState === "Sung") {
+                            letter.HTMLElement.style.animation = "none";
+                            letter.HTMLElement.style.setProperty("--SLM_GradientPosition", "100%");
+                            // letter.HTMLElement.style.animation = getSLMAnimation(0);
+                            letter.SLMAnimated = false;
+                          }
+                        } else {
+                          letter.HTMLElement.style.setProperty("--gradient-position", `${targetGradient}%`);
+                        }
                         letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset * 2}))`;
                         letter.HTMLElement.style.scale = `${currentScale}`;
                         letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (12 * currentGlow)}px`);
@@ -651,7 +716,7 @@ export function Animate(position: number): void {
                         const currentYOffset = letter.AnimatorStore.YOffset.Step(deltaTime);
                         const currentGlow = letter.AnimatorStore.Glow.Step(deltaTime);
 
-                        letter.HTMLElement.style.setProperty("--gradient-position", `-20%`);
+                        letter.HTMLElement.style.setProperty("--gradient-position", `-20%${Defaults.SimpleLyricsMode ? " !important" : ""}`);
                         letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset * 2}))`;
                         letter.HTMLElement.style.scale = `${currentScale}`;
                         letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (12 * currentGlow)}px`);
@@ -676,7 +741,7 @@ export function Animate(position: number): void {
                         const currentYOffset = letter.AnimatorStore.YOffset.Step(deltaTime);
                         const currentGlow = letter.AnimatorStore.Glow.Step(deltaTime);
 
-                        letter.HTMLElement.style.setProperty("--gradient-position", `100%`);
+                        letter.HTMLElement.style.setProperty("--gradient-position", `100%${Defaults.SimpleLyricsMode ? " !important" : ""}`);
                         letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset * 2}))`;
                         letter.HTMLElement.style.scale = `${currentScale}`;
                         letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (12 * currentGlow)}px`);
@@ -792,7 +857,12 @@ export function Animate(position: number): void {
                           word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset}))`;
                           word.HTMLElement.style.scale = `${currentScale}`;
                           if (!word.LetterGroup) {
-                            word.HTMLElement.style.setProperty("--gradient-position", `100%`);
+                            if (Defaults.SimpleLyricsMode) {
+                              word.HTMLElement.style.animation = "none";
+                              word.HTMLElement.style.setProperty("--SLM_GradientPosition", "100%");
+                            } else {
+                              word.HTMLElement.style.setProperty("--gradient-position", "100%");
+                            }
                             word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (2 * currentGlow * 1)}px`);
                             word.HTMLElement.style.setProperty("--text-shadow-opacity", `${Math.min(currentGlow * 35, 100)}%`);
                           }
@@ -832,7 +902,7 @@ export function Animate(position: number): void {
                           const currentYOffset = letter.AnimatorStore.YOffset.Step(deltaTime);
                           const currentGlow = letter.AnimatorStore.Glow.Step(deltaTime);
 
-                          letter.HTMLElement.style.setProperty("--gradient-position", `100%`);
+                          letter.HTMLElement.style.setProperty("--gradient-position", `100%${Defaults.SimpleLyricsMode ? " !important" : ""}`);
                           letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset * 2}))`;
                           letter.HTMLElement.style.scale = `${currentScale}`;
                           letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (12 * currentGlow)}px`);

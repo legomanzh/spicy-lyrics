@@ -247,7 +247,7 @@ export function ApplyLineLyrics(data: LyricsData): void {
     })
 
    ApplyLyricsCredits(data, LyricsContainer);
-   ApplyIsByCommunity(data.source, LyricsContainer);
+   ApplyIsByCommunity(data, LyricsContainer);
    
   if (LyricsContainerParent) {
     LyricsContainerInstance.Append(LyricsContainerParent);
