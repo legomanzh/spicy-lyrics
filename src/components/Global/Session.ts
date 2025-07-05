@@ -1,5 +1,4 @@
-// @ts-expect-error
-import { SendJob } from "../../packages/sljob.dist.mjs";
+import { SendJob } from "../../utils/API/SendJob";
 import Defaults from "./Defaults";
 import Global from "./Global";
 

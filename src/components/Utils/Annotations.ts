@@ -1,6 +1,8 @@
+/*
+// Not used
+
 import { GetExpireStore } from "@spikerko/tools/Cache";
-// @ts-expect-error
-import { SendJob } from "../../packages/sljob.dist.mjs";
+import { SendJob } from "../../utils/API/SendJob";
 import Platform from "../Global/Platform";
 import Global from "../Global/Global";
 import { SpotifyPlayer } from "../Global/SpotifyPlayer";
@@ -34,7 +36,6 @@ export const GetSongAnnotation = async (songId: string): Promise<SongAnnotation 
 
     try {
         // console.log("No cached annotation found, fetching from API.");
-        const SpotifyAccessToken = await Platform.GetSpotifyAccessToken();
         //const SongArtists = SpotifyPlayer.GetArtists();
 
         // console.log("Sending job to API.");
@@ -42,8 +43,7 @@ export const GetSongAnnotation = async (songId: string): Promise<SongAnnotation 
             {
                 handler: "SONG_ANNOTATIONS",
                 args: {
-                    id: songId,
-                    auth: "SpicyLyrics-WebAuth"
+                    id: songId
                 }
             },
             /* {
@@ -52,10 +52,8 @@ export const GetSongAnnotation = async (songId: string): Promise<SongAnnotation 
                     artistUri: (SongArtists && SongArtists.length > 0 ? SongArtists[0].uri : null),
                     trackUri: SpotifyPlayer.GetUri() ?? ""
                 }
-            } */
-        ], {
-            "SpicyLyrics-WebAuth": `Bearer ${SpotifyAccessToken}`
-        })
+            } *
+        ])
         // console.log("Job response received:", jobResponse);
 
         const job = jobResponse.get("SONG_ANNOTATIONS");
@@ -104,7 +102,7 @@ export const GetSongAnnotation = async (songId: string): Promise<SongAnnotation 
 
         if (visualsJob.responseData.error) {
             return null;
-        } */
+        } *
 
         const annotation = job.responseData?.annotation;
         // console.log("Extracted annotation:", annotation);
@@ -118,7 +116,7 @@ export const GetSongAnnotation = async (songId: string): Promise<SongAnnotation 
         if (!headerImageVisual || typeof headerImageVisual !== "string") { // This condition will always be true because headerImageVisual is ""
             // console.log("headerImageVisual is null or not a string, returning null. This will always happen with current code.");
             return null;
-        } */
+        } *
 
         // console.log("Setting item in AnnotationStore with songId:", songId, "and annotation:", annotation);
         await AnnotationStore.SetItem(songId, {
@@ -183,4 +181,4 @@ export const UpdateSongMoreInfo = async () => {
     }
 
     AnnotationElement.innerHTML = Annotation?.annotation ?? "No Annotation Found";
-}
+} */

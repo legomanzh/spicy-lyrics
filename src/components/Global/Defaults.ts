@@ -1,7 +1,9 @@
+export const isDev = false;
+
 const Defaults = {
     lyrics: {
         api: {
-            url: "https://api.spicylyrics.org",
+            url: isDev ? "http://localhost:3001" : "https://api.spicylyrics.org",
         }
     },
     CurrentLyricsType: "None",

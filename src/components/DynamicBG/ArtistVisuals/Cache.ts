@@ -2,7 +2,7 @@ import { GetExpireStore } from "@spikerko/tools/Cache";
 
 const CacheStore = GetExpireStore(
     "SpicyLyrics_ArtistVisuals",
-    1,
+    3,
     {
         Unit: "Days",
         Duration: 3

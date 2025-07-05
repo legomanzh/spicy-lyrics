@@ -6,11 +6,12 @@ export default function GetHeaderUrl(data: any) {
 
     const HeaderImage =
         typeof data === "object" ?
-            data?.Visuals?.headerImage?.sources[0]?.url :
-            JSON.parse(data)?.Visuals?.headerImage?.sources[0]?.url;
+            data[0]?.url :
+            JSON.parse(data)[0]?.url;
 
     if (!HeaderImage)
         return SpotifyPlayer.GetCover("xlarge") ?? undefined;
     
-    return `spotify:image:${HeaderImage.replace("https://i.scdn.co/image/", "")}`;
+    const imageId = HeaderImage.substring(HeaderImage.lastIndexOf('/') + 1);
+    return `spotify:image:${imageId}`;
 }

@@ -36,9 +36,6 @@ import Fullscreen from "./components/Utils/Fullscreen";
 import { Defer } from "@socali/modules/Scheduler";
 import { DynamicBackground } from "@spikerko/tools/DynamicBackground";
 // In development: import "./components/Utils/Annotations";
-
-// @ts-expect-error
-import { SetupJobPackage } from "./packages/sljob.dist.mjs";
 import App from "./ready";
 
 async function main() {
@@ -146,13 +143,7 @@ async function main() {
     }
   )
 
-  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.5.0";
-
-  await SetupJobPackage({
-    api_url: Defaults.lyrics.api.url,
-    version: Defaults.SpicyLyricsVersion
-  });
-
+  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.5.5";
   
 
   /* if (storage.get("lyrics_spacing")) {
@@ -284,12 +275,14 @@ async function main() {
           }
         }
 
-        @keyframes SLM_GradientAnimation {
+        @keyframes SLM_Animation {
           0% {
             --SLM_GradientPosition: -50%;
+            --SLM_TranslateY: 0.01;
           }
           100% {
             --SLM_GradientPosition: 100%;
+            --SLM_TranslateY: -0.03;
           }
         }
 
@@ -299,6 +292,24 @@ async function main() {
           }
           100% {
             --SLM_GradientPosition: 0%;
+          }
+        }
+
+        @keyframes SpicyLoader_FadeIn {
+          0% {
+            opacity: 0;
+          }
+          100% {
+            opacity: 1;
+          }
+        }
+
+        @keyframes SpicyLoader_FadeOut {
+          0% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0;
           }
         }
   `
@@ -607,9 +618,9 @@ async function main() {
 
     let lastLocation: Location | null = null;
 
-    function loadPage(location: Location) {
+    async function loadPage(location: Location) {
       if (location.pathname === "/SpicyLyrics") {
-        PageView.Open();
+        await PageView.Open();
         if (!button) return;
         button.Button.active = true;
       } else {

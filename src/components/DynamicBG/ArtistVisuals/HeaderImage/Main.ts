@@ -1,4 +1,3 @@
-import SpicyFetch from "../../../../utils/API/SpicyFetch";
 import Defaults from "../../../Global/Defaults";
 import { SpotifyPlayer } from "../../../Global/SpotifyPlayer";
 import ArtistVisuals from "../Main";
@@ -31,8 +30,18 @@ export default async function ApplyContent(ArtistId: string, TrackId: string): P
         // Create the fetch promise
         const fetchPromise = (async () => {
             try {
-                const [res, status] = await SpicyFetch(`artist/visuals?artist=spotify:artist:${ArtistId}&track=spotify:track:${TrackId}`);
-                if (status === 200) {
+                //const [res, status] = await SpicyFetch(`artist/visuals?artist=spotify:artist:${ArtistId}&track=spotify:track:${TrackId}`);
+                const response = await Spicetify.GraphQL.Request(
+                    Spicetify.GraphQL.Definitions.queryNpvArtist,
+                    {
+                        artistUri: `spotify:artist:${ArtistId}`,
+                        trackUri: `spotify:track:${TrackId}`,
+                        enableRelatedVideos: false,
+                        enableRelatedAudioTracks: false,
+                    }
+                )
+                if (!response.errors) {
+                    const res = response?.data?.artistUnion?.headerImage?.data?.sources;
                     await ArtistVisuals.CacheStore.SetItem(ArtistId, {
                         Result: res ?? "",
                     });

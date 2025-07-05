@@ -1,8 +1,10 @@
 import Session from "../../components/Global/Session";
+import { isDev } from "../../components/Global/Defaults";
 
 let ShownUpdateNotice = false;
 
 export async function CheckForUpdates(force: boolean = false) {
+    if (isDev) return;
     const IsOutdated = await Session.SpicyLyrics.IsOutdated();
     if (IsOutdated) {
         if (!force && ShownUpdateNotice) return;

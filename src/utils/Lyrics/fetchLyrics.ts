@@ -2,9 +2,8 @@ import { GetExpireStore } from "@spikerko/tools/Cache";
 import storage from "../storage";
 import Defaults from "../../components/Global/Defaults";
 import PageView from "../../components/Pages/PageView";
-// @ts-expect-error
-import { SendJob } from "../../packages/sljob.dist.mjs";
-import Platform from "../../components/Global/Platform";
+import { SendJob } from "../API/SendJob";
+// import Platform from "../../components/Global/Platform";
 import { SpotifyPlayer } from "../../components/Global/SpotifyPlayer";
 import { IsCompactMode } from "../../components/Utils/CompactMode";
 import Fullscreen from "../../components/Utils/Fullscreen";
@@ -12,34 +11,12 @@ import { SetWaitingForHeight } from "../Scrolling/ScrollToActiveLine";
 
 export const LyricsStore = GetExpireStore<any>(
     "SpicyLyrics_LyricsStore",
-    4,
+    5,
     {
         Unit: "Days",
         Duration: 3
     }
 )
-
-function compressString(string: string) {
-  const compressedData = pako.deflate(string, { level: 1 });
-  
-  const CHUNK_SIZE = 0x8000;
-  const chunks = [];
-  for (let i = 0; i < compressedData.length; i += CHUNK_SIZE) {
-    chunks.push(String.fromCharCode.apply(null, (compressedData as any).subarray(i, i + CHUNK_SIZE)));
-  }
-  
-  return btoa(chunks.join(''));
-}
-
-function decompressString(string: string) {
-  const binaryString = atob(string);
-  const compressedData = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) {
-    compressedData[i] = binaryString.charCodeAt(i);
-  }
-  const decompressedString = pako.inflate(compressedData, { to: 'string' });
-  return decompressedString;
-}
 
 export default async function fetchLyrics(uri: string) {
     //if (!document.querySelector("#SpicyLyricsPage")) return;
@@ -113,7 +90,7 @@ export default async function fetchLyrics(uri: string) {
                 if (lyricsFromCacheRes.Value === "NO_LYRICS") {
                     return await noLyricsMessage(false, true);
                 }
-                const lyricsFromCache = JSON.parse(decompressString(lyricsFromCacheRes.Value) ?? `{}`) ?? {};
+                const lyricsFromCache = JSON.parse(lyricsFromCacheRes.Value) ?? {};
                 storage.set("currentLyricsData", JSON.stringify(lyricsFromCache));
                 storage.set("currentlyFetching", "false");
                 HideLoaderContainer()
@@ -141,20 +118,15 @@ export default async function fetchLyrics(uri: string) {
     const lyricsAccessToken = storage.get("lyricsApiAccessToken") ?? Defaults.LyricsContent.api.accessToken; */
 
     try {
-        const SpotifyAccessToken = await Platform.GetSpotifyAccessToken();
-
         let lyricsText = "";
         let status = 0;
 
         const jobs = await SendJob([{
             handler: "LYRICS_ID",
             args: {
-                id: trackId,
-                auth: "SpicyLyrics-WebAuth"
+                id: trackId
             }
-        }], {
-            "SpicyLyrics-WebAuth": `Bearer ${SpotifyAccessToken}`
-        })
+        }]);
 
         const lyricsJob = jobs.get("LYRICS_ID");
         if (!lyricsJob) {
@@ -206,7 +178,7 @@ export default async function fetchLyrics(uri: string) {
             //const expiresAt = new Date().getTime() + 1000 * 60 * 60 * 24 * 7; // Expire after 7 days
 
             try {
-                await LyricsStore.SetItem(trackId, { Value: compressString(lyricsContent) });
+                await LyricsStore.SetItem(trackId, { Value: lyricsContent });
             } catch (error) {
                 console.error("Error saving lyrics to cache:", error);
             }
