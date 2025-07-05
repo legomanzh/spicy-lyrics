@@ -1,17 +1,40 @@
 import Defaults from "../Global/Defaults";
 import ArtistVisuals from "./ArtistVisuals/Main";
 import { type CoverArtCache, DynamicBackground, DynamicBackgroundOptions } from "@spikerko/tools/DynamicBackground"
+import TempoPlugin from "@spikerko/tools/TempoPlugin"
 import { SpotifyPlayer } from "../Global/SpotifyPlayer";
 import { Timeout } from "@socali/modules/Scheduler";
+import { Signal } from "@socali/modules/Signal";
+import Global from "../Global/Global";
+import Platform from "../Global/Platform";
 
 const CoverArtCacheMap: CoverArtCache = new Map();
 
+const SongChangeSignal = new Signal();
+
 export const DynamicBackgroundConfig: DynamicBackgroundOptions = {
-    transition: Defaults.PrefersReducedMotion ? 0 : 0.15,
-    blur: 55,
-    speed: 0.4,
-    coverArtCache: CoverArtCacheMap
+    transition: Defaults.PrefersReducedMotion ? 0 : 0.5,
+    blur: 50,
+    speed: 0.2,
+    coverArtCache: CoverArtCacheMap,
+    plugins: [
+        TempoPlugin({
+            SongChangeSignal,
+            getSongId: () => SpotifyPlayer.GetId() ?? "",
+            getPaused: () => !SpotifyPlayer.IsPlaying,
+            getSongPosition: () => ((SpotifyPlayer.GetPosition() ?? 1000) / 1000),
+            getAccessToken: async () => {
+                const token = await Platform.GetSpotifyAccessToken();
+                return `Bearer ${token}`;
+            }
+        })
+    ]
 }
+
+Global.Event.listen("playback:songchange", () => {
+    //setTimeout(() => SongChangeSignal.Fire(), 1000)
+    SongChangeSignal.Fire()
+})
 
 // Store the DynamicBackground instance and element for reuse
 let currentBgInstance: DynamicBackground | null = null;

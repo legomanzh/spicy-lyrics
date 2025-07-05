@@ -57,7 +57,7 @@ export const GetPageRoot = () => (
 
 let PageResizeListener: ResizeObserver | null = null;
 
-function OpenPage(AppendTo: HTMLElement | undefined = undefined, HoverMode: boolean = false) {
+async function OpenPage(AppendTo: HTMLElement | undefined = undefined, HoverMode: boolean = false) {
     if (PageView.IsOpened) return;
     if (!HoverMode) {
         PageView.IsTippyCapable = false;
@@ -67,7 +67,8 @@ function OpenPage(AppendTo: HTMLElement | undefined = undefined, HoverMode: bool
     if (HoverMode) {
         elem.classList.add("TippyMode");
     }
-    elem.classList.add("WaitingForHeight");
+    //const extractedColors = ((await Spicetify.colorExtractor(SpotifyPlayer.GetUri() ?? "spotify:track:31CsSZ9KlQmEu0JvWSkM3j")) as any) ?? { VIBRANT_NON_ALARMING: "#999999" };
+    //const vibrantNonAlarmingColor = extractedColors?.VIBRANT_NON_ALARMING ?? "#999999";
     elem.innerHTML = `
         <div class="NotificationContainer">
             <div class="NotificationIcon"></div>
@@ -77,7 +78,10 @@ function OpenPage(AppendTo: HTMLElement | undefined = undefined, HoverMode: bool
             </div>
             <div class="NotificationCloseButton">X</div>
         </div>
-        <div class="ContentBox">
+        <div class="SpicyLoader">
+            <div id="DotLoader"></div>
+        </div>
+        <div class="ContentBox WaitingForHeight">
             <div class="NowBar">
                 <div class="CenteredView">
                     <div class="Header">
@@ -108,7 +112,7 @@ function OpenPage(AppendTo: HTMLElement | undefined = undefined, HoverMode: bool
 
     const waitingForHeightEvent = Global.Event.listen(`policy:waiting-for-height`, (value: boolean) => {
         if (value === false) {
-            elem.classList.remove("WaitingForHeight");
+            elem.querySelector<HTMLElement>(".ContentBox")?.classList.remove("WaitingForHeight");
             Global.Event.unListen(waitingForHeightEvent);
         }
     })

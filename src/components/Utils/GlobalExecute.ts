@@ -1,5 +1,4 @@
-// @ts-expect-error
-import { SendJob } from "../../packages/sljob.dist.mjs";
+import { SendJob } from "../../utils/API/SendJob";
 import fetchLyrics from "../../utils/Lyrics/fetchLyrics";
 import ApplyLyrics from "../../utils/Lyrics/Global/Applyer";
 import storage from "../../utils/storage";

@@ -152,7 +152,6 @@ testScript.js
 src/utils/SpicyHasher.ts
 
 .github/
-src/utils/API/SendJob.ts
 setup_devmode.bat
 
 src/components/PopupModal/
@@ -160,4 +159,4 @@ src/components/PopupModal/PopupModal.ts
 
 TODO.md
 
-src/packages/sljob.mjs
+src/packages/

@@ -35,6 +35,7 @@
     width: 100%;
     --default-font-size: clamp(0.5rem, calc(1cqw* 3), 2.4rem);
     --Compact_NowBarHeight: 15cqh;
+    transition: opacity .34s;
 }
 
 #SpicyLyricsPage {

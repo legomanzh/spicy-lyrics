@@ -8,7 +8,7 @@ import storage from "../../../storage";
 
 
 const getSLMAnimation = (duration: number) => {
-  return `SLM_GradientAnimation ${duration}ms linear forwards`
+  return `SLM_Animation ${duration}ms linear forwards`
 }
 
 const getPreSLMAnimation = (duration: number) => {
@@ -184,7 +184,10 @@ const createWordSprings = () => {
         Step: () => {},
         SetGoal: () => {},
       },
-      YOffset: new Spring(YOffsetSpline.at(0), YOffsetFrequency, YOffsetDamping),
+      YOffset: {
+        Step: () => {},
+        SetGoal: () => {},
+      },
       Glow: {
         Step: () => {},
         SetGoal: () => {},
@@ -298,7 +301,61 @@ export let Blurring_LastLine: number | null = null;
 //const SKIP_ANIMATING_ACTIVE_WORD_DURATION = 235;
 let lastFrameTime = Date.now();
 
+export function findActiveElement(currentTime: number): any {
+    const ProcessedPosition = currentTime + timeOffset;
+    const CurrentLyricsType = Defaults.CurrentLyricsType;
 
+    if (!CurrentLyricsType || CurrentLyricsType === "None") return null;
+
+    if (CurrentLyricsType === "Syllable") {
+        const lines = LyricsObject.Types.Syllable.Lines;
+        for (const line of lines) {
+            if (getElementState(ProcessedPosition, line.StartTime, line.EndTime) === "Active") {
+              if (line.DotLine && line.Syllables?.Lead) {
+                  const dotArray = line.Syllables.Lead;
+                  for (const dot of dotArray) {
+                      if (getElementState(ProcessedPosition, dot.StartTime, dot.EndTime) === "Active") {
+                          return [dot, "dot"];
+                      }
+                  }
+              } else if (line.Syllables?.Lead) {
+                    const words = line.Syllables.Lead;
+                    for (const word of words) {
+                        if (word.Dot) continue;
+                        if (getElementState(ProcessedPosition, word.StartTime, word.EndTime) === "Active") {
+                            if (word.LetterGroup && word.Letters) {
+                                for (const letter of word.Letters) {
+                                    if (getElementState(ProcessedPosition, letter.StartTime, letter.EndTime) === "Active") {
+                                        return [letter, "letter"];
+                                    }
+                                }
+                            }
+                            return [word, word.LetterGroup ? "letterGroup" : "word"];
+                        }
+                    }
+                }
+                return [line, "line"];
+            }
+        }
+    } else if (CurrentLyricsType === "Line") {
+        const lines = LyricsObject.Types.Line.Lines;
+        for (const line of lines) {
+            if (getElementState(ProcessedPosition, line.StartTime, line.EndTime) === "Active") {
+                if (line.DotLine && line.Syllables?.Lead) {
+                    const dotArray = line.Syllables.Lead;
+                    for (const dot of dotArray) {
+                        if (getElementState(ProcessedPosition, dot.StartTime, dot.EndTime) === "Active") {
+                            return [dot, "dot"];
+                        }
+                    }
+                }
+                return [line, "line"];
+            }
+        }
+    }
+
+    return null;
+}
 
 export function setBlurringLastLine(c: number | null) {
   Blurring_LastLine = c;
@@ -316,13 +373,16 @@ function getProgressPercentage(currentTime: number, startTime: number, endTime: 
   return (currentTime - startTime) / (endTime - startTime);
 }
 
-const LIMIT_FRAMES = false;
-const FRAME_INTERVAL = 1000 / 45;
+
+
+const LIMIT_FRAMES = storage.get("simpleLyricsMode") === "true";
+const FRAME_INTERVAL = 1000 / 10;
 let lastAnimateFrameTime = 0;
 
 export function Animate(position: number): void {
   const now = Date.now();
-  if (LIMIT_FRAMES && now - lastAnimateFrameTime < FRAME_INTERVAL) {
+  const isLetterElementActive = (findActiveElement(position)?.[1] === "letter" || findActiveElement(position)?.[1] === "letterGroup");
+  if (((LIMIT_FRAMES && !isLetterElementActive) && now - lastAnimateFrameTime < FRAME_INTERVAL)) {
     return; // Skip this frame to limit to 30fps
   }
   const deltaTime = (now - lastFrameTime) / 1000;
@@ -478,12 +538,15 @@ export function Animate(position: number): void {
                       const currentYOffset = word.AnimatorStore.YOffset.Step(deltaTime);
                       const currentGlow = word.AnimatorStore.Glow.Step(deltaTime);
 
-                      word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset}))`;
-                      word.HTMLElement.style.scale = `${currentScale}`;
+                      if (!Defaults.SimpleLyricsMode) {
+                        word.HTMLElement.style.scale = `${currentScale}`;
+                        word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset}))`;
+                      }
                       if (!isLetterGroup) {
                         if (Defaults.SimpleLyricsMode) {
                           if (wordState === "Active" && !word.SLMAnimated) {
                             word.HTMLElement.style.removeProperty("--SLM_GradientPosition");
+                            word.HTMLElement.style.removeProperty("--SLM_TranslateY");
                             word.HTMLElement.style.animation = getSLMAnimation(totalDuration);
                             word.SLMAnimated = true;
                             /* word.PreSLMAnimated = false; */
@@ -502,6 +565,7 @@ export function Animate(position: number): void {
                             //if (!word.PreSLMAnimated) {
                               word.HTMLElement.style.animation = "none";
                               word.HTMLElement.style.setProperty("--SLM_GradientPosition", "-50%");
+                              word.HTMLElement.style.setProperty("--SLM_TranslateY", "0.01");
                             //}
                             word.SLMAnimated = false;
                             /* word.PreSLMAnimated = false; */
@@ -509,6 +573,7 @@ export function Animate(position: number): void {
                           if (wordState === "Sung") {
                             word.HTMLElement.style.animation = "none";
                             word.HTMLElement.style.setProperty("--SLM_GradientPosition", "100%")
+                            word.HTMLElement.style.setProperty("--SLM_TranslateY", "-0.03");
                             //word.HTMLElement.style.animation = getSLMAnimation(0);
                             word.SLMAnimated = false;
                             /* word.PreSLMAnimated = false; */
@@ -614,7 +679,7 @@ export function Animate(position: number): void {
 
                           const baseScale = ScaleSpline.at(percentageCount) * (Defaults.SimpleLyricsMode ? 1.115 : 1);
                           const baseYOffset = LetterYOffsetSpline.at(percentageCount) * (Defaults.SimpleLyricsMode ? 1.5 : 1);
-                          const baseGlow = GlowSpline.at(percentageCount) * (Defaults.SimpleLyricsMode ? 0.42 : 1);
+                          const baseGlow = GlowSpline.at(percentageCount) * (Defaults.SimpleLyricsMode ? 0.47 : 1);
 
                           // Get the resting values
                           const restingScale = ScaleSpline.at(0);
@@ -854,8 +919,10 @@ export function Animate(position: number): void {
                           const currentScale = word.AnimatorStore.Scale.Step(deltaTime);
                           const currentYOffset = word.AnimatorStore.YOffset.Step(deltaTime);
                           const currentGlow = word.AnimatorStore.Glow.Step(deltaTime);
-                          word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset}))`;
-                          word.HTMLElement.style.scale = `${currentScale}`;
+                          if (!Defaults.SimpleLyricsMode) {
+                            word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset}))`;
+                            word.HTMLElement.style.scale = `${currentScale}`;
+                          }
                           if (!word.LetterGroup) {
                             if (Defaults.SimpleLyricsMode) {
                               word.HTMLElement.style.animation = "none";
@@ -914,14 +981,16 @@ export function Animate(position: number): void {
 
 
 
-              const NextLine = arr[index + 1];
-              if (NextLine) {
-                const nextLineStatus = getElementState(ProcessedPosition, NextLine.StartTime, NextLine.EndTime);
-                if (nextLineStatus === "NotSung" || nextLineStatus === "Active") {
+              {
+                const NextLine = arr[index + 1];
+                if (NextLine) {
+                  const nextLineStatus = getElementState(ProcessedPosition, NextLine.StartTime, NextLine.EndTime);
+                  if (nextLineStatus === "NotSung" || nextLineStatus === "Active") {
+                    checkNextLine();
+                  }
+                } else if (!NextLine) {
                   checkNextLine();
                 }
-              } else if (!NextLine) {
-                checkNextLine();
               }
           }
       }

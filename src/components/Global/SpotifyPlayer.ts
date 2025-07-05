@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import SpicyFetch from "../../utils/API/SpicyFetch";
 import GetProgress, { _DEPRECATED___GetProgress } from "../../utils/Gets/GetProgress";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -22,7 +20,7 @@ import GetProgress, { _DEPRECATED___GetProgress } from "../../utils/Gets/GetProg
             const spotifyHexString = SpicyHasher.spotifyHex(SpotifyPlayer.GetSongId());
             if (TrackData_Map.has(spotifyHexString)) return TrackData_Map.get(spotifyHexString);
             const URL = `https://spclient.wg.spotify.com/metadata/4/track/${spotifyHexString}?market=from_token`;
-            const [data, status] = await SpicyFetch(URL, true, true, false);
+            const [data, status] = await (URL, true, true, false);
             if (status !== 200) return null;
             const parsedData = ((data.startsWith(`{"`) || data.startsWith("{"))
                                     ? JSON.parse(data)

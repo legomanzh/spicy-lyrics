@@ -51,6 +51,11 @@
   initial-value: -50%;
 }
 
+@property --SLM_TranslateY {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0.01;
+}
 
 #SpicyLyricsPage.SimpleLyricsMode .LyricsContainer .LyricsContent .line,
 #SpicyLyricsPage.SimpleLyricsMode .LyricsContainer .LyricsContent .line .word,
@@ -64,6 +69,15 @@
   --SLM_GradientPosition: -50%;
   --gradient-position: var(--SLM_GradientPosition, -50%) !important;
   --gradient-offset: 30% !important;
+}
+
+#SpicyLyricsPage.SimpleLyricsMode .LyricsContainer .LyricsContent .line .word:not(.dot) {
+  --SLM_TranslateY: 0.01;
+  transform: translateY(calc(var(--DefaultLyricsSize) * var(--SLM_TranslateY)));
+}
+
+#SpicyLyricsPage.SimpleLyricsMode .LyricsContainer .LyricsContent .line.Sung .word:not(.dot) {
+  --SLM_TranslateY: -0.03 !important;
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.Active,

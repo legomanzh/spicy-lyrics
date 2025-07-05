@@ -31,6 +31,13 @@ let ActiveSetupSongProgressBarInstance: SongProgressBarInstance | null = null;
 
 let ActiveHeartMaid: Maid | null = null;
 
+/* let ActiveArtworkHlsInstance: Hls | null = null;
+
+export function DestroyArtworkHlsInstance() {
+    ActiveArtworkHlsInstance?.destroy();
+    ActiveArtworkHlsInstance = null;
+}
+ */
 export const NowBarObj = {
     Open: false
 }
@@ -871,6 +878,107 @@ function Session_OpenNowBar() {
     }
 }
 
+
+/* function UpdateNowBar(force = false) {
+    const NowBar = document.querySelector("#SpicyLyricsPage .ContentBox .NowBar");
+    if (!NowBar) return;
+
+    //const ArtistsDiv = NowBar.querySelector(".Header .Metadata .Artists");
+    const ArtistsSpan = NowBar.querySelector(".Header .Metadata .Artists span");
+    const MediaImageContainer = NowBar.querySelector<HTMLDivElement>(".Header .MediaBox .MediaImageContainer");
+    const SongNameSpan = NowBar.querySelector(".Header .Metadata .SongName span");
+    //const MediaBox = NowBar.querySelector(".Header .MediaBox");
+    //const SongName = NowBar.querySelector(".Header .Metadata .SongName");
+
+    const IsNowBarOpen = storage.get("IsNowBarOpen");
+    if (IsNowBarOpen === "false" && !force) return;
+
+    const coverArt = SpotifyPlayer.GetCover("xlarge");
+    if (MediaImageContainer && coverArt) {
+        if (ActiveArtworkHlsInstance == null) {
+            ActiveArtworkHlsInstance = new Hls();
+        }
+        //MediaImageContainer.classList.add("Skeletoned");
+        const Image = MediaImageContainer.querySelector<HTMLImageElement>("img");
+        const Iframe = MediaImageContainer.querySelector<HTMLIFrameElement>("iframe");
+        if (!Image || !Iframe) return;
+        Image.classList.remove("Active");
+        Iframe.classList.remove("Active");
+
+        Image.src = coverArt;
+        Image.classList.add("Active");
+        
+        GetEditorialArtwork(SpotifyPlayer.GetId() ?? "")
+            .then((data) => {
+                if (!data || !data.Content) return;
+                const content = data.Content;
+                if (!content.square || !content.square.video) return;
+
+                const src = content.square.video;
+                //console.log(content)
+                if (src) {
+                    Iframe.src = `${Defaults.lyrics.api.url}/hls-player/html?m3u8_url=${src}`
+                    Image.classList.remove("Active");
+                    Iframe.classList.add("Active");
+                }
+
+                /* if (Hls.isSupported() && ActiveArtworkHlsInstance != null) {
+                    if (Video.getAttribute("data-hls-attached") !== "true") {
+                        ActiveArtworkHlsInstance.loadSource(videoSrc);
+                        ActiveArtworkHlsInstance.attachMedia(Video);
+                        Video.setAttribute("data-hls-attached", "true");
+                    } else {
+                        ActiveArtworkHlsInstance.stopLoad();
+                        ActiveArtworkHlsInstance.loadSource(videoSrc);
+                        ActiveArtworkHlsInstance.startLoad();
+                    }
+                    Image.classList.remove("Active");
+                    Video.classList.add("Active");
+                    Video.muted = true;
+                    Video.play();
+                    console.log(Video.getAttribute("data-hls-attached"), ActiveArtworkHlsInstance)
+                } *
+
+            }).catch(err => {
+                console.error("Error while getting EditorialArtwork", err);
+            })
+    }
+
+    const songName = SpotifyPlayer.GetName();
+    if (SongNameSpan) {
+        SongNameSpan.textContent = songName ?? "";
+
+        /* // Check width and apply/remove MarqueeContainer class
+        const songNameContainer = SongNameSpan.parentElement as HTMLElement;
+        if (songNameContainer) {
+            const containerWidth = songNameContainer.offsetWidth;
+            const thresholdWidth = containerWidth * 0.85;
+            if ((SongNameSpan as HTMLElement).offsetWidth > thresholdWidth) {
+                SongNameSpan.classList.add("MarqueeContainer");
+            } else {
+                SongNameSpan.classList.remove("MarqueeContainer");
+            }
+        } *
+    }
+
+    const artists = SpotifyPlayer.GetArtists();
+    if (artists && ArtistsSpan) {
+        const processedArtists = artists.map(artist => artist.name)?.join(", ");
+        ArtistsSpan.textContent = processedArtists ?? "";
+
+        /* // Check width and apply/remove MarqueeContainer class
+        const artistsSpanContainer = ArtistsSpan.parentElement as HTMLElement;
+        if (artistsSpanContainer) {
+            const containerWidth = artistsSpanContainer.offsetWidth;
+            const thresholdWidth = containerWidth * 0.80; // 80% of container width
+            if ((ArtistsSpan as HTMLElement).offsetWidth > thresholdWidth) {
+                ArtistsSpan.classList.add("MarqueeContainer");
+            } else {
+                ArtistsSpan.classList.remove("MarqueeContainer");
+            }
+        } *
+    }
+} */
 
 function UpdateNowBar(force = false) {
     const NowBar = document.querySelector("#SpicyLyricsPage .ContentBox .NowBar");

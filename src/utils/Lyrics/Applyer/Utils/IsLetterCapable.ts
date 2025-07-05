@@ -15,8 +15,8 @@ const SimpleLyricsModeCapable = (letterLength: number, totalDuration: number) =>
         return false;
     }
 
-    const minDuration = 1340;
-    const maxDuration = 7250;
+    const minDuration = 1080;
+    const maxDuration = 8550;
 
     return totalDuration >= minDuration && totalDuration <= maxDuration;
 }
