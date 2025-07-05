@@ -1,4 +1,4 @@
-import { SpikyCache } from "@spikerko/web-modules/SpikyCache";
+/* import { SpikyCache } from "@spikerko/web-modules/SpikyCache";
 import Defaults from "../../components/Global/Defaults";
 import Platform from "../../components/Global/Platform";
 import Session from "../../components/Global/Session";
@@ -79,7 +79,7 @@ export default async function SpicyFetch(path: string, IsExternal: boolean = fal
 /*                 const isJson = ((data.startsWith(`{"`) || data.startsWith("{")) || (data.startsWith(`[`) || data.startsWith(`["`)));
                 if (isJson) {
                     data = JSON.parse(data);
-                } */
+                } *
                 const sentData = [data, res.status];
                 resolve(sentData)
                 if (cache) {
@@ -102,7 +102,7 @@ let ENDPOINT_DISABLEMENT_Shown = false;
  * Check for API errors in the response
  * @param res - Fetch response object
  * @returns The response or null if handled
- */
+ *
 async function CheckForErrors(res: Response): Promise<Response | null> {
     if (res.status === 500) {
         const TEXT = await res.text();
@@ -152,4 +152,4 @@ async function CheckForErrors(res: Response): Promise<Response | null> {
         }
     }
     return res;
-}
+} */

@@ -30,7 +30,6 @@ export default async function ApplyContent(ArtistId: string, TrackId: string): P
         // Create the fetch promise
         const fetchPromise = (async () => {
             try {
-                //const [res, status] = await SpicyFetch(`artist/visuals?artist=spotify:artist:${ArtistId}&track=spotify:track:${TrackId}`);
                 const response = await Spicetify.GraphQL.Request(
                     Spicetify.GraphQL.Definitions.queryNpvArtist,
                     {
