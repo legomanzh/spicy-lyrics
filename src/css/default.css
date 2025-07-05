@@ -289,7 +289,7 @@ body:not(:has(.Root__main-view-overlay .BeautifulLyricsPage:is(.Fullscreen))) #B
   opacity: 0.65 !important;
 }
 
-#SpicyLyricsPage .MediaImageContainer,
+#SpicyLyricsPage .MediaImage,
 #SpicyLyricsPage .MediaContent {
   user-select: none;
 }
