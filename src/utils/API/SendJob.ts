@@ -1,4 +1,5 @@
 import Defaults from "../../components/Global/Defaults";
+import Session from "../../components/Global/Session";
 
 const API_URL = Defaults.lyrics.api.url;
 
@@ -34,9 +35,10 @@ export interface JobResultGetter {
  */
 
 export async function SendJob(jobs: Job[], headers: Record<string, string> = {}): Promise<JobResultGetter> {
+    const spicyLyricsVersion = Session.SpicyLyrics.GetCurrentVersion()?.Text;
     const res = await fetch(`${API_URL}/batch`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...headers },
+        headers: { "Content-Type": "application/json", "SpicyLyrics-Version": spicyLyricsVersion ?? "", ...headers },
         body: JSON.stringify({ jobs }),
     });
 
