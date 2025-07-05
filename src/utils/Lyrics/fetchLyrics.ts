@@ -8,6 +8,7 @@ import { SpotifyPlayer } from "../../components/Global/SpotifyPlayer";
 import { IsCompactMode } from "../../components/Utils/CompactMode";
 import Fullscreen from "../../components/Utils/Fullscreen";
 import { SetWaitingForHeight } from "../Scrolling/ScrollToActiveLine";
+import Platform from "../../components/Global/Platform";
 
 export const LyricsStore = GetExpireStore<any>(
     "SpicyLyrics_LyricsStore",
@@ -117,16 +118,24 @@ export default async function fetchLyrics(uri: string) {
     /* const lyricsApi = storage.get("customLyricsApi") ?? Defaults.LyricsContent.api.url;
     const lyricsAccessToken = storage.get("lyricsApiAccessToken") ?? Defaults.LyricsContent.api.accessToken; */
 
+
     try {
+        const Token = await Platform.GetSpotifyAccessToken();
+        
         let lyricsText = "";
         let status = 0;
 
         const jobs = await SendJob([{
             handler: "LYRICS_ID",
             args: {
-                id: trackId
+                id: trackId,
+                auth: "SpicyLyrics-WebAuth"
             }
-        }]);
+        }],
+            {
+                "SpicyLyrics-WebAuth": `Bearer ${Token}`
+            }
+        );
 
         const lyricsJob = jobs.get("LYRICS_ID");
         if (!lyricsJob) {
