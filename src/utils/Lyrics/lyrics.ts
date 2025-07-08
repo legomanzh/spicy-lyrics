@@ -4,10 +4,11 @@ import { SpotifyPlayer } from '../../components/Global/SpotifyPlayer';
 import { Lyrics } from './Animator/Main';
 import Global from '../../components/Global/Global';
 import { OnPreRender } from '@socali/modules/Scheduler';
+import storage from '../storage';
 
 export const ScrollingIntervalTime = Infinity;
 
-export const lyricsBetweenShow = 2;
+export const lyricsBetweenShow = storage.get("minimalLyricsMode") === "true" ? 5 : 3;
 
 // Define types for lyrics objects
 // Define the AnimatorStore interface for syllables

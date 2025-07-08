@@ -70,6 +70,10 @@ function generalSettings() {
         storage.set("simpleLyricsMode", settings.getFieldValue("simple-lyrics-mode") as string);
     });
 
+    settings.addToggle("minimal-lyrics-mode", "Minimal Lyrics Mode (Only in Fullscreen/Cinema View)", Defaults.MinimalLyricsMode, () => {
+        storage.set("minimalLyricsMode", settings.getFieldValue("minimal-lyrics-mode") as string);
+    });
+
     /* settings.addToggle("low-q-mode", "Low Quality Mode (Leaving Soon)", Defaults.lowQualityMode, () => {
         storage.set("lowQMode", settings.getFieldValue("low-q-mode") as string)
     }); */

@@ -184,10 +184,11 @@ const createWordSprings = () => {
         Step: () => {},
         SetGoal: () => {},
       },
-      YOffset: {
+      /* YOffset: {
         Step: () => {},
         SetGoal: () => {},
-      },
+      }, */
+		  YOffset: new Spring(YOffsetSpline.at(0), YOffsetFrequency, YOffsetDamping),
       Glow: {
         Step: () => {},
         SetGoal: () => {},
@@ -299,7 +300,7 @@ const createLineSprings = () => {
 
 export let Blurring_LastLine: number | null = null;
 //const SKIP_ANIMATING_ACTIVE_WORD_DURATION = 235;
-let lastFrameTime = Date.now();
+let lastFrameTime = performance.now();
 
 export function findActiveElement(currentTime: number): any {
     const ProcessedPosition = currentTime + timeOffset;
@@ -376,14 +377,16 @@ function getProgressPercentage(currentTime: number, startTime: number, endTime: 
 
 
 const LIMIT_FRAMES = storage.get("simpleLyricsMode") === "true";
-const FRAME_INTERVAL = 1000 / 10;
+const FRAME_INTERVAL = 1000 / 40;
 let lastAnimateFrameTime = 0;
 
 export function Animate(position: number): void {
-  const now = Date.now();
-  const isLetterElementActive = (findActiveElement(position)?.[1] === "letter" || findActiveElement(position)?.[1] === "letterGroup");
-  if (((LIMIT_FRAMES && !isLetterElementActive) && now - lastAnimateFrameTime < FRAME_INTERVAL)) {
-    return; // Skip this frame to limit to 30fps
+  const now = performance.now();
+  //const isLetterElementActive = (findActiveElement(position)?.[1] === "letter" || findActiveElement(position)?.[1] === "letterGroup");
+  //const shouldLimitFrame = ((LIMIT_FRAMES && !isLetterElementActive && Defaults.CurrentLyricsType === "Syllable") && now - lastAnimateFrameTime < FRAME_INTERVAL);
+  const shouldLimitFrame = (LIMIT_FRAMES && now - lastAnimateFrameTime < FRAME_INTERVAL);
+  if (shouldLimitFrame) {
+    return;
   }
   const deltaTime = (now - lastFrameTime) / 1000;
   lastFrameTime = now;
@@ -422,6 +425,65 @@ export function Animate(position: number): void {
           }
       }
   };
+
+  /* const applyDistance = (arr: Array<{HTMLElement: HTMLElement; StartTime: number; EndTime: number}>,
+                     activeIndex: number): void => {
+      if (!arr[activeIndex]) return;
+
+      arr[activeIndex].HTMLElement.style.setProperty("--active-line-distance", "0");
+
+      for (let i = activeIndex + 1; i < arr.length; i++) {
+          if (getElementState(ProcessedPosition, arr[i].StartTime, arr[i].EndTime) === "Active") {
+            arr[i].HTMLElement.style.setProperty("--active-line-distance", "0");
+          } else {
+            const maxDist = arr.length - 1 - activeIndex;
+            const dist = i - activeIndex;
+            const newDist = maxDist - dist + 1;
+            arr[i].HTMLElement.style.setProperty("--active-line-distance", `${newDist}`);
+          }
+      }
+
+      for (let i = activeIndex - 1; i >= 0; i--) {
+          if (getElementState(ProcessedPosition, arr[i].StartTime, arr[i].EndTime) === "Active") {
+            arr[i].HTMLElement.style.setProperty("--active-line-distance", "0");
+          } else {
+            const maxDist = activeIndex;
+            const dist = activeIndex - i;
+            const newDist = maxDist - dist + 1;
+            arr[i].HTMLElement.style.setProperty("--active-line-distance", `${newDist}`);
+          }
+      }
+  }; */
+
+  /* const applyScale = (arr: Array<{HTMLElement: HTMLElement; StartTime: number; EndTime: number}>,
+                     activeIndex: number): void => {
+      if (!arr[activeIndex]) return;
+
+      arr[activeIndex].HTMLElement.style.setProperty("--scale-amount", "0");
+
+      const baseScale = 0.95;
+      const falloff = 0.018;
+
+      for (let i = activeIndex + 1; i < arr.length; i++) {
+          const distance = i - activeIndex;
+          const amount = Math.max(0, baseScale - (falloff * distance));
+          if (getElementState(ProcessedPosition, arr[i].StartTime, arr[i].EndTime) === "Active") {
+              arr[i].HTMLElement.style.setProperty("--scale-amount", "0");
+          } else {
+              arr[i].HTMLElement.style.setProperty("--scale-amount", `${amount}`);
+          }
+      }
+
+      for (let i = activeIndex - 1; i >= 0; i--) {
+          const distance = activeIndex - i;
+          const amount = Math.max(0, baseScale - (falloff * distance));
+          if (getElementState(ProcessedPosition, arr[i].StartTime, arr[i].EndTime) === "Active") {
+            arr[i].HTMLElement.style.setProperty("--scale-amount", `0`);
+          } else {
+            arr[i].HTMLElement.style.setProperty("--scale-amount", `${amount}`);
+          }
+      }
+  }; */
 
   // These utility functions are not used but kept for future reference
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -463,6 +525,7 @@ export function Animate(position: number): void {
           if (lineState === "Active") {
               if (Blurring_LastLine !== index) {
                 applyBlur(arr, index, BlurMultiplier);
+                //applyScale(arr, index);
                 Blurring_LastLine = index;
               };
 
@@ -538,15 +601,13 @@ export function Animate(position: number): void {
                       const currentYOffset = word.AnimatorStore.YOffset.Step(deltaTime);
                       const currentGlow = word.AnimatorStore.Glow.Step(deltaTime);
 
-                      if (!Defaults.SimpleLyricsMode) {
-                        word.HTMLElement.style.scale = `${currentScale}`;
-                        word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset}))`;
-                      }
+                      word.HTMLElement.style.scale = `${currentScale}`;
+                      word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset}))`;
                       if (!isLetterGroup) {
                         if (Defaults.SimpleLyricsMode) {
                           if (wordState === "Active" && !word.SLMAnimated) {
                             word.HTMLElement.style.removeProperty("--SLM_GradientPosition");
-                            word.HTMLElement.style.removeProperty("--SLM_TranslateY");
+                            //word.HTMLElement.style.removeProperty("--SLM_TranslateY");
                             word.HTMLElement.style.animation = getSLMAnimation(totalDuration);
                             word.SLMAnimated = true;
                             /* word.PreSLMAnimated = false; */
@@ -565,7 +626,7 @@ export function Animate(position: number): void {
                             //if (!word.PreSLMAnimated) {
                               word.HTMLElement.style.animation = "none";
                               word.HTMLElement.style.setProperty("--SLM_GradientPosition", "-50%");
-                              word.HTMLElement.style.setProperty("--SLM_TranslateY", "0.01");
+                              //word.HTMLElement.style.setProperty("--SLM_TranslateY", "0.01");
                             //}
                             word.SLMAnimated = false;
                             /* word.PreSLMAnimated = false; */
@@ -573,7 +634,7 @@ export function Animate(position: number): void {
                           if (wordState === "Sung") {
                             word.HTMLElement.style.animation = "none";
                             word.HTMLElement.style.setProperty("--SLM_GradientPosition", "100%")
-                            word.HTMLElement.style.setProperty("--SLM_TranslateY", "-0.03");
+                            //word.HTMLElement.style.setProperty("--SLM_TranslateY", "-0.03");
                             //word.HTMLElement.style.animation = getSLMAnimation(0);
                             word.SLMAnimated = false;
                             /* word.PreSLMAnimated = false; */
@@ -781,7 +842,13 @@ export function Animate(position: number): void {
                         const currentYOffset = letter.AnimatorStore.YOffset.Step(deltaTime);
                         const currentGlow = letter.AnimatorStore.Glow.Step(deltaTime);
 
-                        letter.HTMLElement.style.setProperty("--gradient-position", `-20%${Defaults.SimpleLyricsMode ? " !important" : ""}`);
+                        if (Defaults.SimpleLyricsMode) {
+                          letter.HTMLElement.style.animation = "none";
+                          letter.HTMLElement.style.setProperty("--SLM_GradientPosition", "-50%");
+                        } else {
+                          letter.HTMLElement.style.setProperty("--gradient-position", `-20%`);
+                        }
+
                         letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset * 2}))`;
                         letter.HTMLElement.style.scale = `${currentScale}`;
                         letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (12 * currentGlow)}px`);
@@ -806,7 +873,12 @@ export function Animate(position: number): void {
                         const currentYOffset = letter.AnimatorStore.YOffset.Step(deltaTime);
                         const currentGlow = letter.AnimatorStore.Glow.Step(deltaTime);
 
-                        letter.HTMLElement.style.setProperty("--gradient-position", `100%${Defaults.SimpleLyricsMode ? " !important" : ""}`);
+                        if (Defaults.SimpleLyricsMode) {
+                          letter.HTMLElement.style.animation = "none";
+                          letter.HTMLElement.style.setProperty("--SLM_GradientPosition", "100%");
+                        } else {
+                          letter.HTMLElement.style.setProperty("--gradient-position", `100%`);
+                        }
                         letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset * 2}))`;
                         letter.HTMLElement.style.scale = `${currentScale}`;
                         letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (12 * currentGlow)}px`);
@@ -919,10 +991,10 @@ export function Animate(position: number): void {
                           const currentScale = word.AnimatorStore.Scale.Step(deltaTime);
                           const currentYOffset = word.AnimatorStore.YOffset.Step(deltaTime);
                           const currentGlow = word.AnimatorStore.Glow.Step(deltaTime);
-                          if (!Defaults.SimpleLyricsMode) {
+                          //if (!Defaults.SimpleLyricsMode) {
                             word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset}))`;
                             word.HTMLElement.style.scale = `${currentScale}`;
-                          }
+                          //}
                           if (!word.LetterGroup) {
                             if (Defaults.SimpleLyricsMode) {
                               word.HTMLElement.style.animation = "none";
@@ -969,7 +1041,12 @@ export function Animate(position: number): void {
                           const currentYOffset = letter.AnimatorStore.YOffset.Step(deltaTime);
                           const currentGlow = letter.AnimatorStore.Glow.Step(deltaTime);
 
-                          letter.HTMLElement.style.setProperty("--gradient-position", `100%${Defaults.SimpleLyricsMode ? " !important" : ""}`);
+                          if (Defaults.SimpleLyricsMode) {
+                            letter.HTMLElement.style.animation = "none";
+                            letter.HTMLElement.style.setProperty("--SLM_GradientPosition", "100%");
+                          } else {
+                            letter.HTMLElement.style.setProperty("--gradient-position", `100%`);
+                          }
                           letter.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset * 2}))`;
                           letter.HTMLElement.style.scale = `${currentScale}`;
                           letter.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (12 * currentGlow)}px`);
@@ -978,8 +1055,6 @@ export function Animate(position: number): void {
                   }
                 }
               }
-
-
 
               {
                 const NextLine = arr[index + 1];
@@ -1004,6 +1079,7 @@ export function Animate(position: number): void {
           if (lineState === "Active") {
               if (Blurring_LastLine !== index) {
                 applyBlur(arr, index, BlurMultiplier);
+                //applyScale(arr, index);
                 Blurring_LastLine = index;
               };
 
@@ -1100,9 +1176,11 @@ export function Animate(position: number): void {
                 const currentGlow = line.AnimatorStore.Glow.Step(deltaTime);
 
                 // Apply styles using spring value for glow, keep direct calculation for gradient
-                line.HTMLElement.style.setProperty("--gradient-position", `${targetGradientPos}%`);
-                line.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (8 * currentGlow)}px`); // Adjusted to match reference code's glow effect
-                line.HTMLElement.style.setProperty("--text-shadow-opacity", `${currentGlow * 50}%`); // Adjusted to match reference code's glow effect
+                if (!Defaults.SimpleLyricsMode) {
+                  line.HTMLElement.style.setProperty("--gradient-position", `${targetGradientPos}%`);
+                  line.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (8 * currentGlow)}px`);
+                  line.HTMLElement.style.setProperty("--text-shadow-opacity", `${currentGlow * 50}%`);
+                }
               }
               if (Credits && Credits.classList.contains("Active")) {
                 Credits.classList.remove("Active");

@@ -12,7 +12,7 @@ import Platform from "../../components/Global/Platform";
 
 export const LyricsStore = GetExpireStore<any>(
     "SpicyLyrics_LyricsStore",
-    5,
+    6,
     {
         Unit: "Days",
         Duration: 3
@@ -87,11 +87,11 @@ export default async function fetchLyrics(uri: string) {
     if (LyricsStore) {
         try {
             const lyricsFromCacheRes = await LyricsStore.GetItem(trackId);
-            if (lyricsFromCacheRes && lyricsFromCacheRes.Value) {
-                if (lyricsFromCacheRes.Value === "NO_LYRICS") {
+            if (lyricsFromCacheRes) {
+                if (lyricsFromCacheRes?.Value === "NO_LYRICS") {
                     return await noLyricsMessage(false, true);
                 }
-                const lyricsFromCache = JSON.parse(lyricsFromCacheRes.Value) ?? {};
+                const lyricsFromCache = lyricsFromCacheRes ?? {};
                 storage.set("currentLyricsData", JSON.stringify(lyricsFromCache));
                 storage.set("currentlyFetching", "false");
                 HideLoaderContainer()
@@ -187,7 +187,7 @@ export default async function fetchLyrics(uri: string) {
             //const expiresAt = new Date().getTime() + 1000 * 60 * 60 * 24 * 7; // Expire after 7 days
 
             try {
-                await LyricsStore.SetItem(trackId, { Value: lyricsContent });
+                await LyricsStore.SetItem(trackId, lyricsJson);
             } catch (error) {
                 console.error("Error saving lyrics to cache:", error);
             }

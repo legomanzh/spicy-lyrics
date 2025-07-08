@@ -152,12 +152,23 @@ export function ApplyLineLyrics(data: LyricsData): void {
         lineElem.classList.add("rtl")
       }
 
+      const nextLineStartTime = arr[index + 1]?.StartTime ?? 0;
+      
+      const lineEndTimeAndNextLineStartTimeDistance =
+        nextLineStartTime !== 0 ? nextLineStartTime - line.EndTime : 0;
+
+      const lineEndTime =
+        Defaults.SimpleLyricsMode ?
+          nextLineStartTime === 0 ? line.EndTime :
+            lineEndTimeAndNextLineStartTimeDistance > lyricsBetweenShow ? line.EndTime :
+              nextLineStartTime : line.EndTime;
+
 
       LyricsObject.Types.Line.Lines.push({
         HTMLElement: lineElem,
         StartTime: ConvertTime(line.StartTime),
-        EndTime: ConvertTime(line.EndTime),
-        TotalTime: ConvertTime(line.EndTime) - ConvertTime(line.StartTime)
+        EndTime: ConvertTime(lineEndTime),
+        TotalTime: ConvertTime(lineEndTime) - ConvertTime(line.StartTime)
       })
 
 
