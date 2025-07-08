@@ -128,6 +128,14 @@ async function main() {
   if (storage.get("simpleLyricsMode")) {
     Defaults.SimpleLyricsMode = storage.get("simpleLyricsMode") === "true";
   }
+
+  if (!storage.get("minimalLyricsMode")) {
+    storage.set("minimalLyricsMode", "false");
+  }
+
+  if (storage.get("minimalLyricsMode")) {
+    Defaults.MinimalLyricsMode = storage.get("minimalLyricsMode") === "true";
+  }
   
   await new Promise<void>(
     resolve => {
@@ -143,7 +151,7 @@ async function main() {
     }
   )
 
-  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.5.5";
+  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.6.2";
   
 
   /* if (storage.get("lyrics_spacing")) {
@@ -278,11 +286,9 @@ async function main() {
         @keyframes SLM_Animation {
           0% {
             --SLM_GradientPosition: -50%;
-            --SLM_TranslateY: 0.01;
           }
           100% {
             --SLM_GradientPosition: 100%;
-            --SLM_TranslateY: -0.03;
           }
         }
 

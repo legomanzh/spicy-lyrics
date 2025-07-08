@@ -162,11 +162,23 @@ export function ApplySyllableLyrics(data: LyricsData): void {
       const lineElem = document.createElement("div")
       lineElem.classList.add("line")
 
+      const nextLineStartTime = arr[index + 1]?.Lead.StartTime ?? 0;
+      
+      const lineEndTimeAndNextLineStartTimeDistance =
+        nextLineStartTime !== 0 ? nextLineStartTime - line.Lead.EndTime : 0;
+
+      const lineEndTime =
+        Defaults.MinimalLyricsMode ?
+          nextLineStartTime === 0 ? line.Lead.EndTime :
+            lineEndTimeAndNextLineStartTimeDistance > lyricsBetweenShow ? line.Lead.EndTime :
+              nextLineStartTime : line.Lead.EndTime;
+      
+
       LyricsObject.Types.Syllable.Lines.push({
         HTMLElement: lineElem,
         StartTime: ConvertTime(line.Lead.StartTime),
-        EndTime: ConvertTime(line.Lead.EndTime),
-        TotalTime: ConvertTime(line.Lead.EndTime) - ConvertTime(line.Lead.StartTime)
+        EndTime: ConvertTime(lineEndTime),
+        TotalTime: ConvertTime(lineEndTime) - ConvertTime(line.Lead.StartTime)
       });
 
       SetWordArrayInCurentLine();
@@ -250,7 +262,7 @@ export function ApplySyllableLyrics(data: LyricsData): void {
       if (line.Background) {
         line.Background.forEach((bg) => {
           const lineE = document.createElement("div");
-          lineE.classList.add("line", "bg-line")
+          lineE.classList.add("line", "bg-line");
 
           LyricsObject.Types.Syllable.Lines.push({
             HTMLElement: lineE,

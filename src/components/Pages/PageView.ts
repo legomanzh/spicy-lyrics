@@ -150,6 +150,10 @@ async function OpenPage(AppendTo: HTMLElement | undefined = undefined, HoverMode
         elem.classList.add("SimpleLyricsMode");
     }
 
+    if (Defaults.MinimalLyricsMode) {
+        elem.classList.add("MinimalLyricsMode");
+    }
+
     if (AppendTo !== undefined) {
         AppendTo?.appendChild(elem);
     } else {

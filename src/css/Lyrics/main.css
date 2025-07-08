@@ -21,10 +21,11 @@
   --StrongerTextGlowDef: rgba(255,255,255,0.74) 0px 0px 16px;
   --DefaultLyricsSize: clamp(1.85rem,calc(1cqw* 7), 3.5rem);
   --Simplebar-Scrollbar-Color: rgba(255, 255, 255, 0.6);
+  --vertical-gap: 0px;
 
   overflow-x: hidden !important;
   overflow-y: auto !important;
-  height: 100%;
+  height: calc(100% - var(--vertical-gap));
   width: 100%;
   font-size: var(--DefaultLyricsSize);
   font-weight: 700;
@@ -49,6 +50,10 @@
   transition: opacity .25s;
 }
 
+/* #SpicyLyricsPage.Fullscreen.MinimalLyricsMode .LyricsContainer .LyricsContent {
+  --vertical-gap: 14cqh;
+} */
+
 #SpicyLyricsPage .LyricsContainer .LyricsContent.HiddenTransitioned {
   opacity: 0;
 }
@@ -62,6 +67,10 @@
   
   margin-bottom: 45cqh;
   margin-top: 25cqh;
+}
+
+#SpicyLyricsPage.Fullscreen.MinimalLyricsMode .LyricsContainer .LyricsContent .SpicyLyricsScrollContainer {
+  margin-top: 40cqh;
 }
 /* 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .BottomSpacer {

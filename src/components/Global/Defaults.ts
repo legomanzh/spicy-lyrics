@@ -19,6 +19,7 @@ const Defaults = {
     StaticBackgroundType: "Auto",
     DevMode: false,
     SimpleLyricsMode: false,
+    MinimalLyricsMode: false,
 }
 
 export default Defaults;

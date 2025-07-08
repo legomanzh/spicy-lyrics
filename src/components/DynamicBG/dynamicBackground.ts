@@ -31,13 +31,21 @@ export const DynamicBackgroundConfig: DynamicBackgroundOptions = {
     ]
 }
 
-Global.Event.listen("playback:songchange", () => {
-    //setTimeout(() => SongChangeSignal.Fire(), 1000)
-    SongChangeSignal.Fire()
-})
-
 // Store the DynamicBackground instance and element for reuse
 let currentBgInstance: DynamicBackground | null = null;
+
+Global.Event.listen("playback:songchange", () => {
+    //setTimeout(() => SongChangeSignal.Fire(), 1000)
+    SongChangeSignal.Fire();
+
+    setTimeout(() => {
+        if (currentBgInstance && SpotifyPlayer.GetCover("large")) {
+            currentBgInstance.Update({
+                image: SpotifyPlayer.GetCover("large") ?? ""
+            })
+        }
+    }, 2000)
+})
 
 export const CleanupDynamicBGLets = () => {
     if (currentBgInstance) {

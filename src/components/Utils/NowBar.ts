@@ -1044,6 +1044,12 @@ function UpdateNowBar(force = false) {
     }
 }
 
+Global.Event.listen("playback:songchange", () => {
+    setTimeout(() => {
+        UpdateNowBar();
+    }, 2000);
+})
+
 function NowBar_SwapSides() {
     const NowBar = document.querySelector("#SpicyLyricsPage .ContentBox .NowBar");
     if (!NowBar) return;
