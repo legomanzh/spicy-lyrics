@@ -1,5 +1,6 @@
 // the chromium browser instance seems to not support the hls codec i need to use, so i guess this probably wont be used, or atleast until i find a better solution
-/* import { SendJob } from "./SendJob"
+/* import Platform from "../../components/Global/Platform";
+import { SendJob } from "./SendJob"
 
 export type EditorialArtwork = {
     previewFrame: {
@@ -33,14 +34,19 @@ export type EditorialArtworkResult = {
 
 export const GetEditorialArtwork = async (trackId: string): Promise<EditorialArtworkResult | null> => {
     try {
+        const Token = await Platform.GetSpotifyAccessToken();
+
         const response = await SendJob([
             {
                 handler: "EDITORIAL_ARTWORK",
                 args: {
-                    id: trackId
+                    id: trackId,
+                    auth: "SpicyLyrics-WebAuth"
                 }
             }
-        ])
+        ], {
+            "SpicyLyrics-WebAuth": `Bearer ${Token}`
+        })
 
         const result = response.get("EDITORIAL_ARTWORK");
         if (!result || !result.responseData) throw new Error("No result EDITORIAL_ARTWORK job");

@@ -2,7 +2,7 @@ import Defaults from "../../../../components/Global/Defaults";
 import { applyStyles, removeAllStyles } from "../../../CSS/Styles";
 import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../../Scrolling/Simplebar/ScrollSimplebar";
 import { ConvertTime } from "../../ConvertTime";
-import { ClearLyricsContentArrays, LINE_SYNCED_CurrentLineLyricsObject, lyricsBetweenShow, LyricsObject, SetWordArrayInCurentLine_LINE_SYNCED, SimpleLyricsMode_InterludeAddonTime } from "../../lyrics";
+import { ClearLyricsContentArrays, endInterludeEarlierBy, LINE_SYNCED_CurrentLineLyricsObject, lyricsBetweenShow, LyricsObject, SetWordArrayInCurentLine_LINE_SYNCED, SimpleLyricsMode_InterludeAddonTime } from "../../lyrics";
 import { ApplyLyricsCredits } from "../Credits/ApplyLyricsCredits";
 import isRtl from "../../isRtl";
 import { ClearLyricsPageContainer } from "../../fetchLyrics";
@@ -62,8 +62,8 @@ export function ApplyLineLyrics(data: LyricsData): void {
         LyricsObject.Types.Line.Lines.push({
           HTMLElement: musicalLine,
           StartTime: 0,
-          EndTime: ConvertTime(data.StartTime),
-          TotalTime: ConvertTime(data.StartTime),
+          EndTime: ConvertTime(data.StartTime + endInterludeEarlierBy),
+          TotalTime: ConvertTime(data.StartTime + endInterludeEarlierBy),
           DotLine: true
         })
 
@@ -160,8 +160,8 @@ export function ApplyLineLyrics(data: LyricsData): void {
       const lineEndTime =
         Defaults.SimpleLyricsMode ?
           nextLineStartTime === 0 ? line.EndTime :
-            lineEndTimeAndNextLineStartTimeDistance > lyricsBetweenShow ? line.EndTime :
-              nextLineStartTime : line.EndTime;
+            lineEndTimeAndNextLineStartTimeDistance < lyricsBetweenShow && nextLineStartTime > line.EndTime ? nextLineStartTime :
+              line.EndTime : line.EndTime;
 
 
       LyricsObject.Types.Line.Lines.push({
@@ -186,8 +186,8 @@ export function ApplyLineLyrics(data: LyricsData): void {
             LyricsObject.Types.Line.Lines.push({
               HTMLElement: musicalLine,
               StartTime: ConvertTime(line.EndTime),
-              EndTime: ConvertTime(arr[index + 1].StartTime),
-              TotalTime: ConvertTime(arr[index + 1].StartTime) - ConvertTime(line.EndTime),
+              EndTime: ConvertTime(arr[index + 1].StartTime + endInterludeEarlierBy),
+              TotalTime: ConvertTime(arr[index + 1].StartTime + endInterludeEarlierBy) - ConvertTime(line.EndTime),
               DotLine: true
             })
 

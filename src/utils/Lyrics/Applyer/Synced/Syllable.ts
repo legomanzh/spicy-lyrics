@@ -2,7 +2,7 @@ import Defaults from "../../../../components/Global/Defaults";
 import { applyStyles, removeAllStyles } from "../../../CSS/Styles";
 import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../../Scrolling/Simplebar/ScrollSimplebar";
 import { ConvertTime } from "../../ConvertTime";
-import { ClearLyricsContentArrays, CurrentLineLyricsObject, lyricsBetweenShow, LyricsObject, SetWordArrayInCurentLine, SimpleLyricsMode_InterludeAddonTime } from "../../lyrics";
+import { ClearLyricsContentArrays, CurrentLineLyricsObject, endInterludeEarlierBy, lyricsBetweenShow, LyricsObject, SetWordArrayInCurentLine, SimpleLyricsMode_InterludeAddonTime } from "../../lyrics";
 import { ApplyLyricsCredits } from "../Credits/ApplyLyricsCredits";
 import { IsLetterCapable } from "../Utils/IsLetterCapable";
 import Emphasize from "../Utils/Emphasize";
@@ -79,8 +79,8 @@ export function ApplySyllableLyrics(data: LyricsData): void {
     LyricsObject.Types.Syllable.Lines.push({
       HTMLElement: musicalLine,
       StartTime: 0,
-      EndTime: ConvertTime(data.StartTime),
-      TotalTime: ConvertTime(data.StartTime),
+      EndTime: ConvertTime(data.StartTime + endInterludeEarlierBy),
+      TotalTime: ConvertTime(data.StartTime + endInterludeEarlierBy),
       DotLine: true
     })
 
@@ -170,8 +170,8 @@ export function ApplySyllableLyrics(data: LyricsData): void {
       const lineEndTime =
         Defaults.MinimalLyricsMode ?
           nextLineStartTime === 0 ? line.Lead.EndTime :
-            lineEndTimeAndNextLineStartTimeDistance > lyricsBetweenShow ? line.Lead.EndTime :
-              nextLineStartTime : line.Lead.EndTime;
+            lineEndTimeAndNextLineStartTimeDistance < lyricsBetweenShow && nextLineStartTime > line.Lead.EndTime ? nextLineStartTime :
+              line.Lead.EndTime : line.Lead.EndTime;
       
 
       LyricsObject.Types.Syllable.Lines.push({
@@ -250,7 +250,6 @@ export function ApplySyllableLyrics(data: LyricsData): void {
               StartTime: ConvertTime(lead.StartTime),
               EndTime: ConvertTime(lead.EndTime),
               TotalTime: totalDuration,
-              
             });
           } else {
             console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
@@ -353,8 +352,8 @@ export function ApplySyllableLyrics(data: LyricsData): void {
           LyricsObject.Types.Syllable.Lines.push({
             HTMLElement: musicalLine,
             StartTime: ConvertTime(line.Lead.EndTime),
-            EndTime: ConvertTime(arr[index + 1].Lead.StartTime),
-            TotalTime: ConvertTime(arr[index + 1].Lead.StartTime) - ConvertTime(line.Lead.EndTime),
+            EndTime: ConvertTime(arr[index + 1].Lead.StartTime + endInterludeEarlierBy),
+            TotalTime: ConvertTime(arr[index + 1].Lead.StartTime + endInterludeEarlierBy) - ConvertTime(line.Lead.EndTime),
             DotLine: true
           })
 

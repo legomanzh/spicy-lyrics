@@ -1,5 +1,4 @@
 import { SpotifyPlayer } from "./../../components/Global/SpotifyPlayer";
-import Global from "../../components/Global/Global";
 
 interface SyncedPosition {
   StartedSyncAt: number;

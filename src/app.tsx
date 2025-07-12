@@ -151,7 +151,7 @@ async function main() {
     }
   )
 
-  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.6.2";
+  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.7.1";
   
 
   /* if (storage.get("lyrics_spacing")) {

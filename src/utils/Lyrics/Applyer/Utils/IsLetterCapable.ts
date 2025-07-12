@@ -15,10 +15,10 @@ const SimpleLyricsModeCapable = (letterLength: number, totalDuration: number) =>
         return false;
     }
 
-    const minDuration = 1080;
-    const maxDuration = 8550;
+    const minDuration = 800;
+    //const maxDuration = 8550;
 
-    return totalDuration >= minDuration && totalDuration <= maxDuration;
+    return totalDuration >= minDuration;// && totalDuration <= maxDuration;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
