@@ -2,9 +2,11 @@ import { easeSinOut } from "d3-ease";
 import Spring from '@socali/modules/Spring';
 import Spline from 'cubic-spline';
 import Defaults from "../../../../components/Global/Defaults";
-import { LyricsObject } from "../../lyrics";
+import { LyricsObject, SimpleLyricsMode_LetterEffectsStrengthConfig } from "../../lyrics";
 import { BlurMultiplier, timeOffset } from "../Shared";
 import storage from "../../../storage";
+import Global from "../../../../components/Global/Global";
+/* import { CurveInterpolator } from "curve-interpolator"; */
 
 
 const getSLMAnimation = (duration: number) => {
@@ -111,7 +113,7 @@ const DotGroupAnimations = {
 	ScaleDamping: 0.7, // 0.6
 	ScaleFrequency: 5, // 4
 
-	ScaleRange: [
+	ScaleRange: [ // Time is actually real-time (so in seconds)
 		{
 			Time: 0,
 			Value: 0
@@ -161,7 +163,7 @@ const DotGroupAnimations = {
 			Value: 0
 		} // Rest
 	]
-};
+}
 
 
 
@@ -171,9 +173,11 @@ const DotGlowSpline = GetSpline(DotAnimations.GlowRange);
 const DotOpacitySpline = GetSpline(DotAnimations.OpacityRange);
 
 // DotGroup splines
-const DotGroupScaleSpline = GetSpline(DotGroupAnimations.ScaleRange);
-const DotGroupYOffsetSpline = GetSpline(DotGroupAnimations.YOffsetRange);
-const DotGroupOpacitySpline = GetSpline(DotGroupAnimations.OpacityRange);
+//const DotGroupScaleSpline = GetSpline(DotGroupAnimations.ScaleRange);
+/* const DotGroupYOffsetSpline = new CurveInterpolator(
+	DotGroupAnimations.YOffsetRange.map((metadata) => [metadata.Time, metadata.Value])
+); */
+//const DotGroupOpacitySpline = GetSpline(DotGroupAnimations.OpacityRange);
 
 const SungLetterGlow = 0.2;
 
@@ -232,7 +236,7 @@ const createDotSprings = () => {
 // DotGroup Springs Function - for animating the entire dotGroup element
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const createDotGroupSprings = () => {
-  if (Defaults.SimpleLyricsMode) {
+/*   if (Defaults.SimpleLyricsMode) {
     return {
       Scale: {
         Step: () => {},
@@ -247,11 +251,11 @@ const createDotGroupSprings = () => {
         SetGoal: () => {},
       },
     }
-  }
+  } */
 	return {
-		Scale: new Spring(DotGroupScaleSpline.at(0), DotGroupAnimations.ScaleFrequency, DotGroupAnimations.ScaleDamping),
-		YOffset: new Spring(DotGroupYOffsetSpline.at(0), DotGroupAnimations.YOffsetFrequency, DotGroupAnimations.YOffsetDamping),
-    Opacity: new Spring(DotGroupOpacitySpline.at(0), DotGroupAnimations.YOffsetFrequency, DotGroupAnimations.YOffsetDamping)
+		Scale: new Spring(0, DotGroupAnimations.ScaleFrequency, DotGroupAnimations.ScaleDamping),
+		YOffset: new Spring(0, DotGroupAnimations.YOffsetFrequency, DotGroupAnimations.YOffsetDamping),
+    Opacity: new Spring(0, DotGroupAnimations.YOffsetFrequency, DotGroupAnimations.YOffsetDamping)
 	};
 };
 
@@ -377,14 +381,18 @@ function getProgressPercentage(currentTime: number, startTime: number, endTime: 
 
 
 const LIMIT_FRAMES = storage.get("simpleLyricsMode") === "true";
-const FRAME_INTERVAL = 1000 / 40;
+let FRAME_INTERVAL = 1000 / 30;
 let lastAnimateFrameTime = 0;
+
+Global.SetScope("lyrics.animator.set_frame_interval", (input: number) => {
+  FRAME_INTERVAL = input;
+})
 
 export function Animate(position: number): void {
   const now = performance.now();
-  //const isLetterElementActive = (findActiveElement(position)?.[1] === "letter" || findActiveElement(position)?.[1] === "letterGroup");
-  //const shouldLimitFrame = ((LIMIT_FRAMES && !isLetterElementActive && Defaults.CurrentLyricsType === "Syllable") && now - lastAnimateFrameTime < FRAME_INTERVAL);
-  const shouldLimitFrame = (LIMIT_FRAMES && now - lastAnimateFrameTime < FRAME_INTERVAL);
+  const isLetterElementActive = (findActiveElement(position)?.[1] === "letter" || findActiveElement(position)?.[1] === "letterGroup");
+  const shouldLimitFrame = ((LIMIT_FRAMES && !isLetterElementActive) && now - lastAnimateFrameTime < FRAME_INTERVAL);
+  //const shouldLimitFrame = (LIMIT_FRAMES && now - lastAnimateFrameTime < FRAME_INTERVAL);
   if (shouldLimitFrame) {
     return;
   }
@@ -646,6 +654,49 @@ export function Animate(position: number): void {
                         word.HTMLElement.style.setProperty("--text-shadow-opacity", `${Math.min(currentGlow * 35, 100)}%`);
                       }
                   } else if (isDot && !isLetterGroup) {
+
+                      // DotGroup
+                      // (still undone)
+                      /* {
+
+                        // const dotGroupPercentage = getProgressPercentage(ProcessedPosition, dotGroup.StartTime, dotGroup.EndTime);
+
+                        const relativeTime = ((ProcessedPosition / 1000) - dotGroup.StartTime)
+		                    const timeScale = Clamp((relativeTime / dotGroup.TotalTime), 0, 1)
+
+                        let yOffset: number;
+                        if (dotGroupState === 'Sung') {
+                          yOffset = DotGroupYOffsetSpline.getPointAt(1)[1]
+                        } else {
+                          yOffset = DotGroupYOffsetSpline.getPointAt(timeScale)[1]
+                        }
+
+                        // Find our scale/opacity points
+                        const scaleIntersections = ((line as any).MainScaleSpline.getIntersects(timeScale) as number[][])
+                        const opacityIntersections = ((line as any).MainOpacitySpline.getIntersects(timeScale) as number[][])
+                        const scale = (
+                          (scaleIntersections.length === 0) ? 1
+                          : scaleIntersections[scaleIntersections.length - 1][1]
+                        );
+                        
+                        const opacity = (
+                          (opacityIntersections.length === 0) ? 1
+                          : opacityIntersections[opacityIntersections.length - 1][1]
+                        ) as any;
+
+                        (line.AnimatorStore as any).Scale.SetGoal(scale);
+                        (line.AnimatorStore as any).YOffset.SetGoal(yOffset);
+                        (line.AnimatorStore as any).Opacity.SetGoal(opacity);
+
+                        const currentScale = (line.AnimatorStore as any).Scale.Step(deltaTime);
+                        const currentYOffset = (line.AnimatorStore as any).YOffset.Step(deltaTime);
+                        const currentOpacity = (line.AnimatorStore as any).Opacity.Step(deltaTime);
+
+                        dotGroup.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset}))`;
+                        dotGroup.HTMLElement.style.scale = currentScale.toString();
+                        dotGroup.HTMLElement.style.opacity = currentOpacity.toString();
+                      } */
+
                       // Refactored Dot Animation using Springs
                       if (!word.AnimatorStore) {
                         word.AnimatorStore = createDotSprings();
@@ -660,7 +711,7 @@ export function Animate(position: number): void {
                       let targetGlow: number;
                       let targetOpacity: number;
 
-                  if (wordState === "Active") {
+                      if (wordState === "Active") {
                           targetScale = DotScaleSpline.at(percentage);
                           targetYOffset = DotYOffsetSpline.at(percentage);
                           targetGlow = DotGlowSpline.at(percentage);
@@ -687,7 +738,7 @@ export function Animate(position: number): void {
                       const currentGlow = word.AnimatorStore.Glow.Step(deltaTime);
                       const currentOpacity = word.AnimatorStore.Opacity.Step(deltaTime);
 
-                      word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset}))`; // Use --DefaultLyricsSize
+                      word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset ?? 0}))`; // Use --DefaultLyricsSize
                       word.HTMLElement.style.scale = `${currentScale}`;
                       word.HTMLElement.style.opacity = `${currentOpacity}`;
                       word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (6 * currentGlow)}px`); // Match inspiration
@@ -738,9 +789,22 @@ export function Animate(position: number): void {
                               getProgressPercentage(ProcessedPosition, word.StartTime, word.EndTime)
                             : activeLetterPercentage);
 
-                          const baseScale = ScaleSpline.at(percentageCount) * (Defaults.SimpleLyricsMode ? 1.115 : 1);
-                          const baseYOffset = LetterYOffsetSpline.at(percentageCount) * (Defaults.SimpleLyricsMode ? 1.5 : 1);
-                          const baseGlow = GlowSpline.at(percentageCount) * (Defaults.SimpleLyricsMode ? 0.47 : 1);
+                          const config = SimpleLyricsMode_LetterEffectsStrengthConfig;
+                          const baseScale = ScaleSpline.at(percentageCount) *
+                            (Defaults.SimpleLyricsMode
+                              ? word.TotalTime > config.LongerThan
+                                ? config.Longer.Scale : config.Shorter.Scale
+                              : 1);
+                          const baseYOffset = LetterYOffsetSpline.at(percentageCount) *
+                            (Defaults.SimpleLyricsMode
+                              ? word.TotalTime > config.LongerThan
+                                ? config.Longer.YOffset : config.Shorter.YOffset
+                              : 1);
+                          const baseGlow = GlowSpline.at(percentageCount) *
+                            (Defaults.SimpleLyricsMode
+                              ? word.TotalTime > config.LongerThan
+                                ? config.Longer.Glow : config.Shorter.Glow
+                              : 1);
 
                           // Get the resting values
                           const restingScale = ScaleSpline.at(0);
@@ -752,7 +816,7 @@ export function Animate(position: number): void {
 
                           // Use a steeper falloff curve for proximity effect
                           // This creates a more pronounced difference between the active letter and others
-                          const falloff = Math.max(0, 1 / (1 + distance * 0.8));
+                          const falloff = Math.max(0, 1 / (1 + distance * 0.9));
 
                           // Apply the proximity-based animation values
                           targetScale = restingScale + (baseScale - restingScale) * falloff;
@@ -1006,6 +1070,130 @@ export function Animate(position: number): void {
                             word.HTMLElement.style.setProperty("--text-shadow-opacity", `${Math.min(currentGlow * 35, 100)}%`);
                           }
                     } else if (word.AnimatorStore && word.Dot && !word.LetterGroup) { // Handle dot sung state
+
+                      // Again - undone
+                      /* {
+                        const dotGroup = {
+                          HTMLElement: word.HTMLElement.parentElement,
+                          StartTime: words[0].StartTime,
+                          EndTime: words[words.length - 1].EndTime,
+                          TotalTime: words[words.length - 1].EndTime - words[0].StartTime,
+                        }
+                        if (!dotGroup.HTMLElement) return;
+
+                        const dotGroupState = getElementState(ProcessedPosition, words[0].StartTime, words[words.length - 1].EndTime);
+                        const percentage = getProgressPercentage(ProcessedPosition, words[0].StartTime, words[words.length - 1].EndTime);
+
+                        if (!line.AnimatorStore) {
+                          if (!(line as any).MainScaleRange) {
+                            (line as any).MainScaleRange = DotGroupAnimations.ScaleRange.map(
+                              (point) => {
+                                return {
+                                  Time: point.Time,
+                                  Value: point.Value
+                                }
+                              }
+                            );
+
+                            (line as any).MainScaleRange[2].Time += dotGroup.TotalTime;
+                            (line as any).MainScaleRange[3].Time = dotGroup.TotalTime;
+
+                            {
+                              const startPoint = (line as any).MainScaleRange[1]
+                              const endPoint = (line as any).MainScaleRange[2]
+                          
+                              const deltaTime = (endPoint.Time - startPoint.Time)
+
+                              const PulseInterval = 2.25;
+                              const DownPulse = 0.95;
+                              const UpPulse = 1.05;
+                          
+                              for (let iteration = Math.floor(deltaTime / PulseInterval); iteration > 0; iteration -= 1) {
+                                const time = (startPoint.Time + (iteration * PulseInterval))
+                                const value = ((iteration % 2 === 0) ? UpPulse : DownPulse) as any;
+                          
+                                (line as any).MainScaleRange.splice(
+                                  2, 0,
+                                  {
+                                    Time: time,
+                                    Value: value
+                                  }
+                                )
+                              }
+                            }
+
+                            for (const range of (line as any).MainScaleRange) {
+                              range.Time /= dotGroup.TotalTime
+                            }
+
+                            (line as any).MainScaleSpline = new CurveInterpolator(
+                              (line as any).MainScaleRange.map((metadata: any) => [metadata.Time, metadata.Value])
+                            )
+                          }
+
+                          if (!(line as any).MainOpacityRange) {
+                            (line as any).MainOpacityRange = DotGroupAnimations.OpacityRange.map(
+                              (point) => {
+                                return {
+                                  Time: point.Time,
+                                  Value: point.Value
+                                }
+                              }
+                            );
+
+                            (line as any).MainOpacityRange[2].Time += dotGroup.TotalTime;
+                            (line as any).MainOpacityRange[3].Time = dotGroup.TotalTime;
+
+                            for (const range of (line as any).MainOpacityRange) {
+                              range.Time /= dotGroup.TotalTime
+                            }
+
+                            (line as any).MainOpacitySpline = new CurveInterpolator(
+                              (line as any).MainOpacityRange.map((metadata: any) => [metadata.Time, metadata.Value])
+                            )
+                          }
+
+                          (line.AnimatorStore as any) = createDotGroupSprings();
+                          if (!line.AnimatorStore) return;
+                          (line.AnimatorStore as any).Scale.SetGoal(0, true);
+                          (line.AnimatorStore as any).YOffset.SetGoal(0, true);
+                          (line.AnimatorStore as any).Opacity.SetGoal(0, true);
+                        }
+                        const relativeTime = ((ProcessedPosition * 1000) - dotGroup.StartTime)
+		                    const timeScale = Clamp((relativeTime / dotGroup.TotalTime), 0, 1)
+
+                        let yOffset: number;
+                        if (dotGroupState === 'Sung') {
+                          yOffset = DotGroupYOffsetSpline.getPointAt(1)[1]
+                        } else {
+                          yOffset = DotGroupYOffsetSpline.getPointAt(timeScale)[1]
+                        }
+
+                        // Find our scale/opacity points
+                        const scaleIntersections = ((line as any).MainScaleSpline.getIntersects(timeScale) as number[][])
+                        const opacityIntersections = ((line as any).MainOpacitySpline.getIntersects(timeScale) as number[][])
+                        const scale = (
+                          (scaleIntersections.length === 0) ? 1
+                          : scaleIntersections[scaleIntersections.length - 1][1]
+                        )
+                        const opacity = (
+                          (opacityIntersections.length === 0) ? 1
+                          : opacityIntersections[opacityIntersections.length - 1][1]
+                        ) as any;
+
+                        (line.AnimatorStore as any).Scale.SetGoal(scale);
+                        (line.AnimatorStore as any).YOffset.SetGoal(yOffset);
+                        (line.AnimatorStore as any).Opacity.SetGoal(opacity);
+
+                        const currentScale = (line.AnimatorStore as any).Scale.Step(deltaTime);
+                        const currentYOffset = (line.AnimatorStore as any).YOffset.Step(deltaTime);
+                        const currentOpacity = (line.AnimatorStore as any).Opacity.Step(deltaTime);
+
+                        dotGroup.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset}))`;
+                        dotGroup.HTMLElement.style.scale = `${currentScale}`;
+                        dotGroup.HTMLElement.style.opacity = easeSinOut(currentOpacity).toString();
+                      } */
+
                         word.AnimatorStore.Scale.SetGoal(DotScaleSpline.at(1));
                         word.AnimatorStore.YOffset.SetGoal(DotYOffsetSpline.at(1));
                         word.AnimatorStore.Glow.SetGoal(DotGlowSpline.at(1));
@@ -1016,7 +1204,7 @@ export function Animate(position: number): void {
                         const currentGlow = word.AnimatorStore.Glow.Step(deltaTime);
                         const currentOpacity = word.AnimatorStore.Opacity.Step(deltaTime);
 
-                        word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset}))`;
+                        word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset ?? 0}))`;
                         word.HTMLElement.style.scale = `${currentScale}`;
                         word.HTMLElement.style.opacity = `${currentOpacity}`;
                         word.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (6 * currentGlow)}px`);
@@ -1145,7 +1333,7 @@ export function Animate(position: number): void {
                   const currentGlow = dot.AnimatorStore.Glow.Step(deltaTime);
                   const currentOpacity = dot.AnimatorStore.Opacity.Step(deltaTime);
 
-                  dot.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset}))`; // Use --DefaultLyricsSize?
+                  dot.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset ?? 0}))`; // Use --DefaultLyricsSize?
                   dot.HTMLElement.style.scale = `${currentScale}`;
                   dot.HTMLElement.style.opacity = `${currentOpacity}`;
                   dot.HTMLElement.style.setProperty("--text-shadow-blur-radius", `${4 + (6 * currentGlow)}px`);

@@ -10,6 +10,22 @@ export const ScrollingIntervalTime = Infinity;
 
 export const lyricsBetweenShow = storage.get("minimalLyricsMode") === "true" ? 5 : 3;
 
+export const endInterludeEarlierBy = 0;
+
+export const SimpleLyricsMode_LetterEffectsStrengthConfig = {
+  LongerThan: 1200,
+  Longer: {
+    Glow: 0.44,
+    YOffset: 0.9,
+    Scale: 1.15,
+  },
+  Shorter: {
+    Glow: 0.4,
+    YOffset: 0.1,
+    Scale: 1.05,
+  }
+}
+
 // Define types for lyrics objects
 // Define the AnimatorStore interface for syllables
 export interface SyllableAnimatorStore {

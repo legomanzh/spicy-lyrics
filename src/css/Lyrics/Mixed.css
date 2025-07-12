@@ -490,18 +490,19 @@
 
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line {
-  transition: scale 0.25s ease-in-out, line-height 0.14s ease-in-out, margin 0.1s ease-in-out, z-index 0.1s linear !important;
+  transition: line-height 0.14s, margin 0.1s, z-index 0.1s !important;
   position: relative;
   transform-origin: center center !important;
   font-family: SpicyLyrics !important;
   z-index: -1;
   line-height: 0 !important;
   margin: 0 !important;
+  /* scale: 0 !important; */
 }
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line .dotGroup {
+  transition: scale 0.25s !important;
   scale: 0;
-  transition: scale 0.25s ease-in-out !important;
   font-family: SpicyLyrics !important;
   transform-origin: center center;
 }
@@ -514,7 +515,7 @@
 
 
 #SpicyLyricsPage .LyricsContainer .LyricsContent .line.musical-line.Active .dotGroup {
-  scale: 1;
+  scale: 1 !important;
 }
 
 /* #SpicyLyricsPage.SimpleLyricsMode .LyricsContainer .LyricsContent .line,
@@ -579,4 +580,8 @@
 
 #SpicyLyricsPage.SimpleLyricsMode .LyricsContainer .LyricsContent .SpicyLyricsScrollContainer[data-lyrics-type="Line"] .line {
   --gradient-position: 100% !important;
+}
+
+#SpicyLyricsPage.Fullscreen.MinimalLyricsMode .LyricsContainer .LyricsContent:not(.HideLineBlur) .line.Active + .line.Sung:not(.musical-line) {
+  opacity: 0.45 !important;
 }
