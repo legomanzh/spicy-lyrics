@@ -77,7 +77,7 @@ export const CleanupDynamicBGLets = () => {
 }
 
 Global.Event.listen("compact-mode:enable", () => {
-    console.log("CompactMode: Enabled")
+    // console.log("CompactMode: Enabled")
     if (currentBgInstance) {
         currentBgInstance.Update({
             blur: 70
@@ -86,7 +86,7 @@ Global.Event.listen("compact-mode:enable", () => {
 })
 
 Global.Event.listen("compact-mode:disable", () => {
-    console.log("CompactMode: Disabled")
+    // console.log("CompactMode: Disabled")
     if (currentBgInstance) {
         currentBgInstance.Update({
             blur: DynamicBackgroundConfig.blur

@@ -390,7 +390,7 @@ export function Animate(position: number): void {
   const now = performance.now();
 
   const LIMIT_FRAMES = isSpicySidebarMode;
-  const FRAME_INTERVAL = (Defaults.SimpleLyricsMode ? (1000 / 30) : (1000 / 50));
+  const FRAME_INTERVAL = (Defaults.SimpleLyricsMode ? (1000 / 40) : (1000 / 50));
 
   //const isLetterElementActive = (findActiveElement(position)?.[1] === "letter" || findActiveElement(position)?.[1] === "letterGroup");
   //const shouldLimitFrame = ((LIMIT_FRAMES && !isLetterElementActive) && now - lastAnimateFrameTime < FRAME_INTERVAL);
