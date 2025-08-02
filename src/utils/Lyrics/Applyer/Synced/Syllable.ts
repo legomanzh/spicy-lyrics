@@ -12,6 +12,7 @@ import { ClearLyricsPageContainer } from '../../fetchLyrics';
 import { EmitApply, EmitNotApplyed } from '../OnApply';
 import { CreateLyricsContainer, DestroyAllLyricsContainers } from "../CreateLyricsContainer";
 import { ApplyIsByCommunity } from "../Credits/ApplyIsByCommunity";
+import { isSpicySidebarMode } from "../../../../components/Utils/SidebarLyrics";
 
 // Define the data structure for syllable lyrics
 interface SyllableData {
@@ -168,7 +169,7 @@ export function ApplySyllableLyrics(data: LyricsData): void {
         nextLineStartTime !== 0 ? nextLineStartTime - line.Lead.EndTime : 0;
 
       const lineEndTime =
-        Defaults.MinimalLyricsMode ?
+        Defaults.MinimalLyricsMode || isSpicySidebarMode ?
           nextLineStartTime === 0 ? line.Lead.EndTime :
             lineEndTimeAndNextLineStartTimeDistance < lyricsBetweenShow && nextLineStartTime > line.Lead.EndTime ? nextLineStartTime :
               line.Lead.EndTime : line.Lead.EndTime;

@@ -109,9 +109,9 @@ body:has(#SpicyLyricsPage.Fullscreen) .Root__right-sidebar aside:is(.NowPlayingV
   position: absolute;
   inset: 0;
   width: 100%;
-  height: 100%;
+  height: 90%;
   background-color: var(--DarkVibrantColor);
-  mask-image: linear-gradient(to top, transparent, black 95%);
+  mask-image: linear-gradient(to top, transparent, black 145%);
   z-index: 1;
   transition: background-color 1.25s;
 }

@@ -47,12 +47,12 @@
     --LyricsRightSidePadding: 15.5cqw;
 }
 
-#SpicyLyricsPage:has(.NowBar.Active) {
+#SpicyLyricsPage:not(.SidebarMode):has(.NowBar.Active) {
     --LyricsLeftSidePadding: calc(50cqw - var(--NowBarRightSpacing)* 0.3);
     --LyricsRightSidePadding: calc(var(--NowBarLeftSpacing)* 0.35);
 }
 
-#SpicyLyricsPage:not(.Fullscreen):has(.NowBar.Active) {
+#SpicyLyricsPage:not(.Fullscreen):not(.SidebarMode):has(.NowBar.Active) {
     --NowBarLeftSpacing: calc(calc(50cqw - var(--NowBarWidth) - var(--NowBarRightSpacing)) * .7);
     --LyricsLeftSidePadding: calc(calc(50cqw - var(--NowBarRightSpacing)* 0.3) * .9);
 }
@@ -670,9 +670,9 @@
 }
 
 #SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .Heart {
-    width: 54cqw;
+    width: 45cqw;
     position: absolute;
-    top: 21cqh;
+    top: 25cqh;
     cursor: pointer;
     margin: 0 1cqw;
 }
@@ -853,4 +853,25 @@
 
 #SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent .TopSpacer {
     height: 9.5vh !important;
+}
+
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .Header .MediaBox .MediaContent:has(.Heart) > *:not(.Heart) {
+    transition: scale .24s, opacity .24s !important;
+}
+
+#SpicyLyricsPage.Fullscreen .ContentBox .NowBar .Header .MediaBox .MediaContent:has(.Heart:hover) > *:not(.Heart) {
+    opacity: 0.85 !important;
+    scale: 0.975;
+}
+
+#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .Heart:not(.Filled):hover #SpicyLyrics_HeartFill {
+    opacity: .5;
+}
+
+#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .Heart {
+    transition: scale .24s;
+}
+
+#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .Heart:hover {
+    scale: 1.05;
 }

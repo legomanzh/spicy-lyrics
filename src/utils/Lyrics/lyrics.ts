@@ -13,15 +13,15 @@ export const lyricsBetweenShow = storage.get("minimalLyricsMode") === "true" ? 5
 export const endInterludeEarlierBy = 0;
 
 export const SimpleLyricsMode_LetterEffectsStrengthConfig = {
-  LongerThan: 1200,
+  LongerThan: 1500,
   Longer: {
     Glow: 0.44,
     YOffset: 0.9,
     Scale: 1.15,
   },
   Shorter: {
-    Glow: 0.4,
-    YOffset: 0.1,
+    Glow: 0.376,
+    YOffset: 0.105,
     Scale: 1.05,
   }
 }
