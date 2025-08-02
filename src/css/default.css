@@ -59,7 +59,8 @@ body.SpicySidebarLyrics__Active #SpicyLyricsPage:not(.Fullscreen) {
   opacity: 0;
 }
 
-:root:has(.SpicyBG.BackgroundLayer) body:not(.SpicySidebarLyrics__Active) #SpicyLyricsPage:not(.Fullscreen) .ViewControls {
+:root:has(.SpicyBG.BackgroundLayer) body:not(.SpicySidebarLyrics__Active) #SpicyLyricsPage:not(.Fullscreen) .ViewControls,
+:root:has(.lucid-bg-wrapper) #SpicyLyricsPage:not(.Fullscreen) .ViewControls {
   bottom: 115px !important;
 }
 
