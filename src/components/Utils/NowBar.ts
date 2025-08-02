@@ -11,6 +11,7 @@ import { Maid } from '@socali/modules/Maid';
 import { Interval } from '@socali/modules/Scheduler';
 import BlobURLMaker from "../../utils/BlobURLMaker";
 import { GetCurrentLyricsContainerInstance } from '../../utils/Lyrics/Applyer/CreateLyricsContainer';
+import { isSpicySidebarMode } from './SidebarLyrics';
 
 // Define interfaces for our control instances
 interface PlaybackControlsInstance {
@@ -100,10 +101,15 @@ let NowBarFullscreenMaid: Maid | null = null;
 function OpenNowBar(skipSaving: boolean = false) {
     const NowBar = document.querySelector("#SpicyLyricsPage .ContentBox .NowBar");
     if (!NowBar) return;
+    const spicyLyricsPage = document.querySelector("#SpicyLyricsPage");
+    if (isSpicySidebarMode) {
+        spicyLyricsPage?.classList.add("NowBarStatus__Closed");
+        spicyLyricsPage?.classList.remove("NowBarStatus__Open");
+        return;
+    }
     UpdateNowBar(true);
     NowBar.classList.add("Active");
 
-    const spicyLyricsPage = document.querySelector("#SpicyLyricsPage");
     if (spicyLyricsPage) {
         spicyLyricsPage.classList.remove("NowBarStatus__Closed");
         spicyLyricsPage.classList.add("NowBarStatus__Open");
@@ -1038,6 +1044,15 @@ function UpdateNowBar(force = false) {
 Global.Event.listen("playback:songchange", () => {
     setTimeout(() => {
         UpdateNowBar();
+        setTimeout(() => {
+            UpdateNowBar();
+            setTimeout(() => {
+                UpdateNowBar();
+                setTimeout(() => {
+                    UpdateNowBar();
+                }, 1000);
+            }, 1000);
+        }, 1000);
     }, 2000);
 })
 

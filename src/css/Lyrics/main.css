@@ -43,11 +43,16 @@
     transparent
   );
 
-  --webkit-mask-image: var(--ImageMask);
+  -webkit-mask-image: var(--ImageMask);
   mask-image: var(--ImageMask);
   container-type: size;
   opacity: 1;
   transition: opacity .25s;
+}
+
+body.SpicySidebarLyrics__Active #SpicyLyricsPage .LyricsContainer .LyricsContent {
+  --DefaultLyricsSize: clamp(2.1rem, calc(1cqw* 7), 3.5rem);
+  --vertical-gap: .95cqh;
 }
 
 /* #SpicyLyricsPage.Fullscreen.MinimalLyricsMode .LyricsContainer .LyricsContent {

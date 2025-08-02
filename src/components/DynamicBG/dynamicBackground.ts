@@ -30,13 +30,35 @@ export const DynamicBackgroundConfig: DynamicBackgroundOptions = {
         })
     ]
 }
-
 // Store the DynamicBackground instance and element for reuse
-let currentBgInstance: DynamicBackground | null = null;
+export let currentBgInstance: DynamicBackground | null = null;
 
-Global.Event.listen("playback:songchange", () => {
+export const SetPageBGBlur = async (blur: number) => {
+    if (currentBgInstance) {
+        await currentBgInstance.Update({
+            blur
+        })
+    }
+}
+
+const prefetchCovers = async () => {
+    if (currentBgInstance) {
+        for (let i = 0; i <= 1; i++) {
+            const nextSongCovers = Spicetify?.Player?.data?.nextItems?.[i]?.images;
+            if (!nextSongCovers) return;
+            const largeCover = SpotifyPlayer.GetCoverFrom("large", nextSongCovers);
+            if (!largeCover) return;
+            if (largeCover === "https://images.spikerko.org/SongPlaceholderFull.png") return;
+            await currentBgInstance.PrefetchImage(largeCover);
+        }
+    }
+}
+
+Global.Event.listen("playback:songchange", async () => {
     //setTimeout(() => SongChangeSignal.Fire(), 1000)
     SongChangeSignal.Fire();
+
+    await prefetchCovers()
 
     setTimeout(() => {
         if (currentBgInstance && SpotifyPlayer.GetCover("large")) {
@@ -44,7 +66,7 @@ Global.Event.listen("playback:songchange", () => {
                 image: SpotifyPlayer.GetCover("large") ?? ""
             })
         }
-    }, 2000)
+    }, 2250)
 })
 
 export const CleanupDynamicBGLets = () => {
@@ -53,6 +75,24 @@ export const CleanupDynamicBGLets = () => {
         currentBgInstance = null;
     }
 }
+
+Global.Event.listen("compact-mode:enable", () => {
+    console.log("CompactMode: Enabled")
+    if (currentBgInstance) {
+        currentBgInstance.Update({
+            blur: 70
+        })
+    }
+})
+
+Global.Event.listen("compact-mode:disable", () => {
+    console.log("CompactMode: Disabled")
+    if (currentBgInstance) {
+        currentBgInstance.Update({
+            blur: DynamicBackgroundConfig.blur
+        })
+    }
+})
 
 function intToHexColor(colorInt: number): string {
   // Convert to unsigned 32-bit integer
@@ -84,30 +124,28 @@ export default async function ApplyDynamicBackground(element: HTMLElement) {
 
             const colorFetch = await Spicetify.CosmosAsync.get(`https://spclient.wg.spotify.com/color-lyrics/v2/track/${SpotifyPlayer.GetId()}/image/${SpotifyPlayer.GetCover("standard") ?? ""}?format=json&vocalRemoval=false&market=from_token`)
 
-            if (!colorFetch) return;
-
-            const color = intToHexColor(colorFetch?.colors?.background ?? -3192050);
+            const color = colorFetch?.colors?.background ? intToHexColor(colorFetch?.colors?.background) : undefined;
 
             const extractedColor = ((await Spicetify.colorExtractor(SpotifyPlayer.GetUri() ?? "spotify:track:31CsSZ9KlQmEu0JvWSkM3j")) as any) ?? { VIBRANT: "#999999" };
             //const color2 = (extractedColor?.["undefined"] !== "#undefined" ? extractedColor?.["undefined"] : (extractedColor?.DESATURATED ?? extractedColor?.DARK_VIBRANT ?? extractedColor?.VIBRANT)) ?? "#999999";
             const prevBg = element.querySelector<HTMLElement>(".spicy-dynamic-bg.ColorBackground");
 
             if (prevBg) {
-                if (extractedColor?.VIBRANT) prevBg.style.setProperty("--VibrantColor", extractedColor?.VIBRANT);
-                if (extractedColor?.DARK_VIBRANT) prevBg.style.setProperty("--DarkVibrantColor", extractedColor?.DARK_VIBRANT);
-                if (extractedColor?.DESATURATED) prevBg.style.setProperty("--DesaturatedColor", extractedColor?.DESATURATED);
-                if (extractedColor?.["undefined"]) prevBg.style.setProperty("--BaseColor", extractedColor?.["undefined"]);
-                if (color) prevBg.style.setProperty("--LyricsBaseColor", color);
+                prevBg.style.setProperty("--VibrantColor", extractedColor?.VIBRANT ?? "#000000");
+                prevBg.style.setProperty("--DarkVibrantColor", extractedColor?.DARK_VIBRANT ?? "#000000");
+                prevBg.style.setProperty("--DesaturatedColor", extractedColor?.DESATURATED ?? "#000000");
+                prevBg.style.setProperty("--BaseColor", extractedColor?.["undefined"] ?? "#000000");
+                prevBg.style.setProperty("--LyricsBaseColor", color ?? extractedColor?.["undefined"] ?? extractedColor?.DESATURATED ?? extractedColor?.DARK_VIBRANT ?? extractedColor?.VIBRANT ?? "#000000");
                 return;
             }
 
             const dynamicBg = document.createElement("div");
             dynamicBg.classList.add("spicy-dynamic-bg", "ColorBackground");
-            if (extractedColor?.VIBRANT) dynamicBg.style.setProperty("--VibrantColor", extractedColor?.VIBRANT);
-            if (extractedColor?.DARK_VIBRANT) dynamicBg.style.setProperty("--DarkVibrantColor", extractedColor?.DARK_VIBRANT);
-            if (extractedColor?.DESATURATED) dynamicBg.style.setProperty("--DesaturatedColor", extractedColor?.DESATURATED);
-            if (extractedColor?.["undefined"]) dynamicBg.style.setProperty("--BaseColor", extractedColor?.["undefined"]);
-            if (color) dynamicBg.style.setProperty("--LyricsBaseColor", color);
+            dynamicBg.style.setProperty("--VibrantColor", extractedColor?.VIBRANT ?? "#000000");
+            dynamicBg.style.setProperty("--DarkVibrantColor", extractedColor?.DARK_VIBRANT ?? "#000000");
+            dynamicBg.style.setProperty("--DesaturatedColor", extractedColor?.DESATURATED ?? "#000000");
+            dynamicBg.style.setProperty("--BaseColor", extractedColor?.["undefined"] ?? "#000000");
+            dynamicBg.style.setProperty("--LyricsBaseColor", color ?? extractedColor?.["undefined"] ?? extractedColor?.DESATURATED ?? extractedColor?.DARK_VIBRANT ?? extractedColor?.VIBRANT ?? "#000000");
             element.appendChild(dynamicBg);
             return;
         }
@@ -182,6 +220,8 @@ export default async function ApplyDynamicBackground(element: HTMLElement) {
         await currentBgInstance.Update({
             image: currentImgCover ?? ""
         });
+
+        await prefetchCovers()
     }
 }
 

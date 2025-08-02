@@ -9,6 +9,7 @@ import { ClearLyricsPageContainer } from "../../fetchLyrics";
 import { EmitApply, EmitNotApplyed } from "../OnApply";
 import { CreateLyricsContainer, DestroyAllLyricsContainers } from "../CreateLyricsContainer";
 import { ApplyIsByCommunity } from "../Credits/ApplyIsByCommunity";
+import { isSpicySidebarMode } from "../../../../components/Utils/SidebarLyrics";
 
 // Define the data structure for lyrics
 interface LyricsLineData {

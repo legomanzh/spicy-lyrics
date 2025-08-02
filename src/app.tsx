@@ -37,6 +37,7 @@ import { Defer } from "@socali/modules/Scheduler";
 import { DynamicBackground } from "@spikerko/tools/DynamicBackground";
 // In development: import "./components/Utils/Annotations";
 import App from "./ready";
+import { CloseSidebarLyrics, getQueueContainer, getQueuePlaybarButton, isSpicySidebarMode, OpenSidebarLyrics, RegisterSidebarLyrics } from "./components/Utils/SidebarLyrics";
 
 async function main() {
   await Platform.OnSpotifyReady;
@@ -151,7 +152,7 @@ async function main() {
     }
   )
 
-  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.7.1";
+  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.7.7";
   
 
   /* if (storage.get("lyrics_spacing")) {
@@ -285,7 +286,8 @@ async function main() {
 
         @keyframes SLM_Animation {
           0% {
-            --SLM_GradientPosition: -50%;
+            /* --SLM_GradientPosition: -50%; */
+            --SLM_GradientPosition: -10%;
           }
           100% {
             --SLM_GradientPosition: 100%;
@@ -297,7 +299,7 @@ async function main() {
             --SLM_GradientPosition: -50%;
           }
           100% {
-            --SLM_GradientPosition: 0%;
+            --SLM_GradientPosition: -10%;
           }
         }
 
@@ -365,16 +367,21 @@ async function main() {
         Button: new Spicetify.Playbar.Button(
           "Enter Fullscreen",
           Icons.Fullscreen,
-          (self) => {
-              if (!self.active) {
-                Session.Navigate({ pathname: "/SpicyLyrics" });
-                const pageWhentil = Whentil.When(() => document.querySelector<HTMLElement>(".Root__main-view #SpicyLyricsPage"), () => {
-                  Fullscreen.Open(Global.Saves.shift_key_pressed ?? false);
-                  pageWhentil?.Cancel();
-                })
-              } else {
-                Session.GoBack();
+          async (self) => {
+              if (isSpicySidebarMode) {
+                CloseSidebarLyrics();
               }
+              Whentil.When(() => !isSpicySidebarMode, async () => {
+                if (!self.active) {
+                  Session.Navigate({ pathname: "/SpicyLyrics" });
+                  const pageWhentil = Whentil.When(() => document.querySelector<HTMLElement>(".Root__main-view #SpicyLyricsPage"), () => {
+                    Fullscreen.Open(Global.Saves.shift_key_pressed ?? false);
+                    pageWhentil?.Cancel();
+                  })
+                } else {
+                  Session.GoBack();
+                }
+              })
           },
           false,
           false,
@@ -382,6 +389,39 @@ async function main() {
       }
     ]
   }
+  
+  RegisterSidebarLyrics();
+
+  // console.log("[Spicy Lyrics Debug] Setting up initial sidebar status check");
+  //Whentil.When(() => document.querySelector<HTMLElement>(".Root__right-sidebar .XOawmCGZcQx4cesyNfVO:not(:has(.h0XG5HZ9x0lYV7JNwhoA.JHlPg4iOkqbXmXjXwVdo)):has(.jD_TVjbjclUwewP7P9e8)") && getQueuePlaybarButton(), () => { 
+  {
+    if (!isSpicySidebarMode && getQueueContainer()) {
+      // console.log("[Spicy Lyrics Debug] Got now playing view parent container");
+      const sidebarStatus = storage.get("sidebar-status") ?? "";
+      // console.log("[Spicy Lyrics Debug] Sidebar status from storage:", sidebarStatus);
+      if (sidebarStatus === "open") {
+        // console.log("[Spicy Lyrics Debug] Sidebar status is 'open', checking current path");
+        if (Spicetify.Platform.History.location.pathname === "/SpicyLyrics") {
+          // console.log("[Spicy Lyrics Debug] Currently on /SpicyLyrics, going back");
+          Session.GoBack();
+          // console.log("[Spicy Lyrics Debug] Setting up Whentil to open sidebar after navigation");
+          Whentil.When(() => !PageView.IsOpened && Spicetify.Platform.History.location.pathname !== "/SpicyLyrics", () => {
+            // console.log("[Spicy Lyrics Debug] Page closed and navigated away, opening sidebar");
+            OpenSidebarLyrics(getQueueContainer() ? false : true);
+          })
+        } else {
+          // console.log("[Spicy Lyrics Debug] Not on /SpicyLyrics, setting up Whentil to open sidebar");
+          Whentil.When(() => !PageView.IsOpened && Spicetify.Platform.History.location.pathname !== "/SpicyLyrics", () => {
+            // console.log("[Spicy Lyrics Debug] Conditions met, opening sidebar");
+            OpenSidebarLyrics(getQueueContainer() ? false : true);
+          })
+        }
+      }
+    }
+    
+  }
+ // })
+
   // Add shift key tracking
   Global.Saves.shift_key_pressed = false;
 
@@ -492,7 +532,7 @@ async function main() {
         document.querySelector<HTMLElement>(`.Root__right-sidebar aside#Desktop_PanelContainer_Id:has(.main-nowPlayingView-coverArtContainer)`);
 
       try {
-        if (!nowPlayingBar) {
+        if (!nowPlayingBar || isSpicySidebarMode) {
           lastImgUrl = null;
           CleanupNowBarDynamicBgLets();
           return;
@@ -541,6 +581,10 @@ async function main() {
         console.error("Error Applying the Dynamic BG to the NowPlayingBar:", error);
       }
     }
+
+    Global.Event.listen("cleanup:npvbg", () => {
+      CleanupNowBarDynamicBgLets();
+    })
 
     new IntervalManager(1, async () => {
       await applyDynamicBackgroundToNowPlayingBar(SpotifyPlayer.GetCover("large"));
@@ -626,9 +670,14 @@ async function main() {
 
     async function loadPage(location: Location) {
       if (location.pathname === "/SpicyLyrics") {
-        await PageView.Open();
-        if (!button) return;
-        button.Button.active = true;
+        if (isSpicySidebarMode) {
+          CloseSidebarLyrics();
+        }
+        Whentil.When(() => !isSpicySidebarMode, () => {
+          PageView.Open();
+          if (!button) return;
+          button.Button.active = true;
+        })
       } else {
         if (lastLocation?.pathname === "/SpicyLyrics") {
           PageView.Destroy();

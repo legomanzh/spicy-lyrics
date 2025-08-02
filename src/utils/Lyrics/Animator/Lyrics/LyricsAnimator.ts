@@ -3,9 +3,10 @@ import Spring from '@socali/modules/Spring';
 import Spline from 'cubic-spline';
 import Defaults from "../../../../components/Global/Defaults";
 import { LyricsObject, SimpleLyricsMode_LetterEffectsStrengthConfig } from "../../lyrics";
-import { BlurMultiplier, timeOffset } from "../Shared";
+import { BlurMultiplier, SidebarBlurMultiplier, timeOffset } from "../Shared";
 import storage from "../../../storage";
 import Global from "../../../../components/Global/Global";
+import { isSpicySidebarMode } from "../../../../components/Utils/SidebarLyrics";
 /* import { CurveInterpolator } from "curve-interpolator"; */
 
 
@@ -379,20 +380,22 @@ function getProgressPercentage(currentTime: number, startTime: number, endTime: 
 }
 
 
-
-const LIMIT_FRAMES = storage.get("simpleLyricsMode") === "true";
-let FRAME_INTERVAL = 1000 / 30;
 let lastAnimateFrameTime = 0;
 
-Global.SetScope("lyrics.animator.set_frame_interval", (input: number) => {
+/* Global.SetScope("lyrics.animator.set_frame_interval", (input: number) => {
   FRAME_INTERVAL = input;
-})
+}) */
 
 export function Animate(position: number): void {
   const now = performance.now();
-  const isLetterElementActive = (findActiveElement(position)?.[1] === "letter" || findActiveElement(position)?.[1] === "letterGroup");
-  const shouldLimitFrame = ((LIMIT_FRAMES && !isLetterElementActive) && now - lastAnimateFrameTime < FRAME_INTERVAL);
-  //const shouldLimitFrame = (LIMIT_FRAMES && now - lastAnimateFrameTime < FRAME_INTERVAL);
+
+  const LIMIT_FRAMES = isSpicySidebarMode;
+  const FRAME_INTERVAL = (Defaults.SimpleLyricsMode ? (1000 / 30) : (1000 / 50));
+
+  //const isLetterElementActive = (findActiveElement(position)?.[1] === "letter" || findActiveElement(position)?.[1] === "letterGroup");
+  //const shouldLimitFrame = ((LIMIT_FRAMES && !isLetterElementActive) && now - lastAnimateFrameTime < FRAME_INTERVAL);
+
+  const shouldLimitFrame = (LIMIT_FRAMES && now - lastAnimateFrameTime < FRAME_INTERVAL);
   if (shouldLimitFrame) {
     return;
   }
@@ -415,12 +418,13 @@ export function Animate(position: number): void {
 
       arr[activeIndex].HTMLElement.style.setProperty("--BlurAmount", "0px");
 
+      const max = ((BlurMultiplier * 5) + (BlurMultiplier * 0.465));
       for (let i = activeIndex + 1; i < arr.length; i++) {
           const blurAmount = blurMultiplierValue * (i - activeIndex);
           if (getElementState(ProcessedPosition, arr[i].StartTime, arr[i].EndTime) === "Active") {
               arr[i].HTMLElement.style.setProperty("--BlurAmount", "0px");
           } else {
-              arr[i].HTMLElement.style.setProperty("--BlurAmount", `${blurAmount >= 5 ? 5 : blurAmount}px`);
+              arr[i].HTMLElement.style.setProperty("--BlurAmount", `${blurAmount >= max ? max : blurAmount}px`);
           }
       }
 
@@ -429,7 +433,7 @@ export function Animate(position: number): void {
           if (getElementState(ProcessedPosition, arr[i].StartTime, arr[i].EndTime) === "Active") {
             arr[i].HTMLElement.style.setProperty("--BlurAmount", `0px`);
           } else {
-            arr[i].HTMLElement.style.setProperty("--BlurAmount", `${blurAmount >= 5 ? 5 : blurAmount}px`);
+            arr[i].HTMLElement.style.setProperty("--BlurAmount", `${blurAmount >= max ? max : blurAmount}px`);
           }
       }
   };
@@ -532,7 +536,7 @@ export function Animate(position: number): void {
 
           if (lineState === "Active") {
               if (Blurring_LastLine !== index) {
-                applyBlur(arr, index, BlurMultiplier);
+                applyBlur(arr, index, (isSpicySidebarMode ? SidebarBlurMultiplier : BlurMultiplier));
                 //applyScale(arr, index);
                 Blurring_LastLine = index;
               };
@@ -611,6 +615,22 @@ export function Animate(position: number): void {
 
                       word.HTMLElement.style.scale = `${currentScale}`;
                       word.HTMLElement.style.transform = `translateY(calc(var(--DefaultLyricsSize) * ${currentYOffset}))`;
+                      if (isLetterGroup) {
+                        if (Defaults.SimpleLyricsMode) {
+                            if (wordState === "Active") {
+                              const nextWord = words[wordIndex + 1];
+                              if (nextWord && !nextWord?.LetterGroup) {
+                                if (!nextWord.PreSLMAnimated) {
+                                  nextWord.PreSLMAnimated = true;
+                                  nextWord.HTMLElement.style.removeProperty("--SLM_GradientPosition");
+                                  setTimeout(() => {
+                                    nextWord.HTMLElement.style.animation = getPreSLMAnimation(250);
+                                  }, Number((totalDuration * 0.85) - 115) ?? totalDuration);
+                                }
+                              }
+                            }
+                        }
+                      }
                       if (!isLetterGroup) {
                         if (Defaults.SimpleLyricsMode) {
                           if (wordState === "Active" && !word.SLMAnimated) {
@@ -618,24 +638,24 @@ export function Animate(position: number): void {
                             //word.HTMLElement.style.removeProperty("--SLM_TranslateY");
                             word.HTMLElement.style.animation = getSLMAnimation(totalDuration);
                             word.SLMAnimated = true;
-                            /* word.PreSLMAnimated = false; */
-                            /* const nextWord = words[wordIndex + 1];
+                            word.PreSLMAnimated = false;
+                            const nextWord = words[wordIndex + 1];
                             if (nextWord) {
                               if (!nextWord.PreSLMAnimated) {
                                 nextWord.PreSLMAnimated = true;
                                 nextWord.HTMLElement.style.removeProperty("--SLM_GradientPosition");
                                 setTimeout(() => {
-                                  nextWord.HTMLElement.style.animation = getPreSLMAnimation(130);
-                                }, Number(totalDuration - 500) ?? totalDuration);
+                                  nextWord.HTMLElement.style.animation = getPreSLMAnimation(125);
+                                }, Number((totalDuration * 0.76) - 130) ?? totalDuration);
                               }
-                            } */
+                            }
                           }
                           if (wordState === "NotSung") {
-                            //if (!word.PreSLMAnimated) {
+                            if (!word.PreSLMAnimated) {
                               word.HTMLElement.style.animation = "none";
                               word.HTMLElement.style.setProperty("--SLM_GradientPosition", "-50%");
                               //word.HTMLElement.style.setProperty("--SLM_TranslateY", "0.01");
-                            //}
+                            }
                             word.SLMAnimated = false;
                             /* word.PreSLMAnimated = false; */
                           }
@@ -645,7 +665,7 @@ export function Animate(position: number): void {
                             //word.HTMLElement.style.setProperty("--SLM_TranslateY", "-0.03");
                             //word.HTMLElement.style.animation = getSLMAnimation(0);
                             word.SLMAnimated = false;
-                            /* word.PreSLMAnimated = false; */
+                            word.PreSLMAnimated = false;
                           }
                         } else {
                           word.HTMLElement.style.setProperty("--gradient-position", `${targetGradientPos}%`);
@@ -1266,7 +1286,7 @@ export function Animate(position: number): void {
 
           if (lineState === "Active") {
               if (Blurring_LastLine !== index) {
-                applyBlur(arr, index, BlurMultiplier);
+                applyBlur(arr, index, (isSpicySidebarMode ? SidebarBlurMultiplier : BlurMultiplier));
                 //applyScale(arr, index);
                 Blurring_LastLine = index;
               };

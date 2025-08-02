@@ -21,10 +21,12 @@
   user-select: none;
   -webkit-user-drag: none;
   opacity: 1;
-  /* transition: opacity .2s; */
+  transition: left .5s cubic-bezier(.91,.04,.94,.98);
 }
 
-
+body.SpicySidebarLyrics__Active #SpicyLyricsPage:not(.Fullscreen) {
+  border-radius: 8px;
+}
 
 #SpicyLyricsPage.UseSpicyFont,
 .SpicyLyricsFontPixel {
@@ -44,109 +46,33 @@
   gap: 8px;
   height: 5cqh;
   justify-content: center;
-  opacity: .5;
-  transition: opacity .2s, left .5s, scale .5s !important;
+  opacity: 1;
+  transition: opacity .2s !important;
   z-index: 101;
   --ViewControlSize: 100cqh;
 }
 
 #SpicyLyricsPage:not(.Fullscreen) .ViewControls {
   position: absolute;
-  width: 55px;
-  height: 100cqh;
-  left: -100px;
-  flex-direction: column;
-  --ViewControlSize: 100cqw;
-  --PageHoverOffset: -22px;
-  --ControlsHoverOffset: 15px;
-  --DefaultScale: 0.5;
-  --PageHoverScale: 1;
-  --ControlsHoverScale: 1.05;
-  scale: var(--DefaultScale);
+  width: 100cqw;
+  bottom: 24px;
+  opacity: 0;
 }
 
-/* When NowBar is on right side and open, move controls to right */
-#SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Right):is(.NowBarStatus__Open) .ViewControls {
-  transition: opacity .2s, right .5s, scale .5s !important;
-  right: -100px;
-  left: unset;
+:root:has(.SpicyBG.BackgroundLayer) body:not(.SpicySidebarLyrics__Active) #SpicyLyricsPage:not(.Fullscreen) .ViewControls {
+  bottom: 115px !important;
 }
 
-/* When NowBar is on right side and open, handle hover states */
-#SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Right):is(.NowBarStatus__Open):hover .ViewControls {
-  opacity: .6;
-  right: var(--PageHoverOffset);
-  scale: var(--PageHoverScale);
+body.SpicySidebarLyrics__Active #SpicyLyricsPage:not(.Fullscreen) .ViewControls {
+  --ViewControlSize: 90cqh;
 }
 
-/* When NowBar is on right side and open, handle hover states */
-#SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Right):is(.NowBarStatus__Open) .ViewControls:hover {
-  opacity: 1;
-  right: var(--ControlsHoverOffset);
-  scale: var(--ControlsHoverScale);
+#SpicyLyricsPage:not(.Fullscreen):hover .ViewControls {
+  opacity: 0.45;
 }
 
-/* When NowBar is on left side (open or closed), keep controls on left */
-#SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Left) .ViewControls {
-  transition: opacity .2s, left .5s, scale .5s !important;
-  left: -100px;
-  right: unset;
-}
-
-/* When NowBar is on left side, handle hover states */
-#SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Left):hover .ViewControls {
-  opacity: .6;
-  left: var(--PageHoverOffset);
-  scale: var(--PageHoverScale);
-}
-
-/* When NowBar is on left side, handle hover states */
-#SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Left) .ViewControls:hover {
-  opacity: 1;
-  left: var(--ControlsHoverOffset);
-  scale: var(--ControlsHoverScale);
-}
-
-/* When NowBar is closed (regardless of side), keep controls on left */
-#SpicyLyricsPage:not(.Fullscreen):is(.NowBarStatus__Closed) .ViewControls {
-  transition: opacity .2s, left .5s, scale .5s !important;
-  left: -100px;
-  right: unset;
-}
-
-/* When NowBar is closed, handle hover states */
-#SpicyLyricsPage:not(.Fullscreen):is(.NowBarStatus__Closed):hover .ViewControls {
-  opacity: .6 !important;
-  left: var(--PageHoverOffset) !important;
-  scale: var(--PageHoverScale) !important;
-  right: unset !important;
-}
-
-/* When NowBar is closed, handle hover states */
-#SpicyLyricsPage:not(.Fullscreen):is(.NowBarStatus__Closed) .ViewControls:hover {
+#SpicyLyricsPage:not(.Fullscreen) .ViewControls:hover {
   opacity: 1 !important;
-  left: var(--ControlsHoverOffset) !important;
-  scale: var(--ControlsHoverScale) !important;
-  right: unset !important;
-}
-
-/* When NowBar is on right side but closed, ensure proper hover behavior */
-#SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Right):is(.NowBarStatus__Closed) .ViewControls {
-  transition: opacity .2s, left .5s, scale .5s !important;
-  left: -100px;
-  right: unset;
-}
-
-#SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Right):is(.NowBarStatus__Closed) .ViewControls:hover {
-  opacity: 1;
-  left: var(--ControlsHoverOffset);
-  scale: var(--ControlsHoverScale);
-}
-
-#SpicyLyricsPage:not(.Fullscreen):is(.NowBarSide__Right):is(.NowBarStatus__Closed):hover .ViewControls {
-  opacity: .6;
-  left: var(--PageHoverOffset);
-  scale: var(--PageHoverScale);
 }
 
 #SpicyLyricsPage .ViewControls .ViewControl {
@@ -256,6 +182,10 @@ body:not(.SpicyLyrics_StaticBackground) .Root__right-sidebar:has(.main-nowPlayin
   transform: translateY(2px);
 }
 
+body.SpicySidebarLyrics__Active button:has(#SpicyLyricsPageSvg) {
+  display: none !important;
+}
+
 button:has(#SpicyLyricsPageSvg):after {
   transform: translateX(-370%) translateY(-40%) !important;
 }
@@ -296,13 +226,13 @@ body:not(:has(.Root__main-view-overlay .BeautifulLyricsPage:is(.Fullscreen))) #B
 
 #SpicyLyricsPage .ViewControls svg {
   aspect-ratio: 1;
-  height: calc(var(--ViewControlSize)* .35);
+  height: calc(var(--ViewControlSize)* .4);
   width: auto;
 }
-
+/* 
 #SpicyLyricsPage.Fullscreen .ViewControls svg {
   height: calc(var(--ViewControlSize)* .4);
-}
+} */
 
 .GenericModal__overlay {
   z-index: 999;
@@ -390,3 +320,36 @@ body:not(:has(.Root__main-view-overlay .BeautifulLyricsPage:is(.Fullscreen))) #B
   opacity: 0.5;
   z-index: -1;
 } */
+
+body.SpicySidebarLyrics__Active .Root__right-sidebar .XOawmCGZcQx4cesyNfVO >:not(#SpicyLyricsPage) {
+  display: none !important;
+}
+
+body.SpicySidebarLyrics__Active [data-testid="control-button-queue"] {
+  color: rgba(var(--spice-rgb-selected-row),.7) !important;
+}
+
+body.SpicySidebarLyrics__Active [data-testid="control-button-queue"]::after {
+  display: none !important;
+}
+
+body.SpicySidebarLyrics__Active #SpicyLyricsPage .NowBar {
+  display: none !important;
+}
+
+body.SpicySidebarLyrics__Active #SpicyLyricsPage {
+  --LyricsLeftSidePadding: 12cqw !important;
+  --LyricsRightSidePadding: 7.5cqw !important;
+}
+
+#SpicyLyricsPage.SidebarTransition__Opening {
+  left: 100%;
+}
+
+#SpicyLyricsPage.SidebarTransition__Closing {
+  left: -100%;
+}
+
+*:has(> #SpicyLyricsPage.SidebarTransition__Opening, > #SpicyLyricsPage.SidebarTransition__Closing) {
+  overflow: hidden !important;
+}

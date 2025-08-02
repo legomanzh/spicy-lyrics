@@ -7,6 +7,9 @@ import PageView, { Compactify, GetPageRoot, Tooltips } from "../Pages/PageView";
 import { CleanUpNowBarComponents, CloseNowBar, DeregisterNowBarBtn, OpenNowBar } from "./NowBar";
 import TransferElement from "./TransferElement";
 import { GetCurrentLyricsContainerInstance } from "../../utils/Lyrics/Applyer/CreateLyricsContainer";
+import Spring from "@socali/modules/Spring";
+import { Maid } from "@socali/modules/Maid";
+import { OnPreRender } from "@socali/modules/Scheduler";
 
 const ArtworkBrightness = {
     Start: 0.78,
@@ -38,7 +41,171 @@ const Fullscreen = {
     CinemaViewOpen: false,
 };
 
-const MediaBox_Data = {
+const ControlsMaid = new Maid();
+
+const controlsOpacitySpring = new Spring(0, 2, 2, 0.65);
+const artworkBrightnessSpring = new Spring(0, 2, 2, 0.78);
+
+let animationLastTimestamp: (number | undefined) = undefined;
+
+let controlsVisible = false;
+let visualsApplied = false;
+let pageHover = false;
+let mediaBoxHover = false;
+
+
+let lastPageMouseMove: (number | undefined) = undefined;
+
+const Page_MouseMove = () => {
+    controlsVisible = true;
+    pageHover = true;
+
+    lastPageMouseMove = performance.now();
+
+    // console.log("Page_MouseMove")
+    ToggleControls();
+    if (!mediaBoxHover) {
+        MouseMoveChecker();
+    }
+}
+
+const MouseMoveChecker = () => {
+    const now = performance.now();
+    // console.log("MouseMoveChecker", lastPageMouseMove, (now - lastPageMouseMove), !mediaBoxHover)
+    if (lastPageMouseMove !== undefined && (now - lastPageMouseMove) >= 750 && !mediaBoxHover) {
+        // console.log("Controls Should Hide now - after 750ms")
+        animationLastTimestamp = now;
+        ToggleControls(true);
+        ControlsMaid.Clean("MouseMoveChecker")
+        return;
+    }
+    ControlsMaid.Give(OnPreRender(MouseMoveChecker), "MouseMoveChecker");
+}
+
+const RunMediaBoxAnimation = () => {
+    const timestampNow = performance.now();
+
+    if (animationLastTimestamp !== undefined) {
+        // console.log("Running MediaBox Animation")
+        const deltaTime = ((timestampNow - animationLastTimestamp) / 1000);
+        const controlsOpacity = controlsOpacitySpring.Step(deltaTime);
+		const artworkBrightness = artworkBrightnessSpring.Step(deltaTime);
+
+        const MediaBox = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox");
+        
+        if (MediaBox) {
+            MediaBox.style.setProperty("--ArtworkBrightness", artworkBrightness.toString());
+            MediaBox.style.setProperty("--ControlsOpacity", controlsOpacity.toString());
+            // console.log("MediaBoxAnimation: Set style properties")
+        }
+
+        if (controlsOpacitySpring.CanSleep() && artworkBrightnessSpring.CanSleep()) {
+            animationLastTimestamp = undefined
+            visualsApplied = false;
+            // console.log("MediaBoxAnimation: Sleep")
+            return
+        }
+    }
+
+    animationLastTimestamp = timestampNow
+
+    ControlsMaid.Give(OnPreRender(RunMediaBoxAnimation), "MediaBoxAnimation");
+}
+
+
+const ToggleControls = (force: boolean = false) => {
+    // console.log("Ran ToggleControls")
+    const now = performance.now();
+
+    const getControlsOpacityGoal = () => {
+        if (lastPageMouseMove !== undefined && (now - lastPageMouseMove) >= 750) {
+            return 0
+        } else if (pageHover && !mediaBoxHover) {
+            return 0.65
+        } else if (mediaBoxHover) {
+            return 0.985
+        } else {
+            return 0
+        }
+    }
+
+    const getArtworkBrightnessGoal = () => {
+        if (lastPageMouseMove !== undefined && (now - lastPageMouseMove) >= 750) {
+            return 1
+        } else if (pageHover && !mediaBoxHover) {
+            return 0.78
+        } else if (mediaBoxHover) {
+            return 0.55
+        } else {
+            return 1
+        }
+    }
+
+    controlsOpacitySpring.SetGoal(getControlsOpacityGoal());
+    artworkBrightnessSpring.SetGoal(getArtworkBrightnessGoal());
+
+    /* controlsOpacitySpring.SetFrequency(2)
+	controlsOpacitySpring.SetDampingRatio(2)
+
+    artworkBrightnessSpring.SetFrequency(2)
+	artworkBrightnessSpring.SetDampingRatio(2); */
+
+    if (force || visualsApplied === false) {
+        visualsApplied = true;
+        // console.log("VisualsAppied was false")
+
+        RunMediaBoxAnimation();
+        // console.log("MediaBoxAnimation in ToggleControls Ran!")
+    }
+}
+
+let EventAbortController: (AbortController | undefined) = undefined;
+
+const MediaBox_MouseIn = () => {
+    controlsVisible = true;
+    mediaBoxHover = true;
+    pageHover = true;
+    // console.log("MediaBox_MouseIn")
+    ToggleControls();
+    ControlsMaid.Clean("MouseMoveChecker")
+}
+
+const MediaBox_MouseOut = () => {
+    controlsVisible = true;
+    mediaBoxHover = false;
+    pageHover = true;
+    // console.log("MediaBox_MouseOut")
+    ToggleControls();
+}
+
+const MediaBox_MouseMove = () => {
+    controlsVisible = true;
+    mediaBoxHover = true;
+    pageHover = true;
+    // console.log("MediaBox_MouseMove")
+    ControlsMaid.Clean("MouseMoveChecker");
+    ToggleControls();
+}
+
+const Page_MouseIn = () => {
+    controlsVisible = true;
+    mediaBoxHover = false;
+    pageHover = true;
+    // console.log("Page_MouseIn")
+    ToggleControls();
+}
+
+const Page_MouseOut = () => {
+    controlsVisible = false;
+    mediaBoxHover = false;
+    pageHover = false;
+    // console.log("Page_MouseOut")
+    ToggleControls();
+    ControlsMaid.Clean("MouseMoveChecker")
+}
+
+
+/* const MediaBox_Data = {
     Eventified: false,
     hoverTimeoutId: null as number | null,
     abortController: null as AbortController | null,
@@ -197,7 +364,7 @@ const MediaBox_Data = {
         brightnessHalf: new Animator(ArtworkBrightness.ParentHover.Start, ArtworkBrightness.ParentHover.End, ArtworkBrightness.ParentHover.Duration),
         opacityHalf: new Animator(ControlsOpacity.ParentHover.Start, ControlsOpacity.ParentHover.End, ControlsOpacity.ParentHover.Duration)
     }
-};
+}; */
 
 
 
@@ -228,21 +395,32 @@ export const EnterSpicyLyricsFullscreen = async () => {
 
 function CleanupMediaBox() {
     // Abort the controller to remove listeners
-    MediaBox_Data.abortController?.abort();
-    MediaBox_Data.abortController = null;
+    EventAbortController?.abort();
+    EventAbortController = undefined;
+    
+    ControlsMaid.CleanUp();
+
+    animationLastTimestamp = undefined;
+    lastPageMouseMove = undefined;
+
+    controlsVisible = false;
+    visualsApplied = false;
+    mediaBoxHover = false;
+    pageHover = false;
 
     // Cleanup media box interactions (Styles and Timeout)
-    const MediaBox = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox");
-    if (MediaBox) {
-        // Clear any existing timeout
+    //const MediaBox = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox");
+    //if (MediaBox) {
+        /* // Clear any existing timeout
         if (MediaBox_Data.hoverTimeoutId) {
             clearTimeout(MediaBox_Data.hoverTimeoutId);
             MediaBox_Data.hoverTimeoutId = null;
         }
 
         // Reset styles
-        MediaBox_Data.Functions.Reset(MediaBox);
-    }
+        MediaBox_Data.Functions.Reset(MediaBox); */
+
+    //}
 }
 
 function Open(skipDocumentFullscreen: boolean = false) {
@@ -301,19 +479,19 @@ function Open(skipDocumentFullscreen: boolean = false) {
 
         if (MediaBox && MediaImage) {
             // Create and store the AbortController
-            MediaBox_Data.abortController = new AbortController();
-            const signal = MediaBox_Data.abortController.signal;
+            EventAbortController = new AbortController();
+            const signal = EventAbortController.signal;
 
-            MediaBox_Data.Functions.Eventify(MediaBox);
-            MediaBox.addEventListener("mouseenter", MediaBox_Data.Functions.MouseIn, { signal });
-            MediaBox.addEventListener("mouseleave", MediaBox_Data.Functions.MouseOut, { signal });
+            MediaBox.addEventListener("mouseenter", MediaBox_MouseIn, { signal });
+            MediaBox.addEventListener("mouseleave", MediaBox_MouseOut, { signal });
+            MediaBox.addEventListener("mousemove", MediaBox_MouseMove, { signal });
 
             // Add NowBar hover animation and movement tracking
             //const NowBar = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar");
             if (SpicyPage) {
-                SpicyPage.addEventListener("mouseenter", MediaBox_Data.Functions.PageMouseIn, { signal });
-                SpicyPage.addEventListener("mousemove", MediaBox_Data.Functions.PageMouseMoveHandler, { signal });
-                SpicyPage.addEventListener("mouseleave", MediaBox_Data.Functions.PageMouseOut, { signal });
+                SpicyPage.addEventListener("mouseenter", Page_MouseIn, { signal });
+                SpicyPage.addEventListener("mousemove", Page_MouseMove, { signal });
+                SpicyPage.addEventListener("mouseleave", Page_MouseOut, { signal });
             }
         }
 
