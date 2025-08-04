@@ -1,17 +1,23 @@
-import { SettingsSection } from "../edited_packages/spcr-settings/settingsSection";
 import storage from "./storage";
 import Defaults from "../components/Global/Defaults";
 import { LyricsStore } from "./Lyrics/fetchLyrics";
 import { SpotifyPlayer } from "../components/Global/SpotifyPlayer";
 import { ShowNotification } from "../components/Pages/PageView";
 
-export function setSettingsMenu() {
-    generalSettings();
-    devSettings();
-    infos();
+export async function setSettingsMenu() {
+
+    while (!Spicetify.React || !Spicetify.ReactDOM) {
+        await new Promise(resolve => setTimeout(resolve, 10));
+    }
+    
+    const { SettingsSection } = await import("../edited_packages/spcr-settings/settingsSection");
+
+    generalSettings(SettingsSection);
+    devSettings(SettingsSection);
+    infos(SettingsSection);
 }
 
-function devSettings() {
+function devSettings(SettingsSection: any) {
     const settings = new SettingsSection("Spicy Lyrics - Developer Settings", "spicy-lyrics-dev-settings");
 
     settings.addButton("remove-current-lyrics-all-caches", "Remove Lyrics for the current song from all caches", "Remove", async () => {
@@ -69,7 +75,7 @@ function devSettings() {
 }
 
 
-function generalSettings() {
+function generalSettings(SettingsSection: any) {
     const settings = new SettingsSection("Spicy Lyrics", "spicy-lyrics-settings");
 
     settings.addToggle("static-background", "Static Background", Defaults.StaticBackground_Preset, () => {
@@ -108,7 +114,7 @@ function generalSettings() {
     settings.pushSettings()
 }
 
-function infos() {
+function infos(SettingsSection: any) {
     const settings = new SettingsSection("Spicy Lyrics - Info", "spicy-lyrics-settings-info");
 
     settings.addButton("more-info", "*If you're using a custom font modification, turn that on", "", () => {});

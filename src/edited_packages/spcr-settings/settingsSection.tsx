@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import ReactDOM from "react-dom";
+const React = Spicetify.React;
+const { useState } = React;
+const ReactDOM = Spicetify.ReactDOM;
 import {
   ISettingsField,
   ISettingsFieldButton,
@@ -176,6 +177,7 @@ class SettingsSection {
   };
 
   private FieldsContainer = () => {
+    // @ts-expect-error
     const [rerender, setRerender] = useState<number>(0);
     this.setRerender = setRerender;
 
