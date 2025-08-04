@@ -40,10 +40,8 @@ import App from "./ready";
 import { CloseSidebarLyrics, getQueueContainer, getQueuePlaybarButton, isSpicySidebarMode, OpenSidebarLyrics, RegisterSidebarLyrics } from "./components/Utils/SidebarLyrics";
 
 async function main() {
-  await Platform.OnSpotifyReady;
-
-   // Lets import the required Scripts from our CDN
-   {
+  // Lets import the required Scripts from our CDN
+  {
     const scripts: HTMLScriptElement[] = [];
     const GetFullUrl = (target: string) => `https://public.storage.spicylyrics.org/tools/${target}`;
 
@@ -88,7 +86,15 @@ async function main() {
     Global.SetScope("func_main._deappend_scripts", DeappendScripts) */
     AppendScripts();
   }
+  
 
+  await Platform.OnSpotifyReady;
+
+  while (!Spicetify.React || !Spicetify.ReactDOM) {
+    await new Promise(resolve => setTimeout(resolve, 10));
+  }
+
+  
   if (!storage.get("show_topbar_notifications")) {
     storage.set("show_topbar_notifications", "true")
   }
@@ -152,7 +158,7 @@ async function main() {
     }
   )
 
-  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.7.7";
+  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.8.1";
   
 
   /* if (storage.get("lyrics_spacing")) {

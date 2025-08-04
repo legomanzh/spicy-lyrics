@@ -201,6 +201,29 @@ export default async function ApplyDynamicBackground(element: HTMLElement) {
             return;
         }
 
+        if (currentBgInstance) {
+            // Get the canvas element
+            const container = currentBgInstance.GetCanvasElement();
+
+            // Add the spicy-dynamic-bg class
+            container.classList.add("spicy-dynamic-bg");
+
+            // Set the data-cover-id attribute to match the existing code
+            container.setAttribute("data-cover-id", currentImgCover ?? "");
+
+            // Apply the background to the element
+            currentBgInstance.AppendToElement(element);
+
+            // Update with the current image
+            await currentBgInstance.Update({
+                image: currentImgCover ?? ""
+            });
+
+            await prefetchCovers();
+            
+            return;
+        }
+
         // Create new DynamicBackground instance
         currentBgInstance = new DynamicBackground(DynamicBackgroundConfig);
 
