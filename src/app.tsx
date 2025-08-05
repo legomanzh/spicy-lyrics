@@ -143,6 +143,14 @@ async function main() {
   if (storage.get("minimalLyricsMode")) {
     Defaults.MinimalLyricsMode = storage.get("minimalLyricsMode") === "true";
   }
+
+  if (!storage.get("hide_npv_bg")) {
+    storage.set("hide_npv_bg", "false");
+  }
+
+  if (storage.get("hide_npv_bg")) {
+    Defaults.hide_npv_bg = storage.get("hide_npv_bg") === "true";
+  }
   
   await new Promise<void>(
     resolve => {
@@ -158,7 +166,7 @@ async function main() {
     }
   )
 
-  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.8.1";
+  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.8.2";
   
 
   /* if (storage.get("lyrics_spacing")) {
@@ -531,6 +539,7 @@ async function main() {
     }
 
     async function applyDynamicBackgroundToNowPlayingBar(coverUrl: string | undefined) {
+      if (Defaults.hide_npv_bg) return;
       if (SpotifyPlayer.GetContentType() === "unknown" || SpotifyPlayer.IsDJ()) return;
       if (Defaults.StaticBackground || coverUrl === undefined) return;
       const nowPlayingBar =
