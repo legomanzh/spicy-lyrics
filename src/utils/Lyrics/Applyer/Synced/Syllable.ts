@@ -2,7 +2,7 @@ import Defaults from "../../../../components/Global/Defaults";
 import { applyStyles, removeAllStyles } from "../../../CSS/Styles";
 import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../../Scrolling/Simplebar/ScrollSimplebar";
 import { ConvertTime } from "../../ConvertTime";
-import { ClearLyricsContentArrays, CurrentLineLyricsObject, endInterludeEarlierBy, lyricsBetweenShow, LyricsObject, SetWordArrayInCurentLine, SimpleLyricsMode_InterludeAddonTime } from "../../lyrics";
+import { ClearLyricsContentArrays, CurrentLineLyricsObject, endInterludeEarlierBy, lyricsBetweenShow, LyricsObject, setRomanizedStatus, SetWordArrayInCurentLine, SimpleLyricsMode_InterludeAddonTime } from "../../lyrics";
 import { ApplyLyricsCredits } from "../Credits/ApplyLyricsCredits";
 import { IsLetterCapable } from "../Utils/IsLetterCapable";
 import Emphasize from "../Utils/Emphasize";
@@ -17,6 +17,7 @@ import { isSpicySidebarMode } from "../../../../components/Utils/SidebarLyrics";
 // Define the data structure for syllable lyrics
 interface SyllableData {
   Text: string;
+  RomanizedText?: string;
   StartTime: number;
   EndTime: number;
   IsPartOfWord?: boolean;
@@ -51,7 +52,7 @@ interface LyricsData {
 }
 
 
-export function ApplySyllableLyrics(data: LyricsData): void {
+export function ApplySyllableLyrics(data: LyricsData, UseRomanized: boolean = false): void {
   if (!Defaults.LyricsContainerExists) return;
   EmitNotApplyed();
 
@@ -201,14 +202,14 @@ export function ApplySyllableLyrics(data: LyricsData): void {
 
         const totalDuration = ConvertTime(lead.EndTime) - ConvertTime(lead.StartTime);
 
-        const letterLength = lead.Text.split("").length;
+        const letterLength = ((UseRomanized && lead.RomanizedText !== undefined) ? lead.RomanizedText : lead.Text).split("").length;
 
         const IfLetterCapable = IsLetterCapable(letterLength, totalDuration);
 
         if (IfLetterCapable) {
 
           word = document.createElement("div")
-          const letters = lead.Text.split(""); // Split word into individual letters
+          const letters = ((UseRomanized && lead.RomanizedText !== undefined) ? lead.RomanizedText : lead.Text).split(""); // Split word into individual letters
 
           Emphasize(letters, word, lead)
 
@@ -227,7 +228,7 @@ export function ApplySyllableLyrics(data: LyricsData): void {
           lineElem.appendChild(word);
 
         } else {
-          word.textContent = lead.Text;
+          word.textContent = ((UseRomanized && lead.RomanizedText !== undefined) ? lead.RomanizedText : lead.Text);
 
           if (!Defaults.SimpleLyricsMode) {
             word.style.setProperty("--gradient-position", `-20%`);
@@ -286,14 +287,14 @@ export function ApplySyllableLyrics(data: LyricsData): void {
 
             const totalDuration = ConvertTime(bw.EndTime) - ConvertTime(bw.StartTime);
 
-            const letterLength = bw.Text.split("").length;
+            const letterLength = ((UseRomanized && bw.RomanizedText !== undefined) ? bw.RomanizedText : bw.Text).split("").length;
 
             const IfLetterCapable = IsLetterCapable(letterLength, totalDuration);
 
             if (IfLetterCapable) {
 
               bwE = document.createElement("div")
-              const letters = bw.Text.split(""); // Split word into individual letters
+              const letters = ((UseRomanized && bw.RomanizedText !== undefined) ? bw.RomanizedText : bw.Text).split(""); // Split word into individual letters
 
               Emphasize(letters, bwE, bw, true)
 
@@ -312,7 +313,7 @@ export function ApplySyllableLyrics(data: LyricsData): void {
               lineE.appendChild(bwE)
 
             } else {
-              bwE.textContent = bw.Text
+              bwE.textContent = ((UseRomanized && bw.RomanizedText !== undefined) ? bw.RomanizedText : bw.Text)
 
               if (!Defaults.SimpleLyricsMode) {
                 bwE.style.setProperty("--gradient-position", `0%`);
@@ -461,6 +462,8 @@ export function ApplySyllableLyrics(data: LyricsData): void {
     console.warn("LyricsStylingContainer not found");
   }
 
-  EmitApply(data.Type, data.Content)
+  EmitApply(data.Type, data.Content);
+
+  setRomanizedStatus(UseRomanized);
 }
 

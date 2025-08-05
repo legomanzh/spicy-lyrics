@@ -3,21 +3,149 @@ import storage from "../storage";
 import Defaults from "../../components/Global/Defaults";
 import PageView from "../../components/Pages/PageView";
 import { SendJob } from "../API/SendJob";
-// import Platform from "../../components/Global/Platform";
 import { SpotifyPlayer } from "../../components/Global/SpotifyPlayer";
 import { IsCompactMode } from "../../components/Utils/CompactMode";
 import Fullscreen from "../../components/Utils/Fullscreen";
 import { SetWaitingForHeight } from "../Scrolling/ScrollToActiveLine";
 import Platform from "../../components/Global/Platform";
+// @ts-ignore
+import Kuroshiro from "kuroshiro";
+import * as KuromojiAnalyzer from "./KuromojiAnalyzer"
+import { franc } from "franc-all";
+import Aromanize from "./Aromanize"
+import pinyin from "pinyin";
+import langs from "langs";
+import cyrillicToLatin from 'cyrillic-romanization';
+// @ts-ignore
+import greekRomanization from "./GreekRomanization.js"
 
 export const LyricsStore = GetExpireStore<any>(
     "SpicyLyrics_LyricsStore",
-    6,
+    8,
     {
         Unit: "Days",
         Duration: 3
     }
 )
+
+// Constants
+const RomajiConverter = new Kuroshiro()
+const RomajiPromise = RomajiConverter.init(KuromojiAnalyzer);
+
+const KoreanTextTest = /[\uac00-\ud7af]|[\u1100-\u11ff]|[\u3130-\u318f]|[\ua960-\ua97f]|[\ud7b0-\ud7ff]/;
+const ChineseTextText = /([\u4E00-\u9FFF])/;
+const JapaneseTextText = /([ぁ-んァ-ン])/;
+
+// Cyrillic (basic + supplements + extended)
+const CyrillicTextTest = /[\u0400-\u04FF\u0500-\u052F\u2DE0-\u2DFF\uA640-\uA69F]/;
+
+// Greek (Basic + Extended)
+const GreekTextTest = /[\u0370-\u03FF\u1F00-\u1FFF]/;
+
+const RomanizeKorean = async (lyricMetadata: any, primaryLanguage: string) => {
+    if ((primaryLanguage === "kor") || KoreanTextTest.test(lyricMetadata.Text)) {
+        lyricMetadata.RomanizedText = Aromanize(lyricMetadata.Text, "RevisedRomanizationTransliteration");
+    }
+}
+
+const RomanizeChinese = async (lyricMetadata: any, primaryLanguage: string) => {
+    if ((primaryLanguage === "cmn") || ChineseTextText.test(lyricMetadata.Text)) {
+        const result = pinyin(
+            lyricMetadata.Text,
+            {
+                segment: false,
+                group: true
+            }
+        )
+
+        lyricMetadata.RomanizedText = result.join("-");
+	}
+}
+
+const RomanizeJapanese = async (lyricMetadata: any, primaryLanguage: string) => {
+	if ((primaryLanguage === "jpn") || JapaneseTextText.test(lyricMetadata.Text)) {
+        await RomajiPromise;
+
+        const result = await RomajiConverter.convert(
+            lyricMetadata.Text,
+            {
+                to: "romaji",
+                mode: "spaced"
+            }
+        )
+
+        lyricMetadata.RomanizedText = result
+	}
+}
+
+const RomanizeCyrillic = async (lyricMetadata: any, primaryLanguage: string, iso2Lang: string) => {
+    if ((
+        primaryLanguage === "bel" ||
+        primaryLanguage === "bul" ||
+        primaryLanguage === "kaz" ||
+        iso2Lang === "ky" ||
+        primaryLanguage === "mkd" ||
+        iso2Lang === "mn" ||
+        primaryLanguage === "rus" ||
+        primaryLanguage === "srp" ||
+        primaryLanguage === "tgk" ||
+        primaryLanguage === "ukr"
+    ) || CyrillicTextTest.test(lyricMetadata.Text)) {
+        const result = cyrillicToLatin(lyricMetadata.Text);
+        if (result != null) {
+            lyricMetadata.RomanizedText = result;
+        }
+    }
+}
+
+const RomanizeGreek = async (lyricMetadata: any, primaryLanguage: string) => {
+    if ((primaryLanguage === "ell") || GreekTextTest.test(lyricMetadata.Text)) {
+        const result = greekRomanization(lyricMetadata.Text);
+        if (result != null) {
+            lyricMetadata.RomanizedText = result;
+        }
+    }
+}
+
+const Romanize = async (lyricMetadata: any, rootInformation: any): Promise<string | undefined> => {
+    const primaryLanguage = rootInformation.Language;
+    const iso2Language = rootInformation.LanguageISO2;
+    if ((primaryLanguage === "jpn") || JapaneseTextText.test(lyricMetadata.Text)) {
+        await RomanizeJapanese(lyricMetadata, primaryLanguage);
+        rootInformation.IncludesRomanization = true;
+        return "Japanese"
+    } else if ((primaryLanguage === "cmn") || ChineseTextText.test(lyricMetadata.Text)) {
+        await RomanizeChinese(lyricMetadata, primaryLanguage);
+        rootInformation.IncludesRomanization = true;
+        return "Chinese"
+    } else if ((primaryLanguage === "kor") || KoreanTextTest.test(lyricMetadata.Text)) {
+        await RomanizeKorean(lyricMetadata, primaryLanguage);
+        rootInformation.IncludesRomanization = true;
+        return "Korean"
+    } else if ((
+        primaryLanguage === "bel" ||
+        primaryLanguage === "bul" ||
+        primaryLanguage === "kaz" ||
+        iso2Language === "ky" ||
+        primaryLanguage === "mkd" ||
+        iso2Language === "mn" ||
+        primaryLanguage === "rus" ||
+        primaryLanguage === "srp" ||
+        primaryLanguage === "tgk" ||
+        primaryLanguage === "ukr"
+    ) || CyrillicTextTest.test(lyricMetadata.Text)) {
+        await RomanizeCyrillic(lyricMetadata, primaryLanguage, iso2Language);
+        rootInformation.IncludesRomanization = true;
+        return "Cyrillic"
+    } else if ((primaryLanguage === "ell") || GreekTextTest.test(lyricMetadata.Text)) {
+        await RomanizeGreek(lyricMetadata, primaryLanguage);
+        rootInformation.IncludesRomanization = true;
+        return "Greek"
+    } else {
+        rootInformation.IncludesRomanization = false;
+        return undefined
+    }
+}
 
 export default async function fetchLyrics(uri: string) {
     //if (!document.querySelector("#SpicyLyricsPage")) return;
@@ -67,6 +195,13 @@ export default async function fetchLyrics(uri: string) {
                 const lyricsData = JSON.parse(savedLyricsData);
                 // Return the stored lyrics if the ID matches the track ID
                 if (lyricsData?.id === trackId) {
+
+                    if (lyricsData?.IncludesRomanization) {
+                        document.querySelector("#SpicyLyricsPage")?.classList.add("Lyrics_RomanizationAvailable")
+                    } else {
+                        document.querySelector("#SpicyLyricsPage")?.classList.remove("Lyrics_RomanizationAvailable")
+                    }
+
                     storage.set("currentlyFetching", "false");
                     HideLoaderContainer()
                     Defaults.CurrentLyricsType = lyricsData.Type;
@@ -92,6 +227,13 @@ export default async function fetchLyrics(uri: string) {
                     return await noLyricsMessage(false, true);
                 }
                 const lyricsFromCache = lyricsFromCacheRes ?? {};
+
+                if (lyricsFromCache?.IncludesRomanization) {
+                    document.querySelector("#SpicyLyricsPage")?.classList.add("Lyrics_RomanizationAvailable")
+                } else {
+                    document.querySelector("#SpicyLyricsPage")?.classList.remove("Lyrics_RomanizationAvailable")
+                }
+
                 storage.set("currentLyricsData", JSON.stringify(lyricsFromCache));
                 storage.set("currentlyFetching", "false");
                 HideLoaderContainer()
@@ -171,33 +313,115 @@ export default async function fetchLyrics(uri: string) {
         if (lyricsText === null) return await noLyricsMessage(false, false);
         if (lyricsText === "") return await noLyricsMessage(false, true);
 
-        const lyricsJson = JSON.parse(lyricsText);
-        const lyricsContent = JSON.stringify(lyricsJson);
+        // const providerLyrics = JSON.parse(lyricsText);
+        const lyrics = JSON.parse(lyricsText);
+        // Romanization
+        {
+            const romanizationPromises: Promise<string | undefined>[] = []
+            if (lyrics.Type === "Static") {
+                {
+                    let textToProcess = lyrics.Lines[0].Text
+                    for (let index = 1; index < lyrics.Lines.length; index += 1) {
+                        textToProcess += `\n${lyrics.Lines[index].Text}`
+                    }
+        
+                    const language = franc(textToProcess);
+                    const languageISO2 = langs.where('3', language)?.['1'];
+        
+                    lyrics.Language = language;
+                    lyrics.LanguageISO2 = languageISO2;
+                }
+        
+                for(const lyricMetadata of lyrics.Lines) {
+                    romanizationPromises.push(Romanize(lyricMetadata, lyrics))
+                }
+            } else if (lyrics.Type === "Line") {
+                {
+                    const lines = []
+                    for (const vocalGroup of lyrics.Content) {
+                        if (vocalGroup.Type === "Vocal") {
+                            lines.push(vocalGroup.Text)
+                        }
+                    }
+                    const textToProcess = lines.join("\n") 
+        
+                    const language = franc(textToProcess);
+                    const languageISO2 = langs.where('3', language)?.['1'];
+        
+                    lyrics.Language = language;
+                    lyrics.LanguageISO2 = languageISO2;
+                }
+        
+                for(const vocalGroup of lyrics.Content) {
+                    if (vocalGroup.Type == "Vocal") {
+                        romanizationPromises.push(Romanize(vocalGroup, lyrics))
+                    }
+                }
+            } else if (lyrics.Type === "Syllable") {
+                {
+                    const lines = []
+                    for (const vocalGroup of lyrics.Content) {
+                        if (vocalGroup.Type === "Vocal") {
+                            let text = vocalGroup.Lead.Syllables[0].Text
+                            for (let index = 1; index < vocalGroup.Lead.Syllables.length; index += 1) {
+                                const syllable = vocalGroup.Lead.Syllables[index]
+                                text += `${syllable.IsPartOfWord ? "" : " "}${syllable.Text}`
+                            }
+        
+                            lines.push(text)
+                        }
+                    }
+                    const textToProcess = lines.join("\n") 
+        
+                    const language = franc(textToProcess);
+                    const languageISO2 = langs.where('3', language)?.['1'];
+        
+                    lyrics.Language = language;
+                    lyrics.LanguageISO2 = languageISO2;
+                }
+        
+                for(const vocalGroup of lyrics.Content) {
+                    if (vocalGroup.Type == "Vocal") {
+                        for(const syllable of vocalGroup.Lead.Syllables) {
+                            romanizationPromises.push(Romanize(syllable, lyrics))
+                        }
+        
+                        if (vocalGroup.Background !== undefined) {
+                            for(const syllable of vocalGroup.Background[0].Syllables) {
+                                romanizationPromises.push(Romanize(syllable, lyrics))
+                            }
+                        }
+                    }
+                }
+            }
 
-        // Store the new lyrics in localStorage
-        storage.set("currentLyricsData", lyricsText);
+            await Promise.all(romanizationPromises);
+            if (lyrics.IncludesRomanization === true) {
+                document.querySelector("#SpicyLyricsPage")?.classList.add("Lyrics_RomanizationAvailable")
+            } else {
+                document.querySelector("#SpicyLyricsPage")?.classList.remove("Lyrics_RomanizationAvailable")
+            }
+            
+        }
 
+        storage.set("currentLyricsData", JSON.stringify(lyrics));
         storage.set("currentlyFetching", "false");
 
         HideLoaderContainer()
 
-
-
         if (LyricsStore) {
-            //const expiresAt = new Date().getTime() + 1000 * 60 * 60 * 24 * 7; // Expire after 7 days
-
             try {
-                await LyricsStore.SetItem(trackId, lyricsJson);
+                await LyricsStore.SetItem(trackId, lyrics);
             } catch (error) {
                 console.error("Error saving lyrics to cache:", error);
             }
         }
 
-        Defaults.CurrentLyricsType = lyricsJson.Type;
+        Defaults.CurrentLyricsType = lyrics.Type;
         document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox")?.classList.remove("LyricsHidden");
         document.querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer")?.classList.remove("Hidden");
         PageView.AppendViewControls(true);
-        return { ...lyricsJson, fromCache: false };
+        return { ...lyrics, fromCache: false };
     } catch (error) {
         console.error("Error fetching lyrics:", error);
         storage.set("currentlyFetching", "false");

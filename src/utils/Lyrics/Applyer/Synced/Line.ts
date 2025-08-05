@@ -2,7 +2,7 @@ import Defaults from "../../../../components/Global/Defaults";
 import { applyStyles, removeAllStyles } from "../../../CSS/Styles";
 import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../../Scrolling/Simplebar/ScrollSimplebar";
 import { ConvertTime } from "../../ConvertTime";
-import { ClearLyricsContentArrays, endInterludeEarlierBy, LINE_SYNCED_CurrentLineLyricsObject, lyricsBetweenShow, LyricsObject, SetWordArrayInCurentLine_LINE_SYNCED, SimpleLyricsMode_InterludeAddonTime } from "../../lyrics";
+import { ClearLyricsContentArrays, endInterludeEarlierBy, LINE_SYNCED_CurrentLineLyricsObject, lyricsBetweenShow, LyricsObject, setRomanizedStatus, SetWordArrayInCurentLine_LINE_SYNCED, SimpleLyricsMode_InterludeAddonTime } from "../../lyrics";
 import { ApplyLyricsCredits } from "../Credits/ApplyLyricsCredits";
 import isRtl from "../../isRtl";
 import { ClearLyricsPageContainer } from "../../fetchLyrics";
@@ -16,6 +16,7 @@ interface LyricsLineData {
   Text: string;
   StartTime: number;
   EndTime: number;
+  RomanizedText?: string;
   OppositeAligned?: boolean;
 }
 
@@ -30,7 +31,7 @@ interface LyricsData {
 }
 
 
-export function ApplyLineLyrics(data: LyricsData): void {
+export function ApplyLineLyrics(data: LyricsData, UseRomanized: boolean = false): void {
     if (!Defaults.LyricsContainerExists) return;
     EmitNotApplyed();
 
@@ -146,7 +147,7 @@ export function ApplyLineLyrics(data: LyricsData): void {
 
     data.Content.forEach((line, index, arr) => {
       const lineElem = document.createElement("div")
-      lineElem.textContent = line.Text
+      lineElem.textContent = ((UseRomanized && line.RomanizedText !== undefined) ? line.RomanizedText : line.Text)
       lineElem.classList.add("line")
 
       if (isRtl(line.Text) && !lineElem.classList.contains("rtl")) {
@@ -286,5 +287,7 @@ export function ApplyLineLyrics(data: LyricsData): void {
   }
 
 
-  EmitApply(data.Type, data.Content)
+  EmitApply(data.Type, data.Content);
+
+  setRomanizedStatus(UseRomanized);
 }

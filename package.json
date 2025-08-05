@@ -1,6 +1,6 @@
 {
   "name": "spicy-lyrics",
-  "version": "5.8.2",
+  "version": "5.9.0",
   "private": false,
   "author": "Spikerko",
   "scripts": {
@@ -10,6 +10,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@types/langs": "^2.0.5",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "spicetify-creator": "^1.0.17"
@@ -19,7 +20,12 @@
     "@spikerko/tools": "npm:@jsr/spikerko__tools@^1.5.6",
     "@spikerko/web-modules": "npm:@jsr/spikerko__web-modules@^1.0.5",
     "cubic-spline": "^3.0.3",
+    "cyrillic-romanization": "^1.1.8",
     "d3-ease": "^3.0.1",
+    "franc-all": "^7.2.0",
+    "kuroshiro": "^1.2.0",
+    "langs": "^2.0.0",
+    "pinyin": "^4.0.0",
     "simplebar": "^6.2.7",
     "socket.io-client": "^4.8.1"
   }

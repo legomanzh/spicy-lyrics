@@ -1,7 +1,7 @@
 import Defaults from "../../../components/Global/Defaults";
 import { applyStyles, removeAllStyles, StyleProperties } from "../../CSS/Styles";
 import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../Scrolling/Simplebar/ScrollSimplebar";
-import { ClearLyricsContentArrays, LyricsObject, LyricsStatic } from "../lyrics";
+import { ClearLyricsContentArrays, LyricsObject, LyricsStatic, setRomanizedStatus } from "../lyrics";
 import { ApplyLyricsCredits } from "./Credits/ApplyLyricsCredits";
 import isRtl from "../isRtl";
 import { ClearLyricsPageContainer } from "../fetchLyrics";
@@ -17,6 +17,7 @@ export interface StaticLyricsData {
     Content?: any;
     Lines: Array<{
         Text: string;
+        RomanizedText?: string;
     }>;
     offline?: boolean;
     classes?: string;
@@ -28,7 +29,7 @@ export interface StaticLyricsData {
  * Apply static lyrics to the lyrics container
  * @param data - Static lyrics data
  */
-export function ApplyStaticLyrics(data: StaticLyricsData): void {
+export function ApplyStaticLyrics(data: StaticLyricsData, UseRomanized: boolean = false): void {
     if (!Defaults.LyricsContainerExists) return;
 
     EmitNotApplyed();
@@ -53,12 +54,7 @@ export function ApplyStaticLyrics(data: StaticLyricsData): void {
     data.Lines.forEach(line => {
         const lineElem = document.createElement("div");
 
-        if (line.Text.includes("[DEF=font_size:small]")) {
-            lineElem.style.fontSize = "35px";
-            lineElem.textContent = line.Text.replace("[DEF=font_size:small]", "");
-        } else {
-            lineElem.textContent = line.Text;
-        }
+        lineElem.textContent = ((UseRomanized && line.RomanizedText !== undefined) ? line.RomanizedText : line.Text);
 
         if (isRtl(line.Text) && !lineElem.classList.contains("rtl")) {
             lineElem.classList.add("rtl");
@@ -111,4 +107,6 @@ export function ApplyStaticLyrics(data: StaticLyricsData): void {
 
 
     EmitApply(data.Type, data.Content);
+
+    setRomanizedStatus(UseRomanized);
 }

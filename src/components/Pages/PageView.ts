@@ -1,7 +1,7 @@
 import fetchLyrics from "../../utils/Lyrics/fetchLyrics";
 import storage from "../../utils/storage";
 import "../../css/Loaders/DotLoader.css"
-import { addLinesEvListener, removeLinesEvListener } from "../../utils/Lyrics/lyrics";
+import { addLinesEvListener, isRomanized, removeLinesEvListener, setRomanizedStatus } from "../../utils/Lyrics/lyrics";
 import ApplyDynamicBackground, { CleanupDynamicBGLets } from "../DynamicBG/dynamicBackground";
 import Defaults from "../Global/Defaults";
 import { Icons } from "../Styling/Icons";
@@ -299,6 +299,7 @@ function AppendViewControls(ReAppend: boolean = false) {
     const isDevMode = storage.get("devMode") === "true";
     elem.innerHTML = `
         ${Fullscreen.IsOpen ? "" : `<button id="CinemaView" class="ViewControl">${Icons.CinemaView}</button>`}
+        <button id="RomanizationToggle" class="ViewControl">${isRomanized ? Icons.DisableRomanization : Icons.EnableRomanization}</button>
         ${(!Fullscreen.IsOpen && !Fullscreen.CinemaViewOpen && !isSpicySidebarMode) ? `<button id="NowBarToggle" class="ViewControl">${Icons.NowBar}</button>` : ""}
         ${NowBarObj.Open && !(isNoLyrics && (Fullscreen.IsOpen || Fullscreen.CinemaViewOpen)) && !isSpicySidebarMode ? `<button id="NowBarSideToggle" class="ViewControl">${Icons.Fullscreen}</button>` : ""}
         ${Fullscreen.IsOpen ? `<button id="FullscreenToggle" class="ViewControl">${Fullscreen.CinemaViewOpen ? Icons.Fullscreen : Icons.CloseFullscreen}</button>` : ""}
@@ -352,6 +353,38 @@ function AppendViewControls(ReAppend: boolean = false) {
                     }
 
                     Session.GoBack();
+                });
+            } catch (err) {
+                console.warn("Failed to setup Close tooltip:", err);
+            }
+        }
+
+        const romanizationToggle = elem.querySelector("#RomanizationToggle");
+        if (romanizationToggle) {
+            try {
+                Tooltips.Close = Spicetify.Tippy(
+                    romanizationToggle,
+                    {
+                        ...Spicetify.TippyProps,
+                        content: isRomanized ? `Disable Romanization` : `Enable Romanization`
+                    }
+                );
+                romanizationToggle.addEventListener("click", async () => {
+                    const songUri = SpotifyPlayer.GetUri();
+                    if (!songUri) return;
+                    document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent")?.classList.add("HiddenTransitioned");
+                    const lyrics = await fetchLyrics(songUri);
+                    //if (lyrics === undefined) return;
+                    //if (lyrics?.Type === "Static" && lyrics?.Lines?.[0]?.Text === "No Lyrics Found") return;
+
+                    setRomanizedStatus(!isRomanized);
+
+                    ApplyLyrics(lyrics);
+
+                    setTimeout(() => {
+                        AppendViewControls();
+                        document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent")?.classList.remove("HiddenTransitioned");
+                    }, 45);
                 });
             } catch (err) {
                 console.warn("Failed to setup Close tooltip:", err);

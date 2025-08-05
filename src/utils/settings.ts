@@ -106,6 +106,10 @@ function generalSettings(SettingsSection: any) {
         storage.set("show_topbar_notifications", settings.getFieldValue("show_topbar_notifications") as string)
     });
 
+    settings.addToggle("hide_npv_bg", "Hide Now Playing View Dynamic Background", Defaults.hide_npv_bg, () => {
+        storage.set("hide_npv_bg", settings.getFieldValue("hide_npv_bg") as string)
+    });
+
     settings.addButton("save-n-reload", "Save your current settings and reload.", "Save & Reload", () => {
         window.location.reload();
     });

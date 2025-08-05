@@ -285,4 +285,11 @@ export function removeLinesEvListener() {
   }
 }
 
+export let isRomanized = storage.get("romanization") === "true";
+
+export const setRomanizedStatus = (val: boolean) => {
+  isRomanized = val;
+  storage.set("romanization", (val.toString()))
+}
+
 export const SimpleLyricsMode_InterludeAddonTime = 2000;

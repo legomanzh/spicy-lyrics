@@ -20,6 +20,7 @@ const Defaults = {
     DevMode: false,
     SimpleLyricsMode: false,
     MinimalLyricsMode: false,
+    hide_npv_bg: false
 }
 
 export default Defaults;
