@@ -1,7 +1,7 @@
 [
 	{
 		"name": "Spicy Lyrics",
-		"description": "Spicy Lyrics is a better lyrics experience (compared to Spotify Lyrics) for Spotify. It brings word-to-word lyrics (karaoke style), beatiful animations, and more. Come and give it a try!",
+		"description": "Spicy Lyrics is a better lyrics experience (compared to Spotify Lyrics) for Spotify. It brings word-to-word lyrics (karaoke style), beatiful animations, romanization and is highly customizable",
 		"preview": "./previews/square-s.gif",
 		"main": "./builds/spicy-lyrics.mjs",
 		"readme": "README.md",
@@ -9,6 +9,6 @@
 		"authors": [
 			{ "name": "Spikerko", "url": "https://github.com/Spikerko" }
 		],
-		"tags": ["lyrics", "spicy-lyrics", "word-to-word-lyrics", "karaoke", "spicetify", "syllable-lyrics", "syllable", "smooth"]
+		"tags": ["lyrics", "spicy-lyrics", "word-to-word-lyrics", "karaoke", "spicetify", "syllable-lyrics", "syllable", "smooth", "romanization", "romaji", "pinyin", "pretty", "customizable"]
 	}
 ]
