@@ -17,7 +17,7 @@ export const SimpleLyricsMode_LetterEffectsStrengthConfig = {
   Longer: {
     Glow: 0.44,
     YOffset: 0.9,
-    Scale: 1.15,
+    Scale: 1.1,
   },
   Shorter: {
     Glow: 0.376,

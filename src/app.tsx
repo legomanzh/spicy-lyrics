@@ -40,54 +40,6 @@ import App from "./ready";
 import { CloseSidebarLyrics, getQueueContainer, getQueuePlaybarButton, isSpicySidebarMode, OpenSidebarLyrics, RegisterSidebarLyrics } from "./components/Utils/SidebarLyrics";
 
 async function main() {
-  // Lets import the required Scripts from our CDN
-  {
-    const scripts: HTMLScriptElement[] = [];
-    const GetFullUrl = (target: string) => `https://public.storage.spicylyrics.org/tools/${target}`;
-
-    const AddScript = (scriptFileName: string) => {
-      const script = document.createElement("script");
-      script.async = true;
-      script.src = GetFullUrl(scriptFileName);
-      /* script.onerror = () => {
-        sleep(2).then(() => {
-          window._spicy_lyrics?.func_main?._deappend_scripts();
-          window._spicy_lyrics?.func_main?._add_script(scriptFileName);
-          window._spicy_lyrics?.func_main?._append_scripts();
-        })
-      }; */
-      scripts.push(script);
-    }
-
-    //Global.SetScope("func_main._add_script", AddScript);
-
-    // spicy-hasher.js
-    AddScript("spicy-hasher.js");
-
-    // pako.min.js
-    AddScript("pako.min.js");
-
-    // vibrant.min.js
-    AddScript("vibrant.min.js");
-
-    // Lets apply our Scripts
-    const AppendScripts = () => {
-      for (const script of scripts) {
-        document.head.appendChild(script);
-      }
-    }
-    /* const DeappendScripts = () => {
-      for (const script of scripts) {
-        document.head.removeChild(script);
-      }
-    } */
-
-    /* Global.SetScope("func_main._append_scripts", AppendScripts)
-    Global.SetScope("func_main._deappend_scripts", DeappendScripts) */
-    AppendScripts();
-  }
-  
-
   await Platform.OnSpotifyReady;
 
   while (!Spicetify.React || !Spicetify.ReactDOM) {
@@ -151,22 +103,9 @@ async function main() {
   if (storage.get("hide_npv_bg")) {
     Defaults.hide_npv_bg = storage.get("hide_npv_bg") === "true";
   }
-  
-  await new Promise<void>(
-    resolve => {
-      const interval = setInterval(
-        () => {
-          if (((window as any).pako) !== undefined) {
-            clearInterval(interval)
-            resolve()
-          }
-        },
-        10
-      )
-    }
-  )
 
-  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.8.2";
+
+  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.9.0";
   
 
   /* if (storage.get("lyrics_spacing")) {
@@ -488,6 +427,31 @@ async function main() {
 		SearchDOMForFullscreenButtons()
   }
 
+  {
+    const whentil = Whentil.When(() => document.querySelector<HTMLElement>("style#dynamic-font-style"), (element) => {
+      if (!element) {
+        whentil.Cancel();
+        return;
+      }
+
+      element.innerHTML = `
+        *:not(#SpicyLyricsPage.UseSpicyFont *) {
+          font-family: Inter, sans-serif;
+        }
+        :root {
+          --font-family: Inter, sans-serif;
+          --encore-title-font-stack: Inter,CircularSp-Arab,CircularSp-Hebr,CircularSp-Cyrl,CircularSp-Grek,CircularSp-Deva,var(--fallback-fonts,sans-serif) !important;
+          --encore-variable-font-stack: Inter,CircularSp-Arab,CircularSp-Hebr,CircularSp-Cyrl,CircularSp-Grek,CircularSp-Deva,var(--fallback-fonts,sans-serif) !important;
+          --encore-body-font-stack: Inter,CircularSp-Arab,CircularSp-Hebr,CircularSp-Cyrl,CircularSp-Grek,CircularSp-Deva,var(--fallback-fonts,sans-serif) !important;
+        }
+      `.trim();
+    })
+
+    setTimeout(() => {
+      whentil.Cancel();
+    }, 50000);
+  }
+
   let button: any = undefined;
   if (ButtonList) {
     button = ButtonList[0];
@@ -523,8 +487,9 @@ async function main() {
         </div>`,
         isLarge: true
       })
-      storage.set("previous-version", Defaults.SpicyLyricsVersion);
     }
+
+    storage.set("previous-version", Defaults.SpicyLyricsVersion);
 
     // Lets set out Dynamic Background (spicy-dynamic-bg) to the now playing bar
     let lastImgUrl: string | null;
@@ -911,11 +876,7 @@ async function main() {
   })
 
 
-  Whentil.When(() => (
-    SpicyHasher &&
-    pako &&
-    Vibrant
-  ), Hometinue);
+  Hometinue();
 }
 
 export default main;
