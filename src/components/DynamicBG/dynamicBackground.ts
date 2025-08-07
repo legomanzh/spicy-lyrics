@@ -33,6 +33,17 @@ export const DynamicBackgroundConfig: DynamicBackgroundOptions = {
 // Store the DynamicBackground instance and element for reuse
 export let currentBgInstance: DynamicBackground | null = null;
 
+// Add a document visibilitychange event to refocus the dynamic background when the tab regains focus
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && currentBgInstance) {
+        // Optionally, you could re-apply the current image or update the background
+        currentBgInstance.Update({
+            image: SpotifyPlayer.GetCover("large") ?? ""
+        });
+    }
+});
+
+
 export const SetPageBGBlur = async (blur: number) => {
     if (currentBgInstance) {
         await currentBgInstance.Update({

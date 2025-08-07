@@ -1,6 +1,7 @@
 import { SendJob } from "../../utils/API/SendJob";
 import fetchLyrics from "../../utils/Lyrics/fetchLyrics";
 import ApplyLyrics from "../../utils/Lyrics/Global/Applyer";
+import { ProcessLyrics } from "../../utils/Lyrics/ProcessLyrics";
 import storage from "../../utils/storage";
 import Global from "../Global/Global";
 import { SpotifyPlayer } from "../Global/SpotifyPlayer";
@@ -23,11 +24,14 @@ Global.SetScope("execute", (command: string) => {
                         ShowNotification("Found TTML, Parsing...", "info", 5000);
                         ParseTTML(ttml)
                             .then(async (result) => {
-                                const dataToSave = JSON.stringify({
+                                const dataToSave = {
                                     ...result?.Result,
                                     id: SpotifyPlayer.GetId()
-                                })
-                                storage.set("currentLyricsData", dataToSave);
+                                }
+
+                                await ProcessLyrics(dataToSave);
+
+                                storage.set("currentLyricsData", JSON.stringify(dataToSave));
                                 setTimeout(() => {
                                     fetchLyrics(SpotifyPlayer.GetUri() ?? "").then((lyrics) => {
                                         ApplyLyrics(lyrics);

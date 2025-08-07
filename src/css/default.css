@@ -30,7 +30,7 @@ body.SpicySidebarLyrics__Active #SpicyLyricsPage:not(.Fullscreen) {
 
 #SpicyLyricsPage.UseSpicyFont,
 .SpicyLyricsFontPixel {
-  font-family: SpicyLyrics, "Noto Sans Georgian", "VazirmatnRegular";
+  font-family: SpicyLyrics, "Noto Sans Georgian", "VazirmatnRegular" !important;
 }
 
 .Root__main-view:has(#SpicyLyricsPage) .main-view-container__scroll-node-child,
@@ -62,6 +62,10 @@ body.SpicySidebarLyrics__Active #SpicyLyricsPage:not(.Fullscreen) {
 :root:has(.SpicyBG.BackgroundLayer) body:not(.SpicySidebarLyrics__Active) #SpicyLyricsPage:not(.Fullscreen) .ViewControls,
 :root:has(.lucid-bg-wrapper) #SpicyLyricsPage:not(.Fullscreen) .ViewControls {
   bottom: 115px !important;
+}
+
+:root:has(.lucid-bg) #SpicyLyricsPage:not(.Fullscreen) .ViewControls {
+  bottom: 80px !important;
 }
 
 body.SpicySidebarLyrics__Active #SpicyLyricsPage:not(.Fullscreen) .ViewControls {
