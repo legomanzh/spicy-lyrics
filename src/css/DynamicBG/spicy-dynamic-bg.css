@@ -11,7 +11,8 @@
   filter: saturate(2.5) brightness(.65);
 }
 
-body:has(.starrynight-bg-container) #main .spicy-dynamic-bg {
+body:has(.starrynight-bg-container) #main .spicy-dynamic-bg:not(.StaticBackground),
+body:has(.glassify-bg .bg.animated) #main .spicy-dynamic-bg:not(.StaticBackground) {
   display: none !important;
 }
 

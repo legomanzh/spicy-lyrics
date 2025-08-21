@@ -404,7 +404,7 @@ export function Animate(position: number): void {
   lastAnimateFrameTime = now;
 
   const CurrentLyricsType = Defaults.CurrentLyricsType;
-  const ProcessedPosition = position + timeOffset;
+  const ProcessedPosition = position + timeOffset - (Defaults.SimpleLyricsMode ? 33.5 : 0);
 
   if (!CurrentLyricsType || CurrentLyricsType === "None") return;
 
@@ -625,7 +625,7 @@ export function Animate(position: number): void {
                                   nextWord.HTMLElement.style.removeProperty("--SLM_GradientPosition");
                                   setTimeout(() => {
                                     nextWord.HTMLElement.style.animation = getPreSLMAnimation(250);
-                                  }, Number((totalDuration * 0.85) - 115) ?? totalDuration);
+                                  }, Number((totalDuration * 0.845) - 130) ?? totalDuration);
                                 }
                               }
                             }
@@ -646,7 +646,7 @@ export function Animate(position: number): void {
                                 nextWord.HTMLElement.style.removeProperty("--SLM_GradientPosition");
                                 setTimeout(() => {
                                   nextWord.HTMLElement.style.animation = getPreSLMAnimation(125);
-                                }, Number((totalDuration * 0.76) - 130) ?? totalDuration);
+                                }, Number((totalDuration * 0.6) - 22) ?? totalDuration);
                               }
                             }
                           }
