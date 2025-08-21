@@ -255,8 +255,7 @@ async function main() {
 
         @keyframes SLM_Animation {
           0% {
-            /* --SLM_GradientPosition: -50%; */
-            --SLM_GradientPosition: -10%;
+            --SLM_GradientPosition: -27.5%;
           }
           100% {
             --SLM_GradientPosition: 100%;
@@ -268,7 +267,7 @@ async function main() {
             --SLM_GradientPosition: -50%;
           }
           100% {
-            --SLM_GradientPosition: -10%;
+            --SLM_GradientPosition: -27.5%;
           }
         }
 
