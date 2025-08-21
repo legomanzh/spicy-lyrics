@@ -64,6 +64,10 @@ body.SpicySidebarLyrics__Active #SpicyLyricsPage:not(.Fullscreen) {
   bottom: 115px !important;
 }
 
+body.player-floating:has(.glassify-bg) #SpicyLyricsPage:not(.Fullscreen) .ViewControls {
+  bottom: 96px !important;
+}
+
 :root:has(.lucid-bg) #SpicyLyricsPage:not(.Fullscreen) .ViewControls {
   bottom: 80px !important;
 }
@@ -361,5 +365,9 @@ body.SpicySidebarLyrics__Active #SpicyLyricsPage {
 
 
 #SpicyLyricsPage:not(.Lyrics_RomanizationAvailable) .ViewControls #RomanizationToggle {
+  display: none !important;
+}
+
+#SpicyLyricsPage.CompactifyEnabledCompactMode .ViewControls .ViewControl#CompactModeToggle {
   display: none !important;
 }

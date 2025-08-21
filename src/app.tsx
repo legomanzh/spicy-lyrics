@@ -46,6 +46,22 @@ async function main() {
     await new Promise(resolve => setTimeout(resolve, 10));
   }
 
+  Global.SetScope("fullscreen.open", false);
+
+  Global.SetScope("fullscreen.onopen", (cb: any) => {
+    Global.Event.listen("fullscreen:open", () => {
+      Global.SetScope("fullscreen.open", true);
+      cb()
+    })
+  })
+
+  Global.SetScope("fullscreen.onclose", (cb: any) => {
+    Global.Event.listen("fullscreen:exit", () => {
+      Global.SetScope("fullscreen.open", false);
+      cb()
+    })
+  })
+
   
   if (!storage.get("show_topbar_notifications")) {
     storage.set("show_topbar_notifications", "true")
@@ -105,7 +121,7 @@ async function main() {
   }
 
 
-  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.9.0";
+  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.9.5";
   
 
   /* if (storage.get("lyrics_spacing")) {
@@ -435,7 +451,7 @@ async function main() {
       }
 
       element.innerHTML = `
-        *:not(#SpicyLyricsPage.UseSpicyFont *) {
+        * :not(#SpicyLyricsPage.UseSpicyFont *) {
           font-family: Inter, sans-serif;
         }
         :root {
