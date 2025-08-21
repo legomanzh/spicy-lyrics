@@ -14,7 +14,7 @@ const SongChangeSignal = new Signal();
 
 export const DynamicBackgroundConfig: DynamicBackgroundOptions = {
     transition: Defaults.PrefersReducedMotion ? 0 : 0.5,
-    blur: 50,
+    blur: 40,
     speed: 0.2,
     coverArtCache: CoverArtCacheMap,
     plugins: [
@@ -22,7 +22,7 @@ export const DynamicBackgroundConfig: DynamicBackgroundOptions = {
             SongChangeSignal,
             getSongId: () => SpotifyPlayer.GetId() ?? "",
             getPaused: () => !SpotifyPlayer.IsPlaying,
-            getSongPosition: () => ((SpotifyPlayer.GetPosition() ?? 1000) / 1000),
+            getSongPosition: () => (((SpotifyPlayer.GetPosition() ?? 1000) / 1000) - 750),
             getAccessToken: async () => {
                 const token = await Platform.GetSpotifyAccessToken();
                 return `Bearer ${token}`;

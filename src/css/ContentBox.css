@@ -433,11 +433,11 @@
     position: absolute;
     width: 100%;
     top: 7cqh;
-    height: 10cqh;
+    height: 9cqh;
 }
 
 #SpicyLyricsPage.Fullscreen .ContentBox .NowBar .CenteredView .Header .MediaBox .MediaContent .ViewControls .ViewControl {
-    background: rgba(38, 38, 38, 0.7) !important;
+    background: rgba(38, 38, 38, 0.95) !important;
 }
 
 
@@ -795,7 +795,7 @@
     height: calc(var(--Compact_NowBarHeight) + 40cqw);
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent {
+#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent.CompactifyEnabledCompactMode {
     --DefaultLyricsSize: clamp(3rem, calc(1cqw* 7), 4rem);
 }
 
@@ -807,7 +807,7 @@
     margin-top: calc(var(--Compact_NowBarHeight) + 50cqw);
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .ContentBox .NowBar .CenteredView .Header:has(.MediaBox:hover) .Metadata {
+#SpicyLyricsPage.Fullscreen.CompactMode.CompactifyEnabledCompactMode .ContentBox .NowBar .CenteredView .Header:has(.MediaBox:hover) .Metadata {
     opacity: 0;
 }
 
@@ -816,32 +816,32 @@
     padding: 0 0 10cqh !important;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent:has(.OppositeAligned) .line.OppositeAligned:not(.rtl),
+#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent.CompactifyEnabledCompactMode:has(.OppositeAligned) .line.OppositeAligned:not(.rtl),
 #SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent:has(.OppositeAligned) .line.OppositeAligned:not(.rtl) {
   padding-left: 10cqw;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent:has(.OppositeAligned) .line:not(.OppositeAligned, .rtl),
+#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent.CompactifyEnabledCompactMode:has(.OppositeAligned) .line:not(.OppositeAligned, .rtl),
 #SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent:has(.OppositeAligned) .line:not(.OppositeAligned, .rtl) {
   padding-right: 10cqw;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line.OppositeAligned,
+#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent.CompactifyEnabledCompactMode:has(.OppositeAligned.rtl) .line.OppositeAligned,
 #SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line.OppositeAligned {
   padding-right: 10cqw;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line:not(.OppositeAligned),
+#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent.CompactifyEnabledCompactMode:has(.OppositeAligned.rtl) .line:not(.OppositeAligned),
 #SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line:not(.OppositeAligned) {
   padding-left: 10cqw;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent:not(:has(.OppositeAligned)) .line,
+#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent.CompactifyEnabledCompactMode:not(:has(.OppositeAligned)) .line,
 #SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent:not(:has(.OppositeAligned)) .line {
   padding-right: 2cqw;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent:not(:has(.OppositeAligned)) .line.rtl,
+#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent.CompactifyEnabledCompactMode:not(:has(.OppositeAligned)) .line.rtl,
 #SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent:not(:has(.OppositeAligned)) .line.rtl {
   padding-left: 2cqw;
 }
@@ -874,4 +874,17 @@
 
 #SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .Heart:hover {
     scale: 1.05;
+}
+
+#SpicyLyricsPage:not(.CompactifyEnabledCompactMode).Fullscreen.CompactMode:has(.MediaBox:hover) .ContentBox .LyricsContainer {
+    margin-top: calc(var(--Compact_NowBarHeight) + 19cqw);
+}
+
+#SpicyLyricsPage:not(.CompactifyEnabledCompactMode).Fullscreen.CompactMode .ContentBox .NowBar:has(.CenteredView .Header .MediaBox:hover) {
+    height: calc(var(--Compact_NowBarHeight) + 15cqw);
+}
+
+#SpicyLyricsPage.Fullscreen.CompactMode .ContentBox .NowBar .Header .MediaBox .MediaImage {
+    border-radius: 3cqh;
+    --BorderRadius: 3cqh;
 }

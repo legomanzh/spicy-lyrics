@@ -10,6 +10,7 @@ import { GetCurrentLyricsContainerInstance } from "../../utils/Lyrics/Applyer/Cr
 import Spring from "@socali/modules/Spring";
 import { Maid } from "@socali/modules/Maid";
 import { OnPreRender } from "@socali/modules/Scheduler";
+import { IsCompactMode } from "./CompactMode";
 
 const ArtworkBrightness = {
     Start: 0.78,
@@ -497,7 +498,17 @@ function Open(skipDocumentFullscreen: boolean = false) {
 
         Global.Event.evoke("fullscreen:open", null);
     }
-    setTimeout(Compactify, 1000)
+    setTimeout(() => {
+        Compactify();
+        setTimeout(() => {
+            const NoLyrics = storage.get("currentLyricsData")?.toString()?.includes("NO_LYRICS");
+            if (NoLyrics && !IsCompactMode()) {
+                document.querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer")?.classList.add("Hidden");
+                document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox")?.classList.add("LyricsHidden");
+                DeregisterNowBarBtn();
+            }
+        }, 75);
+    }, 750)
     GetCurrentLyricsContainerInstance()?.Resize();
 }
 
@@ -532,8 +543,8 @@ function Close() {
 
         const NoLyrics = storage.get("currentLyricsData")?.toString()?.includes("NO_LYRICS");
         if (NoLyrics) {
-            OpenNowBar();
-            document.querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer")?.classList.add("Hidden");
+            document.querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer")?.classList.remove("Hidden");
+            document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox")?.classList.remove("LyricsHidden");
             DeregisterNowBarBtn();
         }
 

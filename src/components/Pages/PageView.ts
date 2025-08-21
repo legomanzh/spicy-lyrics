@@ -14,8 +14,7 @@ import TransferElement from "../Utils/TransferElement";
 import Session from "../Global/Session";
 import { InitializeScrollEvents, ResetLastLine, CleanupScrollEvents } from "../../utils/Scrolling/ScrollToActiveLine";
 import Global from "../Global/Global";
-import { EnableCompactMode } from "../Utils/CompactMode";
-import { DisableCompactMode } from "../Utils/CompactMode";
+import { EnableCompactMode, DisableCompactMode, IsCompactMode } from "../Utils/CompactMode";
 import { DestroyAllLyricsContainers } from "../../utils/Lyrics/Applyer/CreateLyricsContainer";
 import { CloseSidebarLyrics, isSpicySidebarMode, OpenSidebarLyrics } from "../Utils/SidebarLyrics";
 import Whentil from "@spikerko/tools/Whentil";
@@ -221,21 +220,14 @@ export function Compactify(Element: HTMLElement | undefined = undefined) {
     if (!Fullscreen.IsOpen) return;
     const elem = Element ?? document.querySelector<HTMLElement>("#SpicyLyricsPage");
     if (!elem) return;
-    const isNoLyrics = storage.get("currentLyricsData")?.toString() === `NO_LYRICS:${SpotifyPlayer.GetId()}`;
     if (window.matchMedia("(max-width: 70.812rem)").matches) {
-        if (isNoLyrics && (Fullscreen.IsOpen || Fullscreen.CinemaViewOpen)) {
-            elem.querySelector<HTMLElement>(".ContentBox .LyricsContainer")?.classList.remove("Hidden");
-            elem.querySelector<HTMLElement>(".ContentBox")?.classList.remove("LyricsHidden");
-        }
+        elem.classList.add("CompactifyEnabledCompactMode");
         EnableCompactMode();
-        Global.Event.evoke("compact-mode:enable");
     } else {
-        if (isNoLyrics && (Fullscreen.IsOpen || Fullscreen.CinemaViewOpen)) {
-            elem.querySelector<HTMLElement>(".ContentBox .LyricsContainer")?.classList.add("Hidden");
-            elem.querySelector<HTMLElement>(".ContentBox")?.classList.add("LyricsHidden");
-        }
+        if (!elem.classList.contains("CompactifyEnabledCompactMode")) return;
+        elem.classList.remove("CompactifyEnabledCompactMode");
+        if (elem.classList.contains("ForcedCompactMode")) return;
         DisableCompactMode();
-        Global.Event.evoke("compact-mode:disable");
     }
 }
 
@@ -273,6 +265,11 @@ Global.Event.listen("lyrics:not-apply", () => {
 
 Global.Event.listen("lyrics:apply", ({ Type }: { Type: string }) => {
     CleanupScrollEvents();
+
+    if (storage.get("ForceCompactMode") === "true" && !IsCompactMode()) {
+        EnableCompactMode();
+    }
+
     if (!Type || Type === "Static") return;
     if (ScrollSimplebar) {
         InitializeScrollEvents(ScrollSimplebar);
@@ -298,7 +295,8 @@ function AppendViewControls(ReAppend: boolean = false) {
     const isNoLyrics = storage.get("currentLyricsData")?.toString() === `NO_LYRICS:${SpotifyPlayer.GetId()}`;
     const isDevMode = storage.get("devMode") === "true";
     elem.innerHTML = `
-        ${Fullscreen.IsOpen ? "" : `<button id="CinemaView" class="ViewControl">${Icons.CinemaView}</button>`}
+        ${(Fullscreen.IsOpen || Fullscreen.CinemaViewOpen) ? "" : `<button id="CinemaView" class="ViewControl">${Icons.CinemaView}</button>`}
+        ${(Fullscreen.IsOpen || Fullscreen.CinemaViewOpen) ? `<button id="CompactModeToggle" class="ViewControl">${IsCompactMode() ? Icons.DisableCompactModeIcon : Icons.EnableCompactModeIcon}</button>` : ""}
         <button id="RomanizationToggle" class="ViewControl">${isRomanized ? Icons.DisableRomanization : Icons.EnableRomanization}</button>
         ${(!Fullscreen.IsOpen && !Fullscreen.CinemaViewOpen && !isSpicySidebarMode) ? `<button id="NowBarToggle" class="ViewControl">${Icons.NowBar}</button>` : ""}
         ${NowBarObj.Open && !(isNoLyrics && (Fullscreen.IsOpen || Fullscreen.CinemaViewOpen)) && !isSpicySidebarMode ? `<button id="NowBarSideToggle" class="ViewControl">${Icons.Fullscreen}</button>` : ""}
@@ -353,6 +351,39 @@ function AppendViewControls(ReAppend: boolean = false) {
                     }
 
                     Session.GoBack();
+                });
+            } catch (err) {
+                console.warn("Failed to setup Close tooltip:", err);
+            }
+        }
+
+        const compactModeToggle = elem.querySelector("#CompactModeToggle");
+        if (compactModeToggle) {
+            try {
+                Tooltips.Close = Spicetify.Tippy(
+                    compactModeToggle,
+                    {
+                        ...Spicetify.TippyProps,
+                        content: `${IsCompactMode() ? "Disable Compact Mode" : "Enable Compact Mode"}`
+                    }
+                );
+                compactModeToggle.addEventListener("click", () => {
+                    const SpicyLyricsPage = document.querySelector<HTMLElement>("#SpicyLyricsPage");
+                    if (Fullscreen.IsOpen || Fullscreen.CinemaViewOpen) {
+                        if (IsCompactMode()) {
+                            SpicyLyricsPage?.classList.remove("ForcedCompactMode")
+                            DisableCompactMode();
+                            storage.set("ForceCompactMode", "false")
+                        } else {
+                            SpicyLyricsPage?.classList.add("ForcedCompactMode")
+                            EnableCompactMode();
+                            storage.set("ForceCompactMode", "true")
+                        }
+
+                        setTimeout(() => {
+                            AppendViewControls(true);
+                        }, 65);
+                    }
                 });
             } catch (err) {
                 console.warn("Failed to setup Close tooltip:", err);
