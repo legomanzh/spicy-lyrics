@@ -22,7 +22,7 @@ export const DynamicBackgroundConfig: DynamicBackgroundOptions = {
             SongChangeSignal,
             getSongId: () => SpotifyPlayer.GetId() ?? "",
             getPaused: () => !SpotifyPlayer.IsPlaying,
-            getSongPosition: () => (((SpotifyPlayer.GetPosition() ?? 1000) / 1000) - 750),
+            getSongPosition: () => (((SpotifyPlayer.GetPosition() ?? 1000) / 1000) - 505),
             getAccessToken: async () => {
                 const token = await Platform.GetSpotifyAccessToken();
                 return `Bearer ${token}`;
