@@ -14,7 +14,7 @@ const SongChangeSignal = new Signal();
 
 export const DynamicBackgroundConfig: DynamicBackgroundOptions = {
     transition: Defaults.PrefersReducedMotion ? 0 : 0.5,
-    blur: 40,
+    blur: 50,
     speed: 0.2,
     coverArtCache: CoverArtCacheMap,
     plugins: [
