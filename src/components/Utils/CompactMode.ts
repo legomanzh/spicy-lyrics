@@ -25,7 +25,7 @@ export const EnableCompactMode = () => {
     if (!NowBar) return;
     NowBar.classList.add("LeftSide");
     NowBar.classList.remove("RightSide");
-
+ 
     if (Defaults.CompactMode_LockedMediaBox) {
         NowBar.classList.add("LockedMediaBox");
     }
@@ -50,9 +50,9 @@ export const DisableCompactMode = () => {
     Session_NowBar_SetSide();
     CompactMode = false;
     GetCurrentLyricsContainerInstance()?.Resize();
-    
+
     const NowBar = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar");
-    if (NowBar) NowBar.classList.add("LockedMediaBox");
+    if (NowBar) NowBar.classList.remove("LockedMediaBox");
     
     Global.Event.evoke("compact-mode:disable");
 }
