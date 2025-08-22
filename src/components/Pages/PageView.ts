@@ -216,11 +216,13 @@ async function OpenPage(AppendTo: HTMLElement | undefined = undefined) {
     UpdateSongMoreInfo();
 }) */
 
+export const isSizeReadyToBeCompacted = () => window.matchMedia("(max-width: 70.812rem)").matches;
+
 export function Compactify(Element: HTMLElement | undefined = undefined) {
     if (!Fullscreen.IsOpen) return;
     const elem = Element ?? document.querySelector<HTMLElement>("#SpicyLyricsPage");
     if (!elem) return;
-    if (window.matchMedia("(max-width: 70.812rem)").matches) {
+    if (isSizeReadyToBeCompacted()) {
         elem.classList.add("CompactifyEnabledCompactMode");
         EnableCompactMode();
     } else {
@@ -265,10 +267,6 @@ Global.Event.listen("lyrics:not-apply", () => {
 
 Global.Event.listen("lyrics:apply", ({ Type }: { Type: string }) => {
     CleanupScrollEvents();
-
-    if (storage.get("ForceCompactMode") === "true" && !IsCompactMode()) {
-        EnableCompactMode();
-    }
 
     if (!Type || Type === "Static") return;
     if (ScrollSimplebar) {

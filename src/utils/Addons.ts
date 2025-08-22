@@ -18,8 +18,8 @@ function DeepFreeze<T extends Record<string, any>>(obj: T): Readonly<T> {
 }
 
 function IsPlaying() {
-    const state = Spicetify?.Player?.data?.isPaused;
-    return !state;
+    const state = Spicetify?.Player?.isPlaying?.();
+    return state;
 }
 
 function TOP_ApplyLyricsSpacer(Container: HTMLElement) {

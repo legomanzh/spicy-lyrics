@@ -67,6 +67,14 @@ async function main() {
     storage.set("show_topbar_notifications", "true")
   }
 
+  if (!storage.get("lockedMediaBox")) {
+    storage.set("lockedMediaBox", "false")
+  }
+
+  if (storage.get("lockedMediaBox")) {
+    Defaults.CompactMode_LockedMediaBox = storage.get("lockedMediaBox") === "true";
+  }
+
  /*  if (!storage.get("lyrics_spacing")) {
     storage.set("lyrics_spacing", "Medium");
   } */
@@ -121,7 +129,7 @@ async function main() {
   }
 
 
-  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.9.5";
+  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.10.2";
   
 
   /* if (storage.get("lyrics_spacing")) {

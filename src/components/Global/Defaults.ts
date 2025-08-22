@@ -20,7 +20,8 @@ const Defaults = {
     DevMode: false,
     SimpleLyricsMode: false,
     MinimalLyricsMode: false,
-    hide_npv_bg: false
+    hide_npv_bg: false,
+    CompactMode_LockedMediaBox: false
 }
 
 export default Defaults;
