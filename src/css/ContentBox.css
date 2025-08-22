@@ -795,7 +795,7 @@
     height: calc(var(--Compact_NowBarHeight) + 40cqw);
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent.CompactifyEnabledCompactMode {
+#SpicyLyricsPage.Fullscreen.CompactMode.CompactifyEnabledCompactMode .LyricsContainer .LyricsContent {
     --DefaultLyricsSize: clamp(3rem, calc(1cqw* 7), 4rem);
 }
 
@@ -876,11 +876,13 @@
     scale: 1.05;
 }
 
-#SpicyLyricsPage:not(.CompactifyEnabledCompactMode).Fullscreen.CompactMode:has(.MediaBox:hover) .ContentBox .LyricsContainer {
-    margin-top: calc(var(--Compact_NowBarHeight) + 19cqw);
+#SpicyLyricsPage:not(.CompactifyEnabledCompactMode).Fullscreen.CompactMode:has(.MediaBox:hover) .ContentBox .LyricsContainer,
+#SpicyLyricsPage:not(.CompactifyEnabledCompactMode).Fullscreen.CompactMode:has(.NowBar.LockedMediaBox) .ContentBox .LyricsContainer {
+    margin-top: calc(var(--Compact_NowBarHeight) + 18cqw);
 }
 
-#SpicyLyricsPage:not(.CompactifyEnabledCompactMode).Fullscreen.CompactMode .ContentBox .NowBar:has(.CenteredView .Header .MediaBox:hover) {
+#SpicyLyricsPage:not(.CompactifyEnabledCompactMode).Fullscreen.CompactMode .ContentBox .NowBar:has(.CenteredView .Header .MediaBox:hover),
+#SpicyLyricsPage.Fullscreen.CompactMode:not(.CompactifyEnabledCompactMode) .ContentBox .NowBar.LockedMediaBox {
     height: calc(var(--Compact_NowBarHeight) + 15cqw);
 }
 

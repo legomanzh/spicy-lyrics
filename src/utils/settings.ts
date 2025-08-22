@@ -110,6 +110,10 @@ function generalSettings(SettingsSection: any) {
         storage.set("hide_npv_bg", settings.getFieldValue("hide_npv_bg") as string)
     });
 
+    settings.addToggle("lock_mediabox", "Lock the MediaBox size while in Forced Compact Mode", Defaults.CompactMode_LockedMediaBox, () => {
+        storage.set("lock_mediabox", settings.getFieldValue("lockedMediaBox") as string)
+    });
+
     settings.addButton("save-n-reload", "Save your current settings and reload.", "Save & Reload", () => {
         window.location.reload();
     });

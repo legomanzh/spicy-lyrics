@@ -1,5 +1,6 @@
 import { GetCurrentLyricsContainerInstance } from "../../utils/Lyrics/Applyer/CreateLyricsContainer";
 import storage from "../../utils/storage";
+import Defaults from "../Global/Defaults";
 import Global from "../Global/Global";
 import { SpotifyPlayer } from "../Global/SpotifyPlayer";
 import Fullscreen from "./Fullscreen";
@@ -24,6 +25,11 @@ export const EnableCompactMode = () => {
     if (!NowBar) return;
     NowBar.classList.add("LeftSide");
     NowBar.classList.remove("RightSide");
+ 
+    if (Defaults.CompactMode_LockedMediaBox) {
+        NowBar.classList.add("LockedMediaBox");
+    }
+
     CompactMode = true;
     GetCurrentLyricsContainerInstance()?.Resize();
     Global.Event.evoke("compact-mode:enable");
@@ -44,6 +50,9 @@ export const DisableCompactMode = () => {
     Session_NowBar_SetSide();
     CompactMode = false;
     GetCurrentLyricsContainerInstance()?.Resize();
+
+    const NowBar = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar");
+    if (NowBar) NowBar.classList.remove("LockedMediaBox");
     
     Global.Event.evoke("compact-mode:disable");
 }

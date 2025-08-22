@@ -3,14 +3,14 @@ import { ResetLastLine } from "../../utils/Scrolling/ScrollToActiveLine";
 import storage from "../../utils/storage";
 import Defaults from "../Global/Defaults";
 import Global from "../Global/Global";
-import PageView, { Compactify, GetPageRoot, Tooltips } from "../Pages/PageView";
+import PageView, { Compactify, GetPageRoot, isSizeReadyToBeCompacted, Tooltips } from "../Pages/PageView";
 import { CleanUpNowBarComponents, CloseNowBar, DeregisterNowBarBtn, OpenNowBar } from "./NowBar";
 import TransferElement from "./TransferElement";
 import { GetCurrentLyricsContainerInstance } from "../../utils/Lyrics/Applyer/CreateLyricsContainer";
 import Spring from "@socali/modules/Spring";
 import { Maid } from "@socali/modules/Maid";
 import { OnPreRender } from "@socali/modules/Scheduler";
-import { IsCompactMode } from "./CompactMode";
+import { EnableCompactMode, IsCompactMode } from "./CompactMode";
 
 const ArtworkBrightness = {
     Start: 0.78,
@@ -57,7 +57,14 @@ let mediaBoxHover = false;
 
 let lastPageMouseMove: (number | undefined) = undefined;
 
-const Page_MouseMove = () => {
+const Page_MouseMove = (e: MouseEvent) => {
+
+/*     if (storage.get("ForceCompactMode") === "true") {
+        const target = e.target as HTMLElement;
+        const nowBar = target.closest('.NowBar') || (target.classList.contains('NowBar') ? target : null);
+        if (!nowBar) return;
+    } */
+
     controlsVisible = true;
     pageHover = true;
 
@@ -187,8 +194,14 @@ const MediaBox_MouseMove = () => {
     ControlsMaid.Clean("MouseMoveChecker");
     ToggleControls();
 }
+const Page_MouseIn = (e: MouseEvent) => {
 
-const Page_MouseIn = () => {
+/*     if (storage.get("ForceCompactMode") === "true") {
+        const target = e.target as HTMLElement;
+        const nowBar = target.closest('.NowBar') || (target.classList.contains('NowBar') ? target : null);
+        if (!nowBar) return;
+    } */
+    
     controlsVisible = true;
     mediaBoxHover = false;
     pageHover = true;
@@ -196,7 +209,7 @@ const Page_MouseIn = () => {
     ToggleControls();
 }
 
-const Page_MouseOut = () => {
+const Page_MouseOut = (e: MouseEvent) => {
     controlsVisible = false;
     mediaBoxHover = false;
     pageHover = false;
@@ -500,12 +513,17 @@ function Open(skipDocumentFullscreen: boolean = false) {
     }
     setTimeout(() => {
         Compactify();
+
+        if (storage.get("ForceCompactMode") === "true" && !IsCompactMode()) {
+            SpicyPage?.classList.add("ForcedCompactMode")
+            EnableCompactMode();
+        }
+
         setTimeout(() => {
             const NoLyrics = storage.get("currentLyricsData")?.toString()?.includes("NO_LYRICS");
             if (NoLyrics && !IsCompactMode()) {
                 document.querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer")?.classList.add("Hidden");
                 document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox")?.classList.add("LyricsHidden");
-                DeregisterNowBarBtn();
             }
         }, 75);
     }, 750)
