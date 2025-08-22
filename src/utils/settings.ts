@@ -111,7 +111,7 @@ function generalSettings(SettingsSection: any) {
     });
 
     settings.addToggle("lock_mediabox", "Lock the MediaBox size while in Forced Compact Mode", Defaults.CompactMode_LockedMediaBox, () => {
-        storage.set("lock_mediabox", settings.getFieldValue("lockedMediaBox") as string)
+        storage.set("lockedMediaBox", settings.getFieldValue("lock_mediabox") as string)
     });
 
     settings.addButton("save-n-reload", "Save your current settings and reload.", "Save & Reload", () => {
