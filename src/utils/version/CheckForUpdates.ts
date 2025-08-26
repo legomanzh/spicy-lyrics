@@ -1,5 +1,6 @@
-import Session from "../../components/Global/Session";
-import { isDev } from "../../components/Global/Defaults";
+import Session from "../../components/Global/Session.ts";
+import { isDev } from "../../components/Global/Defaults.ts";
+import { Spicetify } from "@spicetify/bundler";
 
 let ShownUpdateNotice = false;
 

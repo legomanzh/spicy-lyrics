@@ -1,17 +1,18 @@
-import { SongProgressBar } from './../../utils/Lyrics/SongProgressBar';
-import storage from "../../utils/storage";
+import { SongProgressBar } from './../../utils/Lyrics/SongProgressBar.ts';
+import storage from "../../utils/storage.ts";
 import Whentil from "@spikerko/tools/Whentil";
-import Global from "../Global/Global";
-import { SpotifyPlayer } from "../Global/SpotifyPlayer";
-import PageView from "../Pages/PageView";
-import { Icons } from "../Styling/Icons";
-import Fullscreen, { CleanupMediaBox } from "./Fullscreen";
-import { QueueForceScroll, ResetLastLine } from '../../utils/Scrolling/ScrollToActiveLine';
+import Global from "../Global/Global.ts";
+import { SpotifyPlayer } from "../Global/SpotifyPlayer.ts";
+import PageView from "../Pages/PageView.ts";
+import { Icons } from "../Styling/Icons.ts";
+import Fullscreen, { CleanupMediaBox } from "./Fullscreen.ts";
+import { QueueForceScroll, ResetLastLine } from '../../utils/Scrolling/ScrollToActiveLine.ts';
 import { Maid } from '@socali/modules/Maid';
 import { Interval } from '@socali/modules/Scheduler';
-import BlobURLMaker from "../../utils/BlobURLMaker";
-import { GetCurrentLyricsContainerInstance } from '../../utils/Lyrics/Applyer/CreateLyricsContainer';
-import { isSpicySidebarMode } from './SidebarLyrics';
+import BlobURLMaker from "../../utils/BlobURLMaker.ts";
+import { GetCurrentLyricsContainerInstance } from '../../utils/Lyrics/Applyer/CreateLyricsContainer.ts';
+import { isSpicySidebarMode } from './SidebarLyrics.ts';
+import { Spicetify } from "@spicetify/bundler";
 
 // Define interfaces for our control instances
 interface PlaybackControlsInstance {

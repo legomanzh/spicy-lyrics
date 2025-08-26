@@ -1,4 +1,6 @@
-import GetProgress, { _DEPRECATED___GetProgress } from "../../utils/Gets/GetProgress";
+import SpicetifyType from "../../types/Spicetify.ts";
+import { Spicetify } from "@spicetify/bundler";
+import GetProgress, { _DEPRECATED___GetProgress } from "../../utils/Gets/GetProgress.ts";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 //type ArtworkSize = "s" | "l" | "xl" | "d";
@@ -147,7 +149,7 @@ export const SpotifyPlayer = {
         return 0;
     },
     Seek: (position: number): void => {
-        Spicetify?.Player?.origin?.seekTo(position);
+        (Spicetify?.Player as any)?.origin?.seekTo(position);
     },
     GetCover: (size: CoverSizes): string | undefined => {
         if (
@@ -163,7 +165,7 @@ export const SpotifyPlayer = {
         }
         return "https://images.spikerko.org/SongPlaceholderFull.png";
     },
-    GetCoverFrom: (size: CoverSizes, source: Array<{ url: string, label: string }> | Spicetify.ImagesEntity[]): string | undefined => {
+    GetCoverFrom: (size: CoverSizes, source: Array<{ url: string, label: string }> | SpicetifyType.ImagesEntity[]): string | undefined => {
         if (source) {
             if (source.length > 0) {
                 const cover = source?.find(cover => cover.label === size) ?? undefined;
@@ -185,7 +187,6 @@ export const SpotifyPlayer = {
         return Spicetify?.Player?.data?.item?.artists as Artist[] ?? undefined;
     },
     GetUri: (): string | undefined => {
-        // @ts-expect-error
         return Spicetify?.Player?.data?.item?.uri ?? Spicetify.Player.data?.track?.uri;
     },
     Pause: Spicetify?.Player?.pause,

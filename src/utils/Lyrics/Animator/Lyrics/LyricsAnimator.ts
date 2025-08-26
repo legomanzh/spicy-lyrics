@@ -1,12 +1,11 @@
-import { easeSinOut } from "d3-ease";
+import { easeSinOut } from "npm:d3-ease";
 import Spring from '@socali/modules/Spring';
-import Spline from 'cubic-spline';
-import Defaults from "../../../../components/Global/Defaults";
-import { LyricsObject, SimpleLyricsMode_LetterEffectsStrengthConfig } from "../../lyrics";
-import { BlurMultiplier, SidebarBlurMultiplier, timeOffset } from "../Shared";
-import storage from "../../../storage";
-import Global from "../../../../components/Global/Global";
-import { isSpicySidebarMode } from "../../../../components/Utils/SidebarLyrics";
+import Spline from 'npm:cubic-spline';
+import Defaults from "../../../../components/Global/Defaults.ts";
+import { LyricsObject, SimpleLyricsMode_LetterEffectsStrengthConfig } from "../../lyrics.ts";
+import { BlurMultiplier, SidebarBlurMultiplier, timeOffset } from "../Shared.ts";
+import storage from "../../../storage.ts";
+import { isSpicySidebarMode } from "../../../../components/Utils/SidebarLyrics.ts";
 /* import { CurveInterpolator } from "curve-interpolator"; */
 
 

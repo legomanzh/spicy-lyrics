@@ -1,7 +1,8 @@
 import Whentil, { type CancelableTask } from "@spikerko/tools/Whentil";
-import PageView from "../Pages/PageView";
-import storage from "../../utils/storage";
-import { currentBgInstance as currentPageBgInstance, SetPageBGBlur } from "../DynamicBG/dynamicBackground";
+import PageView from "../Pages/PageView.ts";
+import storage from "../../utils/storage.ts";
+import { currentBgInstance as currentPageBgInstance, SetPageBGBlur } from "../DynamicBG/dynamicBackground.ts";
+import { Spicetify } from "@spicetify/bundler";
 
 export const getNowPlayingViewPlaybarButton = () => {
     // console.log("[Spicy Lyrics Debug] getNowPlayingViewPlaybarButton");

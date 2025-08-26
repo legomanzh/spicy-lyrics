@@ -1,11 +1,12 @@
-import { SendJob } from "../../utils/API/SendJob";
-import fetchLyrics from "../../utils/Lyrics/fetchLyrics";
-import ApplyLyrics from "../../utils/Lyrics/Global/Applyer";
-import { ProcessLyrics } from "../../utils/Lyrics/ProcessLyrics";
-import storage from "../../utils/storage";
-import Global from "../Global/Global";
-import { SpotifyPlayer } from "../Global/SpotifyPlayer";
-import { ShowNotification } from "../Pages/PageView";
+// deno-lint-ignore-file no-case-declarations
+import { SendJob } from "../../utils/API/SendJob.ts";
+import fetchLyrics from "../../utils/Lyrics/fetchLyrics.ts";
+import ApplyLyrics from "../../utils/Lyrics/Global/Applyer.ts";
+import { ProcessLyrics } from "../../utils/Lyrics/ProcessLyrics.ts";
+import storage from "../../utils/storage.ts";
+import Global from "../Global/Global.ts";
+import { SpotifyPlayer } from "../Global/SpotifyPlayer.ts";
+import { ShowNotification } from "../Pages/PageView.ts";
 
 Global.SetScope("execute", (command: string) => {
     switch (command) {

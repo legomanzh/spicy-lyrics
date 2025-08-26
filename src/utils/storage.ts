@@ -1,3 +1,5 @@
+import { Spicetify } from "@spicetify/bundler";
+
 const prefix = "SpicyLyrics-";
 
 let currentlyFetching = false;

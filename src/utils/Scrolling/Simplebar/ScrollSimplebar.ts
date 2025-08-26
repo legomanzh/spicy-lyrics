@@ -1,8 +1,8 @@
-import SimpleBar from "simplebar";
-import { IntervalManager } from "../../IntervalManager";
-import { IsMouseInLyricsPage, LyricsPageMouseEnter, LyricsPageMouseLeave, SetIsMouseInLyricsPage } from "../Page/IsHovering";
+import SimpleBar from "npm:simplebar";
+import { IntervalManager } from "../../IntervalManager.ts";
+import { IsMouseInLyricsPage, LyricsPageMouseEnter, LyricsPageMouseLeave, SetIsMouseInLyricsPage } from "../Page/IsHovering.ts";
 
-export let ScrollSimplebar: SimpleBar | null = null;
+export let ScrollSimplebar: any | null = null;
 
 const ElementEventQuery = "#SpicyLyricsPage .ContentBox .LyricsContainer";
 
@@ -14,6 +14,7 @@ export function MountScrollSimplebar() {
     return;
   }
 
+  // @ts-expect-error abc
   ScrollSimplebar = new SimpleBar(LyricsContainer, { autoHide: false });
 
   document.querySelector<HTMLElement>(ElementEventQuery)?.addEventListener("mouseenter", LyricsPageMouseEnter);

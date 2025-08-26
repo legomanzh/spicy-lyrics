@@ -1,4 +1,5 @@
 import { Defer, Timeout } from "@socali/modules/Scheduler";
+import { Spicetify } from "@spicetify/bundler";
 
 // Spotify Types
 type TokenProviderResponse = {

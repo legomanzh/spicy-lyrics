@@ -1,16 +1,14 @@
-import Animator from "@spikerko/tools/Animator";
-import { ResetLastLine } from "../../utils/Scrolling/ScrollToActiveLine";
-import storage from "../../utils/storage";
-import Defaults from "../Global/Defaults";
-import Global from "../Global/Global";
-import PageView, { Compactify, GetPageRoot, isSizeReadyToBeCompacted, Tooltips } from "../Pages/PageView";
-import { CleanUpNowBarComponents, CloseNowBar, DeregisterNowBarBtn, OpenNowBar } from "./NowBar";
-import TransferElement from "./TransferElement";
-import { GetCurrentLyricsContainerInstance } from "../../utils/Lyrics/Applyer/CreateLyricsContainer";
+import { ResetLastLine } from "../../utils/Scrolling/ScrollToActiveLine.ts";
+import storage from "../../utils/storage.ts";
+import Global from "../Global/Global.ts";
+import PageView, { Compactify, GetPageRoot, Tooltips } from "../Pages/PageView.ts";
+import { CleanUpNowBarComponents, CloseNowBar, DeregisterNowBarBtn, OpenNowBar } from "./NowBar.ts";
+import TransferElement from "./TransferElement.ts";
+import { GetCurrentLyricsContainerInstance } from "../../utils/Lyrics/Applyer/CreateLyricsContainer.ts";
 import Spring from "@socali/modules/Spring";
 import { Maid } from "@socali/modules/Maid";
 import { OnPreRender } from "@socali/modules/Scheduler";
-import { EnableCompactMode, IsCompactMode } from "./CompactMode";
+import { EnableCompactMode, IsCompactMode } from "./CompactMode.ts";
 
 const ArtworkBrightness = {
     Start: 0.78,
@@ -520,6 +518,8 @@ function Open(skipDocumentFullscreen: boolean = false) {
         }
 
         setTimeout(() => {
+            PageView.AppendViewControls(true);
+
             const NoLyrics = storage.get("currentLyricsData")?.toString()?.includes("NO_LYRICS");
             if (NoLyrics && !IsCompactMode()) {
                 document.querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer")?.classList.add("Hidden");

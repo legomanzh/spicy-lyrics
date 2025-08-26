@@ -1,4 +1,5 @@
-import { SpotifyPlayer } from "./../../components/Global/SpotifyPlayer";
+import { Spicetify } from "@spicetify/bundler";
+import { SpotifyPlayer } from "./../../components/Global/SpotifyPlayer.ts";
 
 interface SyncedPosition {
   StartedSyncAt: number;
@@ -93,12 +94,12 @@ export default function GetProgress() {
 // DEPRECATED
 export function _DEPRECATED___GetProgress() {
   // Ensure Spicetify is loaded and state is available
-  if (!Spicetify?.Player?.origin?._state) {
+  if (!(Spicetify?.Player as any)?.origin?._state) {
       console.error("Spicetify Player state is not available.");
       return 0;
   }
 
-  const state = Spicetify.Player.origin._state;
+  const state = (Spicetify.Player as any).origin._state;
 
   // Extract necessary properties from Spicetify Player state
   const positionAsOfTimestamp = state.positionAsOfTimestamp; // Last known position in ms

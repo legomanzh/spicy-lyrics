@@ -1,5 +1,5 @@
-import Defaults from "../../components/Global/Defaults";
-import Session from "../../components/Global/Session";
+import Defaults from "../../components/Global/Defaults.ts";
+import Session from "../../components/Global/Session.ts";
 
 const API_URL = Defaults.lyrics.api.url;
 

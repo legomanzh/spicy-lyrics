@@ -1,9 +1,8 @@
-import storage from "../../storage";
-import { setBlurringLastLine } from "../Animator/Lyrics/LyricsAnimator";
-import { ApplyStaticLyrics, StaticLyricsData } from "../Applyer/Static";
-import { ApplyLineLyrics } from "../Applyer/Synced/Line";
-import { ApplySyllableLyrics } from "../Applyer/Synced/Syllable";
-import { isRomanized } from "../lyrics";
+import { setBlurringLastLine } from "../Animator/Lyrics/LyricsAnimator.ts";
+import { ApplyStaticLyrics, StaticLyricsData } from "../Applyer/Static.ts";
+import { ApplyLineLyrics } from "../Applyer/Synced/Line.ts";
+import { ApplySyllableLyrics } from "../Applyer/Synced/Syllable.ts";
+import { isRomanized } from "../lyrics.ts";
 
 /**
  * Union type for all lyrics data types

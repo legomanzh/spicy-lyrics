@@ -1,6 +1,6 @@
-import Defaults from "../../../../components/Global/Defaults";
-import { LyricsObject, LyricsType } from "../../lyrics";
-import { timeOffset } from "../Shared";
+import Defaults from "../../../../components/Global/Defaults.ts";
+import { LyricsObject, LyricsType } from "../../lyrics.ts";
+import { timeOffset } from "../Shared.ts";
 
 // Extend the LyricsType to include "None"
 type ExtendedLyricsType = LyricsType | "None";

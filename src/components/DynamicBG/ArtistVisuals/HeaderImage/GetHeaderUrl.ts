@@ -1,4 +1,4 @@
-import { SpotifyPlayer } from "../../../Global/SpotifyPlayer";
+import { SpotifyPlayer } from "../../../Global/SpotifyPlayer.ts";
 
 export default function GetHeaderUrl(data: any) {
     if (!data)

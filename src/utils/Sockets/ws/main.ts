@@ -1,4 +1,4 @@
-import { io } from "socket.io-client";
+import { io } from "npm:socket.io-client";
 
 export const socket = io("https://ws.spicylyrics.org", {
     transports: ["polling", "websocket"],

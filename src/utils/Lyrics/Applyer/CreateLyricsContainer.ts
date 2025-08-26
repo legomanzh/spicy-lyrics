@@ -1,6 +1,6 @@
-import { GetContainerHeight } from "../../Addons";
-import { QueueForceScroll, SetWaitingForHeight } from "../../Scrolling/ScrollToActiveLine";
-import { ScrollSimplebar } from "../../Scrolling/Simplebar/ScrollSimplebar";
+import { GetContainerHeight } from "../../Addons.ts";
+import { QueueForceScroll, SetWaitingForHeight } from "../../Scrolling/ScrollToActiveLine.ts";
+import { ScrollSimplebar } from "../../Scrolling/Simplebar/ScrollSimplebar.ts";
 
 type LyricsContainerReturnObject = {
     Container: HTMLElement;

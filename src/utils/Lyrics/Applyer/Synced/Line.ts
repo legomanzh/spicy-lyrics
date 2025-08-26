@@ -1,15 +1,14 @@
-import Defaults from "../../../../components/Global/Defaults";
-import { applyStyles, removeAllStyles } from "../../../CSS/Styles";
-import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../../Scrolling/Simplebar/ScrollSimplebar";
-import { ConvertTime } from "../../ConvertTime";
-import { ClearLyricsContentArrays, endInterludeEarlierBy, LINE_SYNCED_CurrentLineLyricsObject, lyricsBetweenShow, LyricsObject, setRomanizedStatus, SetWordArrayInCurentLine_LINE_SYNCED, SimpleLyricsMode_InterludeAddonTime } from "../../lyrics";
-import { ApplyLyricsCredits } from "../Credits/ApplyLyricsCredits";
-import isRtl from "../../isRtl";
-import { ClearLyricsPageContainer } from "../../fetchLyrics";
-import { EmitApply, EmitNotApplyed } from "../OnApply";
-import { CreateLyricsContainer, DestroyAllLyricsContainers } from "../CreateLyricsContainer";
-import { ApplyIsByCommunity } from "../Credits/ApplyIsByCommunity";
-import { isSpicySidebarMode } from "../../../../components/Utils/SidebarLyrics";
+import Defaults from "../../../../components/Global/Defaults.ts";
+import { applyStyles, removeAllStyles } from "../../../CSS/Styles.ts";
+import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../../Scrolling/Simplebar/ScrollSimplebar.ts";
+import { ConvertTime } from "../../ConvertTime.ts";
+import { ClearLyricsContentArrays, endInterludeEarlierBy, LINE_SYNCED_CurrentLineLyricsObject, lyricsBetweenShow, LyricsObject, setRomanizedStatus, SetWordArrayInCurentLine_LINE_SYNCED, SimpleLyricsMode_InterludeAddonTime } from "../../lyrics.ts";
+import { ApplyLyricsCredits } from "../Credits/ApplyLyricsCredits.ts";
+import isRtl from "../../isRtl.ts";
+import { ClearLyricsPageContainer } from "../../fetchLyrics.ts";
+import { EmitApply, EmitNotApplyed } from "../OnApply.ts";
+import { CreateLyricsContainer, DestroyAllLyricsContainers } from "../CreateLyricsContainer.ts";
+import { ApplyIsByCommunity } from "../Credits/ApplyIsByCommunity.ts";
 
 // Define the data structure for lyrics
 interface LyricsLineData {
