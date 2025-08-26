@@ -1,5 +1,5 @@
-import { Animate } from "./Lyrics/LyricsAnimator";
-import { TimeSetter } from "./Lyrics/LyricsSetter";
+import { Animate } from "./Lyrics/LyricsAnimator.ts";
+import { TimeSetter } from "./Lyrics/LyricsSetter.ts";
 
 export const Lyrics = {
     Animate,

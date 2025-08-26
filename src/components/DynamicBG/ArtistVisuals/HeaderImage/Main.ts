@@ -1,7 +1,8 @@
-import Defaults from "../../../Global/Defaults";
-import { SpotifyPlayer } from "../../../Global/SpotifyPlayer";
-import ArtistVisuals from "../Main";
-import GetHeaderUrl from "./GetHeaderUrl";
+import { Spicetify } from "@spicetify/bundler";
+import Defaults from "../../../Global/Defaults.ts";
+import { SpotifyPlayer } from "../../../Global/SpotifyPlayer.ts";
+import ArtistVisuals from "../Main.ts";
+import GetHeaderUrl from "./GetHeaderUrl.ts";
 
 // Track ongoing fetches
 const isFetching = new Map();

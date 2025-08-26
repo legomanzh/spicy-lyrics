@@ -1,9 +1,9 @@
-import Defaults from "../../../../components/Global/Defaults";
-import { ArabicPersianRegex } from "../../../Addons";
-import storage from "../../../storage";
-import { IdleEmphasisLyricsScale } from "../../Animator/Shared";
-import { ConvertTime } from "../../ConvertTime";
-import { CurrentLineLyricsObject, LyricsObject } from "../../lyrics";
+import Defaults from "../../../../components/Global/Defaults.ts";
+import { ArabicPersianRegex } from "../../../Addons.ts";
+import storage from "../../../storage.ts";
+import { IdleEmphasisLyricsScale } from "../../Animator/Shared.ts";
+import { ConvertTime } from "../../ConvertTime.ts";
+import { CurrentLineLyricsObject, LyricsObject } from "../../lyrics.ts";
 
 const Substractions = {
     StartTime: (storage.get("simpleLyricsMode") === "true" ? -21 : 0),

@@ -1,10 +1,10 @@
 import { Maid } from '@socali/modules/Maid';
-import Defaults from '../../components/Global/Defaults';
-import { SpotifyPlayer } from '../../components/Global/SpotifyPlayer';
-import { Lyrics } from './Animator/Main';
-import Global from '../../components/Global/Global';
+import Defaults from '../../components/Global/Defaults.ts';
+import { SpotifyPlayer } from '../../components/Global/SpotifyPlayer.ts';
+import { Lyrics } from './Animator/Main.ts';
+import Global from '../../components/Global/Global.ts';
 import { OnPreRender } from '@socali/modules/Scheduler';
-import storage from '../storage';
+import storage from '../storage.ts';
 
 export const ScrollingIntervalTime = Infinity;
 

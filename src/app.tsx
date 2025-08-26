@@ -1,20 +1,20 @@
-import "./components/Utils/GlobalExecute";
-import fetchLyrics from "./utils/Lyrics/fetchLyrics";
-import { ScrollingIntervalTime } from "./utils/Lyrics/lyrics";
-import storage from "./utils/storage";
-import { setSettingsMenu } from "./utils/settings";
-import PageView, { GetPageRoot } from "./components/Pages/PageView";
-import { Icons } from "./components/Styling/Icons";
-import ApplyDynamicBackground, { DynamicBackgroundConfig, GetStaticBackground } from "./components/DynamicBG/dynamicBackground";
-import LoadFonts, { ApplyFontPixel } from "./components/Styling/Fonts";
-import { IntervalManager } from "./utils/IntervalManager";
-import { SpotifyPlayer } from "./components/Global/SpotifyPlayer";
-import { IsPlaying } from "./utils/Addons";
-import { ScrollToActiveLine } from "./utils/Scrolling/ScrollToActiveLine";
-import { ScrollSimplebar } from "./utils/Scrolling/Simplebar/ScrollSimplebar";
-import ApplyLyrics from "./utils/Lyrics/Global/Applyer";
-import { UpdateNowBar } from "./components/Utils/NowBar";
-import { requestPositionSync } from "./utils/Gets/GetProgress";
+import "./components/Utils/GlobalExecute.ts";
+import fetchLyrics from "./utils/Lyrics/fetchLyrics.ts";
+import { ScrollingIntervalTime } from "./utils/Lyrics/lyrics.ts";
+import storage from "./utils/storage.ts";
+import { setSettingsMenu } from "./utils/settings.ts";
+import PageView, { GetPageRoot } from "./components/Pages/PageView.ts";
+import { Icons } from "./components/Styling/Icons.ts";
+import ApplyDynamicBackground, { DynamicBackgroundConfig, GetStaticBackground } from "./components/DynamicBG/dynamicBackground.ts";
+import LoadFonts, { ApplyFontPixel } from "./components/Styling/Fonts.ts";
+import { IntervalManager } from "./utils/IntervalManager.ts";
+import { SpotifyPlayer } from "./components/Global/SpotifyPlayer.ts";
+import { IsPlaying } from "./utils/Addons.ts";
+import { ScrollToActiveLine } from "./utils/Scrolling/ScrollToActiveLine.ts";
+import { ScrollSimplebar } from "./utils/Scrolling/Simplebar/ScrollSimplebar.ts";
+import ApplyLyrics from "./utils/Lyrics/Global/Applyer.ts";
+import { UpdateNowBar } from "./components/Utils/NowBar.ts";
+import { requestPositionSync } from "./utils/Gets/GetProgress.ts";
 // CSS Imports
 import "./css/default.css";
 import "./css/Simplebar.css";
@@ -24,27 +24,24 @@ import "./css/DynamicBG/spicy-dynamic-bg.css"
 import "./css/Lyrics/main.css"
 import "./css/Lyrics/Mixed.css"
 import "./css/Loaders/LoaderContainer.css"
-import Global from "./components/Global/Global";
-import Platform from "./components/Global/Platform";
+import Global from "./components/Global/Global.ts";
+import Platform from "./components/Global/Platform.ts";
 import Whentil from "@spikerko/tools/Whentil";
-import Session from "./components/Global/Session";
-import Defaults from "./components/Global/Defaults";
-import { CheckForUpdates } from "./utils/version/CheckForUpdates";
+import Session from "./components/Global/Session.ts";
+import Defaults from "./components/Global/Defaults.ts";
+import { CheckForUpdates } from "./utils/version/CheckForUpdates.ts";
 // Unused import removed: import sleep from "./utils/sleep";
-import Sockets from "./utils/Sockets/main";
-import Fullscreen from "./components/Utils/Fullscreen";
+import Sockets from "./utils/Sockets/main.ts";
+import Fullscreen from "./components/Utils/Fullscreen.ts";
 import { Defer } from "@socali/modules/Scheduler";
 import { DynamicBackground } from "@spikerko/tools/DynamicBackground";
 // In development: import "./components/Utils/Annotations";
-import App from "./ready";
-import { CloseSidebarLyrics, getQueueContainer, getQueuePlaybarButton, isSpicySidebarMode, OpenSidebarLyrics, RegisterSidebarLyrics } from "./components/Utils/SidebarLyrics";
+import App from "./ready.ts";
+import { CloseSidebarLyrics, getQueueContainer, isSpicySidebarMode, OpenSidebarLyrics, RegisterSidebarLyrics } from "./components/Utils/SidebarLyrics.ts";
+import { Spicetify } from "@spicetify/bundler"
 
 async function main() {
   await Platform.OnSpotifyReady;
-
-  while (!Spicetify.React || !Spicetify.ReactDOM) {
-    await new Promise(resolve => setTimeout(resolve, 10));
-  }
 
   Global.SetScope("fullscreen.open", false);
 
@@ -129,7 +126,7 @@ async function main() {
   }
 
 
-  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.10.6";
+  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.10.7";
   
 
   /* if (storage.get("lyrics_spacing")) {
@@ -434,6 +431,7 @@ async function main() {
 			if (controlsContainer === null) {
 				Defer(SearchDOMForFullscreenButtons)
 			} else {
+        // @ts-expect-error 123
 				for (const element of controlsContainer.children) {
 					if (
 						(
@@ -804,7 +802,7 @@ async function main() {
       let lastShuffleType: ShuffleType | null = null;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       new IntervalManager(Infinity, () => {
-        const ShuffleType: ShuffleType = (Spicetify.Player.origin._state.smartShuffle ? "smart" : (Spicetify.Player.origin._state.shuffle ? "normal" : "none"));
+        const ShuffleType: ShuffleType = ((Spicetify.Player as any).origin._state.smartShuffle ? "smart" : ((Spicetify.Player as any).origin._state.shuffle ? "normal" : "none"));
         SpotifyPlayer.ShuffleType = ShuffleType;
         if (lastShuffleType !== ShuffleType) {
           Global.Event.evoke("playback:shuffle", ShuffleType);
@@ -902,4 +900,4 @@ async function main() {
   Hometinue();
 }
 
-export default main;
+main();

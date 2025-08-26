@@ -1,4 +1,4 @@
-import type { Brand } from "../types/Brand";
+import type { Brand } from "../types/Brand.d.ts";
 
 const packagesUrl = "https://pkgs.spikerko.org";
 

@@ -1,23 +1,24 @@
-import fetchLyrics from "../../utils/Lyrics/fetchLyrics";
-import storage from "../../utils/storage";
+import fetchLyrics from "../../utils/Lyrics/fetchLyrics.ts";
+import storage from "../../utils/storage.ts";
 import "../../css/Loaders/DotLoader.css"
-import { addLinesEvListener, isRomanized, removeLinesEvListener, setRomanizedStatus } from "../../utils/Lyrics/lyrics";
-import ApplyDynamicBackground, { CleanupDynamicBGLets } from "../DynamicBG/dynamicBackground";
-import Defaults from "../Global/Defaults";
-import { Icons } from "../Styling/Icons";
-import { ScrollSimplebar } from "../../utils/Scrolling/Simplebar/ScrollSimplebar";
-import ApplyLyrics from "../../utils/Lyrics/Global/Applyer";
-import { SpotifyPlayer } from "../Global/SpotifyPlayer";
-import { NowBar_SwapSides, NowBarObj, Session_NowBar_SetSide, Session_OpenNowBar, ToggleNowBar } from "../Utils/NowBar";
-import Fullscreen, { EnterSpicyLyricsFullscreen, ExitFullscreenElement } from "../Utils/Fullscreen";
-import TransferElement from "../Utils/TransferElement";
-import Session from "../Global/Session";
-import { InitializeScrollEvents, ResetLastLine, CleanupScrollEvents } from "../../utils/Scrolling/ScrollToActiveLine";
-import Global from "../Global/Global";
-import { EnableCompactMode, DisableCompactMode, IsCompactMode } from "../Utils/CompactMode";
-import { DestroyAllLyricsContainers } from "../../utils/Lyrics/Applyer/CreateLyricsContainer";
-import { CloseSidebarLyrics, isSpicySidebarMode, OpenSidebarLyrics } from "../Utils/SidebarLyrics";
+import { addLinesEvListener, isRomanized, removeLinesEvListener, setRomanizedStatus } from "../../utils/Lyrics/lyrics.ts";
+import ApplyDynamicBackground, { CleanupDynamicBGLets } from "../DynamicBG/dynamicBackground.ts";
+import Defaults from "../Global/Defaults.ts";
+import { Icons } from "../Styling/Icons.ts";
+import { ScrollSimplebar } from "../../utils/Scrolling/Simplebar/ScrollSimplebar.ts";
+import ApplyLyrics from "../../utils/Lyrics/Global/Applyer.ts";
+import { SpotifyPlayer } from "../Global/SpotifyPlayer.ts";
+import { NowBar_SwapSides, NowBarObj, Session_NowBar_SetSide, Session_OpenNowBar, ToggleNowBar } from "../Utils/NowBar.ts";
+import Fullscreen, { EnterSpicyLyricsFullscreen, ExitFullscreenElement } from "../Utils/Fullscreen.ts";
+import TransferElement from "../Utils/TransferElement.ts";
+import Session from "../Global/Session.ts";
+import { InitializeScrollEvents, ResetLastLine, CleanupScrollEvents } from "../../utils/Scrolling/ScrollToActiveLine.ts";
+import Global from "../Global/Global.ts";
+import { EnableCompactMode, DisableCompactMode, IsCompactMode } from "../Utils/CompactMode.ts";
+import { DestroyAllLyricsContainers } from "../../utils/Lyrics/Applyer/CreateLyricsContainer.ts";
+import { CloseSidebarLyrics, isSpicySidebarMode, OpenSidebarLyrics } from "../Utils/SidebarLyrics.ts";
 import Whentil from "@spikerko/tools/Whentil";
+import { Spicetify } from "@spicetify/bundler";
 // import { UpdateSongMoreInfo } from "../Utils/Annotations";
 
 interface TippyInstance {

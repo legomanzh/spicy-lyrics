@@ -1,13 +1,11 @@
-import { franc } from "franc-all";
-// @ts-ignore
-import Kuroshiro from "kuroshiro";
-import * as KuromojiAnalyzer from "./KuromojiAnalyzer"
-import Aromanize from "./Aromanize"
-import langs from "langs";
-import cyrillicToLatin from 'cyrillic-romanization';
-// @ts-ignore
+import { franc } from "npm:franc-all";
+import Kuroshiro from "npm:kuroshiro";
+import * as KuromojiAnalyzer from "./KuromojiAnalyzer.ts"
+import Aromanize from "./Aromanize.ts"
+import langs from "npm:langs";
+import cyrillicToLatin from 'npm:cyrillic-romanization';
 import greekRomanization from "./GreekRomanization.js"
-import { RetrievePackage } from "../ImportPackage";
+import { RetrievePackage } from "../ImportPackage.ts";
 
 // Constants
 const RomajiConverter = new Kuroshiro()

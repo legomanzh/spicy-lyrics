@@ -1,5 +1,5 @@
-import CacheStore from "./Cache";
-import ApplyContent from "./HeaderImage/Main";
+import CacheStore from "./Cache.ts";
+import ApplyContent from "./HeaderImage/Main.ts";
 
 const ArtistVisuals = {
     CacheStore,

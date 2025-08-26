@@ -1,4 +1,4 @@
-import { DeepFreeze } from "../../utils/Addons";
+import { DeepFreeze } from "../../utils/Addons.ts";
 
 const Fonts = DeepFreeze({
     Lyrics: () => LoadFont("https://fonts.spikerko.org/spicy-lyrics/source.css"),

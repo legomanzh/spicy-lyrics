@@ -1,8 +1,9 @@
-import storage from "./storage";
-import Defaults from "../components/Global/Defaults";
-import { LyricsStore } from "./Lyrics/fetchLyrics";
-import { SpotifyPlayer } from "../components/Global/SpotifyPlayer";
-import { ShowNotification } from "../components/Pages/PageView";
+import storage from "./storage.ts";
+import Defaults from "../components/Global/Defaults.ts";
+import { LyricsStore } from "./Lyrics/fetchLyrics.ts";
+import { SpotifyPlayer } from "../components/Global/SpotifyPlayer.ts";
+import { ShowNotification } from "../components/Pages/PageView.ts";
+import { Spicetify } from "@spicetify/bundler";
 
 export async function setSettingsMenu() {
 
@@ -10,7 +11,7 @@ export async function setSettingsMenu() {
         await new Promise(resolve => setTimeout(resolve, 10));
     }
     
-    const { SettingsSection } = await import("../edited_packages/spcr-settings/settingsSection");
+    const { SettingsSection } = await import("../edited_packages/spcr-settings/settingsSection.tsx");
 
     generalSettings(SettingsSection);
     devSettings(SettingsSection);

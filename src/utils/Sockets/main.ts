@@ -1,4 +1,4 @@
-import { socket as ws } from "./ws/main";
+import { socket as ws } from "./ws/main.ts";
 
 // Define a type for socket objects that have a connect method
 interface SocketWithConnect {

@@ -1,4 +1,4 @@
-import Global from "../../../components/Global/Global";
+import Global from "../../../components/Global/Global.ts";
 
 const EventPrefix = "lyrics:";
 

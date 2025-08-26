@@ -1,12 +1,13 @@
-import Defaults from "../Global/Defaults";
-import ArtistVisuals from "./ArtistVisuals/Main";
+import Defaults from "../Global/Defaults.ts";
+import ArtistVisuals from "./ArtistVisuals/Main.ts";
 import { type CoverArtCache, DynamicBackground, DynamicBackgroundOptions } from "@spikerko/tools/DynamicBackground"
 import TempoPlugin from "@spikerko/tools/TempoPlugin"
-import { SpotifyPlayer } from "../Global/SpotifyPlayer";
+import { SpotifyPlayer } from "../Global/SpotifyPlayer.ts";
 import { Timeout } from "@socali/modules/Scheduler";
 import { Signal } from "@socali/modules/Signal";
-import Global from "../Global/Global";
-import Platform from "../Global/Platform";
+import Global from "../Global/Global.ts";
+import Platform from "../Global/Platform.ts";
+import { Spicetify } from "@spicetify/bundler";
 
 const CoverArtCacheMap: CoverArtCache = new Map();
 

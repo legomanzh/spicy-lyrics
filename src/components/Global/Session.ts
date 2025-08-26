@@ -1,6 +1,7 @@
-import { SendJob } from "../../utils/API/SendJob";
-import Defaults from "./Defaults";
-import Global from "./Global";
+import { Spicetify } from "@spicetify/bundler";
+import { SendJob } from "../../utils/API/SendJob.ts";
+import Defaults from "./Defaults.ts";
+import Global from "./Global.ts";
 
 interface Location {
     pathname: string;

@@ -1,13 +1,13 @@
-import Defaults from "../../../components/Global/Defaults";
-import { applyStyles, removeAllStyles, StyleProperties } from "../../CSS/Styles";
-import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../Scrolling/Simplebar/ScrollSimplebar";
-import { ClearLyricsContentArrays, LyricsObject, LyricsStatic, setRomanizedStatus } from "../lyrics";
-import { ApplyLyricsCredits } from "./Credits/ApplyLyricsCredits";
-import isRtl from "../isRtl";
-import { ClearLyricsPageContainer } from "../fetchLyrics";
-import { EmitApply, EmitNotApplyed } from "./OnApply";
-import { CreateLyricsContainer, DestroyAllLyricsContainers } from "./CreateLyricsContainer";
-import { ApplyIsByCommunity } from "./Credits/ApplyIsByCommunity";
+import Defaults from "../../../components/Global/Defaults.ts";
+import { applyStyles, removeAllStyles, StyleProperties } from "../../CSS/Styles.ts";
+import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../Scrolling/Simplebar/ScrollSimplebar.ts";
+import { ClearLyricsContentArrays, LyricsObject, LyricsStatic, setRomanizedStatus } from "../lyrics.ts";
+import { ApplyLyricsCredits } from "./Credits/ApplyLyricsCredits.ts";
+import isRtl from "../isRtl.ts";
+import { ClearLyricsPageContainer } from "../fetchLyrics.ts";
+import { EmitApply, EmitNotApplyed } from "./OnApply.ts";
+import { CreateLyricsContainer, DestroyAllLyricsContainers } from "./CreateLyricsContainer.ts";
+import { ApplyIsByCommunity } from "./Credits/ApplyIsByCommunity.ts";
 
 /**
  * Interface for static lyrics data

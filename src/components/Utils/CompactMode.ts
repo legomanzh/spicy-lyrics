@@ -1,10 +1,10 @@
-import { GetCurrentLyricsContainerInstance } from "../../utils/Lyrics/Applyer/CreateLyricsContainer";
-import storage from "../../utils/storage";
-import Defaults from "../Global/Defaults";
-import Global from "../Global/Global";
-import { SpotifyPlayer } from "../Global/SpotifyPlayer";
-import Fullscreen from "./Fullscreen";
-import { Session_NowBar_SetSide } from "./NowBar";
+import { GetCurrentLyricsContainerInstance } from "../../utils/Lyrics/Applyer/CreateLyricsContainer.ts";
+import storage from "../../utils/storage.ts";
+import Defaults from "../Global/Defaults.ts";
+import Global from "../Global/Global.ts";
+import { SpotifyPlayer } from "../Global/SpotifyPlayer.ts";
+import Fullscreen from "./Fullscreen.ts";
+import { Session_NowBar_SetSide } from "./NowBar.ts";
 
 let CompactMode = false;
 

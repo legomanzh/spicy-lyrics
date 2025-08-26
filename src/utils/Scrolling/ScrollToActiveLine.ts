@@ -1,12 +1,11 @@
-import Defaults from "../../components/Global/Defaults";
-import { SpotifyPlayer } from "../../components/Global/SpotifyPlayer";
-import { LyricsApplied } from "../../components/Pages/PageView";
-import { LyricsObject, LyricsType, LyricsSyllable, LyricsLine } from "../Lyrics/lyrics";
-import { ScrollIntoCenterViewCSS } from "../ScrollIntoView/Center";
-import SimpleBar from 'simplebar';
-import { ScrollIntoTopViewCSS } from "../ScrollIntoView/Top";
-import { IsCompactMode } from "../../components/Utils/CompactMode";
-import Global from "../../components/Global/Global";
+import Defaults from "../../components/Global/Defaults.ts";
+import { SpotifyPlayer } from "../../components/Global/SpotifyPlayer.ts";
+import { LyricsObject, LyricsType, LyricsSyllable, LyricsLine } from "../Lyrics/lyrics.ts";
+import { ScrollIntoCenterViewCSS } from "../ScrollIntoView/Center.ts";
+import SimpleBar from 'npm:simplebar';
+import { ScrollIntoTopViewCSS } from "../ScrollIntoView/Top.ts";
+import { IsCompactMode } from "../../components/Utils/CompactMode.ts";
+import Global from "../../components/Global/Global.ts";
 
 // Define intersection types that include _LineIndex
 type LyricsLineWithIndex = LyricsLine & { _LineIndex: number };
@@ -26,7 +25,7 @@ let forceScrollQueued = false;
 let smoothForceScrollQueued = false;
 
 // --- NEW: Module variables for cleanup ---
-let currentSimpleBarInstance: SimpleBar | null = null;
+let currentSimpleBarInstance: any | null = null;
 let wheelHandler: (() => void) | null = null;
 let touchMoveHandler: (() => void) | null = null;
 // --- END NEW ---
@@ -57,7 +56,7 @@ function setupLyricsContentObserver() {
     }
 }
 
-function handleUserScroll(ScrollSimplebar: SimpleBar | null) { // Allow null
+function handleUserScroll(ScrollSimplebar: any | null) { // Allow null
     if (!ScrollSimplebar) return; // Add null check
     if (!isUserScrolling) {
         isUserScrolling = true;
@@ -75,7 +74,7 @@ function handleUserScroll(ScrollSimplebar: SimpleBar | null) { // Allow null
 }
 
 // Initialization function for scroll events and observers
-export function InitializeScrollEvents(ScrollSimplebar: SimpleBar) {
+export function InitializeScrollEvents(ScrollSimplebar: any) {
     if (!Defaults.LyricsContainerExists) return;
     // --- NEW: Store instance and define handlers ---
     currentSimpleBarInstance = ScrollSimplebar;
@@ -167,7 +166,7 @@ export const IsWaitingForHeight = () => {
     return waitingForHeight;
 }
 
-export function ScrollToActiveLine(ScrollSimplebar: SimpleBar) {
+export function ScrollToActiveLine(ScrollSimplebar: any) {
     if (waitingForHeight) return;
     if (Defaults.CurrentLyricsType === "Static" || Defaults.CurrentLyricsType === "None") return;
     if (!Defaults.LyricsContainerExists) return;

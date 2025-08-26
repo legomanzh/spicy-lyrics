@@ -1,3 +1,4 @@
+// deno-lint-ignore-file
 declare namespace Spicetify {
 	type Icon =
 		| "album"
@@ -336,10 +337,6 @@ declare namespace Spicetify {
 		 * An object contains all information about current track and player.
 		 */
 		const data: PlayerState;
-		const origin: {
-			seekTo: (position: number) => void;
-			_state: any;
-		};
 		/**
 		 * Decrease a small amount of volume.
 		 */
@@ -447,6 +444,10 @@ declare namespace Spicetify {
 		 * @param state
 		 */
 		function setShuffle(state: boolean): void;
+		/**
+		 * Set track heart state.
+		 */
+		function setHeart(state: boolean): void;
 		/**
 		 * Set volume level
 		 * @param level 0 to 1
@@ -759,11 +760,11 @@ declare namespace Spicetify {
 			/**
 			 * Add an item to sub items list
 			 */
-			addItem(item: Item);
+			addItem(item: Item): any;
 			/**
 			 * Remove an item from sub items list
 			 */
-			removeItem(item: Item);
+			removeItem(item: Item): any;
 			/**
 			 * SubMenu is only available in Profile menu when method "register" is called.
 			 */
@@ -810,7 +811,7 @@ declare namespace Spicetify {
 	 * @param isError If true, bubble will be red. Defaults to false.
 	 * @param msTimeout Time in milliseconds to display the bubble. Defaults to Spotify's value.
 	 */
-	function showNotification(message: React.ReactNode, isError?: boolean, msTimeout?: number): void;
+	function showNotification(message: any, isError?: boolean, msTimeout?: number): void;
 	/**
 	 * Set of APIs method to parse and validate URIs.
 	 */
@@ -1392,7 +1393,7 @@ declare namespace Spicetify {
 			/**
 			 * Function that runs when `MenuItem` is clicked
 			 */
-			onClick?: React.MouseEventHandler<HTMLButtonElement>;
+			onClick?: any;
 			/**
 			 * Indicates if `MenuItem` is disabled. Disabled items will not cause
 			 * the `Menu` to close when clicked.
@@ -1406,17 +1407,17 @@ declare namespace Spicetify {
 			 * React component icon that will be rendered at the end of the `MenuItem`
 			 * @deprecated Since Spotify `1.2.8`. Use `leadingIcon` or `trailingIcon` instead
 			 */
-			icon?: React.ReactNode;
+			icon?: any;
 			/**
 			 * React component icon that will be rendered at the start of the `MenuItem`
 			 * @since Spotify `1.2.8`
 			 */
-			leadingIcon?: React.ReactNode;
+			leadingIcon?: any;
 			/**
 			 * React component icon that will be rendered at the end of the `MenuItem`
 			 * @since Spotify `1.2.8`
 			 */
-			trailingIcon?: React.ReactNode;
+			trailingIcon?: any;
 		};
 		type TooltipProps = {
 			/**
@@ -1427,7 +1428,7 @@ declare namespace Spicetify {
 			 * The child element that the tooltip will be attached to
 			 * and will display when hovered over
 			 */
-			children: React.ReactNode;
+			children: any;
 			/**
 			 * Decide whether to use the global singleton tooltip (rendered in `<body>`)
 			 * or a new inline tooltip (rendered in a sibling
@@ -1568,22 +1569,22 @@ declare namespace Spicetify {
 			/**
 			 * Function to run when confirm button is clicked
 			 * The dialog does not close automatically, a handler must be included.
-			 * @param {React.MouseEvent<HTMLButtonElement>} event
+			 * @param {any} event
 			 */
-			onConfirm?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+			onConfirm?: (event: any) => void;
 			/**
 			 * Function to run when cancel button is clicked.
 			 * The dialog does not close automatically, a handler must be included.
-			 * @param {React.MouseEvent<HTMLButtonElement>} event
+			 * @param {any} event
 			 */
-			onClose?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+			onClose?: (event: any) => void;
 			/**
 			 * Function to run when dialog is clicked outside of.
 			 * By default, this will run `onClose`.
 			 * A handler must be included to close the dialog.
-			 * @param {React.MouseEvent<HTMLButtonElement>} event
+			 * @param {any} event
 			 */
-			onOutside?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+			onOutside?: (event: any) => void;
 		};
 		type SliderProps = {
 			/**
@@ -1699,13 +1700,13 @@ declare namespace Spicetify {
 			 * Values from the colorSet will be pasted into the CSS.
 			 */
 			UNSAFE_colorSet?: ColorSetBody;
-			onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
-			onMouseEnter?: (event: MouseEvent<HTMLButtonElement>) => void;
-			onMouseLeave?: (event: MouseEvent<HTMLButtonElement>) => void;
-			onMouseDown?: (event: MouseEvent<HTMLButtonElement>) => void;
-			onMouseUp?: (event: MouseEvent<HTMLButtonElement>) => void;
-			onFocus?: (event: FocusEvent<HTMLButtonElement>) => void;
-			onBlur?: (event: FocusEvent<HTMLButtonElement>) => void;
+			onClick?: (event: MouseEvent) => void;
+			onMouseEnter?: (event: MouseEvent) => void;
+			onMouseLeave?: (event: MouseEvent) => void;
+			onMouseDown?: (event: MouseEvent) => void;
+			onMouseUp?: (event: MouseEvent) => void;
+			onFocus?: (event: FocusEvent) => void;
+			onBlur?: (event: FocusEvent) => void;
 		};
 		/**
 		 * Generic context menu provider
@@ -1884,6 +1885,13 @@ declare namespace Spicetify {
 	const SVGIcons: Record<Icon, string>;
 
 	/**
+	 * Return font styling used by Spotify.
+	 * @param font Name of the font.
+	 * Can match any of the fonts listed in `Spicetify._fontStyle` or returns a generic style otherwise.
+	 */
+	function getFontStyle(font: Variant): string;
+
+	/**
 	 * A filtered copy of user's `config-xpui` file.
 	 */
 	namespace Config {
@@ -2039,6 +2047,18 @@ declare namespace Spicetify {
 		 */
 		const Definitions: Record<Query | string, any>;
 		/**
+		 * GraphQL query definitions. Subset of `Definitions` that are used as query requests.
+		 */
+		const QueryDefinitions: Record<Query | string, any>;
+		/**
+		 * GraphQL mutation definitions. Subset of `Definitions` that are used as mutation requests.
+		 */
+		const MutationDefinitions: Record<Query | string, any>;
+		/**
+		 * GraphQL response definitions. Subset of `Definitions` that are used as response types.
+		 */
+		const ResponseDefinitions: Record<Query | string, any>;
+		/**
 		 * Sends a GraphQL query to Spotify.
 		 * @description A preinitialized version of `Spicetify.GraphQL.Handler` using current context.
 		 * @param query Query to send
@@ -2080,7 +2100,7 @@ declare namespace Spicetify {
 			contextUri?: string,
 			sectionIndex?: number,
 			dropOriginUri?: string
-		): (event: React.DragEvent, uris?: string[], label?: string, contextUri?: string, sectionIndex?: number) => void;
+		): (event: any, uris?: string[], label?: string, contextUri?: string, sectionIndex?: number) => void;
 
 		/**
 		 * React Hook to use extracted color from GraphQL
@@ -2271,7 +2291,7 @@ declare namespace Spicetify {
 		 * @param children React children to pass the string into
 		 * @return Localized string or React Fragment of the children
 		 */
-		function get(key: string, ...children: React.ReactNode[]): string | React.ReactNode;
+		function get(key: string, ...children: any[]): string | any;
 		/**
 		 * Get date time format of the passed options.
 		 *
@@ -2353,3 +2373,4 @@ declare namespace Spicetify {
 		function toLocaleUpperCase(text: string): string;
 	}
 }
+export default Spicetify

@@ -1,14 +1,15 @@
 import { GetExpireStore } from "@spikerko/tools/Cache";
-import storage from "../storage";
-import Defaults from "../../components/Global/Defaults";
-import PageView from "../../components/Pages/PageView";
-import { SendJob } from "../API/SendJob";
-import { SpotifyPlayer } from "../../components/Global/SpotifyPlayer";
-import { IsCompactMode } from "../../components/Utils/CompactMode";
-import Fullscreen from "../../components/Utils/Fullscreen";
-import { SetWaitingForHeight } from "../Scrolling/ScrollToActiveLine";
-import Platform from "../../components/Global/Platform";
-import { ProcessLyrics } from "./ProcessLyrics";
+import storage from "../storage.ts";
+import Defaults from "../../components/Global/Defaults.ts";
+import PageView from "../../components/Pages/PageView.ts";
+import { SendJob } from "../API/SendJob.ts";
+import { SpotifyPlayer } from "../../components/Global/SpotifyPlayer.ts";
+import { IsCompactMode } from "../../components/Utils/CompactMode.ts";
+import Fullscreen from "../../components/Utils/Fullscreen.ts";
+import { SetWaitingForHeight } from "../Scrolling/ScrollToActiveLine.ts";
+import Platform from "../../components/Global/Platform.ts";
+import { ProcessLyrics } from "./ProcessLyrics.ts";
+import { Spicetify } from "@spicetify/bundler";
 
 export const LyricsStore = GetExpireStore<any>(
     "SpicyLyrics_LyricsStore",
@@ -313,7 +314,6 @@ async function noLyricsMessage(Cache = true, LocalStorage = true) {
     HideLoaderContainer()
 
     Defaults.CurrentLyricsType = "Static";
-
 
     if (!(IsCompactMode()) && (Fullscreen.IsOpen || Fullscreen.CinemaViewOpen)) {
         document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .LyricsContainer")?.classList.add("Hidden");
