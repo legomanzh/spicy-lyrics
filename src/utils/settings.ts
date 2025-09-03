@@ -115,6 +115,12 @@ function generalSettings(SettingsSection: any) {
         storage.set("lockedMediaBox", settings.getFieldValue("lock_mediabox") as string)
     });
 
+    settings.addDropDown("lyrics-renderer", "Lyrics Renderer", ["Spicy Lyrics (Default) (Stable)", "AML Lyrics (Experimental) (Unstable)"], Defaults.LyricsRenderer_Default, () => {
+        const value = settings.getFieldValue("lyrics-renderer") as string;
+        const processedValue = (value === "Spicy Lyrics (Default) (Stable)" ? "Spicy" : (value === "AML Lyrics (Experimental) (Unstable)" ? "aml-lyrics" : "Spicy"))
+        storage.set("lyricsRenderer", processedValue);
+    });
+
     settings.addButton("save-n-reload", "Save your current settings and reload.", "Save & Reload", () => {
         window.location.reload();
     });

@@ -37,10 +37,15 @@ aside .spicy-dynamic-bg {
 }
 
 /* Video element styling */
-aside:has(.spicy-dynamic-bg) video {
-  filter: opacity(0.8) brightness(.85);
+aside video {
+  filter: brightness(.6);
   -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%);
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%);
+  transition: filter .25s linear;
+}
+
+aside video:hover {
+  filter: brightness(.95);
 }
 
 /* Reset styles for videos inside VideoPlayer__container */
@@ -50,8 +55,8 @@ aside:has(.spicy-dynamic-bg) video {
   mask-image: none !important;
 }
 
-.main-nowPlayingView-coverArtContainer div:has(video)::before,
-.main-nowPlayingView-coverArtContainer div:has(video)::after {
+.main-nowPlayingView-coverArtContainer :is(div, .E08D6ucrHuPJYzzGO7HG):has(video)::before,
+.main-nowPlayingView-coverArtContainer :is(div, .E08D6ucrHuPJYzzGO7HG):has(video)::after {
   display: none;
 }
 
@@ -125,4 +130,14 @@ body:has(#SpicyLyricsPage.Fullscreen) .Root__right-sidebar aside:is(.NowPlayingV
   height: 100%;
   background-color: rgba(0, 0, 0, 0.2);
   z-index: 2;
+}
+
+#SpicyLyricsPage .spicy-dynamic-bg.CanvasBackground {
+  width: 100%;
+  height: 100%;
+}
+
+#SpicyLyricsPage .spicy-dynamic-bg.CanvasBackground video {
+  width: 100%;
+  height: 100%;
 }

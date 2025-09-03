@@ -1,8 +1,18 @@
+// deno-lint-ignore-file no-explicit-any
+import Defaults from "../../../components/Global/Defaults.ts";
 import { setBlurringLastLine } from "../Animator/Lyrics/LyricsAnimator.ts";
 import { ApplyStaticLyrics, StaticLyricsData } from "../Applyer/Static.ts";
 import { ApplyLineLyrics } from "../Applyer/Synced/Line.ts";
 import { ApplySyllableLyrics } from "../Applyer/Synced/Syllable.ts";
-import { isRomanized } from "../lyrics.ts";
+import { ClearLyricsContentArrays, isRomanized } from "../lyrics.ts";
+import { LyricPlayer } from "@applemusic-like-lyrics/core";
+import { parseTTML } from "../../../edited_packages/applemusic-like-lyrics-lyric/parser.ts";
+import { EmitApply, EmitNotApplyed } from "../Applyer/OnApply.ts";
+import { DestroyAllLyricsContainers } from "../Applyer/CreateLyricsContainer.ts";
+import { ClearScrollSimplebar } from "../../Scrolling/Simplebar/ScrollSimplebar.ts";
+import { ClearLyricsPageContainer } from "../fetchLyrics.ts";
+import { SetWaitingForHeight } from "../../Scrolling/ScrollToActiveLine.ts";
+
 
 /**
  * Union type for all lyrics data types
@@ -12,14 +22,49 @@ export type LyricsData = {
     [key: string]: any;
 };
 
+
+export let currentLyricsPlayer: LyricPlayer | null = null;
+
+export const resetLyricsPlayer = () => {
+    currentLyricsPlayer?.dispose()
+    currentLyricsPlayer = null;
+}
+
 /**
  * Apply lyrics based on their type
  * @param lyrics - The lyrics data to apply
  */
-export default function ApplyLyrics(lyrics: LyricsData | null | undefined): void {
+export default async function ApplyLyrics(lyrics: LyricsData | null | undefined): Promise<void> {
     if (!document.querySelector("#SpicyLyricsPage")) return;
     setBlurringLastLine(null);
     if (!lyrics) return;
+
+    if (Defaults.LyricsRenderer === "aml-lyrics") {
+
+        EmitNotApplyed();
+
+        DestroyAllLyricsContainers();
+
+        ClearLyricsContentArrays();
+        ClearScrollSimplebar();
+        ClearLyricsPageContainer();
+
+        console.log("Lyrics", lyrics);
+
+        const ttml = lyrics.SourceTTML;
+        const lyricsContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
+        if (!lyricsContainer) return;
+        if (!currentLyricsPlayer) currentLyricsPlayer = new LyricPlayer();
+        const parsedTTML = await parseTTML(ttml);
+        lyricsContainer.appendChild(currentLyricsPlayer.getElement());
+        console.log("ParsedTTML", parsedTTML);
+        currentLyricsPlayer.setLyricLines(parsedTTML.lines);
+
+        EmitApply(lyrics.Type, lyrics.Content);
+        SetWaitingForHeight(false);
+
+        return;
+    }
 
     const romanize = isRomanized;
 
