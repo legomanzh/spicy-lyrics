@@ -47,7 +47,34 @@
     --LyricsRightSidePadding: 15.5cqw;
 }
 
-#SpicyLyricsPage:not(.SidebarMode):has(.NowBar.Active) {
+#SpicyLyricsPage:not(.SpicyRenderer) {
+    --LyricsLeftSidePadding: 10cqw;
+    --LyricsRightSidePadding: 8cqw;
+}
+
+#SpicyLyricsPage:not(.SpicyRenderer) .LyricsContainer .LyricsContent {
+    padding-left: var(--LyricsLeftSidePadding) !important;
+    padding-right: var(--LyricsRightSidePadding) !important;
+}
+
+#SpicyLyricsPage:not(.SpicyRenderer).SidebarMode .LyricsContainer .LyricsContent {
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+}
+
+#SpicyLyricsPage:not(.SpicyRenderer):not(.SidebarMode):has(.NowBar.Active) .LyricsContainer .LyricsContent,
+#SpicyLyricsPage:not(.SpicyRenderer):not(.Fullscreen):not(.SidebarMode):has(.NowBar.Active) .LyricsContainer .LyricsContent {
+    padding-left: calc(var(--LyricsLeftSidePadding) - 2.5cqw) !important;
+    padding-right: calc(var(--LyricsRightSidePadding) - 4cqw) !important;
+}
+
+#SpicyLyricsPage:not(.SpicyRenderer) .ContentBox .NowBar.Active:is(.RightSide) + .LyricsContainer .LyricsContent {
+    padding-right: calc(var(--LyricsLeftSidePadding) - 4cqw) !important;
+    padding-left: calc(var(--LyricsRightSidePadding) * 1.45 - 2.5cqw) !important;
+}
+
+
+#SpicyLyricsPage:not(.SidebarMode):not(.CompactMode):has(.NowBar.Active) {
     --LyricsLeftSidePadding: calc(50cqw - var(--NowBarRightSpacing)* 0.3);
     --LyricsRightSidePadding: calc(var(--NowBarLeftSpacing)* 0.35);
 }
@@ -56,6 +83,11 @@
     --NowBarLeftSpacing: calc(calc(50cqw - var(--NowBarWidth) - var(--NowBarRightSpacing)) * .7);
     --LyricsLeftSidePadding: calc(calc(50cqw - var(--NowBarRightSpacing)* 0.3) * .9);
 }
+/* 
+#SpicyLyricsPage:not(.SpicyRenderer).Fullscreen.CompactMode {
+    --LyricsLeftSidePadding: 11cqw;
+    --LyricsRightSidePadding: 9cqw;
+} */
 
 #SpicyLyricsPage .ContentBox .NowBar {
     --title-height: 4.2cqh;
@@ -769,7 +801,7 @@
     padding-top: 5cqh !important;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode {
+#SpicyLyricsPage:not(.SpicyRenderer).Fullscreen.CompactMode {
     --LyricsLeftSidePadding: 18cqw !important;
     --LyricsRightSidePadding: 15.5cqw !important;
 }
@@ -803,7 +835,7 @@
     --DefaultLyricsSize: clamp(2.5rem, calc(1cqw* 7), 3.5rem);
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode:has(.MediaBox:hover) .ContentBox .LyricsContainer {
+#SpicyLyricsPage.Fullscreen.CompactMode.SpicyRenderer:has(.MediaBox:hover) .ContentBox .LyricsContainer {
     margin-top: calc(var(--Compact_NowBarHeight) + 50cqw);
 }
 
@@ -816,33 +848,33 @@
     padding: 0 0 10cqh !important;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent.CompactifyEnabledCompactMode:has(.OppositeAligned) .line.OppositeAligned:not(.rtl),
-#SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent:has(.OppositeAligned) .line.OppositeAligned:not(.rtl) {
+#SpicyLyricsPage.Fullscreen.CompactMode.LyricsRenderer .LyricsContainer .LyricsContent.CompactifyEnabledCompactMode:has(.OppositeAligned) .line.OppositeAligned:not(.rtl),
+#SpicyLyricsPage.TippyMode.LyricsRenderer .LyricsContainer .LyricsContent:has(.OppositeAligned) .line.OppositeAligned:not(.rtl) {
   padding-left: 10cqw;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent.CompactifyEnabledCompactMode:has(.OppositeAligned) .line:not(.OppositeAligned, .rtl),
-#SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent:has(.OppositeAligned) .line:not(.OppositeAligned, .rtl) {
+#SpicyLyricsPage.Fullscreen.CompactMode.LyricsRenderer .LyricsContainer .LyricsContent.CompactifyEnabledCompactMode:has(.OppositeAligned) .line:not(.OppositeAligned, .rtl),
+#SpicyLyricsPage.TippyMode.LyricsRenderer .LyricsContainer .LyricsContent:has(.OppositeAligned) .line:not(.OppositeAligned, .rtl) {
   padding-right: 10cqw;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent.CompactifyEnabledCompactMode:has(.OppositeAligned.rtl) .line.OppositeAligned,
-#SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line.OppositeAligned {
+#SpicyLyricsPage.Fullscreen.CompactMode.LyricsRenderer .LyricsContainer .LyricsContent.CompactifyEnabledCompactMode:has(.OppositeAligned.rtl) .line.OppositeAligned,
+#SpicyLyricsPage.TippyMode.LyricsRenderer .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line.OppositeAligned {
   padding-right: 10cqw;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent.CompactifyEnabledCompactMode:has(.OppositeAligned.rtl) .line:not(.OppositeAligned),
-#SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line:not(.OppositeAligned) {
+#SpicyLyricsPage.Fullscreen.CompactMode.LyricsRenderer .LyricsContainer .LyricsContent.CompactifyEnabledCompactMode:has(.OppositeAligned.rtl) .line:not(.OppositeAligned),
+#SpicyLyricsPage.TippyMode.LyricsRenderer .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line:not(.OppositeAligned) {
   padding-left: 10cqw;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent.CompactifyEnabledCompactMode:not(:has(.OppositeAligned)) .line,
-#SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent:not(:has(.OppositeAligned)) .line {
+#SpicyLyricsPage.Fullscreen.CompactMode.LyricsRenderer .LyricsContainer .LyricsContent.CompactifyEnabledCompactMode:not(:has(.OppositeAligned)) .line,
+#SpicyLyricsPage.TippyMode.LyricsRenderer .LyricsContainer .LyricsContent:not(:has(.OppositeAligned)) .line {
   padding-right: 2cqw;
 }
 
-#SpicyLyricsPage.Fullscreen.CompactMode .LyricsContainer .LyricsContent.CompactifyEnabledCompactMode:not(:has(.OppositeAligned)) .line.rtl,
-#SpicyLyricsPage.TippyMode .LyricsContainer .LyricsContent:not(:has(.OppositeAligned)) .line.rtl {
+#SpicyLyricsPage.Fullscreen.CompactMode.LyricsRenderer .LyricsContainer .LyricsContent.CompactifyEnabledCompactMode:not(:has(.OppositeAligned)) .line.rtl,
+#SpicyLyricsPage.TippyMode.LyricsRenderer .LyricsContainer .LyricsContent:not(:has(.OppositeAligned)) .line.rtl {
   padding-left: 2cqw;
 }
 
@@ -876,7 +908,7 @@
     scale: 1.05;
 }
 
-#SpicyLyricsPage:not(.CompactifyEnabledCompactMode).Fullscreen.CompactMode:has(.MediaBox:hover) .ContentBox .LyricsContainer,
+#SpicyLyricsPage.SpicyRenderer:not(.CompactifyEnabledCompactMode).Fullscreen.CompactMode:has(.MediaBox:hover) .ContentBox .LyricsContainer,
 #SpicyLyricsPage:not(.CompactifyEnabledCompactMode).Fullscreen.CompactMode:has(.NowBar.LockedMediaBox) .ContentBox .LyricsContainer {
     margin-top: calc(var(--Compact_NowBarHeight) + 18cqw);
 }
@@ -889,4 +921,25 @@
 #SpicyLyricsPage.Fullscreen.CompactMode .ContentBox .NowBar .Header .MediaBox .MediaImage {
     border-radius: 3cqh;
     --BorderRadius: 3cqh;
+}
+
+#SpicyLyricsPage:not(.SpicyRenderer) .LyricsContainer .LyricsContent > div > div {
+    transition: filter 0.25s, background-color 0.25s, box-shadow 0.25s, transform 0.37s !important;
+}
+
+#SpicyLyricsPage:not(.SpicyRenderer) .LyricsContainer .LyricsContent > div {
+    --bottom-push: 0px;
+    position: relative;
+    bottom: var(--bottom-push);
+    --height-value: calc(100% + var(--bottom-push));
+    height: var(--height-value) !important;
+    max-height: var(--height-value) !important;
+}
+
+#SpicyLyricsPage:not(.SpicyRenderer).CompactMode .LyricsContainer .LyricsContent > div {
+    --bottom-push: 62cqh;
+}
+
+#SpicyLyricsPage:not(.SpicyRenderer).CompactMode.CompactifyEnabledCompactMode .LyricsContainer .LyricsContent > div {
+    padding: 0.2em 0.5em 1em 0.5em !important;
 }

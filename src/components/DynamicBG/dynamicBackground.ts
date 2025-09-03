@@ -131,7 +131,112 @@ export default async function ApplyDynamicBackground(element: HTMLElement) {
 
     const TrackId = SpotifyPlayer.GetId() ?? undefined;
 
-    if (Defaults.StaticBackground) {
+    // TODO: Finish
+    /* if (Defaults.CanvasBackground && isSpicySidebarMode) { // Canvas Mode
+        try {
+            const response = await Spicetify.GraphQL.Request(
+                Spicetify.GraphQL.Definitions.canvas,
+                {
+                    uri: `spotify:track:${TrackId}`
+                }
+            )
+
+            if (!response.errors) {
+                const canvasObject = response?.data?.trackUnion?.canvas;
+                if (canvasObject && canvasObject != null) {
+                    const canvasUrl = canvasObject?.url;
+                    if (canvasUrl) {
+                        const prevBg = element.querySelector<HTMLElement>(".spicy-dynamic-bg.CanvasBackground");
+
+                        const processVideo = async (img: HTMLImageElement, canvasUrl: string) => {
+                            try {
+                                // Fetch the video file
+                                const response = await fetch(canvasUrl);
+                                if (!response.ok) throw new Error(`Failed to fetch video: ${response.status}`);
+
+                                const arrayBuffer = await response.arrayBuffer();
+                                const videoBlob = new Blob([arrayBuffer], { type: "video/mp4" });
+                                const videoUrl = URL.createObjectURL(videoBlob);
+
+                                // Create temporary video to extract frames
+                                const tempVideo = document.createElement("video");
+                                tempVideo.src = videoUrl;
+                                tempVideo.muted = true;
+                                tempVideo.playsInline = true;
+                                tempVideo.autoplay = false;
+                                tempVideo.crossOrigin = "anonymous";
+
+                                await new Promise<void>(resolve => {
+                                    tempVideo.addEventListener("loadeddata", () => resolve(), { once: true });
+                                });
+
+                                // Prepare GIF
+                                const gif = new GIF({
+                                    workers: 2,
+                                    quality: 10,
+                                    width: tempVideo.videoWidth,
+                                    height: tempVideo.videoHeight
+                                });
+
+                                const canvas = document.createElement("canvas");
+                                canvas.width = tempVideo.videoWidth;
+                                canvas.height = tempVideo.videoHeight;
+                                const ctx = canvas.getContext("2d");
+
+                                // Capture frames every 100ms
+                                const duration = tempVideo.duration;
+                                for (let t = 0; t < duration; t += 0.1) {
+                                    tempVideo.currentTime = t;
+                                    await new Promise(r => tempVideo.addEventListener("seeked", r, { once: true }));
+                                    ctx?.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
+                                    gif.addFrame(ctx!, { copy: true, delay: 100 });
+                                }
+
+                                // Render GIF to blob
+                                const gifBlob: Blob = await new Promise(resolve => {
+                                    gif.on("finished", (blob: Blob) => resolve(blob));
+                                    gif.render();
+                                });
+
+                                const gifBlobUrl = URL.createObjectURL(gifBlob);
+
+                                // Set the image source to the GIF blob
+                                img.src = gifBlobUrl;
+                            } catch (err) {
+                                console.error("Error in processVideo:", err);
+                            }
+                        };
+
+                        if (prevBg) {
+                            const prevBgImg = prevBg.querySelector<HTMLImageElement>("img");
+                            if (prevBgImg) {
+                                await processVideo(prevBgImg, canvasUrl);
+                            } else {
+                                prevBg.innerHTML = `<img />`;
+                                await processVideo(prevBg.querySelector<HTMLImageElement>("img"), canvasUrl);
+                            }
+                        } else {
+                            const bgContainer = document.createElement("div");
+                            bgContainer.classList.add("spicy-dynamic-bg", "CanvasBackground");
+
+                            bgContainer.innerHTML = `<img />`;
+
+                            await processVideo(bgContainer.querySelector<HTMLImageElement>("img"), canvasUrl);
+
+                            element.appendChild(bgContainer);
+                        }
+
+
+                    }
+                }
+                
+            } else {
+                throw new Error(`Failed to fetch canvas: ${status}`);
+            }
+        } catch (error) {
+            console.error("Error while getting canvas video", error)
+        }
+    } else  */if (Defaults.StaticBackground) {
         if (Defaults.StaticBackgroundType === "Color") {
 
             const colorFetch = await Spicetify.CosmosAsync.get(`https://spclient.wg.spotify.com/color-lyrics/v2/track/${SpotifyPlayer.GetId()}/image/${SpotifyPlayer.GetCover("standard") ?? ""}?format=json&vocalRemoval=false&market=from_token`)

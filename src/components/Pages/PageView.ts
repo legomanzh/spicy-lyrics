@@ -19,6 +19,7 @@ import { DestroyAllLyricsContainers } from "../../utils/Lyrics/Applyer/CreateLyr
 import { CloseSidebarLyrics, isSpicySidebarMode, OpenSidebarLyrics } from "../Utils/SidebarLyrics.ts";
 import Whentil from "@spikerko/tools/Whentil";
 import { Spicetify } from "@spicetify/bundler";
+import { resetLyricsPlayer } from "../../utils/Lyrics/Global/Applyer.ts"
 // import { UpdateSongMoreInfo } from "../Utils/Annotations";
 
 interface TippyInstance {
@@ -59,13 +60,22 @@ export const GetPageRoot = () => (
 
 let PageResizeListener: ResizeObserver | null = null;
 
-async function OpenPage(AppendTo: HTMLElement | undefined = undefined) {
+async function OpenPage(AppendTo: HTMLElement | undefined = undefined, isSidebarMode: boolean = false) {
     if (PageView.IsOpened) return;
     /* if (!HoverMode) {
         PageView.IsTippyCapable = false;
     } */
     const elem = document.createElement("div");
     elem.id = "SpicyLyricsPage";
+
+    if (Defaults.LyricsRenderer === "Spicy") {
+        elem.classList.add("SpicyRenderer")
+    }
+
+    if (isSidebarMode) {
+        elem.classList.add("SidebarMode")
+    }
+
     /* if (HoverMode) {
         elem.classList.add("TippyMode");
     } */
@@ -237,7 +247,10 @@ export function Compactify(Element: HTMLElement | undefined = undefined) {
 function DestroyPage() {
     if (!PageView.IsOpened) return;
     if (Fullscreen.IsOpen) Fullscreen.Close();
-    if (!document.querySelector("#SpicyLyricsPage")) return
+    if (!document.querySelector("#SpicyLyricsPage")) return;
+
+    resetLyricsPlayer();
+
     CleanupDynamicBGLets();
     ResetLastLine();
     CleanupScrollEvents();
@@ -296,7 +309,7 @@ function AppendViewControls(ReAppend: boolean = false) {
     elem.innerHTML = `
         ${(Fullscreen.IsOpen || Fullscreen.CinemaViewOpen) ? "" : `<button id="CinemaView" class="ViewControl">${Icons.CinemaView}</button>`}
         ${(Fullscreen.IsOpen || Fullscreen.CinemaViewOpen) ? `<button id="CompactModeToggle" class="ViewControl">${IsCompactMode() ? Icons.DisableCompactModeIcon : Icons.EnableCompactModeIcon}</button>` : ""}
-        <button id="RomanizationToggle" class="ViewControl">${isRomanized ? Icons.DisableRomanization : Icons.EnableRomanization}</button>
+        ${Defaults.LyricsRenderer === "Spicy" ? `<button id="RomanizationToggle" class="ViewControl">${isRomanized ? Icons.DisableRomanization : Icons.EnableRomanization}</button>` : ""}
         ${(!Fullscreen.IsOpen && !Fullscreen.CinemaViewOpen && !isSpicySidebarMode) ? `<button id="NowBarToggle" class="ViewControl">${Icons.NowBar}</button>` : ""}
         ${NowBarObj.Open && !(isNoLyrics && (Fullscreen.IsOpen || Fullscreen.CinemaViewOpen)) && !isSpicySidebarMode ? `<button id="NowBarSideToggle" class="ViewControl">${Icons.Fullscreen}</button>` : ""}
         ${Fullscreen.IsOpen ? `<button id="FullscreenToggle" class="ViewControl">${Fullscreen.CinemaViewOpen ? Icons.Fullscreen : Icons.CloseFullscreen}</button>` : ""}

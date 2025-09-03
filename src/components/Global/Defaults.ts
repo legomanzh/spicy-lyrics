@@ -21,7 +21,10 @@ const Defaults = {
     SimpleLyricsMode: false,
     MinimalLyricsMode: false,
     hide_npv_bg: false,
-    CompactMode_LockedMediaBox: false
+    CompactMode_LockedMediaBox: false,
+    LyricsRenderer: "Spicy",
+    LyricsRenderer_Default: 0,
+    CanvasBackground: false,
 }
 
 export default Defaults;

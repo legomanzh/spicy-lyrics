@@ -72,6 +72,14 @@ async function main() {
     Defaults.CompactMode_LockedMediaBox = storage.get("lockedMediaBox") === "true";
   }
 
+  if (!storage.get("lyricsRenderer")) {
+    storage.set("lyricsRenderer", "Spicy")
+  }
+
+  if (storage.get("lyricsRenderer")) {
+    Defaults.LyricsRenderer = storage.get("lyricsRenderer").toString() as string;
+  }
+
  /*  if (!storage.get("lyrics_spacing")) {
     storage.set("lyrics_spacing", "Medium");
   } */
@@ -126,7 +134,7 @@ async function main() {
   }
 
 
-  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.10.7";
+  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.10.9";
   
 
   /* if (storage.get("lyrics_spacing")) {
@@ -431,7 +439,7 @@ async function main() {
 			if (controlsContainer === null) {
 				Defer(SearchDOMForFullscreenButtons)
 			} else {
-        // @ts-expect-error 123
+        // @ts-ignore 123
 				for (const element of controlsContainer.children) {
 					if (
 						(
@@ -527,7 +535,7 @@ async function main() {
     async function applyDynamicBackgroundToNowPlayingBar(coverUrl: string | undefined) {
       if (Defaults.hide_npv_bg) return;
       if (SpotifyPlayer.GetContentType() === "unknown" || SpotifyPlayer.IsDJ()) return;
-      if (Defaults.StaticBackground || coverUrl === undefined) return;
+      if (Defaults.StaticBackground || Defaults.CanvasBackground || coverUrl === undefined) return;
       const nowPlayingBar =
         document.querySelector<HTMLElement>(".Root__right-sidebar aside.NowPlayingView") ??
         document.querySelector<HTMLElement>(`.Root__right-sidebar aside#Desktop_PanelContainer_Id:has(.main-nowPlayingView-coverArtContainer)`);

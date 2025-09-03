@@ -104,7 +104,7 @@ export function OpenSidebarLyrics(wasOpenForceUndefined: boolean = false) {
             () => getQueueContainer() && !PageView.IsOpened,
             () => {
                 // console.log("[Spicy Lyrics Debug] finalContainer appeared after click");
-                PageView.Open(parentContainer);
+                PageView.Open(parentContainer, true);
                 Whentil.When(() => currentPageBgInstance, () => {
                     SetPageBGBlur(100);
                 })
@@ -119,7 +119,7 @@ export function OpenSidebarLyrics(wasOpenForceUndefined: boolean = false) {
             () => finalContainer && !PageView.IsOpened,
             () => {
                 // console.log("[Spicy Lyrics Debug] Whentil with existing container");
-                PageView.Open(parentContainer);
+                PageView.Open(parentContainer, true);
                 Whentil.When(() => currentPageBgInstance, () => {
                     SetPageBGBlur(100);
                 })

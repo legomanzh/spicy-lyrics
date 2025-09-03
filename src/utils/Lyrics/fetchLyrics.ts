@@ -13,7 +13,7 @@ import { Spicetify } from "@spicetify/bundler";
 
 export const LyricsStore = GetExpireStore<any>(
     "SpicyLyrics_LyricsStore",
-    8,
+    10,
     {
         Unit: "Days",
         Duration: 3
@@ -21,6 +21,9 @@ export const LyricsStore = GetExpireStore<any>(
 )
 
 export default async function fetchLyrics(uri: string) {
+
+    const IsSpicyRenderer = Defaults.LyricsRenderer === "Spicy";
+
     //if (!document.querySelector("#SpicyLyricsPage")) return;
     const LyricsContent = document.querySelector("#SpicyLyricsPage .LyricsContainer .LyricsContent") ?? undefined;
     if (LyricsContent?.classList.contains("offline")) {
@@ -189,7 +192,7 @@ export default async function fetchLyrics(uri: string) {
         // const providerLyrics = JSON.parse(lyricsText);
         const lyrics = JSON.parse(lyricsText);
         
-        await ProcessLyrics(lyrics);
+        (IsSpicyRenderer ? await ProcessLyrics(lyrics) : null)
 
         storage.set("currentLyricsData", JSON.stringify(lyrics));
         storage.set("currentlyFetching", "false");
@@ -327,6 +330,7 @@ async function noLyricsMessage(Cache = true, LocalStorage = true) {
     return {
         Type: "Static",
         id: SpotifyPlayer.GetId() ?? '',
+        noLyrics: true,
         Lines: [
             {
                 Text: "No Lyrics Found"

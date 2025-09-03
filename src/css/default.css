@@ -364,7 +364,8 @@ body.SpicySidebarLyrics__Active #SpicyLyricsPage {
 }
 
 
-#SpicyLyricsPage:not(.Lyrics_RomanizationAvailable) .ViewControls #RomanizationToggle {
+#SpicyLyricsPage:not(.Lyrics_RomanizationAvailable) .ViewControls #RomanizationToggle,
+#SpicyLyricsPage:not(.SpicyRenderer) .ViewControls #RomanizationToggle {
   display: none !important;
 }
 
