@@ -498,20 +498,21 @@ async function main() {
       Spicetify.PopupModal.display({
         title: "Updated - Spicy Lyrics",
         content: `
-        <div style="font-size: 1.5rem;">
-          Your Spicy Lyrics version has been successfully updated!
-          <br>
-          Version: From: ${previousVersion} -> To: ${Defaults.SpicyLyricsVersion}
+        <div style="font-size: 1.5rem; text-align: center;">
+          <span style="font-weight: 400;">Your Spicy Lyrics version has been successfully updated!</span>
           <br>
           <br>
-          <p>
+          <span style="font-weight: 600;">Version: From: ${previousVersion} -> To: ${Defaults.SpicyLyricsVersion}</span>
+          <br>
+          <br>
+          <p style="text-align: center;">
             What's new: <a href="https://github.com/Spikerko/spicy-lyrics/releases/tag/${Defaults.SpicyLyricsVersion}" target="_blank" style="text-decoration: underline;">Open on Github -></a>
           </p>
           <br>
-          <p style="font-size: 1.85rem; font-weight: bold; text-align: center;">
+          <p style="font-size: 1.825rem; font-weight: bold; text-align: center;">
             Check out our Discord Server!
             <br>
-            <a href="https://discord.com/invite/uqgXU5wh8j" target="_blank" style="font-size: 2.25rem; text-decoration: underline; color: #7a86ff;">Join Discord -></a>
+            <a href="https://discord.com/invite/uqgXU5wh8j" target="_blank" style="font-size: 2.225rem; text-decoration: underline; color: #7a86ff;">Join the Discord Server -></a>
           </p>
         </div>`,
         isLarge: true
