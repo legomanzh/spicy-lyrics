@@ -49,15 +49,12 @@ export default async function ApplyLyrics(lyrics: LyricsData | null | undefined)
         ClearScrollSimplebar();
         ClearLyricsPageContainer();
 
-        console.log("Lyrics", lyrics);
-
         const ttml = lyrics.SourceTTML;
         const lyricsContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
         if (!lyricsContainer) return;
         if (!currentLyricsPlayer) currentLyricsPlayer = new LyricPlayer();
         const parsedTTML = await parseTTML(ttml);
         lyricsContainer.appendChild(currentLyricsPlayer.getElement());
-        console.log("ParsedTTML", parsedTTML);
         currentLyricsPlayer.setLyricLines(parsedTTML.lines);
 
         EmitApply(lyrics.Type, lyrics.Content);
