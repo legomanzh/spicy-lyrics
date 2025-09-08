@@ -80,6 +80,14 @@ async function main() {
     Defaults.LyricsRenderer = storage.get("lyricsRenderer").toString() as string;
   }
 
+  if (!storage.get("simpleLyricsModeRenderingType")) {
+    storage.set("simpleLyricsModeRenderingType", "calculate")
+  }
+
+  if (storage.get("simpleLyricsModeRenderingType")) {
+    Defaults.SimpleLyricsMode_RenderingType = storage.get("simpleLyricsModeRenderingType").toString() as string;
+  }
+
  /*  if (!storage.get("lyrics_spacing")) {
     storage.set("lyrics_spacing", "Medium");
   } */
@@ -134,7 +142,7 @@ async function main() {
   }
 
 
-  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.10.9";
+  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.11.1";
   
 
   /* if (storage.get("lyrics_spacing")) {

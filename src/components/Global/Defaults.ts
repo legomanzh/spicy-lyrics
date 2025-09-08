@@ -19,6 +19,8 @@ const Defaults = {
     StaticBackgroundType: "Auto",
     DevMode: false,
     SimpleLyricsMode: false,
+    SimpleLyricsMode_RenderingType: "calculate", // the css one would be 'animate',
+    SimpleLyricsMode_RenderingType_Default: 0,
     MinimalLyricsMode: false,
     hide_npv_bg: false,
     CompactMode_LockedMediaBox: false,

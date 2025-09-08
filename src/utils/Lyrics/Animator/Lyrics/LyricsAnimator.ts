@@ -624,12 +624,20 @@ export function Animate(position: number): void {
                           targetScale = ScaleSpline.at(percentage);
                           targetYOffset = YOffsetSpline.at(percentage);
                           targetGlow = GlowSpline.at(percentage);
-                          targetGradientPos = -20 + (120 * percentage);
+                          if (Defaults.SimpleLyricsMode) {
+                            targetGradientPos = -50 + (120 * percentage);
+                          } else {
+                            targetGradientPos = -20 + (120 * percentage);
+                          }
                       } else if (wordState === "NotSung") {
                           targetScale = ScaleSpline.at(0);
                           targetYOffset = YOffsetSpline.at(0);
                           targetGlow = GlowSpline.at(0);
-                          targetGradientPos = -20;
+                          if (Defaults.SimpleLyricsMode) {
+                            targetGradientPos = -50;
+                          } else {
+                            targetGradientPos = -20;
+                          }
                       } else { // Sung
                           targetScale = ScaleSpline.at(1);
                           targetYOffset = YOffsetSpline.at(1);
@@ -650,14 +658,16 @@ export function Animate(position: number): void {
                       if (isLetterGroup) {
                         if (Defaults.SimpleLyricsMode) {
                             if (wordState === "Active") {
-                              const nextWord = words[wordIndex + 1];
-                              if (nextWord && !nextWord?.LetterGroup) {
-                                if (!nextWord.PreSLMAnimated) {
-                                  nextWord.PreSLMAnimated = true;
-                                  nextWord.HTMLElement.style.removeProperty("--SLM_GradientPosition");
-                                  setTimeout(() => {
-                                    nextWord.HTMLElement.style.animation = getPreSLMAnimation(250);
-                                  }, Number((totalDuration * 0.845) - 130) ?? totalDuration);
+                              if (Defaults.SimpleLyricsMode_RenderingType === "animate") {
+                                const nextWord = words[wordIndex + 1];
+                                if (nextWord && !nextWord?.LetterGroup) {
+                                  if (!nextWord.PreSLMAnimated) {
+                                    nextWord.PreSLMAnimated = true;
+                                    nextWord.HTMLElement.style.removeProperty("--SLM_GradientPosition");
+                                    setTimeout(() => {
+                                      nextWord.HTMLElement.style.animation = getPreSLMAnimation(250);
+                                    }, Number((totalDuration * 0.845) - 130) ?? totalDuration);
+                                  }
                                 }
                               }
                             }
@@ -666,38 +676,50 @@ export function Animate(position: number): void {
                       if (!isLetterGroup) {
                         if (Defaults.SimpleLyricsMode) {
                           if (wordState === "Active" && !word.SLMAnimated) {
-                            word.HTMLElement.style.removeProperty("--SLM_GradientPosition");
-                            //word.HTMLElement.style.removeProperty("--SLM_TranslateY");
-                            word.HTMLElement.style.animation = getSLMAnimation(totalDuration);
-                            word.SLMAnimated = true;
-                            word.PreSLMAnimated = false;
-                            const nextWord = words[wordIndex + 1];
-                            if (nextWord) {
-                              if (!nextWord.PreSLMAnimated) {
-                                nextWord.PreSLMAnimated = true;
-                                nextWord.HTMLElement.style.removeProperty("--SLM_GradientPosition");
-                                setTimeout(() => {
-                                  nextWord.HTMLElement.style.animation = getPreSLMAnimation(125);
-                                }, Number((totalDuration * 0.6) - 22) ?? totalDuration);
+                            if (Defaults.SimpleLyricsMode_RenderingType === "calculate") {
+                              word.HTMLElement.style.setProperty("--SLM_GradientPosition", `${targetGradientPos}%`);
+                            } else {
+                              word.HTMLElement.style.removeProperty("--SLM_GradientPosition");
+                              //word.HTMLElement.style.removeProperty("--SLM_TranslateY");
+                              word.HTMLElement.style.animation = getSLMAnimation(totalDuration);
+                              word.SLMAnimated = true;
+                              word.PreSLMAnimated = false;
+                              const nextWord = words[wordIndex + 1];
+                              if (nextWord) {
+                                if (!nextWord.PreSLMAnimated) {
+                                  nextWord.PreSLMAnimated = true;
+                                  nextWord.HTMLElement.style.removeProperty("--SLM_GradientPosition");
+                                  setTimeout(() => {
+                                    nextWord.HTMLElement.style.animation = getPreSLMAnimation(125);
+                                  }, Number((totalDuration * 0.6) - 22) ?? totalDuration);
+                                }
                               }
                             }
                           }
                           if (wordState === "NotSung") {
-                            if (!word.PreSLMAnimated) {
-                              word.HTMLElement.style.animation = "none";
-                              word.HTMLElement.style.setProperty("--SLM_GradientPosition", "-50%");
-                              //word.HTMLElement.style.setProperty("--SLM_TranslateY", "0.01");
+                            if (Defaults.SimpleLyricsMode_RenderingType === "calculate") {
+                              word.HTMLElement.style.setProperty("--SLM_GradientPosition", `${targetGradientPos}%`);
+                            } else {
+                              if (!word.PreSLMAnimated) {
+                                word.HTMLElement.style.animation = "none";
+                                word.HTMLElement.style.setProperty("--SLM_GradientPosition", "-50%");
+                                //word.HTMLElement.style.setProperty("--SLM_TranslateY", "0.01");
+                              }
+                              word.SLMAnimated = false;
+                              /* word.PreSLMAnimated = false; */
                             }
-                            word.SLMAnimated = false;
-                            /* word.PreSLMAnimated = false; */
                           }
                           if (wordState === "Sung") {
-                            word.HTMLElement.style.animation = "none";
-                            word.HTMLElement.style.setProperty("--SLM_GradientPosition", "100%")
-                            //word.HTMLElement.style.setProperty("--SLM_TranslateY", "-0.03");
-                            //word.HTMLElement.style.animation = getSLMAnimation(0);
-                            word.SLMAnimated = false;
-                            word.PreSLMAnimated = false;
+                            if (Defaults.SimpleLyricsMode_RenderingType === "calculate") {
+                              word.HTMLElement.style.setProperty("--SLM_GradientPosition", `${targetGradientPos}%`);
+                            } else {
+                              word.HTMLElement.style.animation = "none";
+                              word.HTMLElement.style.setProperty("--SLM_GradientPosition", "100%")
+                              //word.HTMLElement.style.setProperty("--SLM_TranslateY", "-0.03");
+                              //word.HTMLElement.style.animation = getSLMAnimation(0);
+                              word.SLMAnimated = false;
+                              word.PreSLMAnimated = false;
+                            }
                           }
                         } else {
                           word.HTMLElement.style.setProperty("--gradient-position", `${targetGradientPos}%`);
@@ -892,12 +914,21 @@ export function Animate(position: number): void {
 
                         // --- Determine Gradient based on individual letter state ---
                         if (letterState === "NotSung") {
-                          targetGradient = -20;
+                          if (Defaults.SimpleLyricsMode) {
+                            targetGradient = -50;
+                          } else {
+                            targetGradient = -20;
+                          }
                         } else if (letterState === "Sung") {
                           targetGradient = 100;
                         } else { // Active
                           // Only the *actual* active letter gets the animated gradient
                           targetGradient = (k === activeLetterIndex) ? (-20 + (120 * easeSinOut(activeLetterPercentage))) : -20;
+                          if (Defaults.SimpleLyricsMode) {
+                            targetGradient = (k === activeLetterIndex) ? (-50 + (120 * easeSinOut(activeLetterPercentage))) : -50;
+                          } else {
+                            targetGradient = (k === activeLetterIndex) ? (-20 + (120 * easeSinOut(activeLetterPercentage))) : -20;
+                          }
                         }
 
                         // Set spring goals (smooth animation)
@@ -913,23 +944,27 @@ export function Animate(position: number): void {
                         const totalDuration = letter.EndTime - letter.StartTime;
                         // Apply styles from springs and calculated gradient
                         if (Defaults.SimpleLyricsMode) {
-                          if (letterState === "Active" && !letter.SLMAnimated) {
-                            letter.HTMLElement.style.removeProperty("--SLM_GradientPosition");
-                            letter.HTMLElement.style.animation = getSLMAnimation(totalDuration);
-                            letter.SLMAnimated = true;
-                          }
-                          if (letterState === "NotSung") {
-                            if (!letter.PreSLMAnimated) {
-                              letter.HTMLElement.style.animation = "none";
-                              letter.HTMLElement.style.setProperty("--SLM_GradientPosition", "-50%");
+                          if (Defaults.SimpleLyricsMode_RenderingType === "calculate") {
+                            letter.HTMLElement.style.setProperty("--SLM_GradientPosition", `${targetGradient}%`);
+                          } else {
+                            if (letterState === "Active" && !letter.SLMAnimated) {
+                              letter.HTMLElement.style.removeProperty("--SLM_GradientPosition");
+                              letter.HTMLElement.style.animation = getSLMAnimation(totalDuration);
+                              letter.SLMAnimated = true;
                             }
-                            letter.SLMAnimated = false;
-                          }
-                          if (letterState === "Sung") {
-                            letter.HTMLElement.style.animation = "none";
-                            letter.HTMLElement.style.setProperty("--SLM_GradientPosition", "100%");
-                            // letter.HTMLElement.style.animation = getSLMAnimation(0);
-                            letter.SLMAnimated = false;
+                            if (letterState === "NotSung") {
+                              if (!letter.PreSLMAnimated) {
+                                letter.HTMLElement.style.animation = "none";
+                                letter.HTMLElement.style.setProperty("--SLM_GradientPosition", "-50%");
+                              }
+                              letter.SLMAnimated = false;
+                            }
+                            if (letterState === "Sung") {
+                              letter.HTMLElement.style.animation = "none";
+                              letter.HTMLElement.style.setProperty("--SLM_GradientPosition", "100%");
+                              // letter.HTMLElement.style.animation = getSLMAnimation(0);
+                              letter.SLMAnimated = false;
+                            }
                           }
                         } else {
                           letter.HTMLElement.style.setProperty("--gradient-position", `${targetGradient}%`);
