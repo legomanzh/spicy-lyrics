@@ -91,6 +91,12 @@ function generalSettings(SettingsSection: any) {
         storage.set("simpleLyricsMode", settings.getFieldValue("simple-lyrics-mode") as string);
     });
 
+    settings.addDropDown("simple-lyrics-mode-rendering-type", "Simple Lyrics Mode - Rendering Type", ["Calculate (More performant)", "Animate (Legacy, More laggier)"], Defaults.SimpleLyricsMode_RenderingType_Default, () => {
+        const value = settings.getFieldValue("simple-lyrics-mode-rendering-type") as string;
+        const processedValue = (value === "Calculate (More performant)" ? "calculate" : (value === "Animate (Legacy, More laggier)" ? "animate" : "calculate"))
+        storage.set("simpleLyricsModeRenderingType", processedValue);
+    });
+
     settings.addToggle("minimal-lyrics-mode", "Minimal Lyrics Mode (Only in Fullscreen/Cinema View)", Defaults.MinimalLyricsMode, () => {
         storage.set("minimalLyricsMode", settings.getFieldValue("minimal-lyrics-mode") as string);
     });

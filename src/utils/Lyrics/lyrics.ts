@@ -15,14 +15,14 @@ export const endInterludeEarlierBy = 0;
 export const SimpleLyricsMode_LetterEffectsStrengthConfig = {
   LongerThan: 1500,
   Longer: {
-    Glow: 0.44,
-    YOffset: 0.9,
-    Scale: 1.1,
+    Glow: 0.4,
+    YOffset: 0.4,
+    Scale: 1.101,
   },
   Shorter: {
-    Glow: 0.376,
-    YOffset: 0.105,
-    Scale: 1.05,
+    Glow: 0.22,
+    YOffset: 0.078,
+    Scale: 1.083,
   }
 }
 
