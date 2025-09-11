@@ -330,7 +330,13 @@ body:not(:has(.Root__main-view-overlay .BeautifulLyricsPage:is(.Fullscreen))) #B
   z-index: -1;
 } */
 
-body.SpicySidebarLyrics__Active .Root__right-sidebar .XOawmCGZcQx4cesyNfVO >:not(#SpicyLyricsPage) {
+body.SpicySidebarLyrics__Active .eguwzH_QWTBXry7hiNj3:has([id="settings.showFriendActivity"]),
+body.SpicySidebarLyrics__Active .x-settings-row:has([id="settings.showFriendActivity"]) {
+  display: none !important;
+}
+
+body.SpicySidebarLyrics__Active .Root__right-sidebar .XOawmCGZcQx4cesyNfVO >:not(#SpicyLyricsPage),
+body.SpicySidebarLyrics__Active .Root__right-sidebar .oXO9_yYs6JyOwkBn8E4a >:not(#SpicyLyricsPage) {
   display: none !important;
 }
 

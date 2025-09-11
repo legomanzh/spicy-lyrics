@@ -4,26 +4,38 @@ import storage from "../../utils/storage.ts";
 import { currentBgInstance as currentPageBgInstance, SetPageBGBlur } from "../DynamicBG/dynamicBackground.ts";
 import { Spicetify } from "@spicetify/bundler";
 
+// Query selector functions
+const getSpicySidebarActiveBody = () => document.body;
+const getRootRightSidebar = () => document.querySelector<HTMLElement>('.Root__right-sidebar');
+const getNowPlayingViewElement = () => document.querySelector<HTMLElement>(".Root__right-sidebar aside.NowPlayingView");
+const getDesktopPanelContainer = () => document.querySelector<HTMLElement>(`.Root__right-sidebar aside#Desktop_PanelContainer_Id:has(.main-nowPlayingView-coverArtContainer)`);
+const getRightSidebarParentContainer = () => document.querySelector<HTMLElement>('.Root__right-sidebar .XOawmCGZcQx4cesyNfVO') ?? document.querySelector<HTMLElement>('.Root__right-sidebar .oXO9_yYs6JyOwkBn8E4a');
+const getQueueContainerElement = () => 
+    document.querySelector<HTMLElement>(".Root__right-sidebar .XOawmCGZcQx4cesyNfVO:not(:has(.h0XG5HZ9x0lYV7JNwhoA.JHlPg4iOkqbXmXjXwVdo)):has(.jD_TVjbjclUwewP7P9e8)") ??
+    document.querySelector<HTMLElement>(".Root__right-sidebar .oXO9_yYs6JyOwkBn8E4a:not(:has(.Ot1yAtVbjD2owYqmw6BK)):has(.ZWs_BNtabE4F1v34pU93.mpdgC9UTkN5_fMm1pFiz)");
+const getDevicesContainerElement = () => document.querySelector<HTMLElement>(".Root__right-sidebar .oXO9_yYs6JyOwkBn8E4a:has(.Ot1yAtVbjD2owYqmw6BK)");
+const getSpicyLyricsPageElement = () => document.querySelector<HTMLElement>('#SpicyLyricsPage');
+const getParentContainerChildren = (parentContainer: HTMLElement) => parentContainer.querySelector<HTMLElement>(':scope > *:not(#SpicyLyricsPage)');
+
 export const getNowPlayingViewPlaybarButton = () => {
     // console.log("[Spicy Lyrics Debug] getNowPlayingViewPlaybarButton");
     return document.querySelector<HTMLElement>('[data-testid="control-button-npv"]');
 };
 export const getNowPlayingViewContainer = () => {
     // console.log("[Spicy Lyrics Debug] getNowPlayingViewContainer");
-    return document.querySelector<HTMLElement>(".Root__right-sidebar aside.NowPlayingView") ??
-           document.querySelector<HTMLElement>(`.Root__right-sidebar aside#Desktop_PanelContainer_Id:has(.main-nowPlayingView-coverArtContainer)`);
+    return getNowPlayingViewElement() ?? getDesktopPanelContainer();
 };
 export const getNowPlayingViewParentContainer = () => {
     // console.log("[Spicy Lyrics Debug] getNowPlayingViewParentContainer");
-    return document.querySelector<HTMLElement>('.Root__right-sidebar .XOawmCGZcQx4cesyNfVO');
+    return getRightSidebarParentContainer();
 };
 const appendOpen = () => {
     // console.log("[Spicy Lyrics Debug] appendOpen");
-    document.body.classList.add("SpicySidebarLyrics__Active");
+    getSpicySidebarActiveBody().classList.add("SpicySidebarLyrics__Active");
 };
 const appendClosed = () => {
     // console.log("[Spicy Lyrics Debug] appendClosed");
-    document.body.classList.remove("SpicySidebarLyrics__Active");
+    getSpicySidebarActiveBody().classList.remove("SpicySidebarLyrics__Active");
 };
 
 export const getQueuePlaybarButton = () => {
@@ -37,7 +49,7 @@ const getDevicesPlaybarButton = () => {
 };
 
 export const getQueueContainer = () => {
-    return document.querySelector<HTMLElement>(".Root__right-sidebar .XOawmCGZcQx4cesyNfVO:not(:has(.h0XG5HZ9x0lYV7JNwhoA.JHlPg4iOkqbXmXjXwVdo)):has(.jD_TVjbjclUwewP7P9e8)");
+    return getQueueContainerElement();
 }
 
 export let isSpicySidebarMode = false;
@@ -84,13 +96,13 @@ export function OpenSidebarLyrics(wasOpenForceUndefined: boolean = false) {
     }
     const finalContainer = getQueueContainer();
     {
-        if (parentContainer.querySelector<HTMLElement>(':scope > *:not(#SpicyLyricsPage)')) {
+        if (getParentContainerChildren(parentContainer)) {
             onOpen_wasThingOpen = 
                     wasOpenForceUndefined
                         ? undefined
                     : getNowPlayingViewContainer()
                         ? "npv"
-                    : parentContainer.querySelector<HTMLElement>(".vzeIlCPBQJUaqdMZHqHE .vXYSi4u1nPutJ_ZkC6mq .jD_TVjbjclUwewP7P9e8")
+                    : getDevicesContainerElement()
                         ? "devices"
                     : finalContainer ? "queue" : undefined;
             

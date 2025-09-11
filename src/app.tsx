@@ -38,7 +38,8 @@ import { DynamicBackground } from "@spikerko/tools/DynamicBackground";
 // In development: import "./components/Utils/Annotations";
 import App from "./ready.ts";
 import { CloseSidebarLyrics, getQueueContainer, isSpicySidebarMode, OpenSidebarLyrics, RegisterSidebarLyrics } from "./components/Utils/SidebarLyrics.ts";
-import { Spicetify } from "@spicetify/bundler"
+import { Spicetify } from "@spicetify/bundler";
+import "./css/polyfills/tippy-polyfill.css";
 
 async function main() {
   await Platform.OnSpotifyReady;
@@ -142,7 +143,7 @@ async function main() {
   }
 
 
-  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.11.1";
+  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.12.0";
   
 
   /* if (storage.get("lyrics_spacing")) {
