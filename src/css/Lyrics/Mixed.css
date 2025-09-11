@@ -458,6 +458,10 @@ body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer 
   --DefaultLyricsSize: clamp(0.8rem,calc(1cqw* 5), 2.5rem);
 }
 
+body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer .SpicyLyricsScrollContainer[data-lyrics-type="Static"] {
+  --DefaultLyricsSize: clamp(0.9rem,calc(1cqw* 7), 2.8rem);
+}
+
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .SpicyLyricsScrollContainer[data-lyrics-type="Static"] .line {
   font-weight: 500;
 }

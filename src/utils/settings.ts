@@ -1,9 +1,10 @@
 import storage from "./storage.ts";
 import Defaults from "../components/Global/Defaults.ts";
-import { LyricsStore } from "./Lyrics/fetchLyrics.ts";
+import fetchLyrics, { LyricsStore } from "./Lyrics/fetchLyrics.ts";
 import { SpotifyPlayer } from "../components/Global/SpotifyPlayer.ts";
-import { ShowNotification } from "../components/Pages/PageView.ts";
+import PageView, { ShowNotification } from "../components/Pages/PageView.ts";
 import { Spicetify } from "@spicetify/bundler";
+import ApplyLyrics from "./Lyrics/Global/Applyer.ts";
 
 export async function setSettingsMenu() {
 
@@ -30,6 +31,12 @@ function devSettings(SettingsSection: any) {
             await LyricsStore.RemoveItem(currentSongId ?? "");
             storage.set("currentLyricsData", null);
             ShowNotification(`Lyrics for the current song, have been removed from available all caches`, "success");
+            if (PageView.IsOpened) {
+                const uri = SpotifyPlayer.GetUri();
+                if (uri && uri !== undefined) {
+                    fetchLyrics(uri).then(ApplyLyrics);
+                }
+            }
         } catch (error) {
             ShowNotification(`
                 <p>Lyrics for the current song, couldn't be removed from all available caches</p>
@@ -43,6 +50,12 @@ function devSettings(SettingsSection: any) {
         try {
             await LyricsStore.Destroy();
             ShowNotification("The Lyrics Cache has been destroyed successfully", "success")
+            if (PageView.IsOpened) {
+                const uri = SpotifyPlayer.GetUri();
+                if (uri && uri !== undefined) {
+                    fetchLyrics(uri).then(ApplyLyrics);
+                }
+            }
         } catch (error) {
             ShowNotification(`
                 <p>The Lyrics cache, couldn't be removed</p>
@@ -56,6 +69,12 @@ function devSettings(SettingsSection: any) {
         try {
             storage.set("currentLyricsData", null);
             ShowNotification("Lyrics for the current song, have been removed from the internal state successfully", "success");
+            if (PageView.IsOpened) {
+                const uri = SpotifyPlayer.GetUri();
+                if (uri && uri !== undefined) {
+                    fetchLyrics(uri).then(ApplyLyrics);
+                }
+            }
         } catch (error) {
             ShowNotification(`
                 <p>Lyrics for the current song, couldn't be removed from the internal state</p>

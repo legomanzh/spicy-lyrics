@@ -182,8 +182,8 @@ class SettingsSection {
     this.setRerender = setRerender;
 
     return (
-      <div className="x-settings-section" key={rerender}>
-        <h2 className="TypeElement-cello-textBase-type">
+      <div className="x-settings-section YtAW7cQal8op8H9JkJ8T" key={rerender}>
+        <h2 className="TypeElement-cello-textBase-type e-91000-text encore-text-body-medium-bold encore-internal-color-text-base">
           {this.name}
         </h2>
         {Object.entries(this.settingsFields).map(([nameId, field]) => {
@@ -217,8 +217,8 @@ class SettingsSection {
     };
 
     return (
-      <div className="x-settings-row">
-        <div className="x-settings-firstColumn">
+      <div className="x-settings-row eguwzH_QWTBXry7hiNj3">
+        <div className="x-settings-firstColumn lfXDZUXLhhKhFPjDO8by">
           <label
             className="TypeElement-viola-textSubdued-type"
             htmlFor={id}
@@ -226,7 +226,7 @@ class SettingsSection {
             {props.field.description || ""}
           </label>
         </div>
-        <div className="x-settings-secondColumn">
+        <div className="x-settings-secondColumn jKCZodyn7H2Trr7dhvGm">
           {props.field.type === "input" ? (
             <input
               className="x-settings-input"
@@ -246,7 +246,7 @@ class SettingsSection {
             <span>
               <button
                 id={id}
-                className="Button-sc-y0gtbx-0 Button-small-buttonSecondary-useBrowserDefaultFocusStyle x-settings-button"
+                className="Button-sc-y0gtbx-0 Button-small-buttonSecondary-useBrowserDefaultFocusStyle Button-sc-y0gtbx-0 Button-buttonSecondary-small-useBrowserDefaultFocusStyle encore-text-body-small-bold e-91000-button--small l_pugTMA53sS_K65iEiW Button-buttonSecondary-small-isUsingKeyboard-useBrowserDefaultFocusStyle x-settings-button"
                 {...props.field.events}
                 onClick={(e) => {
                   setValue();
@@ -280,7 +280,7 @@ class SettingsSection {
             </label>
           ) : props.field.type === "dropdown" ? (
             <select
-              className="main-dropDown-dropDown"
+              className="main-dropDown-dropDown FQupgLGfMkp1dOYvUeuQ"
               id={id}
               {...props.field.events}
               onChange={(e) => {

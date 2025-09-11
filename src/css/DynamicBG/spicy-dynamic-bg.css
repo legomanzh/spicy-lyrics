@@ -56,11 +56,16 @@ aside video:hover {
 }
 
 .main-nowPlayingView-coverArtContainer :is(div, .E08D6ucrHuPJYzzGO7HG):has(video)::before,
-.main-nowPlayingView-coverArtContainer :is(div, .E08D6ucrHuPJYzzGO7HG):has(video)::after {
+.main-nowPlayingView-coverArtContainer :is(div, .E08D6ucrHuPJYzzGO7HG):has(video)::after,
+div.Of__Db4QgB9osz_mFxhw:has(video)::before,
+div.Of__Db4QgB9osz_mFxhw:has(video)::after,
+div.UUydeXMsXVZofB0YAOgm:has(.main-trackInfo-container)::before,
+div.UUydeXMsXVZofB0YAOgm:has(.main-trackInfo-container)::after {
   display: none;
 }
 
-aside:has(.spicy-dynamic-bg) .AAdBM1nhG73supMfnYX7 {
+aside:has(.spicy-dynamic-bg) .AAdBM1nhG73supMfnYX7,
+aside:has(.spicy-dynamic-bg) .iHa_q9pq4un3VNRQgwTx {
   z-index: 1;
   position: relative;
 }
