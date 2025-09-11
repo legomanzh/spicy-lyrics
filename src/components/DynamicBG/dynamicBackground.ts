@@ -1,110 +1,113 @@
-import Defaults from "../Global/Defaults.ts";
-import ArtistVisuals from "./ArtistVisuals/Main.ts";
-import { type CoverArtCache, DynamicBackground, DynamicBackgroundOptions } from "@spikerko/tools/DynamicBackground"
-import TempoPlugin from "@spikerko/tools/TempoPlugin"
-import { SpotifyPlayer } from "../Global/SpotifyPlayer.ts";
 import { Timeout } from "@socali/modules/Scheduler";
 import { Signal } from "@socali/modules/Signal";
+import { Spicetify } from "@spicetify/bundler";
+import {
+  type CoverArtCache,
+  DynamicBackground,
+  type DynamicBackgroundOptions,
+} from "@spikerko/tools/DynamicBackground";
+import TempoPlugin from "@spikerko/tools/TempoPlugin";
+import Defaults from "../Global/Defaults.ts";
 import Global from "../Global/Global.ts";
 import Platform from "../Global/Platform.ts";
-import { Spicetify } from "@spicetify/bundler";
+import { SpotifyPlayer } from "../Global/SpotifyPlayer.ts";
+import ArtistVisuals from "./ArtistVisuals/Main.ts";
 
 const CoverArtCacheMap: CoverArtCache = new Map();
 
 const SongChangeSignal = new Signal();
 
 export const DynamicBackgroundConfig: DynamicBackgroundOptions = {
-    transition: Defaults.PrefersReducedMotion ? 0 : 0.5,
-    blur: 50,
-    speed: 0.2,
-    coverArtCache: CoverArtCacheMap,
-    plugins: [
-        TempoPlugin({
-            SongChangeSignal,
-            getSongId: () => SpotifyPlayer.GetId() ?? "",
-            getPaused: () => !SpotifyPlayer.IsPlaying,
-            getSongPosition: () => (((SpotifyPlayer.GetPosition() ?? 1000) / 1000) - 505),
-            getAccessToken: async () => {
-                const token = await Platform.GetSpotifyAccessToken();
-                return `Bearer ${token}`;
-            }
-        })
-    ]
-}
+  transition: Defaults.PrefersReducedMotion ? 0 : 0.5,
+  blur: 50,
+  speed: 0.2,
+  coverArtCache: CoverArtCacheMap,
+  plugins: [
+    TempoPlugin({
+      SongChangeSignal,
+      getSongId: () => SpotifyPlayer.GetId() ?? "",
+      getPaused: () => !SpotifyPlayer.IsPlaying,
+      getSongPosition: () => (SpotifyPlayer.GetPosition() ?? 1000) / 1000 - 505,
+      getAccessToken: async () => {
+        const token = await Platform.GetSpotifyAccessToken();
+        return `Bearer ${token}`;
+      },
+    }),
+  ],
+};
 // Store the DynamicBackground instance and element for reuse
 export let currentBgInstance: DynamicBackground | null = null;
 
 // Add a document visibilitychange event to refocus the dynamic background when the tab regains focus
 document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible" && currentBgInstance) {
-        // Optionally, you could re-apply the current image or update the background
-        currentBgInstance.Update({
-            image: SpotifyPlayer.GetCover("large") ?? ""
-        });
-    }
+  if (document.visibilityState === "visible" && currentBgInstance) {
+    // Optionally, you could re-apply the current image or update the background
+    currentBgInstance.Update({
+      image: SpotifyPlayer.GetCover("large") ?? "",
+    });
+  }
 });
 
-
 export const SetPageBGBlur = async (blur: number) => {
-    if (currentBgInstance) {
-        await currentBgInstance.Update({
-            blur
-        })
-    }
-}
+  if (currentBgInstance) {
+    await currentBgInstance.Update({
+      blur,
+    });
+  }
+};
 
 const prefetchCovers = async () => {
-    if (currentBgInstance) {
-        for (let i = 0; i <= 1; i++) {
-            const nextSongCovers = Spicetify?.Player?.data?.nextItems?.[i]?.images;
-            if (!nextSongCovers) return;
-            const largeCover = SpotifyPlayer.GetCoverFrom("large", nextSongCovers);
-            if (!largeCover) return;
-            if (largeCover === "https://images.spikerko.org/SongPlaceholderFull.png") return;
-            await currentBgInstance.PrefetchImage(largeCover);
-        }
+  if (currentBgInstance) {
+    for (let i = 0; i <= 1; i++) {
+      const nextSongCovers = Spicetify?.Player?.data?.nextItems?.[i]?.images;
+      if (!nextSongCovers) return;
+      const largeCover = SpotifyPlayer.GetCoverFrom("large", nextSongCovers);
+      if (!largeCover) return;
+      if (largeCover === "https://images.spikerko.org/SongPlaceholderFull.png") return;
+      await currentBgInstance.PrefetchImage(largeCover);
     }
-}
+  }
+};
 
 Global.Event.listen("playback:songchange", async () => {
-    //setTimeout(() => SongChangeSignal.Fire(), 1000)
-    SongChangeSignal.Fire();
+  //setTimeout(() => SongChangeSignal.Fire(), 1000)
+  SongChangeSignal.Fire();
 
-    await prefetchCovers()
+  await prefetchCovers();
 
-    setTimeout(() => {
-        if (currentBgInstance && SpotifyPlayer.GetCover("large")) {
-            currentBgInstance.Update({
-                image: SpotifyPlayer.GetCover("large") ?? ""
-            })
-        }
-    }, 2250)
-})
+  setTimeout(() => {
+    if (currentBgInstance && SpotifyPlayer.GetCover("large")) {
+      currentBgInstance.Update({
+        image: SpotifyPlayer.GetCover("large") ?? "",
+      });
+    }
+  }, 2250);
+});
 
 export const CleanupDynamicBGLets = () => {
-    if (currentBgInstance) {
-        currentBgInstance.Destroy();
-        currentBgInstance = null;
-    }
-}
+  if (currentBgInstance) {
+    currentBgInstance.Destroy();
+    currentBgInstance = null;
+  }
+};
 
 Global.Event.listen("compact-mode:enable", () => {
-    // console.log("CompactMode: Enabled")
-    if (currentBgInstance) {
-        currentBgInstance.Update({
-            blur: 70
-        })
-    }
-})
+  // console.log("CompactMode: Enabled")
+  if (currentBgInstance) {
+    currentBgInstance.Update({
+      blur: 70,
+    });
+  }
+});
 
 Global.Event.listen("compact-mode:disable", () => {
-    // console.log("CompactMode: Disabled")
-    if (currentBgInstance) {
-        currentBgInstance.Update({
-            blur: DynamicBackgroundConfig.blur
-        })
-    }
-})
+  // console.log("CompactMode: Disabled")
+  if (currentBgInstance) {
+    currentBgInstance.Update({
+      blur: DynamicBackgroundConfig.blur,
+    });
+  }
+});
 
 function intToHexColor(colorInt: number): string {
   // Convert to unsigned 32-bit integer
@@ -116,23 +119,24 @@ function intToHexColor(colorInt: number): string {
   const b = uint & 0xff;
 
   // Format as hex
-  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+  return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
 }
 
 export default async function ApplyDynamicBackground(element: HTMLElement) {
-    if (!element) return;
-    const currentImgCover = SpotifyPlayer.GetCover("large") ?? "";
-    const IsEpisode = SpotifyPlayer.GetContentType() === "episode";
+  if (!element) return;
+  const currentImgCover = SpotifyPlayer.GetCover("large") ?? "";
+  const IsEpisode = SpotifyPlayer.GetContentType() === "episode";
 
-    const artists = SpotifyPlayer.GetArtists() ?? [];
-    const TrackArtist = artists.length > 0 && artists[0]?.uri
-        ? artists[0].uri.replace("spotify:artist:", "")
-        : undefined;
+  const artists = SpotifyPlayer.GetArtists() ?? [];
+  const TrackArtist =
+    artists.length > 0 && artists[0]?.uri
+      ? artists[0].uri.replace("spotify:artist:", "")
+      : undefined;
 
-    const TrackId = SpotifyPlayer.GetId() ?? undefined;
+  const TrackId = SpotifyPlayer.GetId() ?? undefined;
 
-    // TODO: Finish
-    /* if (Defaults.CanvasBackground && isSpicySidebarMode) { // Canvas Mode
+  // TODO: Finish
+  /* if (Defaults.CanvasBackground && isSpicySidebarMode) { // Canvas Mode
         try {
             const response = await Spicetify.GraphQL.Request(
                 Spicetify.GraphQL.Definitions.canvas,
@@ -236,144 +240,170 @@ export default async function ApplyDynamicBackground(element: HTMLElement) {
         } catch (error) {
             console.error("Error while getting canvas video", error)
         }
-    } else  */if (Defaults.StaticBackground) {
-        if (Defaults.StaticBackgroundType === "Color") {
+    } else  */ if (Defaults.StaticBackground) {
+    if (Defaults.StaticBackgroundType === "Color") {
+      const colorFetch = await Spicetify.CosmosAsync.get(
+        `https://spclient.wg.spotify.com/color-lyrics/v2/track/${SpotifyPlayer.GetId()}/image/${SpotifyPlayer.GetCover("standard") ?? ""}?format=json&vocalRemoval=false&market=from_token`
+      );
 
-            const colorFetch = await Spicetify.CosmosAsync.get(`https://spclient.wg.spotify.com/color-lyrics/v2/track/${SpotifyPlayer.GetId()}/image/${SpotifyPlayer.GetCover("standard") ?? ""}?format=json&vocalRemoval=false&market=from_token`)
+      const color = colorFetch?.colors?.background
+        ? intToHexColor(colorFetch?.colors?.background)
+        : undefined;
 
-            const color = colorFetch?.colors?.background ? intToHexColor(colorFetch?.colors?.background) : undefined;
+      const extractedColor = ((await Spicetify.colorExtractor(
+        SpotifyPlayer.GetUri() ?? "spotify:track:31CsSZ9KlQmEu0JvWSkM3j"
+      )) as any) ?? { VIBRANT: "#999999" };
+      //const color2 = (extractedColor?.["undefined"] !== "#undefined" ? extractedColor?.["undefined"] : (extractedColor?.DESATURATED ?? extractedColor?.DARK_VIBRANT ?? extractedColor?.VIBRANT)) ?? "#999999";
+      const prevBg = element.querySelector<HTMLElement>(".spicy-dynamic-bg.ColorBackground");
 
-            const extractedColor = ((await Spicetify.colorExtractor(SpotifyPlayer.GetUri() ?? "spotify:track:31CsSZ9KlQmEu0JvWSkM3j")) as any) ?? { VIBRANT: "#999999" };
-            //const color2 = (extractedColor?.["undefined"] !== "#undefined" ? extractedColor?.["undefined"] : (extractedColor?.DESATURATED ?? extractedColor?.DARK_VIBRANT ?? extractedColor?.VIBRANT)) ?? "#999999";
-            const prevBg = element.querySelector<HTMLElement>(".spicy-dynamic-bg.ColorBackground");
+      if (prevBg) {
+        prevBg.style.setProperty("--VibrantColor", extractedColor?.VIBRANT ?? "#000000");
+        prevBg.style.setProperty("--DarkVibrantColor", extractedColor?.DARK_VIBRANT ?? "#000000");
+        prevBg.style.setProperty("--DesaturatedColor", extractedColor?.DESATURATED ?? "#000000");
+        prevBg.style.setProperty("--BaseColor", extractedColor?.undefined ?? "#000000");
+        prevBg.style.setProperty(
+          "--LyricsBaseColor",
+          color ??
+            extractedColor?.undefined ??
+            extractedColor?.DESATURATED ??
+            extractedColor?.DARK_VIBRANT ??
+            extractedColor?.VIBRANT ??
+            "#000000"
+        );
+        return;
+      }
 
-            if (prevBg) {
-                prevBg.style.setProperty("--VibrantColor", extractedColor?.VIBRANT ?? "#000000");
-                prevBg.style.setProperty("--DarkVibrantColor", extractedColor?.DARK_VIBRANT ?? "#000000");
-                prevBg.style.setProperty("--DesaturatedColor", extractedColor?.DESATURATED ?? "#000000");
-                prevBg.style.setProperty("--BaseColor", extractedColor?.["undefined"] ?? "#000000");
-                prevBg.style.setProperty("--LyricsBaseColor", color ?? extractedColor?.["undefined"] ?? extractedColor?.DESATURATED ?? extractedColor?.DARK_VIBRANT ?? extractedColor?.VIBRANT ?? "#000000");
-                return;
-            }
-
-            const dynamicBg = document.createElement("div");
-            dynamicBg.classList.add("spicy-dynamic-bg", "ColorBackground");
-            dynamicBg.style.setProperty("--VibrantColor", extractedColor?.VIBRANT ?? "#000000");
-            dynamicBg.style.setProperty("--DarkVibrantColor", extractedColor?.DARK_VIBRANT ?? "#000000");
-            dynamicBg.style.setProperty("--DesaturatedColor", extractedColor?.DESATURATED ?? "#000000");
-            dynamicBg.style.setProperty("--BaseColor", extractedColor?.["undefined"] ?? "#000000");
-            dynamicBg.style.setProperty("--LyricsBaseColor", color ?? extractedColor?.["undefined"] ?? extractedColor?.DESATURATED ?? extractedColor?.DARK_VIBRANT ?? extractedColor?.VIBRANT ?? "#000000");
-            element.appendChild(dynamicBg);
-            return;
-        }
-        const currentImgCover = await GetStaticBackground(TrackArtist, TrackId);
-
-        if (IsEpisode || !currentImgCover) return;
-        const prevBg = element.querySelector<HTMLElement>(".spicy-dynamic-bg.StaticBackground");
-
-        if (prevBg && prevBg.getAttribute("data-cover-id") === currentImgCover) {
-            return;
-        }
-        const dynamicBg = document.createElement("div");
-
-        dynamicBg.classList.add("spicy-dynamic-bg", "StaticBackground", "Hidden");
-
-        //const processedCover = `https://i.scdn.co/image/${currentImgCover.replace("spotify:image:", "")}`;
-
-        dynamicBg.style.backgroundImage = `url("${currentImgCover}")`;
-        dynamicBg.setAttribute("data-cover-id", currentImgCover);
-        element.appendChild(dynamicBg);
-
-        Timeout(0.08, () => {
-            if (prevBg) {
-                prevBg.classList.add("Hidden")
-                Timeout(0.5, () => prevBg?.remove());
-            }
-            dynamicBg.classList.remove("Hidden");
-        })
-    } else {
-        const existingElement = element.querySelector<HTMLElement>(".spicy-dynamic-bg");
-        // Get existing DynamicBackground instance if it exists
-        const existingBgData = existingElement?.getAttribute("data-cover-id") ?? null;
-
-
-        // If same song, do nothing
-        if (existingBgData === currentImgCover) {
-            return;
-        }
-
-        // Check if we already have a DynamicBackground instance
-        if (existingElement && currentBgInstance) {
-            // If we have an instance, just update it with the new image
-            const processedCover = currentImgCover;
-
-            // Update the data-cover-id attribute
-            existingElement.setAttribute("data-cover-id", currentImgCover ?? "");
-
-            // Update with the current image
-            await currentBgInstance.Update({
-                image: processedCover ?? ""
-            });
-
-            return;
-        }
-
-        if (currentBgInstance) {
-            // Get the canvas element
-            const container = currentBgInstance.GetCanvasElement();
-
-            // Add the spicy-dynamic-bg class
-            container.classList.add("spicy-dynamic-bg");
-
-            // Set the data-cover-id attribute to match the existing code
-            container.setAttribute("data-cover-id", currentImgCover ?? "");
-
-            // Apply the background to the element
-            currentBgInstance.AppendToElement(element);
-
-            // Update with the current image
-            await currentBgInstance.Update({
-                image: currentImgCover ?? ""
-            });
-
-            await prefetchCovers();
-            
-            return;
-        }
-
-        // Create new DynamicBackground instance
-        currentBgInstance = new DynamicBackground(DynamicBackgroundConfig);
-
-        // Get the canvas element
-        const container = currentBgInstance.GetCanvasElement();
-
-        // Add the spicy-dynamic-bg class
-        container.classList.add("spicy-dynamic-bg");
-
-        // Set the data-cover-id attribute to match the existing code
-        container.setAttribute("data-cover-id", currentImgCover ?? "");
-
-        // Apply the background to the element
-        currentBgInstance.AppendToElement(element);
-
-        // Update with the current image
-        await currentBgInstance.Update({
-            image: currentImgCover ?? ""
-        });
-
-        await prefetchCovers()
+      const dynamicBg = document.createElement("div");
+      dynamicBg.classList.add("spicy-dynamic-bg", "ColorBackground");
+      dynamicBg.style.setProperty("--VibrantColor", extractedColor?.VIBRANT ?? "#000000");
+      dynamicBg.style.setProperty("--DarkVibrantColor", extractedColor?.DARK_VIBRANT ?? "#000000");
+      dynamicBg.style.setProperty("--DesaturatedColor", extractedColor?.DESATURATED ?? "#000000");
+      dynamicBg.style.setProperty("--BaseColor", extractedColor?.undefined ?? "#000000");
+      dynamicBg.style.setProperty(
+        "--LyricsBaseColor",
+        color ??
+          extractedColor?.undefined ??
+          extractedColor?.DESATURATED ??
+          extractedColor?.DARK_VIBRANT ??
+          extractedColor?.VIBRANT ??
+          "#000000"
+      );
+      element.appendChild(dynamicBg);
+      return;
     }
+    const currentImgCover = await GetStaticBackground(TrackArtist, TrackId);
+
+    if (IsEpisode || !currentImgCover) return;
+    const prevBg = element.querySelector<HTMLElement>(".spicy-dynamic-bg.StaticBackground");
+
+    if (prevBg && prevBg.getAttribute("data-cover-id") === currentImgCover) {
+      return;
+    }
+    const dynamicBg = document.createElement("div");
+
+    dynamicBg.classList.add("spicy-dynamic-bg", "StaticBackground", "Hidden");
+
+    //const processedCover = `https://i.scdn.co/image/${currentImgCover.replace("spotify:image:", "")}`;
+
+    dynamicBg.style.backgroundImage = `url("${currentImgCover}")`;
+    dynamicBg.setAttribute("data-cover-id", currentImgCover);
+    element.appendChild(dynamicBg);
+
+    Timeout(0.08, () => {
+      if (prevBg) {
+        prevBg.classList.add("Hidden");
+        Timeout(0.5, () => prevBg?.remove());
+      }
+      dynamicBg.classList.remove("Hidden");
+    });
+  } else {
+    const existingElement = element.querySelector<HTMLElement>(".spicy-dynamic-bg");
+    // Get existing DynamicBackground instance if it exists
+    const existingBgData = existingElement?.getAttribute("data-cover-id") ?? null;
+
+    // If same song, do nothing
+    if (existingBgData === currentImgCover) {
+      return;
+    }
+
+    // Check if we already have a DynamicBackground instance
+    if (existingElement && currentBgInstance) {
+      // If we have an instance, just update it with the new image
+      const processedCover = currentImgCover;
+
+      // Update the data-cover-id attribute
+      existingElement.setAttribute("data-cover-id", currentImgCover ?? "");
+
+      // Update with the current image
+      await currentBgInstance.Update({
+        image: processedCover ?? "",
+      });
+
+      return;
+    }
+
+    if (currentBgInstance) {
+      // Get the canvas element
+      const container = currentBgInstance.GetCanvasElement();
+
+      // Add the spicy-dynamic-bg class
+      container.classList.add("spicy-dynamic-bg");
+
+      // Set the data-cover-id attribute to match the existing code
+      container.setAttribute("data-cover-id", currentImgCover ?? "");
+
+      // Apply the background to the element
+      currentBgInstance.AppendToElement(element);
+
+      // Update with the current image
+      await currentBgInstance.Update({
+        image: currentImgCover ?? "",
+      });
+
+      await prefetchCovers();
+
+      return;
+    }
+
+    // Create new DynamicBackground instance
+    currentBgInstance = new DynamicBackground(DynamicBackgroundConfig);
+
+    // Get the canvas element
+    const container = currentBgInstance.GetCanvasElement();
+
+    // Add the spicy-dynamic-bg class
+    container.classList.add("spicy-dynamic-bg");
+
+    // Set the data-cover-id attribute to match the existing code
+    container.setAttribute("data-cover-id", currentImgCover ?? "");
+
+    // Apply the background to the element
+    currentBgInstance.AppendToElement(element);
+
+    // Update with the current image
+    await currentBgInstance.Update({
+      image: currentImgCover ?? "",
+    });
+
+    await prefetchCovers();
+  }
 }
 
-export async function GetStaticBackground(TrackArtist: string | undefined, TrackId: string | undefined): Promise<string | undefined> {
-    if (!TrackArtist || !TrackId) return undefined;
+export async function GetStaticBackground(
+  TrackArtist: string | undefined,
+  TrackId: string | undefined
+): Promise<string | undefined> {
+  if (!TrackArtist || !TrackId) return undefined;
 
-    try {
-        return await ArtistVisuals.ApplyContent(TrackArtist, TrackId);
-    } catch (error) {
-        console.error("Error happened while trying to set the Low Quality Mode Dynamic Background", error);
-        return undefined;
-    }
+  try {
+    return await ArtistVisuals.ApplyContent(TrackArtist, TrackId);
+  } catch (error) {
+    console.error(
+      "Error happened while trying to set the Low Quality Mode Dynamic Background",
+      error
+    );
+    return undefined;
+  }
 }
 
 /* const GetCoverArtURL = (): string | null => {

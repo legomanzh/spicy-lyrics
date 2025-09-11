@@ -1,4 +1,4 @@
-declare module 'd3-ease' {
+declare module "d3-ease" {
   export function easeSinOut(t: number): number;
   export function easeSinIn(t: number): number;
   export function easeSinInOut(t: number): number;

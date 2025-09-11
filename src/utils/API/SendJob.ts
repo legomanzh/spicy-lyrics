@@ -4,27 +4,27 @@ import Session from "../../components/Global/Session.ts";
 const API_URL = Defaults.lyrics.api.url;
 
 export type Job = {
-    handler: string;
-    args?: any;
-}
+  handler: string;
+  args?: any;
+};
 
 export type JobResponse = {
-    handler: string;
-    args?: any;
-    result: JobResult;
-}
+  handler: string;
+  args?: any;
+  result: JobResult;
+};
 
 export type JobResult = {
-    responseData: any;
-    status: number;
-    type: string
-}
+  responseData: any;
+  status: number;
+  type: string;
+};
 
 /**
  * Interface for the job result getter
  */
 export interface JobResultGetter {
-    get(handler: string): JobResult | undefined;
+  get(handler: string): JobResult | undefined;
 }
 
 /**
@@ -34,26 +34,33 @@ export interface JobResultGetter {
  * @returns Object with a get method to retrieve job results
  */
 
-export async function SendJob(jobs: Job[], headers: Record<string, string> = {}): Promise<JobResultGetter> {
-    const spicyLyricsVersion = Session.SpicyLyrics.GetCurrentVersion()?.Text;
-    const res = await fetch(`${API_URL}/batch`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "SpicyLyrics-Version": spicyLyricsVersion ?? "", ...headers },
-        body: JSON.stringify({ jobs }),
-    });
+export async function SendJob(
+  jobs: Job[],
+  headers: Record<string, string> = {}
+): Promise<JobResultGetter> {
+  const spicyLyricsVersion = Session.SpicyLyrics.GetCurrentVersion()?.Text;
+  const res = await fetch(`${API_URL}/batch`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "SpicyLyrics-Version": spicyLyricsVersion ?? "",
+      ...headers,
+    },
+    body: JSON.stringify({ jobs }),
+  });
 
-    if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
+  if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
 
-    const data = await res.json();
-    const results: Map<string, JobResult> = new Map();
+  const data = await res.json();
+  const results: Map<string, JobResult> = new Map();
 
-    for (const job of data.jobs) {
-        results.set(job.handler, job.result);
-    }
+  for (const job of data.jobs) {
+    results.set(job.handler, job.result);
+  }
 
-    return {
-        get(handler: string): JobResult | undefined {
-            return results.get(handler);
-        },
-    };
+  return {
+    get(handler: string): JobResult | undefined {
+      return results.get(handler);
+    },
+  };
 }

@@ -13,13 +13,12 @@
   display: none;
 }
 
-
 #SpicyLyricsPage .LyricsContainer .LyricsContent {
-  --TextGlowDef: rgba(255,255,255,0.15) 0px 0px 6px;
-  --ActiveTextGlowDef: rgba(255,255,255,0.4) 0px 0px 14px;
-  --StrongTextGlowDef: rgba(255,255,255,0.68) 0px 0px 16.4px;
-  --StrongerTextGlowDef: rgba(255,255,255,0.74) 0px 0px 16px;
-  --DefaultLyricsSize: clamp(1.85rem,calc(1cqw* 7), 3.5rem);
+  --TextGlowDef: rgba(255, 255, 255, 0.15) 0px 0px 6px;
+  --ActiveTextGlowDef: rgba(255, 255, 255, 0.4) 0px 0px 14px;
+  --StrongTextGlowDef: rgba(255, 255, 255, 0.68) 0px 0px 16.4px;
+  --StrongerTextGlowDef: rgba(255, 255, 255, 0.74) 0px 0px 16px;
+  --DefaultLyricsSize: clamp(1.85rem, calc(1cqw * 7), 3.5rem);
   --amll-lyric-player-font-size: var(--DefaultLyricsSize);
   --Simplebar-Scrollbar-Color: rgba(255, 255, 255, 0.6);
   --vertical-gap: 0px;
@@ -48,12 +47,12 @@
   mask-image: var(--ImageMask);
   container-type: size;
   opacity: 1;
-  transition: opacity .25s;
+  transition: opacity 0.25s;
 }
 
 body.SpicySidebarLyrics__Active #SpicyLyricsPage .LyricsContainer .LyricsContent {
-  --DefaultLyricsSize: clamp(2.1rem, calc(1cqw* 7), 3.5rem);
-  --vertical-gap: .95cqh;
+  --DefaultLyricsSize: clamp(2.1rem, calc(1cqw * 7), 3.5rem);
+  --vertical-gap: 0.95cqh;
 }
 
 /* #SpicyLyricsPage.Fullscreen.MinimalLyricsMode .LyricsContainer .LyricsContent {
@@ -67,15 +66,20 @@ body.SpicySidebarLyrics__Active #SpicyLyricsPage .LyricsContainer .LyricsContent
 #SpicyLyricsPage .LyricsContainer .LyricsContent .SpicyLyricsScrollContainer {
   container-type: size !important;
   width: 100cqw;
-  transition: padding-right .4s, padding-left .4s;
+  transition:
+    padding-right 0.4s,
+    padding-left 0.4s;
   display: flex;
   flex-direction: column;
-  
+
   margin-bottom: 45cqh;
   margin-top: 25cqh;
 }
 
-#SpicyLyricsPage.Fullscreen.MinimalLyricsMode .LyricsContainer .LyricsContent .SpicyLyricsScrollContainer {
+#SpicyLyricsPage.Fullscreen.MinimalLyricsMode
+  .LyricsContainer
+  .LyricsContent
+  .SpicyLyricsScrollContainer {
   margin-top: 40cqh;
 }
 /* 

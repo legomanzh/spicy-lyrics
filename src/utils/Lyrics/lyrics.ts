@@ -1,10 +1,10 @@
-import { Maid } from '@socali/modules/Maid';
-import Defaults from '../../components/Global/Defaults.ts';
-import { SpotifyPlayer } from '../../components/Global/SpotifyPlayer.ts';
-import { Lyrics } from './Animator/Main.ts';
-import Global from '../../components/Global/Global.ts';
-import { OnPreRender } from '@socali/modules/Scheduler';
-import storage from '../storage.ts';
+import { Maid } from "@socali/modules/Maid";
+import { OnPreRender } from "@socali/modules/Scheduler";
+import Defaults from "../../components/Global/Defaults.ts";
+import Global from "../../components/Global/Global.ts";
+import { SpotifyPlayer } from "../../components/Global/SpotifyPlayer.ts";
+import storage from "../storage.ts";
+import { Lyrics } from "./Animator/Main.ts";
 
 export const ScrollingIntervalTime = Infinity;
 
@@ -23,8 +23,8 @@ export const SimpleLyricsMode_LetterEffectsStrengthConfig = {
     Glow: 0.22,
     YOffset: 0.078,
     Scale: 1.083,
-  }
-}
+  },
+};
 
 // Define types for lyrics objects
 // Define the AnimatorStore interface for syllables
@@ -105,21 +105,21 @@ export interface LyricsStatic {
   HTMLElement: HTMLElement;
 }
 
-export type LyricsType = 'Syllable' | 'Line' | 'Static';
+export type LyricsType = "Syllable" | "Line" | "Static";
 
-export let LyricsObject = {
+export const LyricsObject = {
   Types: {
     Syllable: {
-      Lines: [] as LyricsSyllable[]
+      Lines: [] as LyricsSyllable[],
     },
     Line: {
-      Lines: [] as LyricsLine[]
+      Lines: [] as LyricsLine[],
     },
     Static: {
-      Lines: [] as LyricsStatic[]
-    }
-  }
-}
+      Lines: [] as LyricsStatic[],
+    },
+  },
+};
 
 export let CurrentLineLyricsObject = LyricsObject.Types.Syllable.Lines.length - 1;
 export let LINE_SYNCED_CurrentLineLyricsObject = LyricsObject.Types.Line.Lines.length - 1;
@@ -127,9 +127,9 @@ export let LINE_SYNCED_CurrentLineLyricsObject = LyricsObject.Types.Line.Lines.l
 export function SetWordArrayInAllLines() {
   LyricsObject.Types.Syllable.Lines.forEach((_, i) => {
     LyricsObject.Types.Syllable.Lines[i].Syllables = {
-      Lead: []
+      Lead: [],
     };
-  })
+  });
 }
 
 export function SetWordArrayInCurentLine() {
@@ -137,7 +137,7 @@ export function SetWordArrayInCurentLine() {
 
   if (CurrentLineLyricsObject >= 0) {
     LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables = {
-      Lead: []
+      Lead: [],
     };
   }
 }
@@ -147,17 +147,16 @@ export function SetWordArrayInCurentLine_LINE_SYNCED() {
 
   if (LINE_SYNCED_CurrentLineLyricsObject >= 0) {
     LyricsObject.Types.Line.Lines[LINE_SYNCED_CurrentLineLyricsObject].Syllables = {
-      Lead: []
+      Lead: [],
     };
   }
 }
 
 export function ClearLyricsContentArrays() {
-  LyricsObject.Types.Syllable.Lines = []
-  LyricsObject.Types.Line.Lines = []
-  LyricsObject.Types.Static.Lines = []
+  LyricsObject.Types.Syllable.Lines = [];
+  LyricsObject.Types.Line.Lines = [];
+  LyricsObject.Types.Static.Lines = [];
 }
-
 
 // const THROTTLE_TIME = 0;
 
@@ -175,12 +174,11 @@ const LyricsInterval = () => {
     const progress = SpotifyPlayer.GetPosition();
     Lyrics.TimeSetter(progress);
     Lyrics.Animate(progress);
-  };
-  OnPreRender(LyricsInterval)
-}
+  }
+  OnPreRender(LyricsInterval);
+};
 
-LyricsInterval()
-
+LyricsInterval();
 
 // Define proper types for event listener variables
 let LinesEvListenerMaid: Maid | null = null;
@@ -199,7 +197,7 @@ function LinesEvListener(e: MouseEvent) {
           startTime = line.Syllables.Lead[0].StartTime;
         }
       }
-    })
+    });
 
     if (startTime !== undefined) {
       SpotifyPlayer.Seek(startTime);
@@ -258,7 +256,9 @@ export function addLinesEvListener() {
 
   LinesEvListenerMaid = new Maid();
 
-  const el = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
+  const el = document.querySelector<HTMLElement>(
+    "#SpicyLyricsPage .LyricsContainer .LyricsContent"
+  );
   if (!el) return;
 
   // Add event listener and store a reference to the handler function
@@ -274,7 +274,9 @@ export function removeLinesEvListener() {
   if (!LinesEvListenerExists) return;
   LinesEvListenerExists = false;
 
-  const el = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
+  const el = document.querySelector<HTMLElement>(
+    "#SpicyLyricsPage .LyricsContainer .LyricsContent"
+  );
   if (!el) return;
 
   el.removeEventListener("click", LinesEvListener);
@@ -289,7 +291,7 @@ export let isRomanized = storage.get("romanization") === "true";
 
 export const setRomanizedStatus = (val: boolean) => {
   isRomanized = val;
-  storage.set("romanization", (val.toString()))
-}
+  storage.set("romanization", val.toString());
+};
 
 export const SimpleLyricsMode_InterludeAddonTime = 2000;

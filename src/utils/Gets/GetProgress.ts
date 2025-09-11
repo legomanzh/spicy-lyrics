@@ -8,7 +8,7 @@ interface SyncedPosition {
 
 let syncedPosition: SyncedPosition | null = null;
 const syncTimings = [0.05, 0.1, 0.15, 0.75];
-let canSyncNonLocalTimestamp = (SpotifyPlayer?.IsPlaying ? syncTimings.length : 0);
+let canSyncNonLocalTimestamp = SpotifyPlayer?.IsPlaying ? syncTimings.length : 0;
 
 export const requestPositionSync = () => {
   try {
@@ -26,9 +26,10 @@ export const requestPositionSync = () => {
     };
 
     const getNonLocalPosition = () => {
-      return (canSyncNonLocalTimestamp > 0
-        ? SpotifyPlatform.PlayerAPI._contextPlayer.resume({})
-        : Promise.resolve()
+      return (
+        canSyncNonLocalTimestamp > 0
+          ? SpotifyPlatform.PlayerAPI._contextPlayer.resume({})
+          : Promise.resolve()
       ).then(() => {
         canSyncNonLocalTimestamp = Math.max(0, canSyncNonLocalTimestamp - 1);
         return {
@@ -50,13 +51,13 @@ export const requestPositionSync = () => {
         const delay = isLocallyPlaying
           ? 1 / 60 // 60 FPS for local playback
           : canSyncNonLocalTimestamp === 0
-          ? 1 / 60
-          : syncTimings[syncTimings.length - canSyncNonLocalTimestamp];
+            ? 1 / 60
+            : syncTimings[syncTimings.length - canSyncNonLocalTimestamp];
 
         setTimeout(requestPositionSync, delay * 1000);
       });
   } catch (error) {
-    console.error("Sync Position: Fail, More Details:", error)
+    console.error("Sync Position: Fail, More Details:", error);
   }
 };
 
@@ -74,7 +75,7 @@ export default function GetProgress() {
   }
 
   const SpotifyPlatform = Spicetify.Platform;
-  const isLocallyPlaying = SpotifyPlatform.PlaybackAPI._isLocal;
+  // const isLocallyPlaying = SpotifyPlatform.PlaybackAPI._isLocal;
 
   const { StartedSyncAt, Position } = syncedPosition;
   const now = Date.now();
@@ -86,38 +87,37 @@ export default function GetProgress() {
   }
 
   // Calculate and return the current track position
-  const FinalPosition = (Position + deltaTime)
+  const FinalPosition = Position + deltaTime;
   return FinalPosition + 85;
 }
-
 
 // DEPRECATED
 export function _DEPRECATED___GetProgress() {
   // Ensure Spicetify is loaded and state is available
   if (!(Spicetify?.Player as any)?.origin?._state) {
-      console.error("Spicetify Player state is not available.");
-      return 0;
+    console.error("Spicetify Player state is not available.");
+    return 0;
   }
 
   const state = (Spicetify.Player as any).origin._state;
 
   // Extract necessary properties from Spicetify Player state
   const positionAsOfTimestamp = state.positionAsOfTimestamp; // Last known position in ms
-  const timestamp = state.timestamp;                         // Last known timestamp
-  const isPaused = state.isPaused;                           // Playback state
+  const timestamp = state.timestamp; // Last known timestamp
+  const isPaused = state.isPaused; // Playback state
 
   // Validate data integrity
   if (positionAsOfTimestamp == null || timestamp == null) {
-      console.error("Playback state is incomplete.");
-      return null;
+    console.error("Playback state is incomplete.");
+    return null;
   }
 
   const now = Date.now();
 
   // Calculate and return the current track position
   if (isPaused) {
-      return positionAsOfTimestamp; // Position remains static when paused
+    return positionAsOfTimestamp; // Position remains static when paused
   } else {
-      return positionAsOfTimestamp + (now - timestamp);
+    return positionAsOfTimestamp + (now - timestamp);
   }
 }

@@ -1,11 +1,14 @@
-const containerRects = new WeakMap<HTMLElement, { container: DOMRect; elements: Map<HTMLElement, DOMRect> }>();
+const containerRects = new WeakMap<
+  HTMLElement,
+  { container: DOMRect; elements: Map<HTMLElement, DOMRect> }
+>();
 
 export default function ScrollIntoTopView(
   container: HTMLElement,
   element: HTMLElement,
   duration: number = 150, // Duration in milliseconds
   offset: number = 0, // Offset in pixels
-  instantScroll: boolean = false, // Instant scroll without animation
+  instantScroll: boolean = false // Instant scroll without animation
 ) {
   function resetContainerData(container: HTMLElement) {
     containerRects.delete(container);
@@ -46,13 +49,12 @@ export default function ScrollIntoTopView(
   }
 
   // Calculate the target scroll position with offset (keeping original top logic)
-  const targetScrollTop =
-    elementRect.top - containerRect.top + container.scrollTop - offset;
+  const targetScrollTop = elementRect.top - containerRect.top + container.scrollTop - offset;
 
   const startScrollTop = container.scrollTop;
   const distance = targetScrollTop - startScrollTop;
   const startTime = performance.now();
-  
+
   if (instantScroll) {
     container.classList.add("InstantScroll");
   }
@@ -63,9 +65,7 @@ export default function ScrollIntoTopView(
 
     // Smooth cubic easing in-out
     const easing =
-      progress < 0.5
-        ? 4 * progress * progress * progress
-        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      progress < 0.5 ? 4 * progress * progress * progress : 1 - (-2 * progress + 2) ** 3 / 2;
 
     // Update container scroll position
     const newScrollTop = startScrollTop + distance * easing;
@@ -109,8 +109,7 @@ export function ScrollIntoTopViewCSS(
   const elementRect = element.getBoundingClientRect();
   const containerRect = container.getBoundingClientRect();
 
-  const targetScrollTop =
-    elementRect.top - containerRect.top + container.scrollTop - offset;
+  const targetScrollTop = elementRect.top - containerRect.top + container.scrollTop - offset;
 
   // Toggle instant scroll mode if needed
   if (instantScroll) {

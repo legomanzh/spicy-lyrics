@@ -8,7 +8,7 @@
   top: 0;
   width: 100%;
   transform-origin: center center;
-  filter: saturate(2.5) brightness(.65);
+  filter: saturate(2.5) brightness(0.65);
 }
 
 body:has(.starrynight-bg-container) #main .spicy-dynamic-bg:not(.StaticBackground),
@@ -38,14 +38,14 @@ aside .spicy-dynamic-bg {
 
 /* Video element styling */
 aside video {
-  filter: brightness(.6);
+  filter: brightness(0.6);
   -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%);
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0) 100%);
-  transition: filter .25s linear;
+  transition: filter 0.25s linear;
 }
 
 aside video:hover {
-  filter: brightness(.95);
+  filter: brightness(0.95);
 }
 
 /* Reset styles for videos inside VideoPlayer__container */
@@ -75,10 +75,10 @@ aside:has(.spicy-dynamic-bg) .iHa_q9pq4un3VNRQgwTx {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  filter: brightness(.5) saturate(1.25);
+  filter: brightness(0.5) saturate(1.25);
   scale: 1;
   opacity: 1;
-  transition: opacity .3s;
+  transition: opacity 0.3s;
 }
 
 #SpicyLyricsPage .spicy-dynamic-bg.StaticBackground.Hidden {
@@ -86,12 +86,15 @@ aside:has(.spicy-dynamic-bg) .iHa_q9pq4un3VNRQgwTx {
 }
 
 /* Hide sidebar background when in fullscreen lyrics mode */
-body:has(#SpicyLyricsPage.Fullscreen) .Root__right-sidebar aside:is(.NowPlayingView, .spicy-dynamic-bg-in-this) .spicy-dynamic-bg {
+body:has(#SpicyLyricsPage.Fullscreen) .Root__right-sidebar
+  aside:is(.NowPlayingView, .spicy-dynamic-bg-in-this)
+  .spicy-dynamic-bg {
   display: none;
 }
 
-
-.Root__right-sidebar aside#Desktop_PanelContainer_Id:has(.spicy-dynamic-bg) .main-buddyFeed-scrollBarContainer {
+.Root__right-sidebar
+  aside#Desktop_PanelContainer_Id:has(.spicy-dynamic-bg)
+  .main-buddyFeed-scrollBarContainer {
   z-index: 1;
 }
 

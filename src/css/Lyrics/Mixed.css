@@ -2,24 +2,27 @@
   --SpicyLyrics-LineSpacing: 1cqw 0;
 }
 
-
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .word,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .letter,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .letterGroup,
 /* #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .dotGroup, */
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .dot {
+  #SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent
+  .line
+  .dot {
   will-change: transform, opacity, text-shadow, scale, background-image;
 }
 
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent.HideLineBlur .line {
-    --BlurAmount: 0px !important;
+  --BlurAmount: 0px !important;
 }
 
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line {
   --font-size: var(--DefaultLyricsSize);
   display: flex;
   flex-wrap: wrap;
-  transition: opacity .2s cubic-bezier(0.61, 1, 0.88, 1);
+  transition: opacity 0.2s cubic-bezier(0.61, 1, 0.88, 1);
   font-size: var(--font-size);
 }
 
@@ -32,7 +35,6 @@
   background-clip: text;
   position: relative;
 }
-
 
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .word,
@@ -58,7 +60,11 @@
   --gradient-alpha-end: 0.3;
 }
 
-#SpicyLyricsPage.SpicyRenderer.SimpleLyricsMode .LyricsContainer .LyricsContent .line .word:not(.dot),
+#SpicyLyricsPage.SpicyRenderer.SimpleLyricsMode
+  .LyricsContainer
+  .LyricsContent
+  .line
+  .word:not(.dot),
 #SpicyLyricsPage.SpicyRenderer.SimpleLyricsMode .LyricsContainer .LyricsContent .line .letter {
   --SLM_GradientPosition: -50%;
   --gradient-position: var(--SLM_GradientPosition, -50%) !important;
@@ -69,24 +75,34 @@
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.Active .word,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.Active .letter,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.static {
-  background-image:
-      linear-gradient(var(--gradient-degrees),
-        rgba(255,255,255,var(--gradient-alpha))
-        var(--gradient-position),
-        rgba(255,255,255,var(--gradient-alpha-end)) calc(var(--gradient-position) + 20% + var(--gradient-offset))
-      ) ;
+  background-image: linear-gradient(
+    var(--gradient-degrees),
+    rgba(255, 255, 255, var(--gradient-alpha)) var(--gradient-position),
+    rgba(255, 255, 255, var(--gradient-alpha-end))
+      calc(var(--gradient-position) + 20% + var(--gradient-offset))
+  );
 }
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.NotSung,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.NotSung .word,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.NotSung .letter {
-  text-shadow: 0 0 var(--BlurAmount,0) rgba(var(--gradient-color),var(--gradient-color),var(--gradient-color),var(--gradient-alpha-end));
+  text-shadow: 0 0 var(--BlurAmount, 0)
+    rgba(
+      var(--gradient-color),
+      var(--gradient-color),
+      var(--gradient-color),
+      var(--gradient-alpha-end)
+    );
 }
 
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.Sung,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.Sung .word,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.Sung .letter,
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .SpicyLyricsScrollContainer[data-lyrics-type="Static"] .line {
-  text-shadow: 0 0 var(--BlurAmount,0) rgba(var(--gradient-color),var(--gradient-color),var(--gradient-color),var(--gradient-alpha));
+#SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .SpicyLyricsScrollContainer[data-lyrics-type="Static"]
+  .line {
+  text-shadow: 0 0 var(--BlurAmount, 0)
+    rgba(var(--gradient-color), var(--gradient-color), var(--gradient-color), var(--gradient-alpha));
 }
 
 /* #SpicyLyricsPage.SpicyRenderer.Podcast .LyricsContainer .LyricsContent .line,
@@ -96,7 +112,7 @@
 
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line {
   --BlurAmount: 0px;
-  
+
   --DefaultLyricsScale: 0.95;
   --DefaultEmphasisLyricsScale: 0.95;
   --DefaultLineScale: 1;
@@ -135,40 +151,60 @@
   transform-origin: right center;
 }
 
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .word.PartOfWord + :is(.word.PartOfWord, .letterGroup.PartOfWord),
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .letterGroup.PartOfWord + :is(.word.PartOfWord, .letterGroup.PartOfWord) {
+#SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent
+  .line
+  .word.PartOfWord
+  + :is(.word.PartOfWord, .letterGroup.PartOfWord),
+#SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent
+  .line
+  .letterGroup.PartOfWord
+  + :is(.word.PartOfWord, .letterGroup.PartOfWord) {
   transform-origin: center center;
 }
 
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .word.PartOfWord + :is(.word, .letterGroup),
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .letterGroup.PartOfWord + :is(.word, .letterGroup) {
+#SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent
+  .line
+  .word.PartOfWord
+  + :is(.word, .letterGroup),
+#SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent
+  .line
+  .letterGroup.PartOfWord
+  + :is(.word, .letterGroup) {
   transform-origin: left center;
 }
 
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .word, 
+#SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .word,
 /* #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .dotGroup,  */
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .letter,
+  #SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent
+  .line
+  .letter,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .letterGroup {
   --text-shadow-blur-radius: 4px;
   --text-shadow-opacity: 0%;
 }
 
-
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line:not(.musical-line) .word, 
+#SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line:not(.musical-line) .word,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .letter,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .letterGroup {
   display: inline-block;
 }
 
-
-
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.Active,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.Active .word,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.Active .letter,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.Active .letterGroup {
-  text-shadow: 0 0 var(--text-shadow-blur-radius) rgba(255,255,255,var(--text-shadow-opacity));
+  text-shadow: 0 0 var(--text-shadow-blur-radius) rgba(255, 255, 255, var(--text-shadow-opacity));
 }
-
 
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.bg-line .word,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.bg-line .letterGroup .letter {
@@ -194,7 +230,6 @@
   scale: var(--DefaultLineScale);
 }
 
-
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.NotSung {
   opacity: var(--Vocal-NotSung-opacity);
   --gradient-position: -20% !important;
@@ -204,7 +239,6 @@
   opacity: .34 !important;
 }
  */
-
 
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.NotSung:hover,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.NotSung:hover .word,
@@ -216,13 +250,19 @@
   --BlurAmount: 0px !important;
 }
 
-
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .word:not(.PartOfWord, .dot, .LastWordInLine)::after,
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .letterGroup:not(.PartOfWord, .dot, .LastWordInLine)::after {
+#SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent
+  .line
+  .word:not(.PartOfWord, .dot, .LastWordInLine)::after,
+#SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent
+  .line
+  .letterGroup:not(.PartOfWord, .dot, .LastWordInLine)::after {
   content: "";
-  margin-right: .3ch;
+  margin-right: 0.3ch;
 }
-
 
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.NotSung .word,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.NotSung .letter {
@@ -245,7 +285,6 @@
   scale: var(--DefaultEmphasisLyricsScale);
 } */
 
-
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .word-group {
   display: inline-flex;
 }
@@ -253,7 +292,7 @@
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.Sung .word,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.Sung .letter {
   --gradient-position: 100% !important;
-/*   --text-shadow-blur-radius: 4px !important;
+  /*   --text-shadow-blur-radius: 4px !important;
   --text-shadow-opacity: 0% !important;
   transform: translateY(0) !important;
   scale: 1 !important; */
@@ -272,27 +311,33 @@
 } */
 
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line .letterGroup {
-  display: inline-flex ;
+  display: inline-flex;
 }
 
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.bg-line,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.bg-line .word,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.bg-line .letterGroup,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.bg-line .letterGroup .letter {
-  --font-size: calc(var(--DefaultLyricsSize)*0.75);
+  --font-size: calc(var(--DefaultLyricsSize) * 0.75);
   font-size: var(--font-size);
   font-weight: 600;
 }
 
 #SpicyLyricsPage.SpicyRenderer.UseSpicyFont .LyricsContainer .LyricsContent .line.bg-line,
 #SpicyLyricsPage.SpicyRenderer.UseSpicyFont .LyricsContainer .LyricsContent .line.bg-line .word,
-#SpicyLyricsPage.SpicyRenderer.UseSpicyFont .LyricsContainer .LyricsContent .line.bg-line .letterGroup,
-#SpicyLyricsPage.SpicyRenderer.UseSpicyFont .LyricsContainer .LyricsContent .line.bg-line .letterGroup .letter  {
+#SpicyLyricsPage.SpicyRenderer.UseSpicyFont
+  .LyricsContainer
+  .LyricsContent
+  .line.bg-line
+  .letterGroup,
+#SpicyLyricsPage.SpicyRenderer.UseSpicyFont
+  .LyricsContainer
+  .LyricsContent
+  .line.bg-line
+  .letterGroup
+  .letter {
   font-family: SpicyLyrics;
 }
-
-
-
 
 /* @keyframes MusicalLineScaleLoop {
   0% {
@@ -313,7 +358,6 @@
   margin: -1cqw 0 1cqw !important;
 }
 
-
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.musical-line .dotGroup {
   --dot-gap: clamp(0.005rem, 1.7cqw, 0.18rem);
   display: flex;
@@ -322,13 +366,17 @@
   /* animation: MusicalLineScaleLoop 5s cubic-bezier(.35,.29,.51,1.11) infinite; */
 }
 
-#SpicyLyricsPage.SpicyRenderer.SimpleLyricsMode .LyricsContainer .LyricsContent .line.musical-line .dotGroup {
+#SpicyLyricsPage.SpicyRenderer.SimpleLyricsMode
+  .LyricsContainer
+  .LyricsContent
+  .line.musical-line
+  .dotGroup {
   --dot-gap: clamp(0.0067rem, 1.76cqw, 0.32rem);
 }
 
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.musical-line .dotGroup .dot {
-  --font-size: calc(var(--DefaultLyricsSize)*1.3);
-  --opacity-size: .35;
+  --font-size: calc(var(--DefaultLyricsSize) * 1.3);
+  --opacity-size: 0.35;
   border-radius: 50%;
   scale: 0.75;
   font-size: var(--font-size);
@@ -336,8 +384,13 @@
   --gradient-position: 100%;
 }
 
-#SpicyLyricsPage.SpicyRenderer.SimpleLyricsMode .LyricsContainer .LyricsContent .line.musical-line .dotGroup .dot {
-  --opacity-size: .27;
+#SpicyLyricsPage.SpicyRenderer.SimpleLyricsMode
+  .LyricsContainer
+  .LyricsContent
+  .line.musical-line
+  .dotGroup
+  .dot {
+  --opacity-size: 0.27;
   scale: 1;
 }
 
@@ -368,7 +421,7 @@
 
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line:not(.musical-line) {
   margin: var(--SpicyLyrics-LineSpacing, 1cqw 0);
-/*   margin-left: 18cqw;
+  /*   margin-left: 18cqw;
   margin-right: 30cqw; */
 }
 
@@ -378,7 +431,7 @@
 } */
 
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .Credits {
-  --font-size: calc(var(--DefaultLyricsSize)*0.47);
+  --font-size: calc(var(--DefaultLyricsSize) * 0.47);
   font-weight: 600;
   font-size: var(--font-size);
   opacity: 0.75;
@@ -388,7 +441,7 @@
 }
 
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .SongInfo {
-  --font-size: calc(var(--DefaultLyricsSize)* 0.35);
+  --font-size: calc(var(--DefaultLyricsSize) * 0.35);
   font-size: var(--font-size);
   font-weight: 600;
   opacity: 0.5;
@@ -397,9 +450,11 @@
   scale: 1;
   display: flex;
   flex-direction: column;
-  gap: .45cqw;
+  gap: 0.45cqw;
   transform-origin: left center;
-  transition: opacity .5s, scale .25s;
+  transition:
+    opacity 0.5s,
+    scale 0.25s;
 }
 
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent:has(.Credits.Active) .SongInfo {
@@ -409,12 +464,12 @@
 
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .SongInfo .Uploader,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .SongInfo .Maker {
-  --font-size: calc(var(--DefaultLyricsSize)* 0.33);
+  --font-size: calc(var(--DefaultLyricsSize) * 0.33);
   font-size: var(--font-size);
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: .65cqw;
+  gap: 0.65cqw;
 }
 
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .SongInfo .Uploader img,
@@ -428,41 +483,69 @@
   color: white;
 }
 
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .SpicyLyricsScrollContainer[data-lyrics-type="Line"] .line {
+#SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent
+  .SpicyLyricsScrollContainer[data-lyrics-type="Line"]
+  .line {
   --text-shadow-blur-radius: 4px;
   --text-shadow-opacity: 0%;
   transform-origin: left center;
-  transition: scale .2s cubic-bezier(.37,0,.63,1), opacity .2s cubic-bezier(.37,0,.63,1) !important;
+  transition:
+    scale 0.2s cubic-bezier(0.37, 0, 0.63, 1),
+    opacity 0.2s cubic-bezier(0.37, 0, 0.63, 1) !important;
   margin: var(--SpicyLyrics-LineSpacing, 2cqw 0);
-/*   text-shadow: 0 0 var(--text-shadow-blur-radius) rgba(255,255,255,var(--text-shadow-opacity)); */
+  /*   text-shadow: 0 0 var(--text-shadow-blur-radius) rgba(255,255,255,var(--text-shadow-opacity)); */
 }
 
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .SpicyLyricsScrollContainer[data-lyrics-type="Line"] .line:not(.Active) {
+#SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .SpicyLyricsScrollContainer[data-lyrics-type="Line"]
+  .line:not(.Active) {
   --text-shadow-blur-radius: 4px !important;
   --text-shadow-opacity: 0% !important;
 }
 
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .SpicyLyricsScrollContainer[data-lyrics-type="Line"] .line.OppositeAligned {
+#SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .SpicyLyricsScrollContainer[data-lyrics-type="Line"]
+  .line.OppositeAligned {
   transform-origin: right center;
 }
 
-body:not(.SpicySidebarLyrics__Active) #SpicyLyricsPage.SpicyRenderer:not(.Fullscreen.MinimalLyricsMode) .LyricsContainer .SpicyLyricsScrollContainer[data-lyrics-type="Line"] .line.Active:not(.musical-line) {
+body:not(.SpicySidebarLyrics__Active)
+  #SpicyLyricsPage.SpicyRenderer:not(.Fullscreen.MinimalLyricsMode)
+  .LyricsContainer
+  .SpicyLyricsScrollContainer[data-lyrics-type="Line"]
+  .line.Active:not(.musical-line) {
   scale: 1.05;
   /* text-shadow: var(--ActiveTextGlowDef) !important; */
 }
-body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer .SpicyLyricsScrollContainer[data-lyrics-type="Line"] .line.Active:not(.musical-line) {
+body.SpicySidebarLyrics__Active
+  #SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .SpicyLyricsScrollContainer[data-lyrics-type="Line"]
+  .line.Active:not(.musical-line) {
   scale: 1;
 }
 
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .SpicyLyricsScrollContainer[data-lyrics-type="Static"] {
-  --DefaultLyricsSize: clamp(0.8rem,calc(1cqw* 5), 2.5rem);
+#SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .SpicyLyricsScrollContainer[data-lyrics-type="Static"] {
+  --DefaultLyricsSize: clamp(0.8rem, calc(1cqw * 5), 2.5rem);
 }
 
-body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer .SpicyLyricsScrollContainer[data-lyrics-type="Static"] {
-  --DefaultLyricsSize: clamp(0.9rem,calc(1cqw* 7), 2.8rem);
+body.SpicySidebarLyrics__Active
+  #SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .SpicyLyricsScrollContainer[data-lyrics-type="Static"] {
+  --DefaultLyricsSize: clamp(0.9rem, calc(1cqw * 7), 2.8rem);
 }
 
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .SpicyLyricsScrollContainer[data-lyrics-type="Static"] .line {
+#SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .SpicyLyricsScrollContainer[data-lyrics-type="Static"]
+  .line {
   font-weight: 500;
 }
 
@@ -471,19 +554,31 @@ body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer 
   transform: translateY(calc(var(--DefaultLyricsSize) * 0)) !important;
 } */
 
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent:has(.OppositeAligned) .line.OppositeAligned:not(.rtl) {
+#SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent:has(.OppositeAligned)
+  .line.OppositeAligned:not(.rtl) {
   padding-left: 25cqw;
 }
 
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent:has(.OppositeAligned) .line:not(.OppositeAligned, .rtl) {
+#SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent:has(.OppositeAligned)
+  .line:not(.OppositeAligned, .rtl) {
   padding-right: 25cqw;
 }
 
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line.OppositeAligned {
+#SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent:has(.OppositeAligned.rtl)
+  .line.OppositeAligned {
   padding-right: 25cqw;
 }
 
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line:not(.OppositeAligned) {
+#SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent:has(.OppositeAligned.rtl)
+  .line:not(.OppositeAligned) {
   padding-left: 25cqw;
 }
 
@@ -491,13 +586,18 @@ body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer 
   padding-right: 5cqw;
 }
 
-#SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent:not(:has(.OppositeAligned)) .line.rtl {
+#SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent:not(:has(.OppositeAligned))
+  .line.rtl {
   padding-left: 5cqw;
 }
 
-
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.musical-line {
-  transition: line-height 0.14s, margin 0.1s, z-index 0.1s !important;
+  transition:
+    line-height 0.14s,
+    margin 0.1s,
+    z-index 0.1s !important;
   position: relative;
   transform-origin: center center !important;
   font-family: SpicyLyrics !important;
@@ -520,7 +620,6 @@ body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer 
   line-height: var(--lyrics-line-height) !important;
 }
 
-
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.musical-line.Active .dotGroup {
   scale: 1 !important;
 }
@@ -534,33 +633,56 @@ body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer 
   --BlurAmount: 0px !important;
 } */
 
-#SpicyLyricsPage.SpicyRenderer.Fullscreen.MinimalLyricsMode:not(.CompactMode) .LyricsContainer .LyricsContent .line:not(.musical-line) {
+#SpicyLyricsPage.SpicyRenderer.Fullscreen.MinimalLyricsMode:not(.CompactMode)
+  .LyricsContainer
+  .LyricsContent
+  .line:not(.musical-line) {
   transform-origin: left center;
-  transition: scale .4s ease-in-out, opacity .4s linear !important;
+  transition:
+    scale 0.4s ease-in-out,
+    opacity 0.4s linear !important;
 }
 
-#SpicyLyricsPage.SpicyRenderer.Fullscreen.MinimalLyricsMode:not(.CompactMode) .LyricsContainer .LyricsContent .line.OppositeAligned:not(.musical-line) {
+#SpicyLyricsPage.SpicyRenderer.Fullscreen.MinimalLyricsMode:not(.CompactMode)
+  .LyricsContainer
+  .LyricsContent
+  .line.OppositeAligned:not(.musical-line) {
   transform-origin: right center;
 }
 
-#SpicyLyricsPage.SpicyRenderer.Fullscreen.MinimalLyricsMode:not(.CompactMode) .LyricsContainer .LyricsContent .line.rtl:not(.musical-line) {
+#SpicyLyricsPage.SpicyRenderer.Fullscreen.MinimalLyricsMode:not(.CompactMode)
+  .LyricsContainer
+  .LyricsContent
+  .line.rtl:not(.musical-line) {
   transform-origin: right center;
 }
 
-#SpicyLyricsPage.SpicyRenderer.Fullscreen.MinimalLyricsMode:not(.CompactMode) .LyricsContainer .LyricsContent .line.rtl.OppositeAligned:not(.musical-line) {
+#SpicyLyricsPage.SpicyRenderer.Fullscreen.MinimalLyricsMode:not(.CompactMode)
+  .LyricsContainer
+  .LyricsContent
+  .line.rtl.OppositeAligned:not(.musical-line) {
   transform-origin: left center;
 }
 
-#SpicyLyricsPage.SpicyRenderer.Fullscreen.MinimalLyricsMode:not(.CompactMode) .LyricsContainer .LyricsContent .line.Active:not(.musical-line) {
+#SpicyLyricsPage.SpicyRenderer.Fullscreen.MinimalLyricsMode:not(.CompactMode)
+  .LyricsContainer
+  .LyricsContent
+  .line.Active:not(.musical-line) {
   scale: 1;
 }
 
-#SpicyLyricsPage.SpicyRenderer.Fullscreen.MinimalLyricsMode:not(.CompactMode) .LyricsContainer .LyricsContent:not(.HideLineBlur) .line.Sung:not(.musical-line) {
+#SpicyLyricsPage.SpicyRenderer.Fullscreen.MinimalLyricsMode:not(.CompactMode)
+  .LyricsContainer
+  .LyricsContent:not(.HideLineBlur)
+  .line.Sung:not(.musical-line) {
   scale: 0.95;
   opacity: 0;
 }
 
-#SpicyLyricsPage.SpicyRenderer.Fullscreen.MinimalLyricsMode:not(.CompactMode) .LyricsContainer .LyricsContent:not(.HideLineBlur) .line.NotSung:not(.musical-line) {
+#SpicyLyricsPage.SpicyRenderer.Fullscreen.MinimalLyricsMode:not(.CompactMode)
+  .LyricsContainer
+  .LyricsContent:not(.HideLineBlur)
+  .line.NotSung:not(.musical-line) {
   scale: 0.965;
   opacity: 0.35;
 }
@@ -569,7 +691,10 @@ body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer 
   display: none !important;
 } */
 
-#SpicyLyricsPage.SpicyRenderer.Fullscreen.MinimalLyricsMode:not(.CompactMode) .LyricsContainer .LyricsContent:not(:has(.line.Active)):not(:has(.line.NotSung)) .line:not(.musical-line):not(.static) {
+#SpicyLyricsPage.SpicyRenderer.Fullscreen.MinimalLyricsMode:not(.CompactMode)
+  .LyricsContainer
+  .LyricsContent:not(:has(.line.Active)):not(:has(.line.NotSung))
+  .line:not(.musical-line):not(.static) {
   scale: 1;
   opacity: var(--Vocal-Sung-opacity, 0.5);
 }
@@ -578,37 +703,60 @@ body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer 
   opacity: 0.2;
 } */
 
-
 /* #SpicyLyricsPage.SpicyRenderer.MinimalLyricsMode .LyricsContainer .LyricsContent:not(.HideLineBlur) .line.NotSung {
   scale: var(--scale-amount, 1);
   margin-bottom: calc(var(--scale-amount)* 7.5px) !important;
   margin: 0;
 } */
 
-#SpicyLyricsPage.SpicyRenderer.SimpleLyricsMode .LyricsContainer .LyricsContent .SpicyLyricsScrollContainer[data-lyrics-type="Line"] .line {
+#SpicyLyricsPage.SpicyRenderer.SimpleLyricsMode
+  .LyricsContainer
+  .LyricsContent
+  .SpicyLyricsScrollContainer[data-lyrics-type="Line"]
+  .line {
   --gradient-position: 100% !important;
 }
 
-#SpicyLyricsPage.SpicyRenderer.Fullscreen.MinimalLyricsMode:not(.CompactMode) .LyricsContainer .LyricsContent:not(.HideLineBlur) .line.Active + .line.Sung:not(.musical-line) {
+#SpicyLyricsPage.SpicyRenderer.Fullscreen.MinimalLyricsMode:not(.CompactMode)
+  .LyricsContainer
+  .LyricsContent:not(.HideLineBlur)
+  .line.Active
+  + .line.Sung:not(.musical-line) {
   opacity: 0.45 !important;
 }
 
-
-
-body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line:not(.musical-line) {
+body.SpicySidebarLyrics__Active
+  #SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent
+  .line:not(.musical-line) {
   transform-origin: left center !important;
-  transition: scale .4s ease-in-out, opacity .4s linear !important;
+  transition:
+    scale 0.4s ease-in-out,
+    opacity 0.4s linear !important;
 }
 
-body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.OppositeAligned:not(.musical-line) {
+body.SpicySidebarLyrics__Active
+  #SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent
+  .line.OppositeAligned:not(.musical-line) {
   transform-origin: right center !important;
 }
 
-body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.rtl:not(.musical-line) {
+body.SpicySidebarLyrics__Active
+  #SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent
+  .line.rtl:not(.musical-line) {
   transform-origin: right center !important;
 }
 
-body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.rtl.OppositeAligned:not(.musical-line) {
+body.SpicySidebarLyrics__Active
+  #SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent
+  .line.rtl.OppositeAligned:not(.musical-line) {
   transform-origin: left center !important;
 }
 
@@ -616,40 +764,70 @@ body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer 
   --SpicyLyrics-LineSpacing: 1cqw 0 !important;
 } */
 
-body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.NotSung:not(.musical-line) {
+body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent
+  .line.NotSung:not(.musical-line) {
   scale: 0.95 !important;
   opacity: 0.75 !important;
 }
 
-body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line.Sung:not(.musical-line) {
+body.SpicySidebarLyrics__Active
+  #SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent
+  .line.Sung:not(.musical-line) {
   scale: 0.95 !important;
   opacity: 0.34 !important;
 }
 
-body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent:has(.OppositeAligned) .line.OppositeAligned:not(.rtl) {
+body.SpicySidebarLyrics__Active
+  #SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent:has(.OppositeAligned)
+  .line.OppositeAligned:not(.rtl) {
   padding-left: 10cqw !important;
 }
 
-body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent:has(.OppositeAligned) .line:not(.OppositeAligned, .rtl) {
+body.SpicySidebarLyrics__Active
+  #SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent:has(.OppositeAligned)
+  .line:not(.OppositeAligned, .rtl) {
   padding-right: 10cqw !important;
 }
 
-body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line.OppositeAligned {
+body.SpicySidebarLyrics__Active
+  #SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent:has(.OppositeAligned.rtl)
+  .line.OppositeAligned {
   padding-right: 10cqw !important;
 }
 
-body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent:has(.OppositeAligned.rtl) .line:not(.OppositeAligned) {
+body.SpicySidebarLyrics__Active
+  #SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent:has(.OppositeAligned.rtl)
+  .line:not(.OppositeAligned) {
   padding-left: 10cqw !important;
 }
 
-body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent:not(:has(.OppositeAligned)) .line {
+body.SpicySidebarLyrics__Active
+  #SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent:not(:has(.OppositeAligned))
+  .line {
   padding-right: 2cqw !important;
 }
 
-body.SpicySidebarLyrics__Active #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent:not(:has(.OppositeAligned)) .line.rtl {
+body.SpicySidebarLyrics__Active
+  #SpicyLyricsPage.SpicyRenderer
+  .LyricsContainer
+  .LyricsContent:not(:has(.OppositeAligned))
+  .line.rtl {
   padding-left: 2cqw !important;
 }
-
 
 /* #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line:not(.Active):not(.musical-line) .word,
 #SpicyLyricsPage.SpicyRenderer .LyricsContainer .LyricsContent .line:not(.Active):not(.musical-line) .letter,

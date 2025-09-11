@@ -1,43 +1,43 @@
+import { Maid } from "@socali/modules/Maid";
+import { OnPreRender } from "@socali/modules/Scheduler";
+import Spring from "@socali/modules/Spring";
+import { GetCurrentLyricsContainerInstance } from "../../utils/Lyrics/Applyer/CreateLyricsContainer.ts";
 import { ResetLastLine } from "../../utils/Scrolling/ScrollToActiveLine.ts";
 import storage from "../../utils/storage.ts";
 import Global from "../Global/Global.ts";
 import PageView, { Compactify, GetPageRoot, Tooltips } from "../Pages/PageView.ts";
+import { EnableCompactMode, IsCompactMode } from "./CompactMode.ts";
 import { CleanUpNowBarComponents, CloseNowBar, DeregisterNowBarBtn, OpenNowBar } from "./NowBar.ts";
 import TransferElement from "./TransferElement.ts";
-import { GetCurrentLyricsContainerInstance } from "../../utils/Lyrics/Applyer/CreateLyricsContainer.ts";
-import Spring from "@socali/modules/Spring";
-import { Maid } from "@socali/modules/Maid";
-import { OnPreRender } from "@socali/modules/Scheduler";
-import { EnableCompactMode, IsCompactMode } from "./CompactMode.ts";
 
-const ArtworkBrightness = {
-    Start: 0.78,
-    End: 0.55,
-    Duration: 0.35,
-    ParentHover: {
-        Start: 1,
-        End: 0.78,
-        Duration: 0.4
-    }
-};
+// const ArtworkBrightness = {
+//   Start: 0.78,
+//   End: 0.55,
+//   Duration: 0.35,
+//   ParentHover: {
+//     Start: 1,
+//     End: 0.78,
+//     Duration: 0.4,
+//   },
+// };
 
-const ControlsOpacity = {
-    Start: 0.5,
-    End: 1,
-    Duration: 0.35,
-    ParentHover: {
-        Start: 0,
-        End: 0.5,
-        Duration: 0.4
-    }
-};
+// const ControlsOpacity = {
+//   Start: 0.5,
+//   End: 1,
+//   Duration: 0.35,
+//   ParentHover: {
+//     Start: 0,
+//     End: 0.5,
+//     Duration: 0.4,
+//   },
+// };
 
 const Fullscreen = {
-    Open,
-    Close,
-    Toggle,
-    IsOpen: false,
-    CinemaViewOpen: false,
+  Open,
+  Close,
+  Toggle,
+  IsOpen: false,
+  CinemaViewOpen: false,
 };
 
 const ControlsMaid = new Maid();
@@ -45,177 +45,174 @@ const ControlsMaid = new Maid();
 const controlsOpacitySpring = new Spring(0, 2, 2, 0.65);
 const artworkBrightnessSpring = new Spring(0, 2, 2, 0.78);
 
-let animationLastTimestamp: (number | undefined) = undefined;
+let animationLastTimestamp: number | undefined;
 
-let controlsVisible = false;
+// let controlsVisible = false;
 let visualsApplied = false;
 let pageHover = false;
 let mediaBoxHover = false;
 
+let lastPageMouseMove: number | undefined;
 
-let lastPageMouseMove: (number | undefined) = undefined;
-
-const Page_MouseMove = (e: MouseEvent) => {
-
-/*     if (storage.get("ForceCompactMode") === "true") {
+const Page_MouseMove = () => {
+  /*     if (storage.get("ForceCompactMode") === "true") {
         const target = e.target as HTMLElement;
         const nowBar = target.closest('.NowBar') || (target.classList.contains('NowBar') ? target : null);
         if (!nowBar) return;
     } */
 
-    controlsVisible = true;
-    pageHover = true;
+  // controlsVisible = true;
+  pageHover = true;
 
-    lastPageMouseMove = performance.now();
+  lastPageMouseMove = performance.now();
 
-    // console.log("Page_MouseMove")
-    ToggleControls();
-    if (!mediaBoxHover) {
-        MouseMoveChecker();
-    }
-}
+  // console.log("Page_MouseMove")
+  ToggleControls();
+  if (!mediaBoxHover) {
+    MouseMoveChecker();
+  }
+};
 
 const MouseMoveChecker = () => {
-    const now = performance.now();
-    // console.log("MouseMoveChecker", lastPageMouseMove, (now - lastPageMouseMove), !mediaBoxHover)
-    if (lastPageMouseMove !== undefined && (now - lastPageMouseMove) >= 750 && !mediaBoxHover) {
-        // console.log("Controls Should Hide now - after 750ms")
-        animationLastTimestamp = now;
-        ToggleControls(true);
-        ControlsMaid.Clean("MouseMoveChecker")
-        return;
-    }
-    ControlsMaid.Give(OnPreRender(MouseMoveChecker), "MouseMoveChecker");
-}
+  const now = performance.now();
+  // console.log("MouseMoveChecker", lastPageMouseMove, (now - lastPageMouseMove), !mediaBoxHover)
+  if (lastPageMouseMove !== undefined && now - lastPageMouseMove >= 750 && !mediaBoxHover) {
+    // console.log("Controls Should Hide now - after 750ms")
+    animationLastTimestamp = now;
+    ToggleControls(true);
+    ControlsMaid.Clean("MouseMoveChecker");
+    return;
+  }
+  ControlsMaid.Give(OnPreRender(MouseMoveChecker), "MouseMoveChecker");
+};
 
 const RunMediaBoxAnimation = () => {
-    const timestampNow = performance.now();
+  const timestampNow = performance.now();
 
-    if (animationLastTimestamp !== undefined) {
-        // console.log("Running MediaBox Animation")
-        const deltaTime = ((timestampNow - animationLastTimestamp) / 1000);
-        const controlsOpacity = controlsOpacitySpring.Step(deltaTime);
-		const artworkBrightness = artworkBrightnessSpring.Step(deltaTime);
+  if (animationLastTimestamp !== undefined) {
+    // console.log("Running MediaBox Animation")
+    const deltaTime = (timestampNow - animationLastTimestamp) / 1000;
+    const controlsOpacity = controlsOpacitySpring.Step(deltaTime);
+    const artworkBrightness = artworkBrightnessSpring.Step(deltaTime);
 
-        const MediaBox = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox");
-        
-        if (MediaBox) {
-            MediaBox.style.setProperty("--ArtworkBrightness", artworkBrightness.toString());
-            MediaBox.style.setProperty("--ControlsOpacity", controlsOpacity.toString());
-            // console.log("MediaBoxAnimation: Set style properties")
-        }
+    const MediaBox = document.querySelector<HTMLElement>(
+      "#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox"
+    );
 
-        if (controlsOpacitySpring.CanSleep() && artworkBrightnessSpring.CanSleep()) {
-            animationLastTimestamp = undefined
-            visualsApplied = false;
-            // console.log("MediaBoxAnimation: Sleep")
-            return
-        }
+    if (MediaBox) {
+      MediaBox.style.setProperty("--ArtworkBrightness", artworkBrightness.toString());
+      MediaBox.style.setProperty("--ControlsOpacity", controlsOpacity.toString());
+      // console.log("MediaBoxAnimation: Set style properties")
     }
 
-    animationLastTimestamp = timestampNow
+    if (controlsOpacitySpring.CanSleep() && artworkBrightnessSpring.CanSleep()) {
+      animationLastTimestamp = undefined;
+      visualsApplied = false;
+      // console.log("MediaBoxAnimation: Sleep")
+      return;
+    }
+  }
 
-    ControlsMaid.Give(OnPreRender(RunMediaBoxAnimation), "MediaBoxAnimation");
-}
+  animationLastTimestamp = timestampNow;
 
+  ControlsMaid.Give(OnPreRender(RunMediaBoxAnimation), "MediaBoxAnimation");
+};
 
 const ToggleControls = (force: boolean = false) => {
-    // console.log("Ran ToggleControls")
-    const now = performance.now();
+  // console.log("Ran ToggleControls")
+  const now = performance.now();
 
-    const getControlsOpacityGoal = () => {
-        if (lastPageMouseMove !== undefined && (now - lastPageMouseMove) >= 750) {
-            return 0
-        } else if (pageHover && !mediaBoxHover) {
-            return 0.65
-        } else if (mediaBoxHover) {
-            return 0.985
-        } else {
-            return 0
-        }
+  const getControlsOpacityGoal = () => {
+    if (lastPageMouseMove !== undefined && now - lastPageMouseMove >= 750) {
+      return 0;
+    } else if (pageHover && !mediaBoxHover) {
+      return 0.65;
+    } else if (mediaBoxHover) {
+      return 0.985;
+    } else {
+      return 0;
     }
+  };
 
-    const getArtworkBrightnessGoal = () => {
-        if (lastPageMouseMove !== undefined && (now - lastPageMouseMove) >= 750) {
-            return 1
-        } else if (pageHover && !mediaBoxHover) {
-            return 0.78
-        } else if (mediaBoxHover) {
-            return 0.55
-        } else {
-            return 1
-        }
+  const getArtworkBrightnessGoal = () => {
+    if (lastPageMouseMove !== undefined && now - lastPageMouseMove >= 750) {
+      return 1;
+    } else if (pageHover && !mediaBoxHover) {
+      return 0.78;
+    } else if (mediaBoxHover) {
+      return 0.55;
+    } else {
+      return 1;
     }
+  };
 
-    controlsOpacitySpring.SetGoal(getControlsOpacityGoal());
-    artworkBrightnessSpring.SetGoal(getArtworkBrightnessGoal());
+  controlsOpacitySpring.SetGoal(getControlsOpacityGoal());
+  artworkBrightnessSpring.SetGoal(getArtworkBrightnessGoal());
 
-    /* controlsOpacitySpring.SetFrequency(2)
+  /* controlsOpacitySpring.SetFrequency(2)
 	controlsOpacitySpring.SetDampingRatio(2)
 
     artworkBrightnessSpring.SetFrequency(2)
 	artworkBrightnessSpring.SetDampingRatio(2); */
 
-    if (force || visualsApplied === false) {
-        visualsApplied = true;
-        // console.log("VisualsAppied was false")
+  if (force || visualsApplied === false) {
+    visualsApplied = true;
+    // console.log("VisualsAppied was false")
 
-        RunMediaBoxAnimation();
-        // console.log("MediaBoxAnimation in ToggleControls Ran!")
-    }
-}
+    RunMediaBoxAnimation();
+    // console.log("MediaBoxAnimation in ToggleControls Ran!")
+  }
+};
 
-let EventAbortController: (AbortController | undefined) = undefined;
+let EventAbortController: AbortController | undefined;
 
 const MediaBox_MouseIn = () => {
-    controlsVisible = true;
-    mediaBoxHover = true;
-    pageHover = true;
-    // console.log("MediaBox_MouseIn")
-    ToggleControls();
-    ControlsMaid.Clean("MouseMoveChecker")
-}
+  // controlsVisible = true;
+  mediaBoxHover = true;
+  pageHover = true;
+  // console.log("MediaBox_MouseIn")
+  ToggleControls();
+  ControlsMaid.Clean("MouseMoveChecker");
+};
 
 const MediaBox_MouseOut = () => {
-    controlsVisible = true;
-    mediaBoxHover = false;
-    pageHover = true;
-    // console.log("MediaBox_MouseOut")
-    ToggleControls();
-}
+  // controlsVisible = true;
+  mediaBoxHover = false;
+  pageHover = true;
+  // console.log("MediaBox_MouseOut")
+  ToggleControls();
+};
 
 const MediaBox_MouseMove = () => {
-    controlsVisible = true;
-    mediaBoxHover = true;
-    pageHover = true;
-    // console.log("MediaBox_MouseMove")
-    ControlsMaid.Clean("MouseMoveChecker");
-    ToggleControls();
-}
-const Page_MouseIn = (e: MouseEvent) => {
-
-/*     if (storage.get("ForceCompactMode") === "true") {
+  // controlsVisible = true;
+  mediaBoxHover = true;
+  pageHover = true;
+  // console.log("MediaBox_MouseMove")
+  ControlsMaid.Clean("MouseMoveChecker");
+  ToggleControls();
+};
+const Page_MouseIn = () => {
+  /*     if (storage.get("ForceCompactMode") === "true") {
         const target = e.target as HTMLElement;
         const nowBar = target.closest('.NowBar') || (target.classList.contains('NowBar') ? target : null);
         if (!nowBar) return;
     } */
-    
-    controlsVisible = true;
-    mediaBoxHover = false;
-    pageHover = true;
-    // console.log("Page_MouseIn")
-    ToggleControls();
-}
 
-const Page_MouseOut = (e: MouseEvent) => {
-    controlsVisible = false;
-    mediaBoxHover = false;
-    pageHover = false;
-    // console.log("Page_MouseOut")
-    ToggleControls();
-    ControlsMaid.Clean("MouseMoveChecker")
-}
+  // controlsVisible = true;
+  mediaBoxHover = false;
+  pageHover = true;
+  // console.log("Page_MouseIn")
+  ToggleControls();
+};
 
+const Page_MouseOut = () => {
+  // controlsVisible = false;
+  mediaBoxHover = false;
+  pageHover = false;
+  // console.log("Page_MouseOut")
+  ToggleControls();
+  ControlsMaid.Clean("MouseMoveChecker");
+};
 
 /* const MediaBox_Data = {
     Eventified: false,
@@ -378,52 +375,50 @@ const Page_MouseOut = (e: MouseEvent) => {
     }
 }; */
 
-
-
 export const ExitFullscreenElement = async () => {
-    if (document.fullscreenElement) {
-        await document.exitFullscreen();
-    }
-    setTimeout(Compactify, 1000)
-}
+  if (document.fullscreenElement) {
+    await document.exitFullscreen();
+  }
+  setTimeout(Compactify, 1000);
+};
 
 export const EnterSpicyLyricsFullscreen = async () => {
-    const mainElement = document.querySelector<HTMLElement>("#main");
-    if (mainElement) {
-        mainElement.style.display = "none";
-    }
+  const mainElement = document.querySelector<HTMLElement>("#main");
+  if (mainElement) {
+    mainElement.style.display = "none";
+  }
 
-    try {
-        if (!document.fullscreenElement) {
-            // Use the html element for fullscreen instead of SpicyLyricsPage
-            await document.documentElement.requestFullscreen();
-        }
-    } catch (err: unknown) {
-        const errorMessage = err instanceof Error ? err.message : String(err);
-        console.error(`Fullscreen error: ${errorMessage}`);
+  try {
+    if (!document.fullscreenElement) {
+      // Use the html element for fullscreen instead of SpicyLyricsPage
+      await document.documentElement.requestFullscreen();
     }
-    setTimeout(Compactify, 1000)
-}
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.error(`Fullscreen error: ${errorMessage}`);
+  }
+  setTimeout(Compactify, 1000);
+};
 
 function CleanupMediaBox() {
-    // Abort the controller to remove listeners
-    EventAbortController?.abort();
-    EventAbortController = undefined;
-    
-    ControlsMaid.CleanUp();
+  // Abort the controller to remove listeners
+  EventAbortController?.abort();
+  EventAbortController = undefined;
 
-    animationLastTimestamp = undefined;
-    lastPageMouseMove = undefined;
+  ControlsMaid.CleanUp();
 
-    controlsVisible = false;
-    visualsApplied = false;
-    mediaBoxHover = false;
-    pageHover = false;
+  animationLastTimestamp = undefined;
+  lastPageMouseMove = undefined;
 
-    // Cleanup media box interactions (Styles and Timeout)
-    //const MediaBox = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox");
-    //if (MediaBox) {
-        /* // Clear any existing timeout
+  // controlsVisible = false;
+  visualsApplied = false;
+  mediaBoxHover = false;
+  pageHover = false;
+
+  // Cleanup media box interactions (Styles and Timeout)
+  //const MediaBox = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox");
+  //if (MediaBox) {
+  /* // Clear any existing timeout
         if (MediaBox_Data.hoverTimeoutId) {
             clearTimeout(MediaBox_Data.hoverTimeoutId);
             MediaBox_Data.hoverTimeoutId = null;
@@ -432,165 +427,179 @@ function CleanupMediaBox() {
         // Reset styles
         MediaBox_Data.Functions.Reset(MediaBox); */
 
-    //}
+  //}
 }
 
 function Open(skipDocumentFullscreen: boolean = false) {
-    const SpicyPage = document.querySelector<HTMLElement>(".Root__main-view #SpicyLyricsPage");
-    const Root = document.body as HTMLElement;
-    const mainElement = document.querySelector<HTMLElement>("#main");
+  const SpicyPage = document.querySelector<HTMLElement>(".Root__main-view #SpicyLyricsPage");
+  const Root = document.body as HTMLElement;
+  const mainElement = document.querySelector<HTMLElement>("#main");
 
-    if (SpicyPage) {
-        // Set state first
-        Fullscreen.IsOpen = true;
-        Fullscreen.CinemaViewOpen = skipDocumentFullscreen;
+  if (SpicyPage) {
+    // Set state first
+    Fullscreen.IsOpen = true;
+    Fullscreen.CinemaViewOpen = skipDocumentFullscreen;
 
-        // Handle DOM changes
-        TransferElement(SpicyPage, Root);
-        SpicyPage.classList.add("Fullscreen");
+    // Handle DOM changes
+    TransferElement(SpicyPage, Root);
+    SpicyPage.classList.add("Fullscreen");
 
-        // Hide the main element
-        if (mainElement) {
-            mainElement.style.display = "none";
-        }
-
-        // Safely destroy tooltip if it exists
-        const nowBarToggle = Tooltips.NowBarToggle as any;
-        if (nowBarToggle && typeof nowBarToggle.destroy === 'function') {
-            nowBarToggle.destroy();
-        }
-
-        const NowBarToggle = document.querySelector<HTMLElement>("#SpicyLyricsPage .ViewControls #NowBarToggle");
-        if (NowBarToggle) {
-            NowBarToggle.remove();
-        }
-
-        CleanUpNowBarComponents();
-        CleanupMediaBox();
-        OpenNowBar(true);
-
-        // Handle fullscreen state
-        const handleFullscreen = async () => {
-            try {
-                if (!skipDocumentFullscreen) {
-                    await EnterSpicyLyricsFullscreen();
-                }
-                setTimeout(() => PageView.AppendViewControls(true), 50);
-            } catch (err: unknown) {
-                const errorMessage = err instanceof Error ? err.message : String(err);
-                console.error(`Fullscreen error: ${errorMessage}`);
-            }
-        };
-
-        handleFullscreen();
-        ResetLastLine();
-
-        // Setup media box interactions
-        const MediaBox = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox");
-        const MediaImage = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaImage");
-
-        if (MediaBox && MediaImage) {
-            // Create and store the AbortController
-            EventAbortController = new AbortController();
-            const signal = EventAbortController.signal;
-
-            MediaBox.addEventListener("mouseenter", MediaBox_MouseIn, { signal });
-            MediaBox.addEventListener("mouseleave", MediaBox_MouseOut, { signal });
-            MediaBox.addEventListener("mousemove", MediaBox_MouseMove, { signal });
-
-            // Add NowBar hover animation and movement tracking
-            //const NowBar = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar");
-            if (SpicyPage) {
-                SpicyPage.addEventListener("mouseenter", Page_MouseIn, { signal });
-                SpicyPage.addEventListener("mousemove", Page_MouseMove, { signal });
-                SpicyPage.addEventListener("mouseleave", Page_MouseOut, { signal });
-            }
-        }
-
-        Global.Event.evoke("fullscreen:open", null);
+    // Hide the main element
+    if (mainElement) {
+      mainElement.style.display = "none";
     }
-    setTimeout(() => {
-        Compactify();
 
-        if (storage.get("ForceCompactMode") === "true" && !IsCompactMode()) {
-            SpicyPage?.classList.add("ForcedCompactMode")
-            EnableCompactMode();
+    // Safely destroy tooltip if it exists
+    const nowBarToggle = Tooltips.NowBarToggle as any;
+    if (nowBarToggle && typeof nowBarToggle.destroy === "function") {
+      nowBarToggle.destroy();
+    }
+
+    const NowBarToggle = document.querySelector<HTMLElement>(
+      "#SpicyLyricsPage .ViewControls #NowBarToggle"
+    );
+    if (NowBarToggle) {
+      NowBarToggle.remove();
+    }
+
+    CleanUpNowBarComponents();
+    CleanupMediaBox();
+    OpenNowBar(true);
+
+    // Handle fullscreen state
+    const handleFullscreen = async () => {
+      try {
+        if (!skipDocumentFullscreen) {
+          await EnterSpicyLyricsFullscreen();
         }
+        setTimeout(() => PageView.AppendViewControls(true), 50);
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        console.error(`Fullscreen error: ${errorMessage}`);
+      }
+    };
 
-        setTimeout(() => {
-            PageView.AppendViewControls(true);
+    handleFullscreen();
+    ResetLastLine();
 
-            const NoLyrics = storage.get("currentLyricsData")?.toString()?.includes("NO_LYRICS");
-            if (NoLyrics && !IsCompactMode()) {
-                document.querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer")?.classList.add("Hidden");
-                document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox")?.classList.add("LyricsHidden");
-            }
-        }, 75);
-    }, 750)
-    GetCurrentLyricsContainerInstance()?.Resize();
+    // Setup media box interactions
+    const MediaBox = document.querySelector<HTMLElement>(
+      "#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox"
+    );
+    const MediaImage = document.querySelector<HTMLElement>(
+      "#SpicyLyricsPage .ContentBox .NowBar .Header .MediaBox .MediaImage"
+    );
+
+    if (MediaBox && MediaImage) {
+      // Create and store the AbortController
+      EventAbortController = new AbortController();
+      const signal = EventAbortController.signal;
+
+      MediaBox.addEventListener("mouseenter", MediaBox_MouseIn, { signal });
+      MediaBox.addEventListener("mouseleave", MediaBox_MouseOut, { signal });
+      MediaBox.addEventListener("mousemove", MediaBox_MouseMove, { signal });
+
+      // Add NowBar hover animation and movement tracking
+      //const NowBar = document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox .NowBar");
+      if (SpicyPage) {
+        SpicyPage.addEventListener("mouseenter", Page_MouseIn, { signal });
+        SpicyPage.addEventListener("mousemove", Page_MouseMove, { signal });
+        SpicyPage.addEventListener("mouseleave", Page_MouseOut, { signal });
+      }
+    }
+
+    Global.Event.evoke("fullscreen:open", null);
+  }
+  setTimeout(() => {
+    Compactify();
+
+    if (storage.get("ForceCompactMode") === "true" && !IsCompactMode()) {
+      SpicyPage?.classList.add("ForcedCompactMode");
+      EnableCompactMode();
+    }
+
+    setTimeout(() => {
+      PageView.AppendViewControls(true);
+
+      const NoLyrics = storage.get("currentLyricsData")?.toString()?.includes("NO_LYRICS");
+      if (NoLyrics && !IsCompactMode()) {
+        document
+          .querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer")
+          ?.classList.add("Hidden");
+        document
+          .querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox")
+          ?.classList.add("LyricsHidden");
+      }
+    }, 75);
+  }, 750);
+  GetCurrentLyricsContainerInstance()?.Resize();
 }
 
 function Close() {
-    const SpicyPage = document.querySelector<HTMLElement>("#SpicyLyricsPage");
-    const mainElement = document.querySelector<HTMLElement>("#main");
+  const SpicyPage = document.querySelector<HTMLElement>("#SpicyLyricsPage");
+  const mainElement = document.querySelector<HTMLElement>("#main");
 
-    if (SpicyPage) {
-        // Set state first
-        //const wasOpen = Fullscreen.IsOpen;
-        Fullscreen.IsOpen = false;
-        Fullscreen.CinemaViewOpen = false;
+  if (SpicyPage) {
+    // Set state first
+    //const wasOpen = Fullscreen.IsOpen;
+    Fullscreen.IsOpen = false;
+    Fullscreen.CinemaViewOpen = false;
 
-        // Handle DOM changes
-        TransferElement(SpicyPage, GetPageRoot() as HTMLElement);
-        SpicyPage.classList.remove("Fullscreen");
+    // Handle DOM changes
+    TransferElement(SpicyPage, GetPageRoot() as HTMLElement);
+    SpicyPage.classList.remove("Fullscreen");
 
-        // Show the main element again
-        if (mainElement) {
-            mainElement.style.removeProperty("display");
-        }
-
-        // Handle fullscreen exit
-        const handleFullscreenExit = async () => {
-            await ExitFullscreenElement();
-
-            // Only update controls after fullscreen state is settled
-            setTimeout(() => PageView.AppendViewControls(true), 50);
-        };
-
-        handleFullscreenExit();
-
-        const NoLyrics = storage.get("currentLyricsData")?.toString()?.includes("NO_LYRICS");
-        if (NoLyrics) {
-            document.querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer")?.classList.remove("Hidden");
-            document.querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox")?.classList.remove("LyricsHidden");
-            DeregisterNowBarBtn();
-        }
-
-        ResetLastLine();
-
-        if (storage.get("IsNowBarOpen") !== "true") {
-            CloseNowBar();
-        }
-
-        CleanupMediaBox();
-        CleanUpNowBarComponents();
-
-        Global.Event.evoke("fullscreen:exit", null);
+    // Show the main element again
+    if (mainElement) {
+      mainElement.style.removeProperty("display");
     }
-    setTimeout(Compactify, 1000)
-    GetCurrentLyricsContainerInstance()?.Resize();
+
+    // Handle fullscreen exit
+    const handleFullscreenExit = async () => {
+      await ExitFullscreenElement();
+
+      // Only update controls after fullscreen state is settled
+      setTimeout(() => PageView.AppendViewControls(true), 50);
+    };
+
+    handleFullscreenExit();
+
+    const NoLyrics = storage.get("currentLyricsData")?.toString()?.includes("NO_LYRICS");
+    if (NoLyrics) {
+      document
+        .querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer")
+        ?.classList.remove("Hidden");
+      document
+        .querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox")
+        ?.classList.remove("LyricsHidden");
+      DeregisterNowBarBtn();
+    }
+
+    ResetLastLine();
+
+    if (storage.get("IsNowBarOpen") !== "true") {
+      CloseNowBar();
+    }
+
+    CleanupMediaBox();
+    CleanUpNowBarComponents();
+
+    Global.Event.evoke("fullscreen:exit", null);
+  }
+  setTimeout(Compactify, 1000);
+  GetCurrentLyricsContainerInstance()?.Resize();
 }
 
 function Toggle(skipDocumentFullscreen: boolean = false) {
-    const SpicyPage = document.querySelector<HTMLElement>("#SpicyLyricsPage");
+  const SpicyPage = document.querySelector<HTMLElement>("#SpicyLyricsPage");
 
-    if (SpicyPage) {
-        if (Fullscreen.IsOpen) {
-            Close();
-        } else {
-            Open(skipDocumentFullscreen);
-        }
+  if (SpicyPage) {
+    if (Fullscreen.IsOpen) {
+      Close();
+    } else {
+      Open(skipDocumentFullscreen);
     }
+  }
 }
 
 export { CleanupMediaBox };

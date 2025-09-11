@@ -1,5 +1,3 @@
-// eventManager.ts
-
 // Define types for the event system
 type EventCallback = (...args: any[]) => void;
 type EventId = number;
@@ -45,9 +43,9 @@ const evoke = (eventName: string, ...args: any[]): void => {
 };
 
 const Event = {
-    listen,
-    unListen,
-    evoke
-}
+  listen,
+  unListen,
+  evoke,
+};
 
 export default Event;
