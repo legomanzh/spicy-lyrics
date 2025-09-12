@@ -1,53 +1,60 @@
 function DeepFreeze<T extends Record<string, any>>(obj: T): Readonly<T> {
-    if (obj === null || typeof obj !== "object") {
-        // Base case: Return primitives as they are
-        return obj as any;
-    }
+  if (obj === null || typeof obj !== "object") {
+    // Base case: Return primitives as they are
+    return obj as any;
+  }
 
-    // Create a copy of the object or array
-    const clone: Record<string, any> = Array.isArray(obj) ? [] : {};
+  // Create a copy of the object or array
+  const clone: Record<string, any> = Array.isArray(obj) ? [] : {};
 
-    // Recursively copy and freeze properties
-    Object.keys(obj).forEach(key => {
-        const value = obj[key];
-        clone[key] = DeepFreeze(value); // Deep copy and freeze the value
-    });
+  // Recursively copy and freeze properties
+  Object.keys(obj).forEach((key) => {
+    const value = obj[key];
+    clone[key] = DeepFreeze(value); // Deep copy and freeze the value
+  });
 
-    // Freeze the cloned object
-    return Object.freeze(clone) as Readonly<T>;
+  // Freeze the cloned object
+  return Object.freeze(clone) as Readonly<T>;
 }
 
 function IsPlaying() {
-    const state = Spicetify?.Player?.isPlaying?.();
-    return state;
+  const state = Spicetify?.Player?.isPlaying?.();
+  return state;
 }
 
 function TOP_ApplyLyricsSpacer(Container: HTMLElement) {
-    const div = document.createElement("div");
-    div.classList.add("TopSpacer");
-    Container.appendChild(div);
+  const div = document.createElement("div");
+  div.classList.add("TopSpacer");
+  Container.appendChild(div);
 }
 
 function BOTTOM_ApplyLyricsSpacer(Container: HTMLElement) {
-    const div = document.createElement("div");
-    div.classList.add("BottomSpacer");
-    Container.appendChild(div);
+  const div = document.createElement("div");
+  div.classList.add("BottomSpacer");
+  Container.appendChild(div);
 }
 
 function GetContainerHeight(Container: HTMLElement) {
-    //const style = globalThis.getComputedStyle(Container);
-    let height = 0;//parseFloat(style.marginTop) + parseFloat(style.marginBottom);
+  //const style = globalThis.getComputedStyle(Container);
+  let height = 0; //parseFloat(style.marginTop) + parseFloat(style.marginBottom);
 
-    for (const child of Array.from(Container.children)) {
-        if (child instanceof HTMLElement) {
-            const childStyle = globalThis.getComputedStyle(child);
-            height += child.offsetHeight + parseFloat(childStyle.marginTop) + parseFloat(childStyle.marginBottom);
-        }
+  for (const child of Array.from(Container.children)) {
+    if (child instanceof HTMLElement) {
+      const childStyle = globalThis.getComputedStyle(child);
+      height +=
+        child.offsetHeight + parseFloat(childStyle.marginTop) + parseFloat(childStyle.marginBottom);
     }
+  }
 
-    return height;
+  return height;
 }
 
 export const ArabicPersianRegex = /[\u0600-\u06FF]/;
 
-export { DeepFreeze, IsPlaying, TOP_ApplyLyricsSpacer, BOTTOM_ApplyLyricsSpacer, GetContainerHeight }
+export {
+  DeepFreeze,
+  IsPlaying,
+  TOP_ApplyLyricsSpacer,
+  BOTTOM_ApplyLyricsSpacer,
+  GetContainerHeight,
+};

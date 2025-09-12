@@ -1,19 +1,19 @@
 const React = Spicetify.React;
 const { useState } = React;
 const ReactDOM = Spicetify.ReactDOM;
-import {
+
+import type {
   ISettingsField,
   ISettingsFieldButton,
   ISettingsFieldDropdown,
   ISettingsFieldInput,
   ISettingsFieldToggle,
-  NewValueTypes,
-} from "./types/settings-field";
+} from "./types/settings-field.ts";
 
 class SettingsSection {
   settingsFields: { [nameId: string]: ISettingsField };
   private stopHistoryListener: any;
-  private setRerender: Function | null = null;
+  private setRerender: ((randomNumber: number) => void) | null = null;
 
   constructor(
     public name: string,
@@ -55,20 +55,18 @@ class SettingsSection {
 
   private render = async () => {
     while (!document.getElementById("desktop.settings.selectLanguage")) {
-      if (Spicetify.Platform.History.location.pathname !== "/preferences")
-        return;
+      if (Spicetify.Platform.History.location.pathname !== "/preferences") return;
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     const allSettingsContainer = document.querySelector(
       ".main-view-container__scroll-node-child main div"
     );
-    if (!allSettingsContainer)
-      return console.error("[spcr-settings] settings container not found");
+    if (!allSettingsContainer) return console.error("[spcr-settings] settings container not found");
 
-    let pluginSettingsContainer = Array.from(
-      allSettingsContainer.children
-    ).find((child) => child.id === this.settingsId);
+    let pluginSettingsContainer = Array.from(allSettingsContainer.children).find(
+      (child) => child.id === this.settingsId
+    );
 
     if (!pluginSettingsContainer) {
       pluginSettingsContainer = document.createElement("div");
@@ -164,16 +162,11 @@ class SettingsSection {
   };
 
   getFieldValue = <Type,>(nameId: string): Type => {
-    return JSON.parse(
-      Spicetify.LocalStorage.get(`${this.settingsId}.${nameId}`) || "{}"
-    )?.value;
+    return JSON.parse(Spicetify.LocalStorage.get(`${this.settingsId}.${nameId}`) || "{}")?.value;
   };
 
   setFieldValue = (nameId: string, newValue: any) => {
-    Spicetify.LocalStorage.set(
-      `${this.settingsId}.${nameId}`,
-      JSON.stringify({ value: newValue })
-    );
+    Spicetify.LocalStorage.set(`${this.settingsId}.${nameId}`, JSON.stringify({ value: newValue }));
   };
 
   private FieldsContainer = () => {
@@ -196,7 +189,7 @@ class SettingsSection {
   private Field = (props: { nameId: string; field: ISettingsField }) => {
     const id = `${this.settingsId}.${props.nameId}`;
 
-    let defaultStateValue;
+    let defaultStateValue: any;
     if (props.field.type === "button") {
       defaultStateValue = props.field.value;
     } else {
@@ -204,7 +197,7 @@ class SettingsSection {
     }
 
     if (props.field.type === "hidden") {
-      return <></>;
+      return null;
     }
 
     const [value, setValueState] = useState(defaultStateValue);
@@ -212,17 +205,14 @@ class SettingsSection {
     const setValue = (newValue?: any) => {
       if (newValue !== undefined) {
         setValueState(newValue);
-        this.setFieldValue(props.nameId!, newValue);
+        this.setFieldValue(props.nameId, newValue);
       }
     };
 
     return (
       <div className="x-settings-row eguwzH_QWTBXry7hiNj3">
         <div className="x-settings-firstColumn lfXDZUXLhhKhFPjDO8by">
-          <label
-            className="TypeElement-viola-textSubdued-type"
-            htmlFor={id}
-          >
+          <label className="TypeElement-viola-textSubdued-type" htmlFor={id}>
             {props.field.description || ""}
           </label>
         </div>
@@ -237,8 +227,7 @@ class SettingsSection {
               {...props.field.events}
               onChange={(e) => {
                 setValue(e.currentTarget.value);
-                const onChange = (props.field as ISettingsFieldInput).events
-                  ?.onChange;
+                const onChange = (props.field as ISettingsFieldInput).events?.onChange;
                 if (onChange) onChange(e);
               }}
             />
@@ -250,8 +239,7 @@ class SettingsSection {
                 {...props.field.events}
                 onClick={(e) => {
                   setValue();
-                  const onClick = (props.field as ISettingsFieldButton).events
-                    ?.onClick;
+                  const onClick = (props.field as ISettingsFieldButton).events?.onClick;
                   if (onClick) onClick(e);
                 }}
                 type="button"
@@ -269,8 +257,7 @@ class SettingsSection {
                 {...props.field.events}
                 onClick={(e) => {
                   setValue(e.currentTarget.checked);
-                  const onClick = (props.field as ISettingsFieldToggle).events
-                    ?.onClick;
+                  const onClick = (props.field as ISettingsFieldToggle).events?.onClick;
                   if (onClick) onClick(e);
                 }}
               />
@@ -285,12 +272,9 @@ class SettingsSection {
               {...props.field.events}
               onChange={(e) => {
                 setValue(
-                  (props.field as ISettingsFieldDropdown).options[
-                    e.currentTarget.selectedIndex
-                  ]
+                  (props.field as ISettingsFieldDropdown).options[e.currentTarget.selectedIndex]
                 );
-                const onSelect = (props.field as ISettingsFieldDropdown).events
-                  ?.onSelect;
+                const onSelect = (props.field as ISettingsFieldDropdown).events?.onSelect;
                 if (onSelect) onSelect(e);
               }}
             >
@@ -302,9 +286,7 @@ class SettingsSection {
                 );
               })}
             </select>
-          ) : (
-            <></>
-          )}
+          ) : null}
         </div>
       </div>
     );

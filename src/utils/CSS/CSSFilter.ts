@@ -14,12 +14,12 @@ function CSSFilter(filters: CSSFilterOptions | string, imageUrl: string): Promis
   return new Promise((resolve, reject) => {
     const image = new Image();
     image.src = imageUrl;
-    
+
     image.onload = () => {
       // Create a canvas and set its size to the image's natural dimensions
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
       if (!ctx) {
         reject("Failed to get canvas context.");
         return;
@@ -29,17 +29,15 @@ function CSSFilter(filters: CSSFilterOptions | string, imageUrl: string): Promis
       canvas.height = image.naturalHeight; // Use natural height for accurate scaling
 
       // Build the filter string
-      let filterString = '';
-      
-      if (typeof filters === 'string') {
+      let filterString = "";
+
+      if (typeof filters === "string") {
         // If it's already a string (e.g., "blur(2px), brightness(0.8)")
         filterString = filters;
       } else {
         // If it's an object, convert it to a filter string
         const filterEntries = Object.entries(filters);
-        filterString = filterEntries
-          .map(([key, value]) => `${key}(${value})`)
-          .join(', ');
+        filterString = filterEntries.map(([key, value]) => `${key}(${value})`).join(", ");
       }
 
       // Apply the filter using the ctx.filter property
@@ -56,7 +54,7 @@ function CSSFilter(filters: CSSFilterOptions | string, imageUrl: string): Promis
         } else {
           reject("Failed to create blob URL.");
         }
-      }, 'image/png');
+      }, "image/png");
     };
 
     image.onerror = () => reject("Image failed to load.");

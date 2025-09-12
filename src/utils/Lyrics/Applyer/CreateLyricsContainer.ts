@@ -3,29 +3,29 @@ import { QueueForceScroll, SetWaitingForHeight } from "../../Scrolling/ScrollToA
 import { ScrollSimplebar } from "../../Scrolling/Simplebar/ScrollSimplebar.ts";
 
 type LyricsContainerReturnObject = {
-    Container: HTMLElement;
-    ResizeListener: ResizeObserver;
-    Append: (AppendTo: HTMLElement) => void;
-    Remove: () => void;
-    Resize: () => void;
+  Container: HTMLElement;
+  ResizeListener: ResizeObserver;
+  Append: (AppendTo: HTMLElement) => void;
+  Remove: () => void;
+  Resize: () => void;
 };
 
 const LyricsContainerInstances = new Map<number, LyricsContainerReturnObject>();
 
 let lastMapIndex = -1;
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const CreateLyricsContainer = (): LyricsContainerReturnObject => {
-    const Container = document.createElement("div");
-    Container.classList.add("SpicyLyricsScrollContainer");
+  const Container = document.createElement("div");
+  Container.classList.add("SpicyLyricsScrollContainer");
 
-    lastMapIndex += 1;
-    const currentIndex = lastMapIndex;
+  lastMapIndex += 1;
+  const currentIndex = lastMapIndex;
 
-    const Resize = () => {
-        (async () => {
-            /* Container.style.height = `0px`;
+  const Resize = () => {
+    (async () => {
+      /* Container.style.height = `0px`;
 
             await delay(150);
             let Height = GetContainerHeight(Container);
@@ -50,58 +50,58 @@ const CreateLyricsContainer = (): LyricsContainerReturnObject => {
             await delay(100);
             ScrollSimplebar?.recalculate(); */
 
-            await delay(95);
-            let Height = GetContainerHeight(Container);
-            Container.style.height = `${Height}px`;
-            ScrollSimplebar?.recalculate();
-            await delay(10);
-            QueueForceScroll();
-            await delay(5);
-            SetWaitingForHeight(false);
-        })();
-    }
+      await delay(95);
+      const Height = GetContainerHeight(Container);
+      Container.style.height = `${Height}px`;
+      ScrollSimplebar?.recalculate();
+      await delay(10);
+      QueueForceScroll();
+      await delay(5);
+      SetWaitingForHeight(false);
+    })();
+  };
 
-    const ResizeListener = new ResizeObserver(() => {
-        Resize();
-    });
+  const ResizeListener = new ResizeObserver(() => {
+    Resize();
+  });
 
-    const Remove = () => {
-        ResizeListener.unobserve(Container.parentElement as HTMLElement);
-        ResizeListener.disconnect();
-        Container.remove();
-        LyricsContainerInstances.delete(currentIndex);
-    };
+  const Remove = () => {
+    ResizeListener.unobserve(Container.parentElement as HTMLElement);
+    ResizeListener.disconnect();
+    Container.remove();
+    LyricsContainerInstances.delete(currentIndex);
+  };
 
-    const ReturnObject = {
-        Container,
-        ResizeListener,
-        Append: (AppendTo: HTMLElement) => {
-            AppendTo.appendChild(Container);
-            Container.style.height = `${GetContainerHeight(Container)}px`;
-            ResizeListener.observe(Container.parentElement as HTMLElement);
-        },
-        Remove,
-        Resize
-    };
+  const ReturnObject = {
+    Container,
+    ResizeListener,
+    Append: (AppendTo: HTMLElement) => {
+      AppendTo.appendChild(Container);
+      Container.style.height = `${GetContainerHeight(Container)}px`;
+      ResizeListener.observe(Container.parentElement as HTMLElement);
+    },
+    Remove,
+    Resize,
+  };
 
-    LyricsContainerInstances.set(currentIndex, ReturnObject);
+  LyricsContainerInstances.set(currentIndex, ReturnObject);
 
-    return ReturnObject;
-}
+  return ReturnObject;
+};
 
 const GetCurrentLyricsContainerInstance = (): LyricsContainerReturnObject | undefined => {
-    if (lastMapIndex === -1) {
-        return undefined;
-    }
-    return LyricsContainerInstances.get(lastMapIndex);
-}
+  if (lastMapIndex === -1) {
+    return undefined;
+  }
+  return LyricsContainerInstances.get(lastMapIndex);
+};
 
 const DestroyAllLyricsContainers = () => {
-    LyricsContainerInstances.forEach(Instance => {
-        Instance.Remove();
-    });
-    LyricsContainerInstances.clear();
-    lastMapIndex = -1;
-}
+  LyricsContainerInstances.forEach((Instance) => {
+    Instance.Remove();
+  });
+  LyricsContainerInstances.clear();
+  lastMapIndex = -1;
+};
 
-export { CreateLyricsContainer, DestroyAllLyricsContainers, GetCurrentLyricsContainerInstance }
+export { CreateLyricsContainer, DestroyAllLyricsContainers, GetCurrentLyricsContainerInstance };

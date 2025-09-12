@@ -1,4 +1,4 @@
-import { Maid, Giveable } from '@socali/modules/Maid';
+import { type Giveable, Maid } from "@socali/modules/Maid";
 
 class IntervalManager implements Giveable {
   private maid: Maid;
@@ -10,7 +10,7 @@ class IntervalManager implements Giveable {
   public Destroyed: boolean;
 
   constructor(duration: number, callback: () => void) {
-    if (isNaN(duration)) {
+    if (Number.isNaN(duration)) {
       throw new Error("Duration cannot be NaN.");
     }
 

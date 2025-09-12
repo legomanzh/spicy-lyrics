@@ -1,5 +1,5 @@
 import Defaults from "../../../../components/Global/Defaults.ts";
-import { LyricsObject, LyricsType } from "../../lyrics.ts";
+import { LyricsObject, type LyricsType } from "../../lyrics.ts";
 import { timeOffset } from "../Shared.ts";
 
 // Extend the LyricsType to include "None"
@@ -9,7 +9,7 @@ type ExtendedLyricsType = LyricsType | "None";
 type ElementStatus = "NotSung" | "Active" | "Sung";
 
 // Define interfaces for the objects we're working with
-interface SyllableLead {
+interface _SyllableLead {
   HTMLElement: HTMLElement;
   StartTime: number;
   EndTime: number;
@@ -34,8 +34,8 @@ export function TimeSetter(PreCurrentPosition: number): void {
       const lineTimes = {
         start: line.StartTime,
         end: line.EndTime,
-        total: line.EndTime - line.StartTime
-      }
+        total: line.EndTime - line.StartTime,
+      };
 
       if (lineTimes.start <= CurrentPosition && CurrentPosition <= lineTimes.end) {
         line.Status = "Active";
@@ -66,9 +66,7 @@ export function TimeSetter(PreCurrentPosition: number): void {
               }
             }
           }
-
         }
-
       } else if (lineTimes.start >= CurrentPosition) {
         line.Status = "NotSung";
 
@@ -115,15 +113,15 @@ export function TimeSetter(PreCurrentPosition: number): void {
       const lineTimes = {
         start: line.StartTime,
         end: line.EndTime,
-        total: line.EndTime - line.StartTime
-      }
+        total: line.EndTime - line.StartTime,
+      };
 
       if (lineTimes.start <= CurrentPosition && CurrentPosition <= lineTimes.end) {
         line.Status = "Active";
         if (line.DotLine) {
-          const Array = line.Syllables.Lead;
-          for (let i = 0; i < Array.length; i++) {
-            const dot = Array[i];
+          const leads = line.Syllables.Lead;
+          for (let i = 0; i < leads.length; i++) {
+            const dot = leads[i];
             if (dot.StartTime <= CurrentPosition && CurrentPosition <= dot.EndTime) {
               dot.Status = "Active";
             } else if (dot.StartTime >= CurrentPosition) {
@@ -136,18 +134,18 @@ export function TimeSetter(PreCurrentPosition: number): void {
       } else if (lineTimes.start >= CurrentPosition) {
         line.Status = "NotSung";
         if (line.DotLine) {
-          const Array = line.Syllables.Lead;
-          for (let i = 0; i < Array.length; i++) {
-            const dot = Array[i];
+          const leads = line.Syllables.Lead;
+          for (let i = 0; i < leads.length; i++) {
+            const dot = leads[i];
             dot.Status = "NotSung";
           }
         }
       } else if (lineTimes.end <= CurrentPosition) {
         line.Status = "Sung";
         if (line.DotLine) {
-          const Array = line.Syllables.Lead;
-          for (let i = 0; i < Array.length; i++) {
-            const dot = Array[i];
+          const leads = line.Syllables.Lead;
+          for (let i = 0; i < leads.length; i++) {
+            const dot = leads[i];
             dot.Status = "Sung";
           }
         }

@@ -1,4 +1,4 @@
-import { XMLParser } from 'fast-xml-parser';
+import { XMLParser } from "fast-xml-parser";
 
 export interface LyricWord {
   startTime: number;
@@ -23,7 +23,7 @@ export interface TTMLLyric {
 }
 
 const ADD_INTERLUDE_MS_SPACE = 5000;
-const INTERLUDE_CHARACTER = '♪';
+const INTERLUDE_CHARACTER = "♪";
 
 /**
  * Parses TTML timestamp strings (e.g., "00:01:10.254", "10.24s") into milliseconds.
@@ -32,8 +32,7 @@ const INTERLUDE_CHARACTER = '♪';
  */
 function parseTimestamp(timeStr: string): number | null {
   if (!timeStr) return null;
-  const timeRegex =
-    /^(?:(\d{2,3}):)?(\d{1,2}):(\d{1,2})(?:[.](\d+))?|(\d+(?:\.\d+)?)(s?)$/;
+  const timeRegex = /^(?:(\d{2,3}):)?(\d{1,2}):(\d{1,2})(?:[.](\d+))?|(\d+(?:\.\d+)?)(s?)$/;
   const match = timeStr.match(timeRegex);
 
   if (!match) return null;
@@ -43,7 +42,7 @@ function parseTimestamp(timeStr: string): number | null {
     const hours = match[1] ? parseInt(match[1], 10) : 0;
     const minutes = parseInt(match[2], 10);
     const seconds = parseInt(match[3], 10);
-    const fractionStr = match[4] || '0';
+    const fractionStr = match[4] || "0";
     const milliseconds = parseFloat(`0.${fractionStr}`) * 1000;
     return (hours * 3600 + minutes * 60 + seconds) * 1000 + milliseconds;
   }
@@ -70,18 +69,11 @@ export function parseTTML(ttmlString: string): Promise<TTMLLyric> {
 
     const options = {
       ignoreAttributes: false,
-      attributeNamePrefix: '',
-      textNodeName: '#text',
+      attributeNamePrefix: "",
+      textNodeName: "#text",
       // Ensure these tags are always arrays for consistent processing
       isArray: (name: string) =>
-        [
-          'p',
-          'span',
-          'ttm:agent',
-          'amll:meta',
-          'text',
-          'div',
-        ].includes(name),
+        ["p", "span", "ttm:agent", "amll:meta", "text", "div"].includes(name),
       trimValues: false,
     };
 
@@ -90,7 +82,7 @@ export function parseTTML(ttmlString: string): Promise<TTMLLyric> {
       const jsonObj = parser.parse(ttmlString);
 
       if (!jsonObj.tt) {
-        throw new Error('Invalid TTML structure: missing <tt> root element.');
+        throw new Error("Invalid TTML structure: missing <tt> root element.");
       }
       const tt = jsonObj.tt;
 
@@ -102,17 +94,16 @@ export function parseTTML(ttmlString: string): Promise<TTMLLyric> {
 
       // --- 1. Parse Metadata ---
       // Find main agent
-      const Agents = tt.head.metadata['ttm:agent'];
-      const PostAgents =
-        Agents != null ? (Array.isArray(Agents) ? Agents : [Agents]) : [];
+      const Agents = tt.head.metadata["ttm:agent"];
+      const PostAgents = Agents != null ? (Array.isArray(Agents) ? Agents : [Agents]) : [];
 
       // Determine if an agent represents an opposite alignment based on its ID
       const isOppositeAlignedAgent = (agent: any) => {
-        const agentId = agent['xml:id'];
+        const agentId = agent["xml:id"];
         // v1 is always the main vocal track
-        if (agentId === 'v1') return false;
+        if (agentId === "v1") return false;
         // v2000 and v2 are typically opposite aligned
-        if (agentId === 'v2000' || agentId === 'v2') return true;
+        if (agentId === "v2000" || agentId === "v2") return true;
         return false;
       };
 
@@ -121,7 +112,7 @@ export function parseTTML(ttmlString: string): Promise<TTMLLyric> {
           ? PostAgents.map((agent) => {
               return {
                 Type: agent.type,
-                Id: agent['xml:id'],
+                Id: agent["xml:id"],
                 OppositeAligned: isOppositeAlignedAgent(agent),
               };
             })
@@ -129,13 +120,13 @@ export function parseTTML(ttmlString: string): Promise<TTMLLyric> {
 
       if (tt.head?.metadata) {
         // Find amll:meta
-        const amllMetas = tt.head.metadata['amll:meta'] || [];
+        const amllMetas = tt.head.metadata["amll:meta"] || [];
         for (const meta of amllMetas) {
           if (meta.key && meta.value) {
             if (!result.metadata.has(meta.key)) {
               result.metadata.set(meta.key, []);
             }
-            result.metadata.get(meta.key)!.push(meta.value);
+            result.metadata.get(meta.key).push(meta.value);
           }
         }
 
@@ -144,21 +135,19 @@ export function parseTTML(ttmlString: string): Promise<TTMLLyric> {
         if (itunesMeta) {
           const translations = itunesMeta.translations?.text || [];
           for (const trans of translations) {
-            if (trans.for && trans['#text']) {
-              itunesTranslations.set(trans.for, trans['#text']);
+            if (trans.for && trans["#text"]) {
+              itunesTranslations.set(trans.for, trans["#text"]);
             }
           }
           const transliterations = itunesMeta.transliterations?.text || [];
           for (const trans of transliterations) {
             if (trans.for) {
-              const fullText = Array.isArray(trans['#text'])
-                ? trans['#text'].join('')
-                : trans['#text'] || '';
+              const fullText = Array.isArray(trans["#text"])
+                ? trans["#text"].join("")
+                : trans["#text"] || "";
               itunesTransliterations.set(trans.for, fullText);
 
-              const pieces = (trans.span || []).map(
-                (s: any) => s['#text'] || '',
-              );
+              const pieces = (trans.span || []).map((s: any) => s["#text"] || "");
               itunesTransliterationPieces.set(trans.for, pieces);
             }
           }
@@ -176,15 +165,12 @@ export function parseTTML(ttmlString: string): Promise<TTMLLyric> {
           const endMarker = `end="${span.end}"`;
           const endMarkerIndex = ttmlString.indexOf(endMarker);
           if (endMarkerIndex !== -1) {
-            const closingTagIndex = ttmlString.indexOf(
-              '</span>',
-              endMarkerIndex,
-            );
+            const closingTagIndex = ttmlString.indexOf("</span>", endMarkerIndex);
             if (closingTagIndex !== -1) {
-              const positionAfterCloseTag = closingTagIndex + '</span>'.length;
+              const positionAfterCloseTag = closingTagIndex + "</span>".length;
               if (
                 ttmlString.length > positionAfterCloseTag &&
-                ttmlString.charAt(positionAfterCloseTag) === '<'
+                ttmlString.charAt(positionAfterCloseTag) === "<"
               ) {
                 tagsAreAdjacent = true;
               }
@@ -193,8 +179,8 @@ export function parseTTML(ttmlString: string): Promise<TTMLLyric> {
 
           // Condition 2: Check if the NEXT span's text starts with whitespace
           let nextTextStartsWithSpace = false;
-          if (nextSpan['#text'] !== undefined) {
-            const nextText = nextSpan['#text']?.toString() || '';
+          if (nextSpan["#text"] !== undefined) {
+            const nextText = nextSpan["#text"]?.toString() || "";
             if (/^\s/.test(nextText)) {
               nextTextStartsWithSpace = true;
             }
@@ -202,17 +188,12 @@ export function parseTTML(ttmlString: string): Promise<TTMLLyric> {
 
           // Condition 3: Check if the CURRENT span's text ends with a comma
           let currentTextEndsWithComma = false;
-          if (span['#text'] !== undefined) {
-            currentTextEndsWithComma = span['#text']
-              ?.toString()
-              ?.trim()
-              .endsWith(',');
+          if (span["#text"] !== undefined) {
+            currentTextEndsWithComma = span["#text"]?.toString()?.trim().endsWith(",");
           }
 
           // Condition 4: Check if the CURRENT span's text ends with whitespace
-          const currentTextEndsWithWhitespace = /\s$/.test(
-            span['#text']?.toString() ?? '',
-          );
+          const currentTextEndsWithWhitespace = /\s$/.test(span["#text"]?.toString() ?? "");
 
           // Combine: True only if tags are adjacent AND next text doesn't start with space AND current text doesn't end with comma AND current text doesn't end with whitespace
           if (
@@ -232,13 +213,12 @@ export function parseTTML(ttmlString: string): Promise<TTMLLyric> {
       for (const div of divs) {
         const paragraphs = div.p || [];
         for (const p of paragraphs) {
-          const pContent = Array.isArray(p['#text'])
-            ? p['#text'].concat(p.span || [])
-            : [p['#text'], ...(p.span || [])].filter(Boolean);
+          const pContent = Array.isArray(p["#text"])
+            ? p["#text"].concat(p.span || [])
+            : [p["#text"], ...(p.span || [])].filter(Boolean);
 
           // Determine the agent ID for the current p element, falling back to div and then body
-          const pAgentId =
-            p['ttm:agent'] || div['ttm:agent'] || tt.body['ttm:agent'];
+          const pAgentId = p["ttm:agent"] || div["ttm:agent"] || tt.body["ttm:agent"];
           // Find the corresponding agent in TrackAgents
           const trackAgent = TrackAgents.find((a) => a.Id === pAgentId);
           // Determine the OppositeAligned status
@@ -250,60 +230,57 @@ export function parseTTML(ttmlString: string): Promise<TTMLLyric> {
             words: [],
             isDuet: isOpposite,
             isBG: false,
-            translatedLyric: '',
-            romanLyric: '',
+            translatedLyric: "",
+            romanLyric: "",
           };
 
-          const itunesKey = p['itunes:key'];
+          const itunesKey = p["itunes:key"];
           if (itunesKey) {
             lineKeyMap.push({ index: result.lines.length, key: itunesKey });
-            mainLine.translatedLyric = itunesTranslations.get(itunesKey) || '';
-            mainLine.romanLyric = itunesTransliterations.get(itunesKey) || '';
+            mainLine.translatedLyric = itunesTranslations.get(itunesKey) || "";
+            mainLine.romanLyric = itunesTransliterations.get(itunesKey) || "";
           }
           result.lines.push(mainLine);
 
           for (let i = 0; i < pContent.length; i++) {
             const item = pContent[i];
-            if (typeof item === 'string') {
+            if (typeof item === "string") {
               // Text directly in <p> is a word without timing
               mainLine.words.push({
                 word: item,
                 startTime: 0,
                 endTime: 0,
-                romanWord: '',
+                romanWord: "",
               });
-            } else if (typeof item === 'object' && item !== null) {
+            } else if (typeof item === "object" && item !== null) {
               // This is a <span> element
-              const role = item['ttm:role'];
-              const text = item['#text'] || '';
+              const role = item["ttm:role"];
+              const text = item["#text"] || "";
 
-              if (role === 'x-translation') {
-                if (mainLine.translatedLyric === '')
-                  mainLine.translatedLyric = text;
-              } else if (role === 'x-roman') {
-                if (mainLine.romanLyric === '') mainLine.romanLyric = text;
-              } else if (role === 'x-bg') {
+              if (role === "x-translation") {
+                if (mainLine.translatedLyric === "") mainLine.translatedLyric = text;
+              } else if (role === "x-roman") {
+                if (mainLine.romanLyric === "") mainLine.romanLyric = text;
+              } else if (role === "x-bg") {
                 // --- MODIFIED SECTION START ---
                 // Background line words are now appended to the current line
                 const bgWords: LyricWord[] = [];
-                const bgContent = Array.isArray(item['#text'])
-                  ? item['#text'].concat(item.span || [])
-                  : [item['#text'], ...(item.span || [])].filter(Boolean);
+                const bgContent = Array.isArray(item["#text"])
+                  ? item["#text"].concat(item.span || [])
+                  : [item["#text"], ...(item.span || [])].filter(Boolean);
 
                 for (let bgIndex = 0; bgIndex < bgContent.length; bgIndex++) {
                   const bgItem = bgContent[bgIndex];
-                  if (typeof bgItem === 'object' && bgItem !== null) {
-                    const bgRole = bgItem['ttm:role'];
+                  if (typeof bgItem === "object" && bgItem !== null) {
+                    const bgRole = bgItem["ttm:role"];
                     // We only care about actual words inside the bg span
-                    if (bgRole !== 'x-translation' && bgRole !== 'x-roman') {
-                      const bgText = bgItem['#text'] || '';
+                    if (bgRole !== "x-translation" && bgRole !== "x-roman") {
+                      const bgText = bgItem["#text"] || "";
                       bgWords.push({
                         startTime: parseTimestamp(bgItem.begin) ?? 0,
                         endTime: parseTimestamp(bgItem.end) ?? 0,
-                        word: IsPartOfWord(bgContent, bgIndex)
-                          ? `${bgText}`
-                          : `${bgText} `,
-                        romanWord: '',
+                        word: IsPartOfWord(bgContent, bgIndex) ? `${bgText}` : `${bgText} `,
+                        romanWord: "",
                       });
                     }
                   }
@@ -315,9 +292,7 @@ export function parseTTML(ttmlString: string): Promise<TTMLLyric> {
 
                   // Add closing parenthesis to the last word
                   const lastBgWordIndex = bgWords.length - 1;
-                  bgWords[lastBgWordIndex].word = `${bgWords[
-                    lastBgWordIndex
-                  ].word.trimEnd()} `;
+                  bgWords[lastBgWordIndex].word = `${bgWords[lastBgWordIndex].word.trimEnd()} `;
 
                   // Append these processed words to the main line
                   mainLine.words.push(...bgWords);
@@ -329,7 +304,7 @@ export function parseTTML(ttmlString: string): Promise<TTMLLyric> {
                   startTime: parseTimestamp(item.begin) ?? 0,
                   endTime: parseTimestamp(item.end) ?? 0,
                   word: IsPartOfWord(pContent, i) ? `${text}` : `${text} `,
-                  romanWord: '',
+                  romanWord: "",
                 });
               }
             }
@@ -346,17 +321,13 @@ export function parseTTML(ttmlString: string): Promise<TTMLLyric> {
         const pieces = itunesTransliterationPieces.get(key);
 
         if (line && !line.isBG && pieces) {
-          const wordIndices = line.words
-            .map((w, i) => (w.word ? i : -1))
-            .filter((i) => i !== -1);
+          const wordIndices = line.words.map((w, i) => (w.word ? i : -1)).filter((i) => i !== -1);
 
           if (wordIndices.length === 0 || pieces.length === 0) return;
 
-          let finalPieces = [...pieces];
+          const finalPieces = [...pieces];
           if (finalPieces.length > wordIndices.length) {
-            const extras = finalPieces
-              .splice(wordIndices.length - 1)
-              .join(' ');
+            const extras = finalPieces.splice(wordIndices.length - 1).join(" ");
             finalPieces.push(extras);
           }
 
@@ -386,15 +357,15 @@ export function parseTTML(ttmlString: string): Promise<TTMLLyric> {
                 words: [
                   {
                     startTime: currentLine.endTime,
-                    endTime: (currentLine.endTime + 1),
+                    endTime: currentLine.endTime + 1,
                     word: INTERLUDE_CHARACTER,
-                    romanWord: '',
+                    romanWord: "",
                   },
                 ],
                 isDuet: false,
                 isBG: false,
-                translatedLyric: '',
-                romanLyric: '',
+                translatedLyric: "",
+                romanLyric: "",
               };
               linesWithInterludes.push(interludeLine);
             }

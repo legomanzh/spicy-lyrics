@@ -69,7 +69,7 @@
 
 #SpicyLyricsPage .simplebar-content:before,
 #SpicyLyricsPage .simplebar-content:after {
-  content: ' ';
+  content: " ";
   display: table;
 }
 
@@ -127,8 +127,6 @@
   pointer-events: none;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
@@ -137,8 +135,6 @@
   pointer-events: none;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
@@ -156,7 +152,7 @@
 
 .simplebar-scrollbar:before {
   position: absolute;
-  content: '';
+  content: "";
   background: var(--Simplebar-Scrollbar-Color) !important;
   border-radius: 7px;
   left: 2px;
@@ -199,7 +195,7 @@
 }
 
 /* Rtl support */
-#SpicyLyricsPage [data-simplebar-direction='rtl'] .simplebar-track.simplebar-vertical {
+#SpicyLyricsPage [data-simplebar-direction="rtl"] .simplebar-track.simplebar-vertical {
   right: auto;
   left: 0;
 }
@@ -228,11 +224,11 @@
 }
 
 #SpicyLyricsPage .ScrollbarScrollable .simplebar-track.simplebar-vertical {
-  right: 5px
+  right: 5px;
 }
 
 #SpicyLyricsPage .ScrollbarScrollable .simplebar-track.simplebar-horizontal {
-  bottom: 5px
+  bottom: 5px;
 }
 
 #SpicyLyricsPage .ScrollbarScrollable.hide-scrollbar .simplebar-track {
@@ -240,9 +236,11 @@
 }
 
 #SpicyLyricsPage [data-simplebar]:not(.simplebar-dragging) .simplebar-content-wrapper {
-	scroll-behavior: smooth !important;
+  scroll-behavior: smooth !important;
 }
 
-#SpicyLyricsPage [data-simplebar]:not(.simplebar-dragging) .simplebar-content-wrapper.InstantScroll {
-	scroll-behavior: auto !important;
+#SpicyLyricsPage
+  [data-simplebar]:not(.simplebar-dragging)
+  .simplebar-content-wrapper.InstantScroll {
+  scroll-behavior: auto !important;
 }
