@@ -490,3 +490,10 @@ body.SpicySidebarLyrics__Active #SpicyLyricsPage {
     }
   }
 }
+
+
+
+.GenericModal:has(.slm),
+.GenericModal:has(.slm) .main-trackCreditsModal-container {
+  border-radius: 16px;
+}

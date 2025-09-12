@@ -15,7 +15,7 @@ export async function CheckForUpdates(force: boolean = false) {
     Spicetify.PopupModal.display({
       title: "New Update - Spicy Lyrics",
       content: (
-        <div className="update-card-wrapper">
+        <div className="update-card-wrapper slm">
           <div className="card">
             <div>Your Spicy Lyrics version is outdated.</div>
             <div>To update, click on the "Update" button.</div>

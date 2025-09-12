@@ -156,7 +156,7 @@ async function main() {
     Defaults.hide_npv_bg = storage.get("hide_npv_bg") === "true";
   }
 
-  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.12.0";
+  Defaults.SpicyLyricsVersion = window._spicy_lyrics_metadata?.LoadedVersion ?? "5.12.5";
 
   /* if (storage.get("lyrics_spacing")) {
     if (storage.get("lyrics_spacing") === "None") {
@@ -191,7 +191,7 @@ async function main() {
         /* This is a part of Spicy Lyrics */
         @keyframes skeleton {
             to {
-                background-position-x: 0
+                background-position-x: 0;
             }
         }
 
@@ -537,7 +537,7 @@ async function main() {
     const previousVersion = storage.get("previous-version");
     if (previousVersion !== Defaults.SpicyLyricsVersion) {
       Spicetify.PopupModal.display({
-        title: "Spicy Lyrics Updated !",
+        title: "Spicy Lyrics Updated!",
         content: <UpdateDialog  previousVersion={previousVersion} spicyLyricsVersion={Defaults.SpicyLyricsVersion} />,
         isLarge: true,
       });
@@ -928,7 +928,7 @@ async function main() {
         await CheckForUpdates();
         setTimeout(CheckForUpdates_Intervaled, 300 * 1000);
       };
-      setTimeout(async () => await CheckForUpdates_Intervaled(), 300 * 1000);
+      setTimeout(async () => await CheckForUpdates_Intervaled(), 1000);
     }
   };
 
