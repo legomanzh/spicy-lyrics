@@ -9,6 +9,8 @@ import "./css/Lyrics/Mixed.css";
 import "./css/Loaders/LoaderContainer.css";
 
 import "./components/Utils/GlobalExecute.ts";
+
+import React from "react"
 import { Defer } from "@socali/modules/Scheduler";
 import { Spicetify } from "@spicetify/bundler";
 import { DynamicBackground } from "@spikerko/tools/DynamicBackground";
@@ -533,13 +535,10 @@ async function main() {
     );
 
     const previousVersion = storage.get("previous-version");
-    if (previousVersion && previousVersion !== Defaults.SpicyLyricsVersion) {
+    if (previousVersion !== Defaults.SpicyLyricsVersion) {
       Spicetify.PopupModal.display({
         title: "Spicy Lyrics Updated !",
-        content: Spicetify.React.createElement(UpdateDialog, {
-          previousVersion,
-          spicyLyricsVersion: Defaults.SpicyLyricsVersion,
-        }),
+        content: <UpdateDialog  previousVersion={previousVersion} spicyLyricsVersion={Defaults.SpicyLyricsVersion} />,
         isLarge: true,
       });
     }
