@@ -1,18 +1,32 @@
 import Defaults from "../../../../components/Global/Defaults.ts";
+import { isSpicySidebarMode } from "../../../../components/Utils/SidebarLyrics.ts";
 import { applyStyles, removeAllStyles } from "../../../CSS/Styles.ts";
-import { ClearScrollSimplebar, MountScrollSimplebar, RecalculateScrollSimplebar, ScrollSimplebar } from "../../../Scrolling/Simplebar/ScrollSimplebar.ts";
-import { ConvertTime } from "../../ConvertTime.ts";
-import { ClearLyricsContentArrays, CurrentLineLyricsObject, endInterludeEarlierBy, lyricsBetweenShow, LyricsObject, setRomanizedStatus, SetWordArrayInCurentLine, SimpleLyricsMode_InterludeAddonTime } from "../../lyrics.ts";
-import { ApplyLyricsCredits } from "../Credits/ApplyLyricsCredits.ts";
-import { IsLetterCapable } from "../Utils/IsLetterCapable.ts";
-import Emphasize from "../Utils/Emphasize.ts";
+import {
+  ClearScrollSimplebar,
+  MountScrollSimplebar,
+  RecalculateScrollSimplebar,
+  ScrollSimplebar,
+} from "../../../Scrolling/Simplebar/ScrollSimplebar.ts";
 import { IdleEmphasisLyricsScale, IdleLyricsScale } from "../../Animator/Shared.ts";
-import isRtl from '../../isRtl.ts';
-import { ClearLyricsPageContainer } from '../../fetchLyrics.ts';
-import { EmitApply, EmitNotApplyed } from '../OnApply.ts';
+import { ConvertTime } from "../../ConvertTime.ts";
+import { ClearLyricsPageContainer } from "../../fetchLyrics.ts";
+import isRtl from "../../isRtl.ts";
+import {
+  ClearLyricsContentArrays,
+  CurrentLineLyricsObject,
+  LyricsObject,
+  SetWordArrayInCurentLine,
+  SimpleLyricsMode_InterludeAddonTime,
+  endInterludeEarlierBy,
+  lyricsBetweenShow,
+  setRomanizedStatus,
+} from "../../lyrics.ts";
 import { CreateLyricsContainer, DestroyAllLyricsContainers } from "../CreateLyricsContainer.ts";
 import { ApplyIsByCommunity } from "../Credits/ApplyIsByCommunity.ts";
-import { isSpicySidebarMode } from "../../../../components/Utils/SidebarLyrics.ts";
+import { ApplyLyricsCredits } from "../Credits/ApplyLyricsCredits.ts";
+import { EmitApply, EmitNotApplyed } from "../OnApply.ts";
+import Emphasize from "../Utils/Emphasize.ts";
+import { IsLetterCapable } from "../Utils/IsLetterCapable.ts";
 
 // Define the data structure for syllable lyrics
 interface SyllableData {
@@ -51,13 +65,14 @@ interface LyricsData {
   styles?: Record<string, string>;
 }
 
-
 export function ApplySyllableLyrics(data: LyricsData, UseRomanized: boolean = false): void {
   if (!Defaults.LyricsContainerExists) return;
   EmitNotApplyed();
 
   DestroyAllLyricsContainers();
-  const LyricsContainerParent = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent");
+  const LyricsContainerParent = document.querySelector<HTMLElement>(
+    "#SpicyLyricsPage .LyricsContainer .LyricsContent"
+  );
   const LyricsContainerInstance = CreateLyricsContainer();
   const LyricsContainer = LyricsContainerInstance.Container;
 
@@ -73,23 +88,23 @@ export function ApplySyllableLyrics(data: LyricsData, UseRomanized: boolean = fa
   ClearScrollSimplebar();
 
   ClearLyricsPageContainer();
-  
+
   if (data.StartTime >= lyricsBetweenShow) {
-    const musicalLine = document.createElement("div")
-    musicalLine.classList.add("line")
-    musicalLine.classList.add("musical-line")
+    const musicalLine = document.createElement("div");
+    musicalLine.classList.add("line");
+    musicalLine.classList.add("musical-line");
     LyricsObject.Types.Syllable.Lines.push({
       HTMLElement: musicalLine,
       StartTime: 0,
       EndTime: ConvertTime(data.StartTime + endInterludeEarlierBy),
       TotalTime: ConvertTime(data.StartTime + endInterludeEarlierBy),
-      DotLine: true
-    })
+      DotLine: true,
+    });
 
     SetWordArrayInCurentLine();
 
     if (data.Content[0].OppositeAligned) {
-      musicalLine.classList.add("OppositeAligned")
+      musicalLine.classList.add("OppositeAligned");
     }
 
     const dotGroup = document.createElement("div");
@@ -113,7 +128,7 @@ export function ApplySyllableLyrics(data: LyricsData, UseRomanized: boolean = fa
         StartTime: 0,
         EndTime: dotTime,
         TotalTime: dotTime,
-        Dot: true
+        Dot: true,
       });
     } else {
       console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
@@ -130,7 +145,7 @@ export function ApplySyllableLyrics(data: LyricsData, UseRomanized: boolean = fa
         StartTime: dotTime,
         EndTime: dotTime * 2,
         TotalTime: dotTime,
-        Dot: true
+        Dot: true,
       });
     } else {
       console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
@@ -145,9 +160,11 @@ export function ApplySyllableLyrics(data: LyricsData, UseRomanized: boolean = fa
       LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
         HTMLElement: musicalDots3,
         StartTime: dotTime * 2,
-        EndTime: ConvertTime(data.StartTime) + (Defaults.SimpleLyricsMode ? SimpleLyricsMode_InterludeAddonTime : -400),
+        EndTime:
+          ConvertTime(data.StartTime) +
+          (Defaults.SimpleLyricsMode ? SimpleLyricsMode_InterludeAddonTime : -400),
         TotalTime: dotTime,
-        Dot: true
+        Dot: true,
       });
     } else {
       console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
@@ -158,294 +175,321 @@ export function ApplySyllableLyrics(data: LyricsData, UseRomanized: boolean = fa
     dotGroup.appendChild(musicalDots3);
 
     musicalLine.appendChild(dotGroup);
-    LyricsContainer.appendChild(musicalLine)
+    LyricsContainer.appendChild(musicalLine);
   }
-    data.Content.forEach((line, index, arr) => {
-      const lineElem = document.createElement("div")
-      lineElem.classList.add("line")
+  data.Content.forEach((line, index, arr) => {
+    const lineElem = document.createElement("div");
+    lineElem.classList.add("line");
 
-      const nextLineStartTime = arr[index + 1]?.Lead.StartTime ?? 0;
-      
-      const lineEndTimeAndNextLineStartTimeDistance =
-        nextLineStartTime !== 0 ? nextLineStartTime - line.Lead.EndTime : 0;
+    const nextLineStartTime = arr[index + 1]?.Lead.StartTime ?? 0;
 
-      const lineEndTime =
-        Defaults.MinimalLyricsMode || isSpicySidebarMode ?
-          nextLineStartTime === 0 ? line.Lead.EndTime :
-            lineEndTimeAndNextLineStartTimeDistance < lyricsBetweenShow && nextLineStartTime > line.Lead.EndTime ? nextLineStartTime :
-              line.Lead.EndTime : line.Lead.EndTime;
-      
+    const lineEndTimeAndNextLineStartTimeDistance =
+      nextLineStartTime !== 0 ? nextLineStartTime - line.Lead.EndTime : 0;
+
+    const lineEndTime =
+      Defaults.MinimalLyricsMode || isSpicySidebarMode
+        ? nextLineStartTime === 0
+          ? line.Lead.EndTime
+          : lineEndTimeAndNextLineStartTimeDistance < lyricsBetweenShow &&
+              nextLineStartTime > line.Lead.EndTime
+            ? nextLineStartTime
+            : line.Lead.EndTime
+        : line.Lead.EndTime;
+
+    LyricsObject.Types.Syllable.Lines.push({
+      HTMLElement: lineElem,
+      StartTime: ConvertTime(line.Lead.StartTime),
+      EndTime: ConvertTime(lineEndTime),
+      TotalTime: ConvertTime(lineEndTime) - ConvertTime(line.Lead.StartTime),
+    });
+
+    SetWordArrayInCurentLine();
+
+    if (line.OppositeAligned) {
+      lineElem.classList.add("OppositeAligned");
+    }
+
+    LyricsContainer.appendChild(lineElem);
+
+    line.Lead.Syllables.forEach((lead, iL, aL) => {
+      let word = document.createElement("span");
+
+      if (isRtl(lead.Text) && !lineElem.classList.contains("rtl")) {
+        lineElem.classList.add("rtl");
+      }
+
+      const totalDuration = ConvertTime(lead.EndTime) - ConvertTime(lead.StartTime);
+
+      const letterLength = (
+        UseRomanized && lead.RomanizedText !== undefined ? lead.RomanizedText : lead.Text
+      ).split("").length;
+
+      const IfLetterCapable = IsLetterCapable(letterLength, totalDuration);
+
+      if (IfLetterCapable) {
+        word = document.createElement("div");
+        const letters = (
+          UseRomanized && lead.RomanizedText !== undefined ? lead.RomanizedText : lead.Text
+        ).split(""); // Split word into individual letters
+
+        Emphasize(letters, word, lead);
+
+        iL === aL.length - 1
+          ? word.classList.add("LastWordInLine")
+          : lead.IsPartOfWord
+            ? word.classList.add("PartOfWord")
+            : null;
+
+        if (!Defaults.SimpleLyricsMode) {
+          word.style.setProperty("--text-shadow-opacity", `0%`);
+          word.style.setProperty("--text-shadow-blur-radius", `4px`);
+          word.style.scale = IdleEmphasisLyricsScale.toString();
+          word.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0.02))`;
+        }
+
+        //const contentDuration = totalDuration > 200 ? totalDuration : 200;
+        //word.style.setProperty("--content-duration", `${contentDuration}ms`);
+
+        lineElem.appendChild(word);
+      } else {
+        word.textContent =
+          UseRomanized && lead.RomanizedText !== undefined ? lead.RomanizedText : lead.Text;
+
+        if (!Defaults.SimpleLyricsMode) {
+          word.style.setProperty("--gradient-position", `-20%`);
+          word.style.setProperty("--text-shadow-opacity", `0%`);
+          word.style.setProperty("--text-shadow-blur-radius", `4px`);
+          word.style.scale = IdleLyricsScale.toString();
+          word.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0.01))`;
+        }
+
+        word.classList.add("word");
+
+        iL === aL.length - 1
+          ? word.classList.add("LastWordInLine")
+          : lead.IsPartOfWord
+            ? word.classList.add("PartOfWord")
+            : null;
+
+        lineElem.appendChild(word);
+
+        // Check if Syllables.Lead exists
+        if (LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject]?.Syllables?.Lead) {
+          LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
+            HTMLElement: word,
+            StartTime: ConvertTime(lead.StartTime),
+            EndTime: ConvertTime(lead.EndTime),
+            TotalTime: totalDuration,
+          });
+        } else {
+          console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
+        }
+      }
+    });
+
+    if (line.Background) {
+      line.Background.forEach((bg) => {
+        const lineE = document.createElement("div");
+        lineE.classList.add("line", "bg-line");
+
+        LyricsObject.Types.Syllable.Lines.push({
+          HTMLElement: lineE,
+          StartTime: ConvertTime(bg.StartTime),
+          EndTime: ConvertTime(bg.EndTime),
+          TotalTime: ConvertTime(bg.EndTime) - ConvertTime(bg.StartTime),
+          BGLine: true,
+        });
+        SetWordArrayInCurentLine();
+
+        if (line.OppositeAligned) {
+          lineE.classList.add("OppositeAligned");
+        }
+        LyricsContainer.appendChild(lineE);
+        bg.Syllables.forEach((bw, bI, bA) => {
+          let bwE = document.createElement("span");
+
+          if (isRtl(bw.Text) && !lineE.classList.contains("rtl")) {
+            lineE.classList.add("rtl");
+          }
+
+          const totalDuration = ConvertTime(bw.EndTime) - ConvertTime(bw.StartTime);
+
+          const letterLength = (
+            UseRomanized && bw.RomanizedText !== undefined ? bw.RomanizedText : bw.Text
+          ).split("").length;
+
+          const IfLetterCapable = IsLetterCapable(letterLength, totalDuration);
+
+          if (IfLetterCapable) {
+            bwE = document.createElement("div");
+            const letters = (
+              UseRomanized && bw.RomanizedText !== undefined ? bw.RomanizedText : bw.Text
+            ).split(""); // Split word into individual letters
+
+            Emphasize(letters, bwE, bw, true);
+
+            bI === bA.length - 1
+              ? bwE.classList.add("LastWordInLine")
+              : bw.IsPartOfWord
+                ? bwE.classList.add("PartOfWord")
+                : null;
+
+            if (!Defaults.SimpleLyricsMode) {
+              bwE.style.setProperty("--text-shadow-opacity", `0%`);
+              bwE.style.setProperty("--text-shadow-blur-radius", `4px`);
+              bwE.style.scale = IdleEmphasisLyricsScale.toString();
+              bwE.style.transform = `translateY(calc(var(--font-size) * 0.02))`;
+            }
+
+            //const contentDuration = totalDuration > 200 ? totalDuration : 200;
+            //bwE.style.setProperty("--content-duration", `${contentDuration}ms`);
+
+            lineE.appendChild(bwE);
+          } else {
+            bwE.textContent =
+              UseRomanized && bw.RomanizedText !== undefined ? bw.RomanizedText : bw.Text;
+
+            if (!Defaults.SimpleLyricsMode) {
+              bwE.style.setProperty("--gradient-position", `0%`);
+              bwE.style.setProperty("--text-shadow-opacity", `0%`);
+              bwE.style.setProperty("--text-shadow-blur-radius", `4px`);
+              bwE.style.scale = IdleLyricsScale.toString();
+              bwE.style.transform = `translateY(calc(var(--font-size) * 0.01))`;
+            }
+
+            // Check if Syllables.Lead exists
+            if (LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject]?.Syllables?.Lead) {
+              LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
+                HTMLElement: bwE,
+                StartTime: ConvertTime(bw.StartTime),
+                EndTime: ConvertTime(bw.EndTime),
+                TotalTime: ConvertTime(bw.EndTime) - ConvertTime(bw.StartTime),
+                BGWord: true,
+              });
+            } else {
+              console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
+            }
+
+            bwE.classList.add("bg-word");
+            bwE.classList.add("word");
+
+            bI === bA.length - 1
+              ? bwE.classList.add("LastWordInLine")
+              : bw.IsPartOfWord
+                ? bwE.classList.add("PartOfWord")
+                : null;
+
+            lineE.appendChild(bwE);
+          }
+        });
+      });
+    }
+    if (arr[index + 1] && arr[index + 1].Lead.StartTime - line.Lead.EndTime >= lyricsBetweenShow) {
+      const musicalLine = document.createElement("div");
+      musicalLine.classList.add("line");
+      musicalLine.classList.add("musical-line");
 
       LyricsObject.Types.Syllable.Lines.push({
-        HTMLElement: lineElem,
-        StartTime: ConvertTime(line.Lead.StartTime),
-        EndTime: ConvertTime(lineEndTime),
-        TotalTime: ConvertTime(lineEndTime) - ConvertTime(line.Lead.StartTime)
+        HTMLElement: musicalLine,
+        StartTime: ConvertTime(line.Lead.EndTime),
+        EndTime: ConvertTime(arr[index + 1].Lead.StartTime + endInterludeEarlierBy),
+        TotalTime:
+          ConvertTime(arr[index + 1].Lead.StartTime + endInterludeEarlierBy) -
+          ConvertTime(line.Lead.EndTime),
+        DotLine: true,
       });
 
       SetWordArrayInCurentLine();
 
-      if (line.OppositeAligned) {
-        lineElem.classList.add("OppositeAligned")
+      if (arr[index + 1].OppositeAligned) {
+        musicalLine.classList.add("OppositeAligned");
       }
 
+      const dotGroup = document.createElement("div");
+      dotGroup.classList.add("dotGroup");
 
-      LyricsContainer.appendChild(lineElem)
+      const musicalDots1 = document.createElement("span");
+      const musicalDots2 = document.createElement("span");
+      const musicalDots3 = document.createElement("span");
 
+      const totalTime = ConvertTime(arr[index + 1].Lead.StartTime) - ConvertTime(line.Lead.EndTime);
+      const dotTime = totalTime / 3;
 
-      line.Lead.Syllables.forEach((lead, iL, aL) => {
-        let word = document.createElement("span")
+      musicalDots1.classList.add("word");
+      musicalDots1.classList.add("dot");
+      musicalDots1.textContent = "•";
 
-        if (isRtl(lead.Text) && !lineElem.classList.contains("rtl")) {
-          lineElem.classList.add("rtl")
-        }
-
-        const totalDuration = ConvertTime(lead.EndTime) - ConvertTime(lead.StartTime);
-
-        const letterLength = ((UseRomanized && lead.RomanizedText !== undefined) ? lead.RomanizedText : lead.Text).split("").length;
-
-        const IfLetterCapable = IsLetterCapable(letterLength, totalDuration);
-
-        if (IfLetterCapable) {
-
-          word = document.createElement("div")
-          const letters = ((UseRomanized && lead.RomanizedText !== undefined) ? lead.RomanizedText : lead.Text).split(""); // Split word into individual letters
-
-          Emphasize(letters, word, lead)
-
-          iL === aL.length - 1 ? word.classList.add("LastWordInLine") : lead.IsPartOfWord ? word.classList.add("PartOfWord") : null;
-
-          if (!Defaults.SimpleLyricsMode) {
-            word.style.setProperty("--text-shadow-opacity", `0%`);
-            word.style.setProperty("--text-shadow-blur-radius", `4px`);
-            word.style.scale = IdleEmphasisLyricsScale.toString();
-            word.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0.02))`;
-          }
-
-          //const contentDuration = totalDuration > 200 ? totalDuration : 200;
-          //word.style.setProperty("--content-duration", `${contentDuration}ms`);
-
-          lineElem.appendChild(word);
-
-        } else {
-          word.textContent = ((UseRomanized && lead.RomanizedText !== undefined) ? lead.RomanizedText : lead.Text);
-
-          if (!Defaults.SimpleLyricsMode) {
-            word.style.setProperty("--gradient-position", `-20%`);
-            word.style.setProperty("--text-shadow-opacity", `0%`);
-            word.style.setProperty("--text-shadow-blur-radius", `4px`);
-            word.style.scale = IdleLyricsScale.toString();
-            word.style.transform = `translateY(calc(var(--DefaultLyricsSize) * 0.01))`;
-          }
-
-
-          word.classList.add("word");
-
-          iL === aL.length - 1 ? word.classList.add("LastWordInLine") : lead.IsPartOfWord ? word.classList.add("PartOfWord") : null;
-
-          lineElem.appendChild(word);
-
-          // Check if Syllables.Lead exists
-          if (LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject]?.Syllables?.Lead) {
-            LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
-              HTMLElement: word,
-              StartTime: ConvertTime(lead.StartTime),
-              EndTime: ConvertTime(lead.EndTime),
-              TotalTime: totalDuration,
-            });
-          } else {
-            console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
-          }
-        }
-
-      })
-
-      if (line.Background) {
-        line.Background.forEach((bg) => {
-          const lineE = document.createElement("div");
-          lineE.classList.add("line", "bg-line");
-
-          LyricsObject.Types.Syllable.Lines.push({
-            HTMLElement: lineE,
-            StartTime: ConvertTime(bg.StartTime),
-            EndTime: ConvertTime(bg.EndTime),
-            TotalTime: ConvertTime(bg.EndTime) - ConvertTime(bg.StartTime),
-            BGLine: true
-          })
-          SetWordArrayInCurentLine();
-
-          if (line.OppositeAligned) {
-              lineE.classList.add("OppositeAligned")
-          }
-          LyricsContainer.appendChild(lineE)
-          bg.Syllables.forEach((bw, bI, bA) => {
-            let bwE = document.createElement("span")
-
-            if (isRtl(bw.Text) && !lineE.classList.contains("rtl")) {
-              lineE.classList.add("rtl")
-            }
-
-            const totalDuration = ConvertTime(bw.EndTime) - ConvertTime(bw.StartTime);
-
-            const letterLength = ((UseRomanized && bw.RomanizedText !== undefined) ? bw.RomanizedText : bw.Text).split("").length;
-
-            const IfLetterCapable = IsLetterCapable(letterLength, totalDuration);
-
-            if (IfLetterCapable) {
-
-              bwE = document.createElement("div")
-              const letters = ((UseRomanized && bw.RomanizedText !== undefined) ? bw.RomanizedText : bw.Text).split(""); // Split word into individual letters
-
-              Emphasize(letters, bwE, bw, true)
-
-              bI === bA.length - 1 ? bwE.classList.add("LastWordInLine") : bw.IsPartOfWord ? bwE.classList.add("PartOfWord") : null;
-
-              if (!Defaults.SimpleLyricsMode) {
-                bwE.style.setProperty("--text-shadow-opacity", `0%`);
-                bwE.style.setProperty("--text-shadow-blur-radius", `4px`);
-                bwE.style.scale = IdleEmphasisLyricsScale.toString();
-                bwE.style.transform = `translateY(calc(var(--font-size) * 0.02))`;
-              }
-
-              //const contentDuration = totalDuration > 200 ? totalDuration : 200;
-              //bwE.style.setProperty("--content-duration", `${contentDuration}ms`);
-
-              lineE.appendChild(bwE)
-
-            } else {
-              bwE.textContent = ((UseRomanized && bw.RomanizedText !== undefined) ? bw.RomanizedText : bw.Text)
-
-              if (!Defaults.SimpleLyricsMode) {
-                bwE.style.setProperty("--gradient-position", `0%`);
-                bwE.style.setProperty("--text-shadow-opacity", `0%`);
-                bwE.style.setProperty("--text-shadow-blur-radius", `4px`);
-                bwE.style.scale = IdleLyricsScale.toString();
-                bwE.style.transform = `translateY(calc(var(--font-size) * 0.01))`;
-              }
-
-              // Check if Syllables.Lead exists
-              if (LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject]?.Syllables?.Lead) {
-                LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
-                  HTMLElement: bwE,
-                  StartTime: ConvertTime(bw.StartTime),
-                  EndTime: ConvertTime(bw.EndTime),
-                  TotalTime: ConvertTime(bw.EndTime) - ConvertTime(bw.StartTime),
-                  BGWord: true
-                });
-              } else {
-                console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
-              }
-
-              bwE.classList.add("bg-word")
-              bwE.classList.add("word")
-
-              bI === bA.length - 1 ? bwE.classList.add("LastWordInLine") : bw.IsPartOfWord ? bwE.classList.add("PartOfWord") : null;
-
-              lineE.appendChild(bwE)
-            }
-          })
-        })
+      // Check if Syllables.Lead exists
+      if (LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject]?.Syllables?.Lead) {
+        LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
+          HTMLElement: musicalDots1,
+          StartTime: ConvertTime(line.Lead.EndTime),
+          EndTime: ConvertTime(line.Lead.EndTime) + dotTime,
+          TotalTime: dotTime,
+          Dot: true,
+        });
+      } else {
+        console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
       }
-        if (arr[index + 1] && arr[index + 1].Lead.StartTime - line.Lead.EndTime >= lyricsBetweenShow) {
-          const musicalLine = document.createElement("div")
-          musicalLine.classList.add("line")
-          musicalLine.classList.add("musical-line")
 
-          LyricsObject.Types.Syllable.Lines.push({
-            HTMLElement: musicalLine,
-            StartTime: ConvertTime(line.Lead.EndTime),
-            EndTime: ConvertTime(arr[index + 1].Lead.StartTime + endInterludeEarlierBy),
-            TotalTime: ConvertTime(arr[index + 1].Lead.StartTime + endInterludeEarlierBy) - ConvertTime(line.Lead.EndTime),
-            DotLine: true
-          })
+      musicalDots2.classList.add("word");
+      musicalDots2.classList.add("dot");
+      musicalDots2.textContent = "•";
 
-          SetWordArrayInCurentLine();
+      // Check if Syllables.Lead exists
+      if (LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject]?.Syllables?.Lead) {
+        LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
+          HTMLElement: musicalDots2,
+          StartTime: ConvertTime(line.Lead.EndTime) + dotTime,
+          EndTime: ConvertTime(line.Lead.EndTime) + dotTime * 2,
+          TotalTime: dotTime,
+          Dot: true,
+        });
+      } else {
+        console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
+      }
 
-          if (arr[index + 1].OppositeAligned) {
-            musicalLine.classList.add("OppositeAligned")
-          }
+      musicalDots3.classList.add("word");
+      musicalDots3.classList.add("dot");
+      musicalDots3.textContent = "•";
 
-          const dotGroup = document.createElement("div");
-          dotGroup.classList.add("dotGroup");
+      // Check if Syllables.Lead exists
+      if (LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject]?.Syllables?.Lead) {
+        LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
+          HTMLElement: musicalDots3,
+          StartTime: ConvertTime(line.Lead.EndTime) + dotTime * 2,
+          EndTime:
+            ConvertTime(arr[index + 1].Lead.StartTime) +
+            (Defaults.SimpleLyricsMode ? SimpleLyricsMode_InterludeAddonTime : -400),
+          TotalTime: dotTime,
+          Dot: true,
+        });
+      } else {
+        console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
+      }
 
-          const musicalDots1 = document.createElement("span");
-          const musicalDots2 = document.createElement("span");
-          const musicalDots3 = document.createElement("span");
+      dotGroup.appendChild(musicalDots1);
+      dotGroup.appendChild(musicalDots2);
+      dotGroup.appendChild(musicalDots3);
 
-          const totalTime = ConvertTime(arr[index + 1].Lead.StartTime) - ConvertTime(line.Lead.EndTime);
-          const dotTime = totalTime / 3;
-
-          musicalDots1.classList.add("word");
-          musicalDots1.classList.add("dot");
-          musicalDots1.textContent = "•";
-
-          // Check if Syllables.Lead exists
-          if (LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject]?.Syllables?.Lead) {
-            LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
-              HTMLElement: musicalDots1,
-              StartTime: ConvertTime(line.Lead.EndTime),
-              EndTime: ConvertTime(line.Lead.EndTime) + dotTime,
-              TotalTime: dotTime,
-              Dot: true
-            });
-          } else {
-            console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
-          }
-
-          musicalDots2.classList.add("word");
-          musicalDots2.classList.add("dot");
-          musicalDots2.textContent = "•";
-
-          // Check if Syllables.Lead exists
-          if (LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject]?.Syllables?.Lead) {
-            LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
-              HTMLElement: musicalDots2,
-              StartTime: ConvertTime(line.Lead.EndTime) + dotTime,
-              EndTime: ConvertTime(line.Lead.EndTime) + (dotTime * 2),
-              TotalTime: dotTime,
-              Dot: true
-            });
-          } else {
-            console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
-          }
-
-          musicalDots3.classList.add("word");
-          musicalDots3.classList.add("dot");
-          musicalDots3.textContent = "•";
-
-          // Check if Syllables.Lead exists
-          if (LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject]?.Syllables?.Lead) {
-            LyricsObject.Types.Syllable.Lines[CurrentLineLyricsObject].Syllables?.Lead.push({
-              HTMLElement: musicalDots3,
-              StartTime: ConvertTime(line.Lead.EndTime) + (dotTime * 2),
-              EndTime: ConvertTime(arr[index + 1].Lead.StartTime) + (Defaults.SimpleLyricsMode ? SimpleLyricsMode_InterludeAddonTime : -400),
-              TotalTime: dotTime,
-              Dot: true
-            });
-          } else {
-            console.warn("Syllables.Lead is undefined for CurrentLineLyricsObject");
-          }
-
-          dotGroup.appendChild(musicalDots1);
-          dotGroup.appendChild(musicalDots2);
-          dotGroup.appendChild(musicalDots3);
-
-          musicalLine.appendChild(dotGroup);
-          LyricsContainer.appendChild(musicalLine)
-        }
+      musicalLine.appendChild(dotGroup);
+      LyricsContainer.appendChild(musicalLine);
+    }
   });
 
   ApplyLyricsCredits(data, LyricsContainer);
   ApplyIsByCommunity(data, LyricsContainer);
-  
+
   if (LyricsContainerParent) {
     LyricsContainerInstance.Append(LyricsContainerParent);
   }
 
   if (ScrollSimplebar) RecalculateScrollSimplebar();
-    else MountScrollSimplebar();
+  else MountScrollSimplebar();
 
-  const LyricsStylingContainer = document.querySelector<HTMLElement>("#SpicyLyricsPage .LyricsContainer .LyricsContent .simplebar-content");
+  const LyricsStylingContainer = document.querySelector<HTMLElement>(
+    "#SpicyLyricsPage .LyricsContainer .LyricsContent .simplebar-content"
+  );
 
   // Check if LyricsStylingContainer exists
   if (LyricsStylingContainer) {
@@ -466,4 +510,3 @@ export function ApplySyllableLyrics(data: LyricsData, UseRomanized: boolean = fa
 
   setRomanizedStatus(UseRomanized);
 }
-

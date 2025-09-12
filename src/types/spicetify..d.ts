@@ -1,3 +1,4 @@
+// deno-lint-ignore-file
 declare namespace Spicetify {
   type Icon =
     | "album"
@@ -2450,4 +2451,3 @@ declare namespace Spicetify {
     function toLocaleUpperCase(text: string): string;
   }
 }
-export default Spicetify;

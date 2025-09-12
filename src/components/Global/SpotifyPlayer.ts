@@ -1,4 +1,3 @@
-import SpicetifyType from "../../types/Spicetify.ts";
 import { Spicetify } from "@spicetify/bundler";
 import GetProgress, { _DEPRECATED___GetProgress } from "../../utils/Gets/GetProgress.ts";
 
@@ -110,108 +109,89 @@ import GetProgress, { _DEPRECATED___GetProgress } from "../../utils/Gets/GetProg
 } */
 
 const GetContentType = (): string => {
-    if (
-        Spicetify &&
-        Spicetify.Player &&
-        Spicetify.Player.data &&
-        Spicetify.Player.data.item &&
-        Spicetify.Player.data.item.type
-    ) {
-        return Spicetify.Player.data.item?.type
-    }
-    return "unknown";
+  if (Spicetify?.Player?.data?.item?.type) {
+    return Spicetify.Player.data.item.type;
+  }
+  return "unknown";
 };
 
 export type CoverSizes = "standard" | "small" | "large" | "xlarge";
 export type Artist = {
-    type: "artist";
-    name: string;
-    uri: string;
-}
+  type: "artist";
+  name: string;
+  uri: string;
+};
 
 export const SpotifyPlayer = {
-    IsPlaying: false,
-    _DEPRECATED_: {
-        GetTrackPosition: _DEPRECATED___GetProgress
-    },
-    GetPosition: GetProgress,
-    GetContentType: GetContentType,
-    GetDuration: (): number => {
-        if (
-            Spicetify.Player.data &&
-            Spicetify.Player.data.item &&
-            Spicetify.Player.data.item.duration &&
-            Spicetify.Player.data.item.duration.milliseconds
-        
-        ) {
-            return Spicetify.Player.data.item.duration.milliseconds;
-        }
-        return 0;
-    },
-    Seek: (position: number): void => {
-        (Spicetify?.Player as any)?.origin?.seekTo(position);
-    },
-    GetCover: (size: CoverSizes): string | undefined => {
-        if (
-            Spicetify.Player.data &&
-            Spicetify.Player.data.item &&
-            Spicetify.Player.data.item.images
-        ) {
-            const covers = Spicetify.Player.data.item?.images;
-            if (covers.length > 0) {
-                const cover = covers?.find(cover => cover.label === size) ?? undefined;
-                return cover?.url ?? "https://images.spikerko.org/SongPlaceholderFull.png";
-            }
-        }
-        return "https://images.spikerko.org/SongPlaceholderFull.png";
-    },
-    GetCoverFrom: (size: CoverSizes, source: Array<{ url: string, label: string }> | SpicetifyType.ImagesEntity[]): string | undefined => {
-        if (source) {
-            if (source.length > 0) {
-                const cover = source?.find(cover => cover.label === size) ?? undefined;
-                return cover?.url ?? "https://images.spikerko.org/SongPlaceholderFull.png";
-            }
-        }
-        return "https://images.spikerko.org/SongPlaceholderFull.png";
-    },
-    GetName: (): string | undefined => {
-        return Spicetify?.Player?.data?.item?.name ?? undefined;
-    },
-    GetAlbumName: (): string | undefined => {
-        return Spicetify?.Player?.data?.item?.metadata?.album_title ?? undefined;
-    },
-    GetId: (): string | undefined => {
-        return Spicetify?.Player?.data?.item?.uri?.split(":")[2] ?? undefined;
-    },
-    GetArtists: (): Artist[] | undefined => {
-        return Spicetify?.Player?.data?.item?.artists as Artist[] ?? undefined;
-    },
-    GetUri: (): string | undefined => {
-        return Spicetify?.Player?.data?.item?.uri ?? Spicetify.Player.data?.track?.uri;
-    },
-    Pause: Spicetify?.Player?.pause,
-    Play: Spicetify?.Player?.play,
-    TogglePlayState: Spicetify?.Player?.togglePlay,
-    Skip: {
-        Next: Spicetify?.Player?.next,
-        Prev: Spicetify?.Player?.back
-    },
-    LoopType: "none",
-    ShuffleType: "none",
-    IsDJ: (): boolean => {
-        return (
-                Spicetify.Player.data?.item?.provider &&
-                Spicetify.Player.data?.item?.provider?.startsWith("narration")
-               ) || (
-                Spicetify.Player.data?.restrictions?.disallowSeekingReasons &&
-                Spicetify.Player.data?.restrictions?.disallowSeekingReasons?.length > 0 &&
-                Spicetify.Player.data?.restrictions?.disallowSeekingReasons[0].includes("narration")
-               ) ||
-               (
-                Spicetify.Player.data?.item?.type &&
-                Spicetify.Player.data?.item?.type === "unknown"
-               ) ? true : false;
-    },
-    IsLiked: () => Spicetify?.Player?.getHeart(),
-    ToggleLike: () => Spicetify?.Player?.toggleHeart(),
+  IsPlaying: false,
+  _DEPRECATED_: {
+    GetTrackPosition: _DEPRECATED___GetProgress,
+  },
+  GetPosition: GetProgress,
+  GetContentType: GetContentType,
+  GetDuration: (): number => {
+    if (Spicetify?.Player?.data?.item.duration.milliseconds) {
+      return Spicetify.Player.data.item.duration.milliseconds;
+    }
+    return 0;
+  },
+  Seek: (position: number): void => {
+    Spicetify?.Player?.seek(position) ?? (Spicetify?.Player as any)?.origin?.seekTo(position);
+  },
+  GetCover: (size: CoverSizes): string | undefined => {
+    if (Spicetify?.Player?.data?.item.images) {
+      const covers = Spicetify.Player.data.item?.images;
+      if (covers.length > 0) {
+        const cover = covers?.find((cover) => cover.label === size);
+        return cover?.url ?? "https://images.spikerko.org/SongPlaceholderFull.png";
+      }
+    }
+    return "https://images.spikerko.org/SongPlaceholderFull.png";
+  },
+  GetCoverFrom: (
+    size: CoverSizes,
+    source: Array<{ url: string; label: string }> | Spicetify.ImagesEntity[]
+  ): string | undefined => {
+    if (source) {
+      if (source.length > 0) {
+        const cover = source?.find((cover) => cover.label === size);
+        return cover?.url ?? "https://images.spikerko.org/SongPlaceholderFull.png";
+      }
+    }
+    return "https://images.spikerko.org/SongPlaceholderFull.png";
+  },
+  GetName: (): string | undefined => {
+    return Spicetify?.Player?.data?.item?.name;
+  },
+  GetAlbumName: (): string | undefined => {
+    return Spicetify?.Player?.data?.item?.metadata?.album_title;
+  },
+  GetId: (): string | undefined => {
+    return Spicetify?.Player?.data?.item?.uri?.split(":")[2];
+  },
+  GetArtists: (): Artist[] | undefined => {
+    return Spicetify?.Player?.data?.item?.artists as Artist[];
+  },
+  GetUri: (): string | undefined => {
+    return Spicetify?.Player?.data?.item?.uri ?? Spicetify.Player.data?.track?.uri;
+  },
+  Pause: Spicetify?.Player?.pause,
+  Play: Spicetify?.Player?.play,
+  TogglePlayState: Spicetify?.Player?.togglePlay,
+  Skip: {
+    Next: Spicetify?.Player?.next,
+    Prev: Spicetify?.Player?.back,
+  },
+  LoopType: "none",
+  ShuffleType: "none",
+  IsDJ: (): boolean => {
+    return (
+      Spicetify.Player.data?.item?.provider?.startsWith("narration") ||
+      (Spicetify.Player.data?.restrictions?.disallowSeekingReasons?.length > 0 &&
+        Spicetify.Player.data?.restrictions?.disallowSeekingReasons[0].includes("narration")) ||
+      Spicetify.Player.data?.item?.type === "unknown"
+    );
+  },
+  IsLiked: () => Spicetify?.Player?.getHeart(),
+  ToggleLike: () => Spicetify?.Player?.toggleHeart(),
 };

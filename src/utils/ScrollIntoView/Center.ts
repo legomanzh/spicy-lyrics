@@ -1,11 +1,14 @@
-const containerRects = new WeakMap<HTMLElement, { container: DOMRect; elements: Map<HTMLElement, DOMRect> }>();
+const containerRects = new WeakMap<
+  HTMLElement,
+  { container: DOMRect; elements: Map<HTMLElement, DOMRect> }
+>();
 
 export default function ScrollIntoCenterView(
   container: HTMLElement,
   element: HTMLElement,
   duration: number = 800, // Increased duration for smoother scrolling
   offset: number = 0, // Offset in pixels, defaults to 0
-  instantScroll: boolean = false, // Instant scroll without animation
+  instantScroll: boolean = false // Instant scroll without animation
 ) {
   function resetContainerData(container: HTMLElement) {
     containerRects.delete(container);
@@ -47,7 +50,9 @@ export default function ScrollIntoCenterView(
 
   // Calculate the target scroll position with the offset
   const targetScrollTop =
-    elementRect.top - containerRect.top + container.scrollTop -
+    elementRect.top -
+    containerRect.top +
+    container.scrollTop -
     (container.clientHeight / 2 - element.clientHeight / 2) -
     offset; // Apply the offset
 
@@ -68,7 +73,7 @@ export default function ScrollIntoCenterView(
     let easing: number;
     if (progress < 0.4) {
       // Slow start (ease-in)
-      easing = 2.5 * Math.pow(progress, 2);
+      easing = 2.5 * progress ** 2;
     } else if (progress < 0.65) {
       // Speed up in the middle
       easing = 0.7 + (progress - 0.4) * 1.2;
@@ -122,7 +127,9 @@ export function ScrollIntoCenterViewCSS(
   const containerRect = container.getBoundingClientRect();
 
   const targetScrollTop =
-    elementRect.top - containerRect.top + container.scrollTop -
+    elementRect.top -
+    containerRect.top +
+    container.scrollTop -
     (container.clientHeight / 2 - element.clientHeight / 2) -
     offset;
 
