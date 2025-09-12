@@ -48,8 +48,9 @@ import { ScrollSimplebar } from "./utils/Scrolling/Simplebar/ScrollSimplebar.ts"
 import Sockets from "./utils/Sockets/main.ts";
 import { setSettingsMenu } from "./utils/settings.ts";
 import storage from "./utils/storage.ts";
-import { CheckForUpdates } from "./utils/version/CheckForUpdates.ts";
+import { CheckForUpdates } from "./utils/version/CheckForUpdates.tsx";
 import "./css/polyfills/tippy-polyfill.css";
+import UpdateDialog from "./components/UpdateDialog.tsx";
 
 async function main() {
   await Platform.OnSpotifyReady;
@@ -534,19 +535,11 @@ async function main() {
     const previousVersion = storage.get("previous-version");
     if (previousVersion && previousVersion !== Defaults.SpicyLyricsVersion) {
       Spicetify.PopupModal.display({
-        title: "Updated - Spicy Lyrics",
-        content: `
-<div style="font-size: 1.5rem; text-align: center;">
-  <span style="font-weight: 400;">Your Spicy Lyrics version has been successfully updated!</span>
-  <span style="font-weight: 600;">Version: From: ${previousVersion} -> To: ${Defaults.SpicyLyricsVersion}</span>
-  <p style="text-align: center;">
-    What's new: <a href="https://github.com/Spikerko/spicy-lyrics/releases/tag/${Defaults.SpicyLyricsVersion}" target="_blank" style="text-decoration: underline;">Open on Github -></a>
-  </p>
-  <p style="font-size: 1.825rem; font-weight: bold; text-align: center;">
-    Check out our Discord Server!
-    <a href="https://discord.com/invite/uqgXU5wh8j" target="_blank" style="font-size: 2.225rem; text-decoration: underline; color: #7a86ff;">Join the Discord Server -></a>
-  </p>
-</div>`,
+        title: "Spicy Lyrics Updated !",
+        content: Spicetify.React.createElement(UpdateDialog, {
+          previousVersion,
+          spicyLyricsVersion: Defaults.SpicyLyricsVersion,
+        }),
         isLarge: true,
       });
     }
