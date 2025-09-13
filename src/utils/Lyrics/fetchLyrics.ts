@@ -10,6 +10,7 @@ import { SendJob } from "../API/SendJob.ts";
 import { SetWaitingForHeight } from "../Scrolling/ScrollToActiveLine.ts";
 import storage from "../storage.ts";
 import { ProcessLyrics } from "./ProcessLyrics.ts";
+import { getLrclibLyrics } from "../../providers/lrclib";
 
 export const LyricsStore = GetExpireStore<any>("SpicyLyrics_LyricsStore", 10, {
   Unit: "Days",
@@ -180,19 +181,43 @@ export default async function fetchLyrics(uri: string) {
     lyricsText = JSON.stringify(lyricsJob.responseData);
 
     if (status !== 200) {
-      if (status === 500) return await noLyricsMessage(false, true);
-      if (status === 401) {
-        storage.set("currentlyFetching", "false");
-        //fetchLyrics(uri);
-        //window.location.reload();
-        return await noLyricsMessage(false, false);
-      }
+  // Try LRCLIB as a fallback before giving up
+  const lrclibLyrics = await getLrclibLyrics({
+    artist: Spicetify.Player.data?.item?.artists?.[0]?.name,
+    track: Spicetify.Player.data?.item?.name,
+    durationMs: Spicetify.Player.getDuration(),
+    id: trackId,
+  });
 
-      if (status === 404) {
-        return await noLyricsMessage(false, true);
+  if (lrclibLyrics) {
+    IsSpicyRenderer ? await ProcessLyrics(lrclibLyrics) : null;
+    storage.set("currentLyricsData", JSON.stringify(lrclibLyrics));
+    storage.set("currentlyFetching", "false");
+    HideLoaderContainer();
+
+    if (LyricsStore) {
+      try {
+        await LyricsStore.SetItem(trackId, lrclibLyrics);
+      } catch (error) {
+        console.error("Error saving lyrics to cache:", error);
       }
-      return await noLyricsMessage(false, true);
     }
+
+    Defaults.CurrentLyricsType = lrclibLyrics.Type ?? "Static";
+    document
+      .querySelector<HTMLElement>("#SpicyLyricsPage .ContentBox")
+      ?.classList.remove("LyricsHidden");
+    document
+      .querySelector("#SpicyLyricsPage .ContentBox .LyricsContainer")
+      ?.classList.remove("Hidden");
+    PageView.AppendViewControls(true);
+    return { ...lrclibLyrics, fromCache: false };
+  }
+
+  // No LRCLIB result either → fall back to no lyrics
+  return await noLyricsMessage(false, true);
+}
+
 
     if (lyricsText === null) return await noLyricsMessage(false, false);
     if (lyricsText === "") return await noLyricsMessage(false, true);
